@@ -17,14 +17,9 @@ import java.util.regex.Pattern;
  * <li>path 路径，可使用正则表达式，必填项</li>
  * <li>method 方法 GET POST PUT DELETE，必填项</li>
  * <li>scope 表示权限范围，默认为default</li>
- * <li>auth 表示采用的权限校验策略，默认为none，支持jwt、oauth等，可以同时支持多种校验规则</li>
  * <li>url_arg 查询参数，参考查询参数的定义</li>
  * <li>body_arg body参数，参考body参数的定义</li>
  * <li>description 描述</li>
- * <li>content-type 目前仅支持 application/json</li>
- * <li>rate_limit 限流策略，可以接受多个限流策略，参考限流策略</li>
- * <li>ip_restriction IP限制策略，参考IP限制</li>
- * <li>acl 角色权限控制，参考ACL限制</li>
  * <li>failture_policy 远程调用遇到错误之后对处理策略，默认值fail：直接返回错误信息，如果有多个错误信息，会按照endpont的定义顺序取出第一条信息，origin：与远程调用对返回值保持一致，custom：自定义对错误信息</li>
  * <li>custom_error:如果failture_policy=custom，该值为必填项，必须满足{code:xxx,message:xxx}的格式</li>
  * <li>endpoints 远程服务对定义，JSON数组，参考Endpoint的定义</li>
@@ -85,7 +80,7 @@ public class ApiDefinition {
      */
     private final List<Endpoint> endpoints;
 
-    private ApiDefinition(String name, HttpMethod method, String path, String scope,  List<Parameter> urlArgs, List<Parameter> bodyArgs, List<Endpoint> endpoints) {
+    private ApiDefinition(String name, HttpMethod method, String path, String scope, List<Parameter> urlArgs, List<Parameter> bodyArgs, List<Endpoint> endpoints) {
         Preconditions.checkNotNull(name, "name can not be null");
         Preconditions.checkNotNull(method, "method can not be null");
         Preconditions.checkNotNull(path, "path can not be null");
