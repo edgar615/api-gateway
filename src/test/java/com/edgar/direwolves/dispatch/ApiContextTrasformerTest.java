@@ -50,10 +50,11 @@ public class ApiContextTrasformerTest {
                     assertPutNoParam(context, rc, apiContext);
                     assertPutTwoParam(context, rc, apiContext);
                     assertPutToken(context, rc, apiContext);
+                    assertPostInvaidJson(context, rc, apiContext);
                     rc.response().setChunked(true)
                             .end(new JsonObject()
                                     .put("foo", "bar").encode());
-                });
+                }).failureHandler(FailureHandler.create());
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
@@ -165,6 +166,18 @@ public class ApiContextTrasformerTest {
             });
         }).putHeader("Authorization", "Bearer " + "token")
                 .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    @Test
+    public void testPostInvaidJson(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().post(port, host, "/post_invalid_json?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).putHeader("Authorization", "Bearer " + "token")
+                .setChunked(true).end("username=edgar");
     }
 
     @Test
@@ -297,6 +310,18 @@ public class ApiContextTrasformerTest {
             context.assertEquals("token", apiContext.getToken());
             context.assertEquals("edgar", apiContext.getBody().getString("username"));
             context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+        }
+    }
+
+    private void assertPostInvaidJson(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/post_invalid_json")) {
+            context.assertEquals("/post_invalid_json", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertEquals("token", apiContext.getToken());
+            context.assertEquals("1024", apiContext.getBody().getString("code"));
+            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+            context.assertFalse(apiContext.getBody().containsKey("username"));
         }
     }
 

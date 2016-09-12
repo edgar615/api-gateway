@@ -114,7 +114,7 @@ public class ApiDefinition {
         this.pattern = Pattern.compile(path);
     }
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -163,7 +163,7 @@ public class ApiDefinition {
                 .toString();
     }
 
-    static class Builder {
+    public static class Builder {
         /**
          * 服务名
          */

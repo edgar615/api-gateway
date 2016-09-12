@@ -42,14 +42,14 @@ public class ApiDefinitionRegistry {
      *
      * @param apiDefinition 路由映射.
      */
-    void add(ApiDefinition apiDefinition) {
+    public void add(ApiDefinition apiDefinition) {
         Preconditions.checkNotNull(apiDefinition, "apiDefinition is null");
         remove(apiDefinition.getName());
         this.definitions.add(apiDefinition);
         LOGGER.debug("add ApiDefinition {}", apiDefinition);
     }
 
-    void remove(String name) {
+    public void remove(String name) {
         List<ApiDefinition> apiDefinitions = filter(name);
         if (apiDefinitions != null && !apiDefinitions.isEmpty()) {
             this.definitions.removeAll(apiDefinitions);
@@ -64,7 +64,7 @@ public class ApiDefinitionRegistry {
      * @param name API名称
      * @return ApiDefinition的集合
      */
-    List<ApiDefinition> filter(String name) {
+    public List<ApiDefinition> filter(String name) {
         Predicate<ApiDefinition> predicate = definition -> true;
         if (!Strings.isNullOrEmpty(name)) {
             predicate = predicate.and(definition -> name.equalsIgnoreCase(definition.getName()));

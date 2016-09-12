@@ -89,7 +89,7 @@ public class HttpEndpoint implements Endpoint {
         this.isArray = isArray;
     }
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -144,7 +144,7 @@ public class HttpEndpoint implements Endpoint {
                 .toString();
     }
 
-    static class Builder {
+    public static class Builder {
         /**
          * 服务名
          */

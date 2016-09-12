@@ -5,6 +5,7 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Strings;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.DecodeException;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.function.Function;
@@ -31,6 +32,7 @@ public class ApiContextTransformer implements Function<RoutingContext, ApiContex
         ApiContext.Builder builder = ApiContext.builder();
         builder.setPath(rc.normalisedPath())
                 .setMethod(rc.request().method());
+        //token
         String authorization = rc.request().getHeader("Authorization");
         if (!Strings.isNullOrEmpty(authorization)) {
             if (authorization.startsWith("Bearer ")) {
@@ -43,7 +45,11 @@ public class ApiContextTransformer implements Function<RoutingContext, ApiContex
         builder.setHeaders(MultiMapToMultimap.instance().apply(rc.request().headers()));
         builder.setParams(MultiMapToMultimap.instance().apply(rc.request().params()));
         if (rc.request().method() == HttpMethod.POST || rc.request().method() == HttpMethod.PUT) {
-            builder.setBody(rc.getBodyAsJson());
+            try {
+                builder.setBody(rc.getBodyAsJson());
+            } catch (DecodeException e) {
+                throw SystemException.create(DefaultErrorCode.INVALID_JSON);
+            }
         }
         return builder.build();
     }
