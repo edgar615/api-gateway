@@ -1,0 +1,335 @@
+package com.edgar.direwolves.dispatch;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+/**
+ * Created by Edgar on 2016/9/12.
+ *
+ * @author Edgar  Date 2016/9/12
+ */
+@RunWith(VertxUnitRunner.class)
+public class ApiContextTrasformerTest {
+
+    protected Vertx vertx;
+
+    protected int port = 8080;
+
+    protected String host = "localhost";
+
+    @Before
+    public void setUp(TestContext context) {
+        vertx = Vertx.vertx();
+        Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
+
+        router.route()
+                .handler(rc -> {
+                    ApiContext apiContext = ApiContextTransformer.instance().apply(rc);
+                    context.assertNotNull(apiContext);
+                    assertGetNoParam(context, rc, apiContext);
+                    assertGetTwoParam(context, rc, apiContext);
+                    assertGetToken(context, rc, apiContext);
+                    assertDeleteNoParam(context, rc, apiContext);
+                    assertDeleteTwoParam(context, rc, apiContext);
+                    assertDeleteToken(context, rc, apiContext);
+                    assertPostNoParam(context, rc, apiContext);
+                    assertPostTwoParam(context, rc, apiContext);
+                    assertPostToken(context, rc, apiContext);
+                    assertPutNoParam(context, rc, apiContext);
+                    assertPutTwoParam(context, rc, apiContext);
+                    assertPutToken(context, rc, apiContext);
+                    rc.response().setChunked(true)
+                            .end(new JsonObject()
+                                    .put("foo", "bar").encode());
+                });
+
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(8080, context.asyncAssertSuccess());
+    }
+
+    @After
+    public void after(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
+    }
+
+    @Test
+    public void testGetNoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().get(port, host, "/get_no_param", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).end();
+    }
+
+    @Test
+    public void testGetTwoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().get(port, host, "/get_two_param?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).end();
+    }
+
+    @Test
+    public void testGetWithToken(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().get(port, host, "/get_token?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).putHeader("Authorization", "Bearer " + "token")
+                .end();
+    }
+
+    @Test
+    public void testDeleteNoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().delete(port, host, "/delete_no_param", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).end();
+    }
+
+    @Test
+    public void testDeleteTwoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().delete(port, host, "/delete_two_param?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).end();
+    }
+
+    @Test
+    public void testDeleteWithToken(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().delete(port, host, "/delete_token?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).putHeader("Authorization", "Bearer " + "token")
+                .end();
+    }
+
+    @Test
+    public void testPostNoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().post(port, host, "/post_no_param", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    @Test
+    public void testPostTwoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().post(port, host, "/post_two_param?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    @Test
+    public void testPostWithToken(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().post(port, host, "/post_token?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).putHeader("Authorization", "Bearer " + "token")
+                .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    @Test
+    public void testPutNoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().put(port, host, "/put_no_param", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    @Test
+    public void testPutTwoParam(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().put(port, host, "/put_two_param?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    @Test
+    public void testPutWithToken(TestContext testContext) {
+        Async async = testContext.async();
+        vertx.createHttpClient().put(port, host, "/put_token?limit=10&start=1", response -> {
+            response.bodyHandler(body -> {
+                System.out.println(body);
+                async.complete();
+            });
+        }).putHeader("Authorization", "Bearer " + "token")
+                .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+    }
+
+    private void assertGetNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/get_no_param")) {
+            context.assertEquals("/get_no_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(0, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertNull(apiContext.getBody());
+            context.assertEquals(HttpMethod.GET, apiContext.getMethod());
+        }
+    }
+
+    private void assertGetTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/get_two_param")) {
+            context.assertEquals("/get_two_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertNull(apiContext.getBody());
+            context.assertEquals(HttpMethod.GET, apiContext.getMethod());
+        }
+    }
+
+    private void assertGetToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/get_token")) {
+            context.assertEquals("/get_token", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertEquals("token", apiContext.getToken());
+            context.assertNull(apiContext.getBody());
+            context.assertEquals(HttpMethod.GET, apiContext.getMethod());
+        }
+    }
+
+    private void assertDeleteNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/delete_no_param")) {
+            context.assertEquals("/delete_no_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(0, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertNull(apiContext.getBody());
+            context.assertEquals(HttpMethod.DELETE, apiContext.getMethod());
+        }
+    }
+
+    private void assertDeleteTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/delete_two_param")) {
+            context.assertEquals("/delete_two_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertNull(apiContext.getBody());
+            context.assertEquals(HttpMethod.DELETE, apiContext.getMethod());
+        }
+    }
+
+    private void assertDeleteToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/delete_token")) {
+            context.assertEquals("/delete_token", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertEquals("token", apiContext.getToken());
+            context.assertNull(apiContext.getBody());
+            context.assertEquals(HttpMethod.DELETE, apiContext.getMethod());
+        }
+    }
+
+    private void assertPostNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/post_no_param")) {
+            context.assertEquals("/post_no_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(0, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertEquals("edgar", apiContext.getBody().getString("username"));
+            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+        }
+    }
+
+    private void assertPostTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/post_two_param")) {
+            context.assertEquals("/post_two_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertEquals("edgar", apiContext.getBody().getString("username"));
+            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+        }
+    }
+
+    private void assertPostToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/post_token")) {
+            context.assertEquals("/post_token", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertEquals("token", apiContext.getToken());
+            context.assertEquals("edgar", apiContext.getBody().getString("username"));
+            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+        }
+    }
+
+    private void assertPutNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/put_no_param")) {
+            context.assertEquals("/put_no_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(0, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertEquals("edgar", apiContext.getBody().getString("username"));
+            context.assertEquals(HttpMethod.PUT, apiContext.getMethod());
+        }
+    }
+
+    private void assertPutTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/put_two_param")) {
+            context.assertEquals("/put_two_param", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertNull(apiContext.getToken());
+            context.assertEquals("edgar", apiContext.getBody().getString("username"));
+            context.assertEquals(HttpMethod.PUT, apiContext.getMethod());
+        }
+    }
+
+    private void assertPutToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
+        if (rc.normalisedPath().equalsIgnoreCase("/put_token")) {
+            context.assertEquals("/put_token", apiContext.getPath());
+            context.assertNotNull(apiContext.getHeaders());
+            context.assertEquals(2, apiContext.getParams().keySet().size());
+            context.assertEquals("token", apiContext.getToken());
+            context.assertEquals("edgar", apiContext.getBody().getString("username"));
+            context.assertEquals(HttpMethod.PUT, apiContext.getMethod());
+        }
+    }
+}
