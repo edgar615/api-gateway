@@ -21,6 +21,7 @@
         <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
         
         <junit.version>4.12</junit.version>
+        <awaitility.version>2.0.0</awaitility.version>
         <mockito.version>1.9.5</mockito.version>
         <vertx.version>3.3.2</vertx.version>
         <slf4j.version>1.7.7</slf4j.version>
@@ -35,6 +36,12 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

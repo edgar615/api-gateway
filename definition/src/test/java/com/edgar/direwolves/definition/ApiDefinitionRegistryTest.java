@@ -34,7 +34,7 @@ public class ApiDefinitionRegistryTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -43,7 +43,7 @@ public class ApiDefinitionRegistryTest {
         registry.add(apiDefinition);
         Assert.assertEquals(1, registry.getDefinitions().size());
 
-        apiDefinition = ApiDefinition.builder().setName("get_device2")
+        apiDefinition = ApiDefinitionImpl.builder().setName("get_device2")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -61,7 +61,7 @@ public class ApiDefinitionRegistryTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -80,7 +80,7 @@ public class ApiDefinitionRegistryTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -89,7 +89,7 @@ public class ApiDefinitionRegistryTest {
         registry.add(apiDefinition);
         Assert.assertEquals(1, registry.getDefinitions().size());
 
-        apiDefinition = ApiDefinition.builder().setName("get_device2")
+        apiDefinition = ApiDefinitionImpl.builder().setName("get_device2")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -101,7 +101,7 @@ public class ApiDefinitionRegistryTest {
         List<ApiDefinition> definitions = registry.filter("get_device");
         Assert.assertNotNull(apiDefinition);
         Assert.assertEquals(1, definitions.size());
-        Assert.assertEquals("get_device", definitions.get(0).getName());
+        Assert.assertEquals("get_device", definitions.get(0).name());
 
         definitions = registry.filter("get_device3");
         Assert.assertNotNull(apiDefinition);

@@ -11,10 +11,19 @@
 
     <artifactId>definition</artifactId>
 
+    <properties>
+        <main.verticle>com.edgar.direwolves.definition.ApiDefinitionVerticle</main.verticle>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

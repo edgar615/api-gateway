@@ -1,0 +1,62 @@
+{
+  "name" : "add_device",
+  "method": "POST",
+  "path": "/devices",
+  "scope" : "device:write",
+  "url_args" : [
+    {
+      "name" : "limit",
+      "defaut_value" : 10,
+      "rules" : {
+        "integer":true,
+        "max":100,
+        "min":1
+      }
+    },
+    {
+      "name" : "start",
+      "defaut_value" : 0,
+      "rules" : {
+        "integer":true
+      }
+    }
+  ],
+  "body_args" : [
+    {
+      "name" : "encryptKey",
+      "rules" : {
+        "required" : true,
+        "regex" : "[0-9A-F]{16}"
+      }
+    },
+    {
+      "name" : "type",
+      "defaut_value" : 1,
+      "rules" : {
+        "required" : true,
+        "optional" : [1, 2, 3]
+      }
+    },
+    {
+      "name" : "barcode",
+      "rules" : {
+        "required" : true,
+        "regex" : "[0-9a-zA-Z]{16}"
+      }
+    },
+    {
+      "name": "deviceCode",
+      "rules": {
+        "prohibited": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "name" : "add_device",
+      "service": "device",
+      "method": "POST",
+      "path": "/devices"
+    }
+  ]
+}

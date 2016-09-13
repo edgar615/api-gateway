@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -18,14 +21,21 @@ import java.util.stream.Collectors;
 public class ApiDefinitionRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionRegistry.class);
-
     private static final ApiDefinitionRegistry INSTANCE = new ApiDefinitionRegistry();
-
     private final List<ApiDefinition> definitions = new ArrayList<>();
+    private final Lock rl;
+    private final Lock wl;
+
+    private ApiDefinitionRegistry() {
+        ReadWriteLock lock = new ReentrantReadWriteLock();
+        this.rl = lock.readLock();
+        this.wl = lock.writeLock();
+    }
 
     public static ApiDefinitionRegistry instance() {
         return INSTANCE;
     }
+
 
     /**
      * 获取路由映射的列表.
@@ -33,7 +43,12 @@ public class ApiDefinitionRegistry {
      * @return ApiMapping的不可变集合.
      */
     public Set<ApiDefinition> getDefinitions() {
-        return ImmutableSet.copyOf(definitions);
+        try {
+            rl.lock();
+            return ImmutableSet.copyOf(definitions);
+        } finally {
+            rl.unlock();
+        }
     }
 
     /**
@@ -44,15 +59,25 @@ public class ApiDefinitionRegistry {
      */
     public void add(ApiDefinition apiDefinition) {
         Preconditions.checkNotNull(apiDefinition, "apiDefinition is null");
-        remove(apiDefinition.getName());
-        this.definitions.add(apiDefinition);
+        try {
+            wl.lock();
+            remove(apiDefinition.name());
+            this.definitions.add(apiDefinition);
+        } finally {
+            wl.unlock();
+        }
         LOGGER.debug("add ApiDefinition {}", apiDefinition);
     }
 
     public void remove(String name) {
         List<ApiDefinition> apiDefinitions = filter(name);
         if (apiDefinitions != null && !apiDefinitions.isEmpty()) {
-            this.definitions.removeAll(apiDefinitions);
+            try {
+                wl.lock();
+                this.definitions.removeAll(apiDefinitions);
+            } finally {
+                wl.unlock();
+            }
             LOGGER.debug("remove ApiDefinition {}", apiDefinitions);
         }
     }
@@ -67,8 +92,13 @@ public class ApiDefinitionRegistry {
     public List<ApiDefinition> filter(String name) {
         Predicate<ApiDefinition> predicate = definition -> true;
         if (!Strings.isNullOrEmpty(name)) {
-            predicate = predicate.and(definition -> name.equalsIgnoreCase(definition.getName()));
+            predicate = predicate.and(definition -> name.equalsIgnoreCase(definition.name()));
         }
-        return this.definitions.stream().filter(predicate).collect(Collectors.toList());
+        try {
+            rl.lock();
+            return this.definitions.stream().filter(predicate).collect(Collectors.toList());
+        } finally {
+            rl.unlock();
+        }
     }
 }

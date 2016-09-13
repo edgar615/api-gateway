@@ -5,9 +5,6 @@ import io.vertx.core.http.HttpMethod;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Edgar on 2016/9/8.
  *
@@ -24,19 +21,19 @@ public class ApiDefinitionTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
                 .build();
-        Assert.assertEquals("/devices", apiDefinition.getPath());
-        Assert.assertEquals("default", apiDefinition.getScope());
+        Assert.assertEquals("/devices", apiDefinition.path());
+        Assert.assertEquals("default", apiDefinition.scope());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEndpointsShouldNotEmpty() {
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList())
@@ -51,7 +48,7 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .setArray(true).build();
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -62,7 +59,7 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .build();
-        apiDefinition.getEndpoints().add(httpEndpoint);
+        apiDefinition.endpoints().add(httpEndpoint);
 
         Assert.fail();
     }
@@ -74,14 +71,14 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .setArray(true).build();
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
                 .setUrlArgs(Lists.newArrayList(new Parameter("username", null)))
                 .build();
 
-        apiDefinition.getUrlArgs().add(new Parameter("password", null));
+        apiDefinition.urlArgs().add(new Parameter("password", null));
         Assert.fail();
     }
 
@@ -92,14 +89,14 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .setArray(true).build();
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
                 .setMethod(HttpMethod.POST)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
                 .setBodyArgs(Lists.newArrayList(new Parameter("username", null)))
                 .build();
 
-        apiDefinition.getBodyArgs().add(new Parameter("password", null));
+        apiDefinition.bodyArgs().add(new Parameter("password", null));
         Assert.fail();
     }
 }
