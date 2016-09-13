@@ -14,12 +14,15 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Created by Edgar on 2016/9/13.
+ * 将JsonObject转换为ApiDefinition.
  *
  * @author Edgar  Date 2016/9/13
  */
 public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> {
     private static final JsonToApiDefinition INSTANCE = new JsonToApiDefinition();
+
+    private JsonToApiDefinition() {
+    }
 
     public static Function<JsonObject, ApiDefinition> instance() {
         return INSTANCE;
@@ -30,7 +33,7 @@ public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> 
         Preconditions.checkArgument(jsonObject.containsKey("name"), "api name cannot be null");
         Preconditions.checkArgument(jsonObject.containsKey("path"), "api path cannot be null");
         Preconditions.checkArgument(jsonObject.containsKey("endpoints"), "api endpoints cannot be null");
-        ApiDefinitionImpl.Builder builder = ApiDefinitionImpl.builder();
+        ApiDefinitionBuilder builder = ApiDefinition.builder();
         builder.setName(jsonObject.getString("name"));
         builder.setPath(jsonObject.getString("path"));
         builder.setScope(jsonObject.getString("scope", "default"));
@@ -86,10 +89,10 @@ public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> 
                     "true".equals(value.toString())) {
                 parameter.addRule(Rule.required());
             }
-            if ("maxLength".equals(key)) {
+            if ("max_length".equals(key)) {
                 parameter.addRule(Rule.maxLength((Integer) value));
             }
-            if ("minLength".equals(key)) {
+            if ("min_length".equals(key)) {
                 parameter.addRule(Rule.minLength((Integer) value));
             }
             if ("max".equals(key)) {

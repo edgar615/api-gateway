@@ -1,55 +1,20 @@
 package com.edgar.direwolves.definition;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
- * 路由映射关系的注册表
+ * 路由映射关系的注册表.
+ * Created by edgar on 16-9-13.
  */
-public class ApiDefinitionRegistry {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionRegistry.class);
-    private static final ApiDefinitionRegistry INSTANCE = new ApiDefinitionRegistry();
-    private final List<ApiDefinition> definitions = new ArrayList<>();
-    private final Lock rl;
-    private final Lock wl;
-
-    private ApiDefinitionRegistry() {
-        ReadWriteLock lock = new ReentrantReadWriteLock();
-        this.rl = lock.readLock();
-        this.wl = lock.writeLock();
-    }
-
-    public static ApiDefinitionRegistry instance() {
-        return INSTANCE;
-    }
-
+public interface ApiDefinitionRegistry {
 
     /**
      * 获取路由映射的列表.
      *
      * @return ApiMapping的不可变集合.
      */
-    public Set<ApiDefinition> getDefinitions() {
-        try {
-            rl.lock();
-            return ImmutableSet.copyOf(definitions);
-        } finally {
-            rl.unlock();
-        }
-    }
+    Set<ApiDefinition> getDefinitions();
 
     /**
      * 向注册表中添加一个路由映射.
@@ -57,48 +22,32 @@ public class ApiDefinitionRegistry {
      *
      * @param apiDefinition 路由映射.
      */
-    public void add(ApiDefinition apiDefinition) {
-        Preconditions.checkNotNull(apiDefinition, "apiDefinition is null");
-        try {
-            wl.lock();
-            remove(apiDefinition.name());
-            this.definitions.add(apiDefinition);
-        } finally {
-            wl.unlock();
-        }
-        LOGGER.debug("add ApiDefinition {}", apiDefinition);
-    }
+    void add(ApiDefinition apiDefinition);
 
-    public void remove(String name) {
-        List<ApiDefinition> apiDefinitions = filter(name);
-        if (apiDefinitions != null && !apiDefinitions.isEmpty()) {
-            try {
-                wl.lock();
-                this.definitions.removeAll(apiDefinitions);
-            } finally {
-                wl.unlock();
-            }
-            LOGGER.debug("remove ApiDefinition {}", apiDefinitions);
-        }
-    }
+    /**
+     * 根据name删除符合的路由映射.
+     * 如果name=null，会查找所有的权限映射.
+     * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
+     * *user会查询所有以user结尾对name,如add_user.
+     * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
+     *
+     * @param name API名称
+     */
+    void remove(String name);
 
     /**
      * 根据name查找所有的路由映射.
      * 如果name=null，会查找所有的权限映射.
+     * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
+     * *user会查询所有以user结尾对name,如add_user.
+     * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
      *
      * @param name API名称
      * @return ApiDefinition的集合
      */
-    public List<ApiDefinition> filter(String name) {
-        Predicate<ApiDefinition> predicate = definition -> true;
-        if (!Strings.isNullOrEmpty(name)) {
-            predicate = predicate.and(definition -> name.equalsIgnoreCase(definition.name()));
-        }
-        try {
-            rl.lock();
-            return this.definitions.stream().filter(predicate).collect(Collectors.toList());
-        } finally {
-            rl.unlock();
-        }
+    List<ApiDefinition> filter(String name);
+
+    static ApiDefinitionRegistry create() {
+        return ApiDefinitionRegistryImpl.instance();
     }
 }

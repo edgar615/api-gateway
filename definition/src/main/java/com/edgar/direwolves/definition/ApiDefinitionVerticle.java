@@ -2,7 +2,6 @@ package com.edgar.direwolves.definition;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -27,6 +26,8 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
     public static final String API_GET = "api.get";
 
+    public static final String API_DELETE = "api.delete";
+
     public final JsonObject RESULT_OK = new JsonObject().put("result", "OK");
 
     @Override
@@ -36,7 +37,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             try {
                 JsonObject jsonObject = msg.body();
                 ApiDefinition apiDefinition = JsonToApiDefinition.instance().apply(jsonObject);
-                ApiDefinitionRegistry.instance().add(apiDefinition);
+                ApiDefinitionRegistryImpl.instance().add(apiDefinition);
                 msg.reply(RESULT_OK);
             } catch (Exception e) {
                 msg.fail(-1, e.getMessage());
@@ -49,7 +50,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
                 Integer start = jsonObject.getInteger("start", 0);
                 Integer limit = jsonObject.getInteger("limit", 10);
                 JsonArray apiArray = new JsonArray();
-                List<ApiDefinition> definitions = ApiDefinitionRegistry.instance().filter(null);
+                List<ApiDefinition> definitions = ApiDefinitionRegistryImpl.instance().filter(null);
                 if (start <= definitions.size()) {
                     limit = limit < definitions.size() - start ? limit : definitions.size() - start;
                 }
@@ -71,12 +72,23 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             try {
                 JsonObject jsonObject = msg.body();
                 String name = jsonObject.getString("name");
-                List<ApiDefinition> definitions = ApiDefinitionRegistry.instance().filter(name);
+                List<ApiDefinition> definitions = ApiDefinitionRegistryImpl.instance().filter(name);
                 if (definitions.isEmpty()) {
                     msg.fail(404, "no result");
                 } else {
-                    msg.reply(Json.encode(definitions.get(0)));
+                    msg.reply(ApiDefinitionToJson.instance().apply(definitions.get(0)));
                 }
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_DELETE, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                ApiDefinitionRegistryImpl.instance().remove(name);
+                msg.reply(RESULT_OK);
             } catch (Exception e) {
                 msg.fail(-1, e.getMessage());
             }

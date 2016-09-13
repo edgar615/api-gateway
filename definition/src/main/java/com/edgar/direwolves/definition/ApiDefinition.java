@@ -56,4 +56,8 @@ public interface ApiDefinition {
      * @return 远程请求定义
      */
     List<Endpoint> endpoints();
+
+    static ApiDefinitionBuilder builder() {
+        return new ApiDefinitionBuilder();
+    }
 }

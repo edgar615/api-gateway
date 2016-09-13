@@ -19,7 +19,7 @@ public class ApiDefinitionRegistryTest {
     ApiDefinitionRegistry registry;
     @Before
     public void setUp() {
-        registry = ApiDefinitionRegistry.instance();
+        registry = ApiDefinitionRegistryImpl.instance();
     }
 
     @After
@@ -34,7 +34,7 @@ public class ApiDefinitionRegistryTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -43,7 +43,7 @@ public class ApiDefinitionRegistryTest {
         registry.add(apiDefinition);
         Assert.assertEquals(1, registry.getDefinitions().size());
 
-        apiDefinition = ApiDefinitionImpl.builder().setName("get_device2")
+        apiDefinition = ApiDefinition.builder().setName("get_device2")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -61,7 +61,7 @@ public class ApiDefinitionRegistryTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -80,7 +80,7 @@ public class ApiDefinitionRegistryTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -89,7 +89,7 @@ public class ApiDefinitionRegistryTest {
         registry.add(apiDefinition);
         Assert.assertEquals(1, registry.getDefinitions().size());
 
-        apiDefinition = ApiDefinitionImpl.builder().setName("get_device2")
+        apiDefinition = ApiDefinition.builder().setName("get_device2")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -106,5 +106,26 @@ public class ApiDefinitionRegistryTest {
         definitions = registry.filter("get_device3");
         Assert.assertNotNull(apiDefinition);
         Assert.assertEquals(0, definitions.size());
+
+        definitions = registry.filter("get*");
+        Assert.assertNotNull(apiDefinition);
+        Assert.assertEquals(2, definitions.size());
+
+        definitions = registry.filter("*device*");
+        Assert.assertNotNull(apiDefinition);
+        Assert.assertEquals(1, definitions.size());
+
+        definitions = registry.filter("**");
+        Assert.assertNotNull(apiDefinition);
+        Assert.assertEquals(2, definitions.size());
+
+        definitions = registry.filter("*");
+        Assert.assertNotNull(apiDefinition);
+        Assert.assertEquals(2, definitions.size());
+
+        definitions = registry.filter("***");
+        Assert.assertNotNull(apiDefinition);
+        Assert.assertEquals(0, definitions.size());
     }
+
 }

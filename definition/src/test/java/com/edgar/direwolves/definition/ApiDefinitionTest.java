@@ -21,7 +21,7 @@ public class ApiDefinitionTest {
                 .setService("device")
                 .setArray(true).build();
 
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -33,7 +33,7 @@ public class ApiDefinitionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEndpointsShouldNotEmpty() {
 
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList())
@@ -48,7 +48,7 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .setArray(true).build();
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -71,7 +71,7 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .setArray(true).build();
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.GET)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))
@@ -89,7 +89,7 @@ public class ApiDefinitionTest {
                 .setPath("devices/")
                 .setService("device")
                 .setArray(true).build();
-        ApiDefinition apiDefinition = ApiDefinitionImpl.builder().setName("get_device")
+        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
                 .setMethod(HttpMethod.POST)
                 .setPath("devices/")
                 .setEndpoints(Lists.newArrayList(httpEndpoint))

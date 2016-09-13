@@ -29,8 +29,6 @@ import java.util.regex.Pattern;
  */
 class ApiDefinitionImpl implements ApiDefinition {
 
-    private static final String SCOPE = "default";
-
     /**
      * 名称，必填项，全局唯一
      */
@@ -80,7 +78,7 @@ class ApiDefinitionImpl implements ApiDefinition {
      */
     private final List<Endpoint> endpoints;
 
-    private ApiDefinitionImpl(String name, HttpMethod method, String path, String scope, List<Parameter> urlArgs, List<Parameter> bodyArgs, List<Endpoint> endpoints) {
+    ApiDefinitionImpl(String name, HttpMethod method, String path, String scope, List<Parameter> urlArgs, List<Parameter> bodyArgs, List<Endpoint> endpoints) {
         Preconditions.checkNotNull(name, "name can not be null");
         Preconditions.checkNotNull(method, "method can not be null");
         Preconditions.checkNotNull(path, "path can not be null");
@@ -112,10 +110,6 @@ class ApiDefinitionImpl implements ApiDefinition {
         }
         this.endpoints = ImmutableList.copyOf(endpoints);
         this.pattern = Pattern.compile(path);
-    }
-
-    static Builder builder() {
-        return new Builder();
     }
 
     @Override
@@ -171,85 +165,4 @@ class ApiDefinitionImpl implements ApiDefinition {
                 .toString();
     }
 
-    static class Builder {
-        /**
-         * 服务名
-         */
-        private String name;
-
-        /**
-         * 请求方法 GET | POST | DELETE | PUT
-         */
-        private HttpMethod method = HttpMethod.GET;
-
-        /**
-         * 远程rest路径
-         * 示例：/tasks
-         * 示例：/tasks/$1/abandon，$1表示当前请求上下文中的$1变量
-         */
-        private String path;
-
-        /**
-         * 权限范围，默认default;
-         */
-        private String scope = SCOPE;
-
-        /**
-         * URL参数
-         */
-        private List<Parameter> urlArgs;
-
-        /**
-         * body参数
-         */
-        private List<Parameter> bodyArgs;
-
-        /**
-         * 远程请求定义.
-         */
-        private List<Endpoint> endpoints;
-
-
-        private Builder() {
-        }
-
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder setMethod(HttpMethod method) {
-            this.method = method;
-            return this;
-        }
-
-        public Builder setPath(String path) {
-            this.path = path;
-            return this;
-        }
-
-        public Builder setScope(String scope) {
-            this.scope = scope;
-            return this;
-        }
-
-        public Builder setUrlArgs(List<Parameter> urlArgs) {
-            this.urlArgs = urlArgs;
-            return this;
-        }
-
-        public Builder setEndpoints(List<Endpoint> endpoints) {
-            this.endpoints = endpoints;
-            return this;
-        }
-
-        public Builder setBodyArgs(List<Parameter> bodyArgs) {
-            this.bodyArgs = bodyArgs;
-            return this;
-        }
-
-        public ApiDefinition build() {
-            return new ApiDefinitionImpl(name, method, path, scope, urlArgs, bodyArgs, endpoints);
-        }
-    }
 }
