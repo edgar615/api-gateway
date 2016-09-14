@@ -16,14 +16,25 @@ public class AuthDefinitionRegistryTest {
     AuthDefinitionRegistry registry;
     @Before
     public void setUp() {
-        registry = AuthDefinitionRegistry.instance();
-        registry.add(new AuthDefinition("get_device", AuthType.JWT));
-        registry.add(new AuthDefinition("get_device", AuthType.APP_KEY));
+        registry = AuthDefinitionRegistry.create();
+        registry.add(new AuthDefinitionImpl("get_device", AuthType.JWT));
+        registry.add(new AuthDefinitionImpl("get_device", AuthType.APP_KEY));
     }
 
     @After
     public void clear() {
         registry.remove(null, null);
+    }
+
+    @Test
+    public void testType() {
+        String type = "JWT";
+        System.out.println(AuthType.valueOf(type));
+        for (AuthType authType : AuthType.values()) {
+            if (type.equals(authType.getValue())) {
+                System.out.println(authType);
+            }
+        }
     }
 
     @Test
@@ -33,7 +44,7 @@ public class AuthDefinitionRegistryTest {
 
     @Test
     public void testUnique() {
-        registry.add(new AuthDefinition("get_device", AuthType.JWT));
+        registry.add(new AuthDefinitionImpl("get_device", AuthType.JWT));
         Assert.assertEquals(2, registry.getDefinitions().size());
     }
 
@@ -42,7 +53,7 @@ public class AuthDefinitionRegistryTest {
         List<AuthDefinition> definitions = registry.filter("get_device", AuthType.JWT);
         Assert.assertNotNull(definitions);
         Assert.assertEquals(1, definitions.size());
-        Assert.assertEquals(AuthType.JWT, definitions.get(0).getAuthType());
+        Assert.assertEquals(AuthType.JWT, definitions.get(0).authType());
 
         definitions = registry.filter("get_device2", AuthType.JWT);
         Assert.assertNotNull(definitions);

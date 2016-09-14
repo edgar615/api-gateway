@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 /**
  * API限流的映射关系的注册表
  */
-public class RateLimitDefinitionRegistry {
+public class RateLimitDefinitionRegistryImpl {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitDefinitionRegistry.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitDefinitionRegistryImpl.class);
 
-    private static final RateLimitDefinitionRegistry INSTANCE = new RateLimitDefinitionRegistry();
+    private static final RateLimitDefinitionRegistryImpl INSTANCE = new RateLimitDefinitionRegistryImpl();
 
     private final List<RateLimitDefinition> definitions = new ArrayList<>();
 
-    public static RateLimitDefinitionRegistry instance() {
+    public static RateLimitDefinitionRegistryImpl instance() {
         return INSTANCE;
     }
 
@@ -42,9 +42,9 @@ public class RateLimitDefinitionRegistry {
      *
      * @param definition 限流映射.
      */
-    void add(RateLimitDefinition definition) {
+    public void add(RateLimitDefinition definition) {
         Preconditions.checkNotNull(definition, "definition is null");
-        remove(definition.getApiName(), definition.getRateLimitBy(), definition.getRateLimitType());
+        remove(definition.apiName(), definition.rateLimitBy(), definition.rateLimitType());
         this.definitions.add(definition);
         LOGGER.debug("add RateLimitDefinition {}", definition);
     }
@@ -62,7 +62,7 @@ public class RateLimitDefinitionRegistry {
      * @param rateLimitBy   限流分类
      * @param rateLimitType 限流类型
      */
-    void remove(String apiName, RateLimitBy rateLimitBy, RateLimitType rateLimitType) {
+    public void remove(String apiName, RateLimitBy rateLimitBy, RateLimitType rateLimitType) {
         List<RateLimitDefinition> rateLimitDefinitions = filter(apiName, rateLimitBy, rateLimitType);
         if (rateLimitDefinitions != null && !rateLimitDefinitions.isEmpty()) {
             this.definitions.removeAll(rateLimitDefinitions);
@@ -84,16 +84,16 @@ public class RateLimitDefinitionRegistry {
      * @param rateLimitType 限流类型
      * @return RateLimitDefinition的集合
      */
-    List<RateLimitDefinition> filter(String apiName, RateLimitBy rateLimitBy, RateLimitType rateLimitType) {
+    public List<RateLimitDefinition> filter(String apiName, RateLimitBy rateLimitBy, RateLimitType rateLimitType) {
         Predicate<RateLimitDefinition> predicate = definition -> true;
         if (!Strings.isNullOrEmpty(apiName)) {
-            predicate = predicate.and(definition -> apiName.equalsIgnoreCase(definition.getApiName()));
+            predicate = predicate.and(definition -> apiName.equalsIgnoreCase(definition.apiName()));
         }
         if (rateLimitBy != null) {
-            predicate = predicate.and(definition -> rateLimitBy == definition.getRateLimitBy());
+            predicate = predicate.and(definition -> rateLimitBy == definition.rateLimitBy());
         }
         if (rateLimitType != null) {
-            predicate = predicate.and(definition -> rateLimitType == definition.getRateLimitType());
+            predicate = predicate.and(definition -> rateLimitType == definition.rateLimitType());
         }
         return this.definitions.stream().filter(predicate).collect(Collectors.toList());
     }

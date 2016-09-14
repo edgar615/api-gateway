@@ -1,13 +1,9 @@
 package com.edgar.direwolves.definition;
 
-import com.google.common.collect.Lists;
-import io.vertx.core.http.HttpMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * Created by Edgar on 2016/4/11.
@@ -19,7 +15,7 @@ public class IpRestrictionDefinitionRegistryTest {
     IpRestrictionDefinitionRegistry registry;
     @Before
     public void setUp() {
-        registry = IpRestrictionDefinitionRegistry.instance();
+        registry = IpRestrictionDefinitionRegistry.create();
     }
 
     @After
@@ -56,8 +52,8 @@ public class IpRestrictionDefinitionRegistryTest {
 
         IpRestrictionDefinition definition = registry.filter("get_device");
 
-        Assert.assertEquals(1, definition.getBlacklist().size());
-        Assert.assertEquals(1, definition.getWhitelist().size());
+        Assert.assertEquals(1, definition.blacklist().size());
+        Assert.assertEquals(1, definition.whitelist().size());
 
     }
 

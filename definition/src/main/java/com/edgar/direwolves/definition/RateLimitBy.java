@@ -15,7 +15,7 @@ public enum RateLimitBy {
     /**
      * App
      */
-    APP_KEY("appKey");
+    APP_KEY("app_key");
 
     private final String value;
 

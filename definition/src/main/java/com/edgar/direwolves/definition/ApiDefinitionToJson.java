@@ -53,13 +53,15 @@ public class ApiDefinitionToJson implements Function<ApiDefinition, JsonObject> 
     private JsonArray createEndpointArray(List<Endpoint> endpoints) {
         JsonArray jsonArray = new JsonArray();
         endpoints.forEach(endpoint -> {
-            HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
-            JsonObject jsonObject = new JsonObject()
-                    .put("name", httpEndpoint.getName())
-                    .put("method", httpEndpoint.getMethod())
-                    .put("path", httpEndpoint.getPath())
-                    .put("service", httpEndpoint.getService());
-            jsonArray.add(jsonObject);
+            if ("http-endpoint".equals(endpoint.type())) {
+                HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+                JsonObject jsonObject = new JsonObject()
+                        .put("name", httpEndpoint.name())
+                        .put("method", httpEndpoint.method())
+                        .put("path", httpEndpoint.path())
+                        .put("service", httpEndpoint.service());
+                jsonArray.add(jsonObject);
+            }
         });
         return jsonArray;
     }

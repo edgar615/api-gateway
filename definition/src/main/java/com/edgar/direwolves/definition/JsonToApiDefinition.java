@@ -145,7 +145,7 @@ public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> 
     private List<Endpoint> createEndpoints(JsonArray endpoints) {
         List<Endpoint> httpEndpoints = new ArrayList<>(endpoints.size());
         for (int i = 0; i < endpoints.size(); i++) {
-            HttpEndpoint.Builder builder = HttpEndpoint.builder();
+            HttpEndpointBuilder builder = HttpEndpoint.builder();
 
             JsonObject endpoint = endpoints.getJsonObject(i);
             String name = endpoint.getString("name");

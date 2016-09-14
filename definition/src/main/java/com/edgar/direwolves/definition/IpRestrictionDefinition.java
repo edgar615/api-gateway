@@ -1,41 +1,16 @@
 package com.edgar.direwolves.definition;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
- * API的IP限制策略.
- * 相同的IP不允许重复出现在黑名单和白名单中。
- * 对于IP的限制策略，按照如下规则处理：
- * 1.检查IP是否在白名单中设置，如果是，则跳过黑名单校验
- * 2.检查IP是否在黑名单中设置，如果是，则拒绝请求
+ * Created by Edgar on 2016/9/14.
  *
- * @author Edgar  Date 2016/9/12
+ * @author Edgar  Date 2016/9/14
  */
-public class IpRestrictionDefinition {
+public interface IpRestrictionDefinition {
 
-    /**
-     * api名称
-     */
-    private final String apiName;
-
-    /**
-     * 白名单
-     */
-    private final Set<String> whitelist = new HashSet<>();
-
-    /**
-     * 黑名单
-     */
-    private final Set<String> blacklist = new HashSet<>();
-
-    public IpRestrictionDefinition(String apiName) {
-        this.apiName = apiName;
+    static IpRestrictionDefinition create(String apiName) {
+        return new IpRestrictionDefinitionImpl(apiName);
     }
 
     /**
@@ -46,13 +21,7 @@ public class IpRestrictionDefinition {
      * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
      * @return IpRestriction
      */
-    public IpRestrictionDefinition addWhitelist(String ip) {
-        Preconditions.checkNotNull(ip, "ip cannot be null");
-        Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
-        blacklist.remove(ip);
-        whitelist.add(ip);
-        return this;
-    }
+    IpRestrictionDefinition addWhitelist(String ip);
 
     /**
      * 增加黑名单.
@@ -62,13 +31,7 @@ public class IpRestrictionDefinition {
      * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
      * @return IpRestriction
      */
-    public IpRestrictionDefinition addBlacklist(String ip) {
-        Preconditions.checkNotNull(ip, "ip cannot be null");
-        Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
-        whitelist.remove(ip);
-        blacklist.add(ip);
-        return this;
-    }
+    IpRestrictionDefinition addBlacklist(String ip);
 
     /**
      * 删除白名单.
@@ -76,11 +39,7 @@ public class IpRestrictionDefinition {
      * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
      * @return IpRestriction
      */
-    public IpRestrictionDefinition removeWhitelist(String ip) {
-        Preconditions.checkNotNull(ip, "ip cannot be null");
-        whitelist.remove(ip);
-        return this;
-    }
+    IpRestrictionDefinition removeWhitelist(String ip);
 
     /**
      * 删除黑名单.
@@ -88,30 +47,23 @@ public class IpRestrictionDefinition {
      * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
      * @return IpRestriction
      */
-    public IpRestrictionDefinition removeBlacklist(String ip) {
-        Preconditions.checkNotNull(ip, "ip cannot be null");
-        blacklist.remove(ip);
-        return this;
-    }
+    IpRestrictionDefinition removeBlacklist(String ip);
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper("IpRestrictionDefinition")
-                .add("apiName", apiName)
-                .add("whitelist", whitelist)
-                .add("blacklist", blacklist)
-                .toString();
-    }
+    /**
+     *
+     * @return api名称
+     */
+    String apiName();
 
-    public String getApiName() {
-        return apiName;
-    }
+    /**
+     *
+     * @return 白名单列表
+     */
+    List<String> whitelist();
 
-    public List<String> getWhitelist() {
-        return ImmutableList.copyOf(whitelist);
-    }
-
-    public List<String> getBlacklist() {
-        return ImmutableList.copyOf(blacklist);
-    }
+    /**
+     *
+     * @return 黑名单列表
+     */
+    List<String> blacklist();
 }

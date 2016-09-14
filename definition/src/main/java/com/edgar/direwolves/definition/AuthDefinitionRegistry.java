@@ -1,30 +1,17 @@
 package com.edgar.direwolves.definition;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
- * API权限的映射关系的注册表
+ * API权限的映射关系的注册表.
+ *
+ * @author Edgar  Date 2016/9/14
  */
-public class AuthDefinitionRegistry {
+public interface AuthDefinitionRegistry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthDefinitionRegistry.class);
-
-    private static final AuthDefinitionRegistry INSTANCE = new AuthDefinitionRegistry();
-
-    private final List<AuthDefinition> definitions = new ArrayList<>();
-
-    public static AuthDefinitionRegistry instance() {
-        return INSTANCE;
+    static AuthDefinitionRegistry create() {
+        return AuthDefinitionRegistryImpl.instance();
     }
 
     /**
@@ -32,9 +19,7 @@ public class AuthDefinitionRegistry {
      *
      * @return AuthDefinition的不可变集合.
      */
-    public Set<AuthDefinition> getDefinitions() {
-        return ImmutableSet.copyOf(definitions);
-    }
+    Set<AuthDefinition> getDefinitions();
 
     /**
      * 向注册表中添加一个权限映射.
@@ -42,13 +27,7 @@ public class AuthDefinitionRegistry {
      *
      * @param definition 权限映射.
      */
-    void add(AuthDefinition definition) {
-        Preconditions.checkNotNull(definition, "definition is null");
-        remove(definition.getApiName(), definition.getAuthType());
-        this.definitions.add(definition);
-        LOGGER.debug("add AuthDefinition {}", definition);
-    }
-
+    void add(AuthDefinition definition);
 
     /**
      * 根据组合条件删除映射.
@@ -59,13 +38,7 @@ public class AuthDefinitionRegistry {
      * @param apiName  API名称
      * @param authType 权限类型
      */
-    void remove(String apiName, AuthType authType) {
-        List<AuthDefinition> authDefinitions = filter(apiName, authType);
-        if (authDefinitions != null && !authDefinitions.isEmpty()) {
-            this.definitions.removeAll(authDefinitions);
-            LOGGER.debug("remove authDefinitions {}", authDefinitions);
-        }
-    }
+    void remove(String apiName, AuthType authType);
 
     /**
      * 根据组合条件查询映射.
@@ -77,15 +50,5 @@ public class AuthDefinitionRegistry {
      * @param authType 权限类型
      * @return AuthDefinition的集合
      */
-    List<AuthDefinition> filter(String apiName, AuthType authType) {
-        Predicate<AuthDefinition> predicate = definition -> true;
-        if (!Strings.isNullOrEmpty(apiName)) {
-            predicate = predicate.and(definition -> apiName.equalsIgnoreCase(definition.getApiName()));
-        }
-        if (authType != null) {
-            predicate = predicate.and(definition -> authType == definition.getAuthType());
-        }
-        return this.definitions.stream().filter(predicate).collect(Collectors.toList());
-    }
-
+    List<AuthDefinition> filter(String apiName, AuthType authType);
 }

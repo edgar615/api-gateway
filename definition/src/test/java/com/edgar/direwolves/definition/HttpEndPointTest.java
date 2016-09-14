@@ -21,8 +21,8 @@ public class HttpEndPointTest {
                 .setService("device")
                 .setArray(true).build();
 
-        Assert.assertEquals("/devices", httpEndpoint.getPath());
-        Assert.assertNull(httpEndpoint.getBodyArgs());
+        Assert.assertEquals("/devices", httpEndpoint.path());
+        Assert.assertNull(httpEndpoint.bodyArgs());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -46,7 +46,7 @@ public class HttpEndPointTest {
                 .setUrlArgs(Lists.newArrayList(new Parameter("username", null)))
                 .setArray(true).build();
 
-        httpEndpoint.getUrlArgs().add(new Parameter("password", null));
+        httpEndpoint.urlArgs().add(new Parameter("password", null));
         Assert.fail();
     }
 
@@ -59,7 +59,7 @@ public class HttpEndPointTest {
                 .setBodyArgs(Lists.newArrayList(new Parameter("username", null)))
                 .setArray(true).build();
 
-        httpEndpoint.getBodyArgs().add(new Parameter("password", null));
+        httpEndpoint.bodyArgs().add(new Parameter("password", null));
         Assert.fail();
     }
 }

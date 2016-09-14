@@ -13,12 +13,12 @@ import java.util.List;
 * @author Edgar  Date 2016/4/11
 */
 public class RateLimitDefinitionRegistryTest {
-    RateLimitDefinitionRegistry registry;
+    RateLimitDefinitionRegistryImpl registry;
     @Before
     public void setUp() {
-        registry = RateLimitDefinitionRegistry.instance();
-        registry.add(new RateLimitDefinition("get_device", RateLimitBy.USER, RateLimitType.SECODE, 100));
-        registry.add(new RateLimitDefinition("get_device", RateLimitBy.USER, RateLimitType.DAY, 10000));
+        registry = RateLimitDefinitionRegistryImpl.instance();
+        registry.add(new RateLimitDefinitionImpl("get_device", RateLimitBy.USER, RateLimitType.SECODE, 100));
+        registry.add(new RateLimitDefinitionImpl("get_device", RateLimitBy.USER, RateLimitType.DAY, 10000));
     }
 
     @After
@@ -33,7 +33,7 @@ public class RateLimitDefinitionRegistryTest {
 
     @Test
     public void testUnique() {
-        registry.add(new RateLimitDefinition("get_device", RateLimitBy.USER, RateLimitType.DAY, 1000));
+        registry.add(new RateLimitDefinitionImpl("get_device", RateLimitBy.USER, RateLimitType.DAY, 1000));
         Assert.assertEquals(2, registry.getDefinitions().size());
     }
 
@@ -42,7 +42,7 @@ public class RateLimitDefinitionRegistryTest {
         List<RateLimitDefinition> definitions = registry.filter("get_device", RateLimitBy.USER, RateLimitType.DAY);
         Assert.assertNotNull(definitions);
         Assert.assertEquals(1, definitions.size());
-        Assert.assertEquals(RateLimitBy.USER, definitions.get(0).getRateLimitBy());
+        Assert.assertEquals(RateLimitBy.USER, definitions.get(0).rateLimitBy());
 
         definitions = registry.filter("get_device2", RateLimitBy.USER, RateLimitType.YEAR);
         Assert.assertNotNull(definitions);
