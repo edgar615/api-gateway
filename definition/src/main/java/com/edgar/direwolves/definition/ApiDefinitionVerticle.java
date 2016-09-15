@@ -1,5 +1,6 @@
 package com.edgar.direwolves.definition;
 
+import com.google.common.base.Strings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
@@ -27,6 +28,22 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     public static final String API_GET = "api.get";
 
     public static final String API_DELETE = "api.delete";
+
+    public static final String API_ADD_BLACK = "api.blacklist.add";
+
+    public static final String API_ADD_WHITE = "api.whitelist.add";
+
+    public static final String API_DELETE_BLACK = "api.blacklist.delete";
+
+    public static final String API_DELETE_WHITE = "api.whitelist.delete";
+
+    public static final String API_ADD_RATE_LIMIT = "api.ratelimit.add";
+
+    public static final String API_DELETE_RATE_LIMIT = "api.ratelimit.delete";
+
+    public static final String API_ADD_AUTH = "api.auth.add";
+
+    public static final String API_DELETE_AUTH = "api.auth.delete";
 
     public final JsonObject RESULT_OK = new JsonObject().put("result", "OK");
 
@@ -112,6 +129,132 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
                 IpRestrictionDefinitionRegistry.create().remove(name);
                 RateLimitDefinitionRegistry.create().remove(name, null, null);
                 msg.reply(RESULT_OK);
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_ADD_AUTH, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String type = jsonObject.getString("type");
+
+                AuthType authType = AuthType.valueOf(type.toUpperCase());
+                AuthDefinitionRegistry.create().add(AuthDefinition.create(name, authType));
+                msg.reply(RESULT_OK);
+
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_DELETE_AUTH, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name", null);
+                String type = jsonObject.getString("type", null);
+
+                if (Strings.isNullOrEmpty(type)) {
+                    AuthDefinitionRegistry.create().remove(name, null);
+                } else {
+                    AuthType authType = AuthType.valueOf(type.toUpperCase());
+                    AuthDefinitionRegistry.create().remove(name, authType);
+                    msg.reply(RESULT_OK);
+                }
+
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_ADD_BLACK, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String ip = jsonObject.getString("ip");
+                IpRestrictionDefinitionRegistry.create().addBlacklist(name, ip);
+                msg.reply(RESULT_OK);
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_ADD_WHITE, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String ip = jsonObject.getString("ip");
+                IpRestrictionDefinitionRegistry.create().addWhitelist(name, ip);
+                msg.reply(RESULT_OK);
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_DELETE_BLACK, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String ip = jsonObject.getString("ip");
+                IpRestrictionDefinitionRegistry.create().removeBlacklist(name, ip);
+                msg.reply(RESULT_OK);
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_DELETE_WHITE, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String ip = jsonObject.getString("ip");
+                IpRestrictionDefinitionRegistry.create().removeWhitelist(name, ip);
+                msg.reply(RESULT_OK);
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_ADD_RATE_LIMIT, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String type = jsonObject.getString("type");
+                int limit = jsonObject.getInteger("limit");
+                String limitBy = jsonObject.getString("limit_by");
+
+                RateLimitType rateLimitType = RateLimitType.valueOf(type.toUpperCase());
+                RateLimitBy rateLimitBy = RateLimitBy.valueOf(limitBy.toUpperCase());
+
+                RateLimitDefinitionRegistry.create().add(RateLimitDefinition.create(name, rateLimitBy, rateLimitType, limit));
+                msg.reply(RESULT_OK);
+
+            } catch (Exception e) {
+                msg.fail(-1, e.getMessage());
+            }
+        });
+
+        eb.<JsonObject>consumer(API_DELETE_RATE_LIMIT, msg -> {
+            try {
+                JsonObject jsonObject = msg.body();
+                String name = jsonObject.getString("name");
+                String type = jsonObject.getString("type", null);
+                String limitBy = jsonObject.getString("limit_by", null);
+
+                RateLimitType rateLimitType = null;
+                RateLimitBy rateLimitBy = null;
+                if (!Strings.isNullOrEmpty(type)) {
+                    rateLimitType = RateLimitType.valueOf(type.toUpperCase());
+                }
+
+                if (!Strings.isNullOrEmpty(limitBy)) {
+                    rateLimitBy = RateLimitBy.valueOf(limitBy.toUpperCase());
+                }
+
+                RateLimitDefinitionRegistry.create().remove(name, rateLimitBy, rateLimitType);
+                msg.reply(RESULT_OK);
+
             } catch (Exception e) {
                 msg.fail(-1, e.getMessage());
             }

@@ -46,7 +46,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testAddSuccess(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
 
 //        Async async = context.async();
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
@@ -69,7 +69,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testAddSuccess2(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
 
 //        Async async = context.async();
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
@@ -92,7 +92,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testAddSameName(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
 
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
             if (ar.succeeded()) {
@@ -108,7 +108,7 @@ public class ApiDefinitionVerticleTest {
         await().until(() -> ApiDefinitionRegistryImpl.instance().filter(null).size() > 0);
         await().until(() -> ApiDefinitionRegistryImpl.instance().filter("add_device").get(0).method().equals(HttpMethod.POST));
 
-        addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
+        addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
 
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
             if (ar.succeeded()) {
@@ -126,7 +126,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testList(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
 
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
             if (ar.succeeded()) {
@@ -159,7 +159,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testGet(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
 
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
             if (ar.succeeded()) {
@@ -207,7 +207,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testGet404(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
 
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
             if (ar.succeeded()) {
@@ -238,7 +238,7 @@ public class ApiDefinitionVerticleTest {
 
     @Test
     public void testDelete(TestContext context) {
-        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
 
         eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
             if (ar.succeeded()) {
@@ -265,5 +265,428 @@ public class ApiDefinitionVerticleTest {
             }
         });
         await().until(() -> ApiDefinitionRegistryImpl.instance().filter(null).size() == 0);
+    }
+
+    @Test
+    public void testAddAuthSuccess(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_AUTH, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+    }
+
+    @Test
+    public void testAddAuthFailed(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt2");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_AUTH, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                context.fail();
+            } else {
+                System.out.println(ar.cause());
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() == 0);
+    }
+
+    @Test
+    public void testDeleteByName(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_AUTH, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject()
+                .put("name", "add_device");
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_AUTH, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() == 0);
+    }
+
+    @Test
+    public void testDeleteByType(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_AUTH, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject()
+                .put("type", "jwt");
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_AUTH, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() == 0);
+    }
+
+    @Test
+    public void testDeleteByAll(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_AUTH, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject();
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_AUTH, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() == 0);
+    }
+
+    @Test
+    public void testDeleteByErrorType(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_AUTH, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "jwt2");
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_AUTH, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                context.fail();
+            } else {
+                System.out.println(ar.cause());
+            }
+        });
+
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+    }
+
+    @Test
+    public void testAddBlackIp(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("ip", "192.168.*.*");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_BLACK, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).get(0).blacklist().size() > 0);
+
+    }
+
+    @Test
+    public void testDeleteBlackIp(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("ip", "192.168.*.*");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_BLACK, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).get(0).blacklist().size() > 0);
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_BLACK, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).get(0).blacklist().size() == 0);
+
+    }
+
+    @Test
+    public void testAddWhiteIp(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("ip", "192.168.*.*");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_WHITE, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).get(0).whitelist().size() > 0);
+
+    }
+
+    @Test
+    public void testDeleteWhiteIp(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("ip", "192.168.*.*");
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_WHITE, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).get(0).whitelist().size() > 0);
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_WHITE, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).get(0).whitelist().size() == 0);
+
+    }
+
+    @Test
+    public void testAddRateLimitSuccess(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "second")
+                .put("limit_by", "user")
+                .put("limit", 1000);
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_RATE_LIMIT, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() > 0);
+    }
+
+    @Test
+    public void testDeleteRateLimitByName(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "second")
+                .put("limit_by", "user")
+                .put("limit", 1000);
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_RATE_LIMIT, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject()
+                .put("name", "add_device");
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_RATE_LIMIT, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() == 0);
+    }
+
+    @Test
+    public void testDeleteRateLimitByType(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "second")
+                .put("limit_by", "user")
+                .put("limit", 1000);
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_RATE_LIMIT, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject()
+                .put("type", "second");
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_RATE_LIMIT, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() == 0);
+    }
+
+    @Test
+    public void testDeleteRateLimitBy(TestContext context) {
+        JsonObject addDeviceJson = new JsonObject()
+                .put("name", "add_device")
+                .put("type", "second")
+                .put("limit_by", "user")
+                .put("limit", 1000);
+
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD_RATE_LIMIT, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() > 0);
+
+        JsonObject deleteJson = new JsonObject()
+                .put("limit_by", "user");
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_DELETE_RATE_LIMIT, deleteJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+        });
+
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() == 0);
     }
 }
