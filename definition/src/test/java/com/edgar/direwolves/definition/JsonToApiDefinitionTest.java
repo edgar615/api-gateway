@@ -2,6 +2,7 @@ package com.edgar.direwolves.definition;
 
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -19,8 +20,14 @@ public class JsonToApiDefinitionTest {
     public void testJson() {
         JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
         ApiDefinition apiDefinition =  JsonToApiDefinition.instance().apply(addDeviceJson);
-        System.out.println(apiDefinition);
+        Assert.assertEquals("/devices", apiDefinition.path());
     }
 
+    @Test
+    public void testJson2() {
+        JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/ip_device_add.json");
+        ApiDefinition apiDefinition =  JsonToApiDefinition.instance().apply(addDeviceJson);
+        Assert.assertNull(apiDefinition);
+    }
 
 }

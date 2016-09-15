@@ -3,6 +3,23 @@
   "method": "POST",
   "path": "/devices",
   "scope" : "device:write",
+  "auth" : "jwt",
+  "ip_restriction" : {
+    "whitelist" : ["192.168.0.1", "10.4.7.*"],
+    "blacklist" : ["192.168.0.100"]
+  },
+  "rate_limit" : [
+    {
+      "limit" : 1000,
+      "limit_by" : "token",
+      "type" : "hour"
+    },
+    {
+      "limit" : 100,
+      "limit_by" : "app_key",
+      "type" : "second"
+    }
+  ],
   "url_args" : [
     {
       "name" : "limit",

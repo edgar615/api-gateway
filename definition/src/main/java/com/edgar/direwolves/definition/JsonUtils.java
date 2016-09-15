@@ -15,7 +15,6 @@ import java.util.Scanner;
 public class JsonUtils {
 
     public static JsonObject getJsonFromFile(String jsonFile) {
-        System.out.println(new File(jsonFile).getAbsolutePath());
         JsonObject conf;
         if (jsonFile != null) {
             try (Scanner scanner = new Scanner(new File(jsonFile)).useDelimiter("\\A")) {

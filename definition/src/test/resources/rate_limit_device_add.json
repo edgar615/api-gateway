@@ -1,0 +1,15 @@
+{
+  "name" : "add_device",
+  "rate_limit" : [
+    {
+      "limit" : 1000,
+      "limit_by" : "token",
+      "type" : "hour"
+    },
+    {
+      "limit" : 100,
+      "limit_by" : "app_key",
+      "type" : "second"
+    }
+  ]
+}

@@ -50,7 +50,7 @@ public class IpRestrictionDefinitionRegistryTest {
         registry.addBlacklist("get_device", "192.168.1.101");
         registry.addWhitelist("get_device", "192.168.1.101");
 
-        IpRestrictionDefinition definition = registry.filter("get_device");
+        IpRestrictionDefinition definition = registry.filter("get_device").get(0);
 
         Assert.assertEquals(1, definition.blacklist().size());
         Assert.assertEquals(1, definition.whitelist().size());

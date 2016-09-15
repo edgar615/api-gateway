@@ -5,7 +5,7 @@ public enum RateLimitType {
     /**
      * 秒
      */
-    SECODE("second"),
+    SECOND("second"),
 
     /**
      * 分钟

@@ -13,12 +13,12 @@ import java.util.List;
 * @author Edgar  Date 2016/4/11
 */
 public class RateLimitDefinitionRegistryTest {
-    RateLimitDefinitionRegistryImpl registry;
+    RateLimitDefinitionRegistry registry;
     @Before
     public void setUp() {
-        registry = RateLimitDefinitionRegistryImpl.instance();
-        registry.add(new RateLimitDefinitionImpl("get_device", RateLimitBy.USER, RateLimitType.SECODE, 100));
-        registry.add(new RateLimitDefinitionImpl("get_device", RateLimitBy.USER, RateLimitType.DAY, 10000));
+        registry = RateLimitDefinitionRegistry.create();
+        registry.add(RateLimitDefinition.create("get_device", RateLimitBy.USER, RateLimitType.SECOND, 100));
+        registry.add(RateLimitDefinition.create("get_device", RateLimitBy.USER, RateLimitType.DAY, 10000));
     }
 
     @After

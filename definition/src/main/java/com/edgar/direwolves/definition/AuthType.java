@@ -8,6 +8,11 @@ public enum AuthType {
     JWT("jwt"),
 
     /**
+     * OAUTH
+     */
+    OAUTH("oauth"),
+
+    /**
      * appKey
      */
     APP_KEY("appKey");

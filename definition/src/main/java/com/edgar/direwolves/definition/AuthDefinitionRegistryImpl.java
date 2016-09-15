@@ -76,6 +76,9 @@ class AuthDefinitionRegistryImpl implements AuthDefinitionRegistry {
      * 如果apiName=get_device, authType = AuthType.JWT，会从注册表中删除所有apiName=get_device, authType = AuthType.JWT的映射.
      * 如果apiName=get_device, authType = null，会从注册表中删除所有apiName=get_device的映射.
      * 如果apiName=null, authType = AuthType.JWT，会从注册表中删除所有authType = AuthType.JWT的映射.
+     * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
+     * *user会查询所有以user结尾对name,如add_user.
+     * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
      *
      * @param apiName  API名称
      * @param authType 权限类型

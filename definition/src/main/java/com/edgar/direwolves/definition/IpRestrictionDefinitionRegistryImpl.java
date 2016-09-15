@@ -65,12 +65,12 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
         Preconditions.checkNotNull(ip, "ip is null");
         try {
             wl.lock();
-            IpRestrictionDefinition definition = filter(apiName);
-            if (definition != null) {
-                definition.addBlacklist(ip);
+            List<IpRestrictionDefinition> definitions = filter(apiName);
+            if (definitions != null && !definitions.isEmpty()) {
+                definitions.forEach(definition -> definition.addBlacklist(ip));
             } else {
-                definition = new IpRestrictionDefinitionImpl(apiName).addBlacklist(ip);
-                definitions.add(definition);
+                IpRestrictionDefinition definition = new IpRestrictionDefinitionImpl(apiName).addBlacklist(ip);
+                this.definitions.add(definition);
             }
         } finally {
             wl.unlock();
@@ -89,14 +89,15 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
     public void addWhitelist(String apiName, String ip) {
         Preconditions.checkNotNull(apiName, "apiName is null");
         Preconditions.checkNotNull(ip, "ip is null");
+
         try {
             wl.lock();
-            IpRestrictionDefinition definition = filter(apiName);
-            if (definition != null) {
-                definition.addWhitelist(ip);
+            List<IpRestrictionDefinition> definitions = filter(apiName);
+            if (definitions != null && !definitions.isEmpty()) {
+                definitions.forEach(definition -> definition.addWhitelist(ip));
             } else {
-                definition = new IpRestrictionDefinitionImpl(apiName).addWhitelist(ip);
-                definitions.add(definition);
+                IpRestrictionDefinition definition = new IpRestrictionDefinitionImpl(apiName).addWhitelist(ip);
+                this.definitions.add(definition);
             }
         } finally {
             wl.unlock();
@@ -117,14 +118,18 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
         Preconditions.checkNotNull(ip, "ip is null");
         try {
             wl.lock();
-            IpRestrictionDefinition definition = filter(apiName);
-            if (definition != null) {
-                definition.removeBlacklist(ip);
-                LOGGER.debug("remove IpRestrictionDefinition apiName->{}, blacklist->{}", apiName, ip);
+            List<IpRestrictionDefinition> definitions = filter(apiName);
+            if (definitions != null) {
+                definitions.forEach(definition -> {
+                    definition.removeBlacklist(ip);
+                    LOGGER.debug("remove IpRestrictionDefinition apiName->{}, blacklist->{}", apiName, ip);
+                });
+
             }
         } finally {
             wl.unlock();
         }
+
     }
 
     /**
@@ -137,12 +142,16 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
     public void removeWhitelist(String apiName, String ip) {
         Preconditions.checkNotNull(apiName, "apiName is null");
         Preconditions.checkNotNull(ip, "ip is null");
+
         try {
             wl.lock();
-            IpRestrictionDefinition definition = filter(apiName);
-            if (definition != null) {
-                definition.removeWhitelist(ip);
-                LOGGER.debug("remove IpRestrictionDefinition apiName->{}, whitelist->{}", apiName, ip);
+            List<IpRestrictionDefinition> definitions = filter(apiName);
+            if (definitions != null) {
+                definitions.forEach(definition -> {
+                    definition.removeWhitelist(ip);
+                    LOGGER.debug("remove IpRestrictionDefinition apiName->{}, whitelist->{}", apiName, ip);
+                });
+
             }
         } finally {
             wl.unlock();
@@ -157,11 +166,17 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
      */
     @Override
     public void remove(String apiName) {
-        IpRestrictionDefinition definition = filter(apiName);
+        List<IpRestrictionDefinition> definitions = filter(apiName);
         try {
             wl.lock();
-            this.definitions.remove(definition);
-            LOGGER.debug("remove ApiDefinition {}", definition);
+            if (definitions != null) {
+                definitions.forEach(definition -> {
+                    this.definitions.remove(definition);
+                    LOGGER.debug("remove IpRestrictionDefinition apiName->{}", definition.apiName());
+                });
+
+            }
+
         } finally {
             wl.unlock();
         }
@@ -178,7 +193,7 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
      * @return IpRestrictionDefinition
      */
     @Override
-    public IpRestrictionDefinition filter(String name) {
+    public List<IpRestrictionDefinition> filter(String name) {
         Predicate<IpRestrictionDefinition> predicate = definition -> true;
         predicate = namePredicate(name, predicate);
         List<IpRestrictionDefinition> definitions = null;
@@ -188,10 +203,7 @@ public class IpRestrictionDefinitionRegistryImpl implements IpRestrictionDefinit
         } finally {
             rl.unlock();
         }
-        if (definitions == null || definitions.isEmpty()) {
-            return null;
-        }
-        return definitions.get(0);
+        return definitions;
     }
 
     private Predicate<IpRestrictionDefinition> namePredicate(String name, Predicate<IpRestrictionDefinition> predicate) {

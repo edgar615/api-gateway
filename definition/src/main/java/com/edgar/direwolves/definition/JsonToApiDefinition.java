@@ -31,6 +31,9 @@ public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> 
     @Override
     public ApiDefinition apply(JsonObject jsonObject) {
         Preconditions.checkArgument(jsonObject.containsKey("name"), "api name cannot be null");
+        if (!jsonObject.containsKey("path")) {
+            return null;
+        }
         Preconditions.checkArgument(jsonObject.containsKey("path"), "api path cannot be null");
         Preconditions.checkArgument(jsonObject.containsKey("endpoints"), "api endpoints cannot be null");
         ApiDefinitionBuilder builder = ApiDefinition.builder();

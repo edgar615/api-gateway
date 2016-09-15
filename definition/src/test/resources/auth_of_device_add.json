@@ -1,0 +1,4 @@
+{
+  "name" : "add_device",
+  "auth" : ["jwt", "oauth"]
+}

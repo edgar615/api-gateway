@@ -35,6 +35,7 @@ public class AuthDefinitionRegistryTest {
                 System.out.println(authType);
             }
         }
+        AuthType.valueOf("aaa");
     }
 
     @Test

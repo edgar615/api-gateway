@@ -54,6 +54,9 @@ public interface IpRestrictionDefinitionRegistry {
 
     /**
      * 根据名称删除api的IP限制策略.
+     * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
+     * *user会查询所有以user结尾对name,如add_user.
+     * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
      *
      * @param apiName API名称
      */
@@ -62,9 +65,12 @@ public interface IpRestrictionDefinitionRegistry {
     /**
      * 根据name查找所有的IP限制.
      * 如果name=null，会查找所有的IP限制.
+     * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
+     * *user会查询所有以user结尾对name,如add_user.
+     * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
      *
      * @param name API名称
      * @return IpRestrictionDefinition
      */
-    IpRestrictionDefinition filter(String name);
+    List<IpRestrictionDefinition> filter(String name);
 }

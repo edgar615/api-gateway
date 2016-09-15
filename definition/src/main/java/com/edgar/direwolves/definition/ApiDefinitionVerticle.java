@@ -37,7 +37,27 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             try {
                 JsonObject jsonObject = msg.body();
                 ApiDefinition apiDefinition = JsonToApiDefinition.instance().apply(jsonObject);
-                ApiDefinitionRegistryImpl.instance().add(apiDefinition);
+                if (apiDefinition != null) {
+                    ApiDefinitionRegistry.create().add(apiDefinition);
+                }
+
+                List<AuthDefinition> authDefinitions = JsonToAuthDefinition.instance().apply(jsonObject);
+                if (!authDefinitions.isEmpty()) {
+                    authDefinitions.forEach(authDefinition -> AuthDefinitionRegistry.create().add(authDefinition));
+                }
+
+                List<RateLimitDefinition> rateLimitDefinitions = JsonToRateLimitDefinition.instance().apply(jsonObject);
+                if (!rateLimitDefinitions.isEmpty()) {
+                    rateLimitDefinitions.forEach(rateLimitDefinition -> RateLimitDefinitionRegistry.create().add(rateLimitDefinition));
+                }
+
+                IpRestrictionDefinition ipRestrictionDefinition = JsonToIpRestrictionDefinition.instance().apply(jsonObject);
+                if (ipRestrictionDefinition != null) {
+                    IpRestrictionDefinitionRegistry registry = IpRestrictionDefinitionRegistry.create();
+                    ipRestrictionDefinition.whitelist().forEach(ip -> registry.addWhitelist(ipRestrictionDefinition.apiName(), ip));
+                    ipRestrictionDefinition.blacklist().forEach(ip -> registry.addBlacklist(ipRestrictionDefinition.apiName(), ip));
+                }
+
                 msg.reply(RESULT_OK);
             } catch (Exception e) {
                 msg.fail(-1, e.getMessage());
@@ -50,7 +70,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
                 Integer start = jsonObject.getInteger("start", 0);
                 Integer limit = jsonObject.getInteger("limit", 10);
                 JsonArray apiArray = new JsonArray();
-                List<ApiDefinition> definitions = ApiDefinitionRegistryImpl.instance().filter(null);
+                List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(null);
                 if (start <= definitions.size()) {
                     limit = limit < definitions.size() - start ? limit : definitions.size() - start;
                 }
@@ -72,7 +92,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             try {
                 JsonObject jsonObject = msg.body();
                 String name = jsonObject.getString("name");
-                List<ApiDefinition> definitions = ApiDefinitionRegistryImpl.instance().filter(name);
+                List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
                 if (definitions.isEmpty()) {
                     msg.fail(404, "no result");
                 } else {
@@ -87,7 +107,10 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             try {
                 JsonObject jsonObject = msg.body();
                 String name = jsonObject.getString("name");
-                ApiDefinitionRegistryImpl.instance().remove(name);
+                ApiDefinitionRegistry.create().remove(name);
+                AuthDefinitionRegistry.create().remove(name, null);
+                IpRestrictionDefinitionRegistry.create().remove(name);
+                RateLimitDefinitionRegistry.create().remove(name, null, null);
                 msg.reply(RESULT_OK);
             } catch (Exception e) {
                 msg.fail(-1, e.getMessage());

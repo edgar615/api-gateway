@@ -39,6 +39,9 @@ public class ApiDefinitionVerticleTest {
     public void clear(TestContext context) {
         vertx.close(context.asyncAssertSuccess());
         ApiDefinitionRegistryImpl.instance().remove(null);
+        AuthDefinitionRegistry.create().remove(null, null);
+        IpRestrictionDefinitionRegistry.create().remove(null);
+        RateLimitDefinitionRegistry.create().remove(null, null, null);
     }
 
     @Test
@@ -58,7 +61,33 @@ public class ApiDefinitionVerticleTest {
 //            async.complete();
         });
 
-        await().until(() -> ApiDefinitionRegistryImpl.instance().filter(null).size() > 0);
+        await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() > 0);
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() > 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() > 0);
+    }
+
+    @Test
+    public void testAddSuccess2(TestContext context) {
+        JsonObject addDeviceJson =  JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
+
+//        Async async = context.async();
+        eb.<JsonObject>send(ApiDefinitionVerticle.API_ADD, addDeviceJson, ar -> {
+            if (ar.succeeded()) {
+                JsonObject jsonObject = ar.result().body();
+                System.out.println(jsonObject);
+                context.assertEquals("OK", jsonObject.getString("result"));
+            } else {
+                System.out.println(ar.cause());
+                context.fail();
+            }
+//            async.complete();
+        });
+
+        await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
+        await().until(() -> AuthDefinitionRegistry.create().filter(null, null).size() == 0);
+        await().until(() -> RateLimitDefinitionRegistry.create().filter(null, null, null).size() == 0);
+        await().until(() -> IpRestrictionDefinitionRegistry.create().filter(null).size() == 0);
     }
 
     @Test
