@@ -12,6 +12,7 @@
         <module>definition</module>
         <module>http</module>
         <module>dispatch</module>
+        <module>cli</module>
     </modules>
 
     <properties>
