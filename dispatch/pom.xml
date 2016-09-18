@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dispatch</artifactId>
+    <artifactId>direwolves-dispatch</artifactId>
 
     <dependencies>
         <dependency>
@@ -44,10 +44,21 @@
             <artifactId>vertx-unit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-definition</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -32,11 +32,11 @@ public class ApiMatcher implements BiFunction<ApiContext, ApiDefinition, Boolean
     }
 
     private boolean matches(ApiContext apiContext, ApiDefinition definition) {
-        if (apiContext.getMethod() != definition.getMethod()) {
+        if (apiContext.method() != definition.method()) {
             return false;
         }
-        Pattern pattern = definition.getPattern();
-        String path = apiContext.getPath();
+        Pattern pattern = definition.pattern();
+        String path = apiContext.path();
         Matcher matcher = pattern.matcher(path);
         if (matcher.matches()) {
             try {
@@ -45,7 +45,7 @@ public class ApiMatcher implements BiFunction<ApiContext, ApiDefinition, Boolean
                     if (group != null) {
                         final String k = "param" + (i + 1);
                         final String value = URLDecoder.decode(group, "UTF-8");
-                        apiContext.getParams().put(k, value);
+                        apiContext.params().put(k, value);
                     }
                 }
             } catch (UnsupportedEncodingException e) {

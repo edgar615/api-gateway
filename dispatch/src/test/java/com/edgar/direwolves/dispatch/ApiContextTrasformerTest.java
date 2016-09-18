@@ -216,145 +216,145 @@ public class ApiContextTrasformerTest {
 
     private void assertGetNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/get_no_param")) {
-            context.assertEquals("/get_no_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(0, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertNull(apiContext.getBody());
-            context.assertEquals(HttpMethod.GET, apiContext.getMethod());
+            context.assertEquals("/get_no_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(0, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertNull(apiContext.body());
+            context.assertEquals(HttpMethod.GET, apiContext.method());
         }
     }
 
     private void assertGetTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/get_two_param")) {
-            context.assertEquals("/get_two_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertNull(apiContext.getBody());
-            context.assertEquals(HttpMethod.GET, apiContext.getMethod());
+            context.assertEquals("/get_two_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertNull(apiContext.body());
+            context.assertEquals(HttpMethod.GET, apiContext.method());
         }
     }
 
     private void assertGetToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/get_token")) {
-            context.assertEquals("/get_token", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertEquals("token", apiContext.getToken());
-            context.assertNull(apiContext.getBody());
-            context.assertEquals(HttpMethod.GET, apiContext.getMethod());
+            context.assertEquals("/get_token", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertEquals("token", apiContext.token());
+            context.assertNull(apiContext.body());
+            context.assertEquals(HttpMethod.GET, apiContext.method());
         }
     }
 
     private void assertDeleteNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/delete_no_param")) {
-            context.assertEquals("/delete_no_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(0, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertNull(apiContext.getBody());
-            context.assertEquals(HttpMethod.DELETE, apiContext.getMethod());
+            context.assertEquals("/delete_no_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(0, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertNull(apiContext.body());
+            context.assertEquals(HttpMethod.DELETE, apiContext.method());
         }
     }
 
     private void assertDeleteTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/delete_two_param")) {
-            context.assertEquals("/delete_two_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertNull(apiContext.getBody());
-            context.assertEquals(HttpMethod.DELETE, apiContext.getMethod());
+            context.assertEquals("/delete_two_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertNull(apiContext.body());
+            context.assertEquals(HttpMethod.DELETE, apiContext.method());
         }
     }
 
     private void assertDeleteToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/delete_token")) {
-            context.assertEquals("/delete_token", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertEquals("token", apiContext.getToken());
-            context.assertNull(apiContext.getBody());
-            context.assertEquals(HttpMethod.DELETE, apiContext.getMethod());
+            context.assertEquals("/delete_token", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertEquals("token", apiContext.token());
+            context.assertNull(apiContext.body());
+            context.assertEquals(HttpMethod.DELETE, apiContext.method());
         }
     }
 
     private void assertPostNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/post_no_param")) {
-            context.assertEquals("/post_no_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(0, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertEquals("edgar", apiContext.getBody().getString("username"));
-            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+            context.assertEquals("/post_no_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(0, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertEquals("edgar", apiContext.body().getString("username"));
+            context.assertEquals(HttpMethod.POST, apiContext.method());
         }
     }
 
     private void assertPostTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/post_two_param")) {
-            context.assertEquals("/post_two_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertEquals("edgar", apiContext.getBody().getString("username"));
-            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+            context.assertEquals("/post_two_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertEquals("edgar", apiContext.body().getString("username"));
+            context.assertEquals(HttpMethod.POST, apiContext.method());
         }
     }
 
     private void assertPostToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/post_token")) {
-            context.assertEquals("/post_token", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertEquals("token", apiContext.getToken());
-            context.assertEquals("edgar", apiContext.getBody().getString("username"));
-            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
+            context.assertEquals("/post_token", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertEquals("token", apiContext.token());
+            context.assertEquals("edgar", apiContext.body().getString("username"));
+            context.assertEquals(HttpMethod.POST, apiContext.method());
         }
     }
 
     private void assertPostInvaidJson(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/post_invalid_json")) {
-            context.assertEquals("/post_invalid_json", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertEquals("token", apiContext.getToken());
-            context.assertEquals("1024", apiContext.getBody().getString("code"));
-            context.assertEquals(HttpMethod.POST, apiContext.getMethod());
-            context.assertFalse(apiContext.getBody().containsKey("username"));
+            context.assertEquals("/post_invalid_json", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertEquals("token", apiContext.token());
+            context.assertEquals("1024", apiContext.body().getString("code"));
+            context.assertEquals(HttpMethod.POST, apiContext.method());
+            context.assertFalse(apiContext.body().containsKey("username"));
         }
     }
 
     private void assertPutNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/put_no_param")) {
-            context.assertEquals("/put_no_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(0, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertEquals("edgar", apiContext.getBody().getString("username"));
-            context.assertEquals(HttpMethod.PUT, apiContext.getMethod());
+            context.assertEquals("/put_no_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(0, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertEquals("edgar", apiContext.body().getString("username"));
+            context.assertEquals(HttpMethod.PUT, apiContext.method());
         }
     }
 
     private void assertPutTwoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/put_two_param")) {
-            context.assertEquals("/put_two_param", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertNull(apiContext.getToken());
-            context.assertEquals("edgar", apiContext.getBody().getString("username"));
-            context.assertEquals(HttpMethod.PUT, apiContext.getMethod());
+            context.assertEquals("/put_two_param", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertNull(apiContext.token());
+            context.assertEquals("edgar", apiContext.body().getString("username"));
+            context.assertEquals(HttpMethod.PUT, apiContext.method());
         }
     }
 
     private void assertPutToken(TestContext context, RoutingContext rc, ApiContext apiContext) {
         if (rc.normalisedPath().equalsIgnoreCase("/put_token")) {
-            context.assertEquals("/put_token", apiContext.getPath());
-            context.assertNotNull(apiContext.getHeaders());
-            context.assertEquals(2, apiContext.getParams().keySet().size());
-            context.assertEquals("token", apiContext.getToken());
-            context.assertEquals("edgar", apiContext.getBody().getString("username"));
-            context.assertEquals(HttpMethod.PUT, apiContext.getMethod());
+            context.assertEquals("/put_token", apiContext.path());
+            context.assertNotNull(apiContext.headers());
+            context.assertEquals(2, apiContext.params().keySet().size());
+            context.assertEquals("token", apiContext.token());
+            context.assertEquals("edgar", apiContext.body().getString("username"));
+            context.assertEquals(HttpMethod.PUT, apiContext.method());
         }
     }
 }

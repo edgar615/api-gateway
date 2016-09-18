@@ -38,7 +38,7 @@ public class ApiDefinitionVerticleTest {
     @After
     public void clear(TestContext context) {
         vertx.close(context.asyncAssertSuccess());
-        ApiDefinitionRegistryImpl.instance().remove(null);
+        ApiDefinitionRegistry.create().remove(null);
         AuthDefinitionRegistry.create().remove(null, null);
         IpRestrictionDefinitionRegistry.create().remove(null);
         RateLimitDefinitionRegistry.create().remove(null, null, null);

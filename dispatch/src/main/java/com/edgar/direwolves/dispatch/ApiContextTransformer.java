@@ -1,6 +1,5 @@
 package com.edgar.direwolves.dispatch;
 
-import com.edgar.direwolves.utils.MultiMapToMultimap;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Strings;

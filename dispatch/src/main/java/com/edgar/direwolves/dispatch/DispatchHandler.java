@@ -21,21 +21,24 @@ public class DispatchHandler implements Handler<RoutingContext> {
         //创建上下文
         ApiContext apiContext = ApiContextTransformer.instance().apply(rc);
         //根据api的路径匹配
-        ApiDefinitionRegistry registry = ApiDefinitionRegistry.instance();
+        ApiDefinitionRegistry registry = ApiDefinitionRegistry.create();
         Optional<ApiDefinition> optional =
                 registry.getDefinitions().stream().filter(definition -> ApiMatcher.instance().apply(apiContext, definition))
                         .findFirst();
         if (optional.isPresent()) {
             //TODO 路由转发
+            System.out.println("dispatch");
+            rc.response().setChunked(true)
+                    .end(new JsonObject()
+                            .put("foo", "bar")
+                            .encode());
         } else {
             //TODO 404
+            rc.response().setStatusCode(404).setChunked(true)
+                    .end(new JsonObject()
+                            .put("foo", "bar")
+                            .encode());
         }
-
-        System.out.println("dispatch");
-        rc.response().setChunked(true)
-                .end(new JsonObject()
-                        .put("foo", "bar")
-                        .encode());
     }
 
 

@@ -13,6 +13,7 @@
         <module>http</module>
         <module>dispatch</module>
         <module>cli</module>
+        <module>core</module>
     </modules>
 
     <properties>

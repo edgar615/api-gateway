@@ -15,7 +15,7 @@ public class DispatchVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-        int port = config().getInteger("http.port");
+        int port = config().getInteger("http.port", 8080);
 
         Router router = Router.router(vertx);
         Route route = router.route();

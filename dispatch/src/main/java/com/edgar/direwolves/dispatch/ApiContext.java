@@ -1,5 +1,7 @@
 package com.edgar.direwolves.dispatch;
 
+import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.definition.AuthDefinition;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
@@ -36,27 +38,27 @@ public class ApiContext {
         return new Builder();
     }
 
-    public Multimap<String, String> getParams() {
+    public Multimap<String, String> params() {
         return params;
     }
 
-    public Multimap<String, String> getHeaders() {
+    public Multimap<String, String> headers() {
         return headers;
     }
 
-    public JsonObject getBody() {
+    public JsonObject body() {
         return body;
     }
 
-    public String getPath() {
+    public String path() {
         return path;
     }
 
-    public HttpMethod getMethod() {
+    public HttpMethod method() {
         return method;
     }
 
-    public String getToken() {
+    public String token() {
         return token;
     }
 
