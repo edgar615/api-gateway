@@ -7,7 +7,7 @@ public interface Filter {
 
     int order();
 
-    boolean shouldFilter(String apiName,ApiContext apiContext);
+    boolean shouldFilter(ApiContext apiContext);
 
-    void doFilter(String apiName, ApiContext apiContext);
+    void doFilter(ApiContext apiContext);
 }

@@ -8,6 +8,7 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,19 +19,22 @@ import java.util.regex.Pattern;
 public class DispatchHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext rc) {
+
         //创建上下文
         ApiContext apiContext = ApiContextTransformer.instance().apply(rc);
         //根据api的路径匹配
         ApiDefinitionRegistry registry = ApiDefinitionRegistry.create();
+
         Optional<ApiDefinition> optional =
                 registry.getDefinitions().stream().filter(definition -> ApiMatcher.instance().apply(apiContext, definition))
                         .findFirst();
         if (optional.isPresent()) {
+            ApiDefinition apiDefinition = optional.get();
+            apiContext.setApiName(apiDefinition.name());
             //TODO 路由转发
-            System.out.println("dispatch");
             rc.response().setChunked(true)
                     .end(new JsonObject()
-                            .put("foo", "bar")
+                            .put("apiName", apiContext.apiName())
                             .encode());
         } else {
             //TODO 404

@@ -14,12 +14,14 @@ public class AddAuthCliCommand extends DefaultCommand {
 
     private String type;
 
-    @Option(shortName = "n", longName = "name")
+    private String help;
+
+    @Option(shortName = "n", longName = "name", required = true)
     public void setName(String name) {
         this.name = name;
     }
 
-    @Option(shortName = "t", longName = "type", choices = {"jwt", "oauth", "app_key"})
+    @Option(shortName = "t", longName = "type", choices = {"jwt", "oauth", "app_key"}, required = true)
     public void setType(String type) {
         this.type = type;
     }

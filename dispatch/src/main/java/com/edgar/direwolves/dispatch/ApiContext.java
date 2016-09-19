@@ -1,7 +1,5 @@
 package com.edgar.direwolves.dispatch;
 
-import com.edgar.direwolves.definition.ApiDefinition;
-import com.edgar.direwolves.definition.AuthDefinition;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
@@ -23,15 +21,14 @@ public class ApiContext {
 
     private final JsonObject body;
 
-    private final String token;
+    private String apiName;
 
-    private ApiContext(String path, HttpMethod method, Multimap<String, String> headers, Multimap<String, String> params, JsonObject body, String token) {
+    private ApiContext(String path, HttpMethod method, Multimap<String, String> headers, Multimap<String, String> params, JsonObject body) {
         this.path = path;
         this.method = method;
         this.headers = headers;
         this.params = params;
         this.body = body;
-        this.token = token;
     }
 
     static Builder builder() {
@@ -58,8 +55,12 @@ public class ApiContext {
         return method;
     }
 
-    public String token() {
-        return token;
+    public String apiName() {
+        return apiName;
+    }
+
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
     }
 
     @Override
@@ -70,7 +71,6 @@ public class ApiContext {
                 .add("params", params)
                 .add("headers", headers)
                 .add("body", body)
-                .add("token", token)
                 .toString();
     }
 
@@ -80,7 +80,6 @@ public class ApiContext {
         private Multimap<String, String> headers;
         private Multimap<String, String> params;
         private JsonObject body;
-        private String token;
 
         private Builder() {
         }
@@ -110,13 +109,8 @@ public class ApiContext {
             return this;
         }
 
-        public Builder setToken(String token) {
-            this.token = token;
-            return this;
-        }
-
         public ApiContext build() {
-            return new ApiContext(path, method, headers, params, body, token);
+            return new ApiContext(path, method, headers, params, body);
         }
     }
 }

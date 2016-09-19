@@ -31,16 +31,6 @@ public class ApiContextTransformer implements Function<RoutingContext, ApiContex
         ApiContext.Builder builder = ApiContext.builder();
         builder.setPath(rc.normalisedPath())
                 .setMethod(rc.request().method());
-        //token
-        String authorization = rc.request().getHeader("Authorization");
-        if (!Strings.isNullOrEmpty(authorization)) {
-            if (authorization.startsWith("Bearer ")) {
-                String token = authorization.substring(7);
-                builder.setToken(token);
-            } else {
-                throw SystemException.create(DefaultErrorCode.INVALID_TOKEN);
-            }
-        }
         builder.setHeaders(MultiMapToMultimap.instance().apply(rc.request().headers()));
         builder.setParams(MultiMapToMultimap.instance().apply(rc.request().params()));
         if (rc.request().method() == HttpMethod.POST || rc.request().method() == HttpMethod.PUT) {

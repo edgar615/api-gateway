@@ -1,3 +1,8 @@
 {
-  "http.port" : 9000
+  "http.port" : 9000,
+  "jwt.config" : {
+    "keystore.path" : "keystore.jceks",
+    "keystore.type" : "jceks",
+    "keystore.password" : "secret"
+  }
 }
