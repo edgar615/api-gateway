@@ -1,8 +1,10 @@
 {
   "http.port" : 9000,
-  "jwt.config" : {
-    "keystore.path" : "keystore.jceks",
-    "keystore.type" : "jceks",
-    "keystore.password" : "secret"
-  }
+  "filter" : [
+    "jwt",
+    "app_key"
+  ],
+  "jwt.keystore.path" : "keystore.jceks",
+  "jwt.keystore.type" : "jceks",
+  "jwt.keystore.password" : "secret"
 }

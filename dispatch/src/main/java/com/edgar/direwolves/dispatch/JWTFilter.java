@@ -6,7 +6,9 @@ import com.edgar.direwolves.definition.AuthType;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Strings;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.LocalMap;
@@ -25,14 +27,21 @@ public class JWTFilter implements Filter {
 
     private static final String AUTH_PREFIX = "Bearer ";
 
-    private JsonObject keyStoreConfig = new JsonObject()
+    private static final String TYPE = "jwt";
+
+    private JsonObject config = new JsonObject()
             .put("path", "keystore.jceks")
             .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
             .put("password", "secret");
 
     @Override
-    public int order() {
-        return 0;
+    public String type() {
+        return TYPE;
+    }
+
+    @Override
+    public void config(JsonObject config) {
+        this.config.mergeIn(config);
     }
 
     @Override
@@ -43,7 +52,7 @@ public class JWTFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ApiContext apiContext) {
+    public void doFilter(ApiContext apiContext, Future<ApiContext> nextFuture) {
         //token
         String token = extractToken(apiContext);
     }
@@ -65,14 +74,10 @@ public class JWTFilter implements Filter {
     }
 
     private Future<User> auth(Vertx vertx, String token) {
-        LocalMap<String, Object> shareData = vertx.sharedData().getLocalMap("shareData");
 
-        JsonObject config = new JsonObject().put("keyStore", new JsonObject()
-                .put("path", "keystore.jceks")
-                .put("type", "jceks")
-                .put("password", "secret"));
+        JsonObject jwtConfig = new JsonObject().put("keyStore", config);
 
-        JWTAuth provider = JWTAuth.create(vertx, config);
+        JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
 
         Future<User> authFuture = Future.future();
         provider.authenticate(new JsonObject().put("jwt", token), ar -> {

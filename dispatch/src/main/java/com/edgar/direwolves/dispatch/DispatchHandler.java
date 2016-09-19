@@ -2,6 +2,7 @@ package com.edgar.direwolves.dispatch;
 
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.definition.ApiDefinitionRegistry;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -31,6 +32,9 @@ public class DispatchHandler implements Handler<RoutingContext> {
         if (optional.isPresent()) {
             ApiDefinition apiDefinition = optional.get();
             apiContext.setApiName(apiDefinition.name());
+
+            Future<ApiContext> future = Future.future();
+            new JWTFilter().doFilter(apiContext, future);
             //TODO 路由转发
             rc.response().setChunked(true)
                     .end(new JsonObject()
