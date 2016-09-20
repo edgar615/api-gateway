@@ -23,6 +23,8 @@ public class ApiContext {
 
     private String apiName;
 
+    private JsonObject principal;
+
     private ApiContext(String path, HttpMethod method, Multimap<String, String> headers, Multimap<String, String> params, JsonObject body) {
         this.path = path;
         this.method = method;
@@ -61,6 +63,14 @@ public class ApiContext {
 
     public void setApiName(String apiName) {
         this.apiName = apiName;
+    }
+
+    public JsonObject principal() {
+        return principal;
+    }
+
+    public void setPrincipal(JsonObject principal) {
+        this.principal = principal;
     }
 
     @Override

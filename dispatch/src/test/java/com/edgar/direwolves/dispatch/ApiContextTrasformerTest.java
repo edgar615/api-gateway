@@ -219,7 +219,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/get_no_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(0, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertNull(apiContext.body());
             context.assertEquals(HttpMethod.GET, apiContext.method());
         }
@@ -230,7 +229,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/get_two_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertNull(apiContext.body());
             context.assertEquals(HttpMethod.GET, apiContext.method());
         }
@@ -241,7 +239,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/get_token", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertEquals("token", apiContext.token());
             context.assertNull(apiContext.body());
             context.assertEquals(HttpMethod.GET, apiContext.method());
         }
@@ -252,7 +249,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/delete_no_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(0, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertNull(apiContext.body());
             context.assertEquals(HttpMethod.DELETE, apiContext.method());
         }
@@ -263,7 +259,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/delete_two_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertNull(apiContext.body());
             context.assertEquals(HttpMethod.DELETE, apiContext.method());
         }
@@ -274,7 +269,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/delete_token", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertEquals("token", apiContext.token());
             context.assertNull(apiContext.body());
             context.assertEquals(HttpMethod.DELETE, apiContext.method());
         }
@@ -285,7 +279,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/post_no_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(0, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertEquals("edgar", apiContext.body().getString("username"));
             context.assertEquals(HttpMethod.POST, apiContext.method());
         }
@@ -296,7 +289,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/post_two_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertEquals("edgar", apiContext.body().getString("username"));
             context.assertEquals(HttpMethod.POST, apiContext.method());
         }
@@ -307,7 +299,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/post_token", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertEquals("token", apiContext.token());
             context.assertEquals("edgar", apiContext.body().getString("username"));
             context.assertEquals(HttpMethod.POST, apiContext.method());
         }
@@ -318,7 +309,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/post_invalid_json", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertEquals("token", apiContext.token());
             context.assertEquals("1024", apiContext.body().getString("code"));
             context.assertEquals(HttpMethod.POST, apiContext.method());
             context.assertFalse(apiContext.body().containsKey("username"));
@@ -330,7 +320,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/put_no_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(0, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertEquals("edgar", apiContext.body().getString("username"));
             context.assertEquals(HttpMethod.PUT, apiContext.method());
         }
@@ -341,7 +330,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/put_two_param", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertNull(apiContext.token());
             context.assertEquals("edgar", apiContext.body().getString("username"));
             context.assertEquals(HttpMethod.PUT, apiContext.method());
         }
@@ -352,7 +340,6 @@ public class ApiContextTrasformerTest {
             context.assertEquals("/put_token", apiContext.path());
             context.assertNotNull(apiContext.headers());
             context.assertEquals(2, apiContext.params().keySet().size());
-            context.assertEquals("token", apiContext.token());
             context.assertEquals("edgar", apiContext.body().getString("username"));
             context.assertEquals(HttpMethod.PUT, apiContext.method());
         }

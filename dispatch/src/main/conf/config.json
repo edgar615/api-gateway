@@ -4,7 +4,12 @@
     "jwt",
     "app_key"
   ],
-  "jwt.keystore.path" : "keystore.jceks",
-  "jwt.keystore.type" : "jceks",
-  "jwt.keystore.password" : "secret"
+  "keystore.path" : "keystore.jceks",
+  "keystore.type" : "jceks",
+  "keystore.password" : "secret",
+  "jwt.algorithm" : "HS512",
+  "jwt.audience" : "",
+  "jwt.issuer" : "",
+  "jwt.subject" : "",
+  "jwt.expires" : 1800
 }

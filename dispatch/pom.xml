@@ -58,7 +58,11 @@
             <groupId>com.edgar</groupId>
             <artifactId>util</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>vertx-util</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-definition</artifactId>
