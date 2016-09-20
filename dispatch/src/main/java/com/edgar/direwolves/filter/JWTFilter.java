@@ -50,21 +50,6 @@ public class JWTFilter implements Filter {
         if (config.containsKey("keystore.password")) {
             this.config.put("password", config.getString("keystore.password"));
         }
-        if (config.containsKey("jwt.alg")) {
-            this.config.put("algorithm", config.getString("jwt.alg"));
-        }
-        if (config.containsKey("jwt.audience")) {
-            this.config.put("audience", config.getString("jwt.audience"));
-        }
-        if (config.containsKey("jwt.issuer")) {
-            this.config.put("issuer", config.getString("jwt.issuer"));
-        }
-        if (config.containsKey("jwt.subject")) {
-            this.config.put("subject", config.getString("jwt.subject"));
-        }
-        if (config.containsKey("jwt.expires")) {
-            this.config.put("expiresInSeconds", config.getInteger("jwt.expires"));
-        }
     }
 
     @Override

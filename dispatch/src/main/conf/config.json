@@ -11,5 +11,19 @@
   "jwt.audience" : "",
   "jwt.issuer" : "",
   "jwt.subject" : "",
-  "jwt.expires" : 1800
+  "jwt.expires" : 1800,
+  "app_key.expires" : 300,
+  "app_key.secret.import" : {
+    "url" : "/secrets",
+    "scan_period" : 2000,
+    "service" : "user"
+  },
+  "app_key.secret" : [
+    {
+      "key" : "1",
+      "secret" : "2",
+      "code" : 0,
+      "scope" : "all"
+    }
+  ]
 }

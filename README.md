@@ -11,7 +11,7 @@ API网关,准备造的一个轮子
 - keystore.path string 证书文件路径 默认值keystore.jceks
 - keystore.type string 证书类型，可选值 jceks, jks,默认值jceks
 - keystore.password string 证书密钥，默认值secret
-- jwt.alg string jwt的加密算法
+- jwt.alg string jwt的加密算法,默认值HS512
 
 
     `HS256`:: HMAC using SHA-256 hash algorithm
@@ -27,4 +27,5 @@ API网关,准备造的一个轮子
 - jwt.audience string token的客户aud
 - jwt.issuer string token的发行者iss
 - jwt.subject string token的主题sub
-    "jwt.expires" int 过期时间exp，单位秒，默认值1800
+- jwt.expires int 过期时间exp，单位秒，默认值1800
+- timestamp_check.expires int 请求的过期时间,单位秒，默认值300

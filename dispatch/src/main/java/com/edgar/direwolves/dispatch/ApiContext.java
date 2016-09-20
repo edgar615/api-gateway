@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ApiContext {
@@ -25,6 +27,8 @@ public class ApiContext {
 
     private JsonObject principal;
 
+    private final Map<String, Object> variables = new HashMap<>();
+
     private ApiContext(String path, HttpMethod method, Multimap<String, String> headers, Multimap<String, String> params, JsonObject body) {
         this.path = path;
         this.method = method;
@@ -33,7 +37,7 @@ public class ApiContext {
         this.body = body;
     }
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -73,6 +77,14 @@ public class ApiContext {
         this.principal = principal;
     }
 
+    public Map<String, Object> getVariables() {
+        return variables;
+    }
+
+    public void addVariable(String name, Object value) {
+        variables.put(name, value);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper("Api")
@@ -81,10 +93,11 @@ public class ApiContext {
                 .add("params", params)
                 .add("headers", headers)
                 .add("body", body)
+                .add("principal", principal.encode())
                 .toString();
     }
 
-    static class Builder {
+    public static class Builder {
         private String path = "/";
         private HttpMethod method = HttpMethod.GET;
         private Multimap<String, String> headers;
