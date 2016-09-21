@@ -30,7 +30,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
             apiContext.setApiName(apiDefinition.name());
 
             Filters filters = new Filters();
-            filters.init(null);
+            filters.init(rc.vertx());
             Task<ApiContext> task = filters.doFilter(apiContext);
             task.andThen(context -> rc.response().setChunked(true)
                     .end(new JsonObject()

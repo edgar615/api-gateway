@@ -52,12 +52,7 @@ class HttpEndpointImpl implements HttpEndpoint {
      */
     private final List<Parameter> bodyArgs;
 
-    /**
-     * rest接口的响应是否是JSON数组，true表示是，false表示不是.
-     */
-    private final boolean isArray;
-
-    HttpEndpointImpl(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs, List<Parameter> bodyArgs, boolean isArray) {
+    HttpEndpointImpl(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs, List<Parameter> bodyArgs) {
         Preconditions.checkNotNull(name, "name can not be null");
         Preconditions.checkNotNull(method, "method can not be null");
         Preconditions.checkNotNull(path, "path can not be null");
@@ -85,7 +80,6 @@ class HttpEndpointImpl implements HttpEndpoint {
         } else {
             this.bodyArgs = null;
         }
-        this.isArray = isArray;
     }
 
     @Override
@@ -119,11 +113,6 @@ class HttpEndpointImpl implements HttpEndpoint {
     }
 
     @Override
-    public boolean isArray() {
-        return isArray;
-    }
-
-    @Override
     public String toString() {
         return MoreObjects.toStringHelper("HttpEndpoint")
                 .add("name", name)
@@ -132,7 +121,6 @@ class HttpEndpointImpl implements HttpEndpoint {
                 .add("method", method)
                 .add("urlArgs", urlArgs)
                 .add("bodyArgs", bodyArgs)
-                .add("isArray;", isArray)
                 .toString();
     }
 

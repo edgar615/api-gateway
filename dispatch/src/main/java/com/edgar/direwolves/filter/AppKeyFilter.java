@@ -106,6 +106,7 @@ public class AppKeyFilter implements Filter {
             throw SystemException.create(DefaultErrorCode.INVALID_REQ);
         }
         apiContext.addVariable("appCode", company.getInteger("code", 0));
+        apiContext.addVariable("scope", company.getString("scope", "default"));
         //检查有没有访问权限
 //        String scope = company.getString("scope", "");
 //        List<String> scopeList = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(scope);
@@ -123,7 +124,7 @@ public class AppKeyFilter implements Filter {
         JsonObject appJson = null;
         for (int i = 0; i < secrets.size(); i++) {
             JsonObject c = secrets.getJsonObject(i);
-            String key = c.getString("key");
+            String key = c.getString("name");
             if (appKey.equalsIgnoreCase(key)) {
                 appJson = c;
             }

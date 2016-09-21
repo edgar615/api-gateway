@@ -36,7 +36,6 @@ public interface HttpEndpoint extends Endpoint {
     String path();
 
     /**
-     *
      * @return 服务名，用于服务发现.
      */
     String service();
@@ -51,14 +50,4 @@ public interface HttpEndpoint extends Endpoint {
      */
     List<Parameter> bodyArgs();
 
-    /**
-     *
-     * @return 响应结果是否是JSON数组，如果是，则按JSON数组处理。
-     */
-    boolean isArray();
-
-
-    static HttpEndpointBuilder builder() {
-        return new HttpEndpointBuilder();
-    }
 }

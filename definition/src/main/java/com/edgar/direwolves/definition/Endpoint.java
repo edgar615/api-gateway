@@ -12,6 +12,33 @@ import java.util.List;
 public interface Endpoint {
 
     /**
+     * 创建HTTP类型的Endpoint
+     * @param name 名称
+     * @param method 请求方法 GET | POST | DELETE | PUT
+     * @param path API路径
+     * @param service 服务名，用于服务发现
+     * @param urlArgs URL参数
+     * @param bodyArgs body参数
+     * @return HttpEndpoint
+     */
+    static HttpEndpoint createHttp(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs, List<Parameter> bodyArgs) {
+        return new HttpEndpointImpl(name, method, path, service, urlArgs, bodyArgs);
+    }
+
+    /**
+     * 创建HTTP类型的Endpoint
+     * @param name 名称
+     * @param method 请求方法 GET | POST | DELETE | PUT
+     * @param path API路径
+     * @param service 服务名，用于服务发现
+     * @param urlArgs URL参数
+     * @return HttpEndpoint
+     */
+    static HttpEndpoint createHttp(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs) {
+        return new HttpEndpointImpl(name, method, path, service, urlArgs, null);
+    }
+
+    /**
      * @return endpoint的名称
      */
     String name();
@@ -20,16 +47,4 @@ public interface Endpoint {
      * @return endpoint的类型
      */
     String type();
-
-//    static HttpEndpoint createHttp(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs, List<Parameter> bodyArgs, boolean isArray) {
-//        return new HttpEndpoint(name, method, path, service, urlArgs, bodyArgs, isArray);
-//    }
-//
-//    static HttpEndpoint createHttp(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs) {
-//        return new HttpEndpoint(name, method, path, service, urlArgs, null, false);
-//    }
-//
-//    static HttpEndpoint createHttp(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs, boolean isArray) {
-//        return new HttpEndpoint(name, method, path, service, urlArgs, null, isArray);
-//    }
 }
