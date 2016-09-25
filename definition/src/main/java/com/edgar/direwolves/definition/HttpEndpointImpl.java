@@ -5,7 +5,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.vertx.core.http.HttpMethod;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * HTTP的远程调用定义.
@@ -51,6 +54,24 @@ class HttpEndpointImpl implements HttpEndpoint {
      * body参数
      */
     private final List<Parameter> bodyArgs;
+
+    private final List<String> headersRemove = new ArrayList<>();
+
+    private final List<Map<String, String>> headersAdd = new ArrayList<>();
+
+    private final List<Map<String, String>> headersReplace = new ArrayList<>();
+
+    private final List<String> urlArgsRemove = new ArrayList<>();
+
+    private final List<Map<String, String>> urlArgsAdd = new ArrayList<>();
+
+    private final List<Map<String, String>> urlArgsReplace = new ArrayList<>();
+
+    private final List<String> bodyArgsRemove = new ArrayList<>();
+
+    private final List<Map<String, String>> bodyArgsAdd = new ArrayList<>();
+
+    private final List<Map<String, String>> bodyArgsReplace = new ArrayList<>();
 
     HttpEndpointImpl(String name, HttpMethod method, String path, String service, List<Parameter> urlArgs, List<Parameter> bodyArgs) {
         Preconditions.checkNotNull(name, "name can not be null");
@@ -113,6 +134,108 @@ class HttpEndpointImpl implements HttpEndpoint {
     }
 
     @Override
+    public HttpEndpoint addRequestHeader(String key, String value) {
+        Map<String, String> header = new HashMap<>();
+        header.put(key, value);
+        headersAdd.add(header);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint replaceRequestHeader(String key, String value) {
+        Map<String, String> header = new HashMap<>();
+        header.put(key, value);
+        headersReplace.add(header);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint removeHeader(String key) {
+        headersRemove.add(key);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint addRequestUrlArg(String key, String value) {
+        Map<String, String> urlArg = new HashMap<>();
+        urlArg.put(key, value);
+        urlArgsAdd.add(urlArg);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint replaceRequestUrlArg(String key, String value) {
+        Map<String, String> urlArg = new HashMap<>();
+        urlArg.put(key, value);
+        urlArgsReplace.add(urlArg);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint removeUrlArg(String key) {
+        urlArgsRemove.add(key);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint addRequestBodyArg(String key, String value) {
+        Map<String, String> bodyArg = new HashMap<>();
+        bodyArg.put(key, value);
+        bodyArgsAdd.add(bodyArg);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint replaceRequestBodyArg(String key, String value) {
+        Map<String, String> bodyArg = new HashMap<>();
+        bodyArg.put(key, value);
+        bodyArgsReplace.add(bodyArg);
+        return this;
+    }
+
+    @Override
+    public HttpEndpoint removeBodyArg(String key) {
+        bodyArgsRemove.add(key);
+        return this;
+    }
+
+    public List<Map<String, String>> bodyArgsReplace() {
+        return bodyArgsReplace;
+    }
+
+    public List<Map<String, String>> bodyArgsAdd() {
+        return bodyArgsAdd;
+    }
+
+    public List<String> bodyArgsRemove() {
+        return bodyArgsRemove;
+    }
+
+    public List<Map<String, String>> urlArgsReplace() {
+        return urlArgsReplace;
+    }
+
+    public List<Map<String, String>> urlArgsAdd() {
+        return urlArgsAdd;
+    }
+
+    public List<String> urlArgsRemove() {
+        return urlArgsRemove;
+    }
+
+    public List<Map<String, String>> headersReplace() {
+        return headersReplace;
+    }
+
+    public List<Map<String, String>> headersAdd() {
+        return headersAdd;
+    }
+
+    public List<String> headersRemove() {
+        return headersRemove;
+    }
+
+    @Override
     public String toString() {
         return MoreObjects.toStringHelper("HttpEndpoint")
                 .add("name", name)
@@ -121,6 +244,15 @@ class HttpEndpointImpl implements HttpEndpoint {
                 .add("method", method)
                 .add("urlArgs", urlArgs)
                 .add("bodyArgs", bodyArgs)
+                .add("headersRemove", headersRemove)
+                .add("headersReplace", headersReplace)
+                .add("headersAdd", headersAdd)
+                .add("urlArgsRemove", urlArgsRemove)
+                .add("urlArgsReplace", urlArgsReplace)
+                .add("urlArgsAdd", urlArgsAdd)
+                .add("bodyArgsRemove", bodyArgsRemove)
+                .add("bodyArgsReplace", bodyArgsReplace)
+                .add("bodyArgsAdd", bodyArgsAdd)
                 .toString();
     }
 

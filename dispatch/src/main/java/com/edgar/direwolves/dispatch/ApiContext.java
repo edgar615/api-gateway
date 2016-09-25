@@ -1,6 +1,8 @@
 package com.edgar.direwolves.dispatch;
 
+import com.edgar.direwolves.definition.ApiDefinition;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -23,11 +25,11 @@ public class ApiContext {
 
     private final JsonObject body;
 
-    private String apiName;
-
     private JsonObject principal;
 
     private final Map<String, Object> variables = new HashMap<>();
+
+    private ApiDefinition apiDefinition;
 
     private ApiContext(String path, HttpMethod method, Multimap<String, String> headers, Multimap<String, String> params, JsonObject body) {
         this.path = path;
@@ -61,14 +63,6 @@ public class ApiContext {
         return method;
     }
 
-    public String apiName() {
-        return apiName;
-    }
-
-    public void setApiName(String apiName) {
-        this.apiName = apiName;
-    }
-
     public JsonObject principal() {
         return principal;
     }
@@ -85,6 +79,14 @@ public class ApiContext {
         variables.put(name, value);
     }
 
+    public ApiDefinition getApiDefinition() {
+        return apiDefinition;
+    }
+
+    public void setApiDefinition(ApiDefinition apiDefinition) {
+        this.apiDefinition = apiDefinition;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper("Api")
@@ -94,14 +96,15 @@ public class ApiContext {
                 .add("headers", headers)
                 .add("body", body)
                 .add("principal", principal.encode())
+                .add("variables", variables)
                 .toString();
     }
 
     public static class Builder {
         private String path = "/";
         private HttpMethod method = HttpMethod.GET;
-        private Multimap<String, String> headers;
-        private Multimap<String, String> params;
+        private Multimap<String, String> headers = ArrayListMultimap.create();
+        private Multimap<String, String> params = ArrayListMultimap.create();
         private JsonObject body;
 
         private Builder() {

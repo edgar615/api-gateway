@@ -6,7 +6,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.vertx.core.http.HttpMethod;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -77,6 +79,20 @@ class ApiDefinitionImpl implements ApiDefinition {
      * 远程请求定义.
      */
     private final List<Endpoint> endpoints;
+
+    private final Set<String> filters = new HashSet<>();
+
+    /**
+     * 白名单
+     */
+    private final Set<String> whitelist = new HashSet<>();
+
+    /**
+     * 黑名单
+     */
+    private final Set<String> blacklist = new HashSet<>();
+
+    private final Set<RateLimitDefinition> rateLimitDefinitions = new HashSet<>();
 
     ApiDefinitionImpl(String name, HttpMethod method, String path, String scope, List<Parameter> urlArgs, List<Parameter> bodyArgs, List<Endpoint> endpoints) {
         Preconditions.checkNotNull(name, "name can not be null");
@@ -153,6 +169,103 @@ class ApiDefinitionImpl implements ApiDefinition {
     }
 
     @Override
+    public List<String> filters() {
+        return ImmutableList.copyOf(filters());
+    }
+
+    @Override
+    public void addFilter(String filterType) {
+        Preconditions.checkNotNull(filterType);
+        this.filters.add(filterType);
+    }
+
+    @Override
+    public void removeFilter(String filterType) {
+        Preconditions.checkNotNull(filterType);
+        this.filters.remove(filterType);
+    }
+
+    /**
+     * 增加白名单.
+     * 如果黑名单中存在该IP，从黑名单删除.
+     * 每个接口最多允许添加100个白名单，超过100个白名单应该采用其他方式。
+     *
+     * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+     * @return IpRestriction
+     */
+    @Override
+    public IpRestrictionDefinition addWhitelist(String ip) {
+        Preconditions.checkNotNull(ip, "ip cannot be null");
+        Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
+        blacklist.remove(ip);
+        whitelist.add(ip);
+        return this;
+    }
+
+    /**
+     * 增加黑名单.
+     * 如果白名单中存在该IP，从白名单中删除.
+     * 每个接口最多允许添加100个黑名单，超过100个黑名单应该采用其他方式。
+     *
+     * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+     * @return IpRestriction
+     */
+    @Override
+    public IpRestrictionDefinition addBlacklist(String ip) {
+        Preconditions.checkNotNull(ip, "ip cannot be null");
+        Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
+        whitelist.remove(ip);
+        blacklist.add(ip);
+        return this;
+    }
+
+    /**
+     * 删除白名单.
+     *
+     * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+     * @return IpRestriction
+     */
+    @Override
+    public IpRestrictionDefinition removeWhitelist(String ip) {
+        Preconditions.checkNotNull(ip, "ip cannot be null");
+        whitelist.remove(ip);
+        return this;
+    }
+
+    /**
+     * 删除黑名单.
+     *
+     * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+     * @return IpRestriction
+     */
+    @Override
+    public IpRestrictionDefinition removeBlacklist(String ip) {
+        Preconditions.checkNotNull(ip, "ip cannot be null");
+        blacklist.remove(ip);
+        return this;
+    }
+
+    @Override
+    public List<String> whitelist() {
+        return ImmutableList.copyOf(whitelist);
+    }
+
+    @Override
+    public List<String> blacklist() {
+        return ImmutableList.copyOf(blacklist);
+    }
+
+    /**
+     * 获取API限流的映射关系的列表.
+     *
+     * @return RateLimitDefinition的不可变集合.
+     */
+    @Override
+    public List<RateLimitDefinition> rateLimitDefinitions() {
+        return ImmutableList.copyOf(rateLimitDefinitions);
+    }
+
+    @Override
     public String toString() {
         return MoreObjects.toStringHelper("ApiDefinition")
                 .add("name", name)
@@ -162,6 +275,9 @@ class ApiDefinitionImpl implements ApiDefinition {
                 .add("bodyArgs", bodyArgs)
                 .add("scope", scope)
                 .add("endpoints", endpoints)
+                .add("filters", filters)
+                .add("whitelist", whitelist)
+                .add("blacklist", blacklist)
                 .toString();
     }
 

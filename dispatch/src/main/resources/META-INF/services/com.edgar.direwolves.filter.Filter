@@ -1,1 +1,3 @@
 com.edgar.direwolves.filter.JWTFilter
+com.edgar.direwolves.filter.AppKeyFilter
+com.edgar.direwolves.filter.TimeoutFilter

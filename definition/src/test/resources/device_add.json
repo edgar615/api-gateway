@@ -3,7 +3,7 @@
   "method": "POST",
   "path": "/devices",
   "scope" : "device:write",
-  "auth" : "jwt",
+  "filters" : ["timeout", "app_key", "jwt", "ip_restriction"],
   "ip_restriction" : {
     "whitelist" : ["192.168.0.1", "10.4.7.*"],
     "blacklist" : ["192.168.0.100"]
@@ -73,7 +73,24 @@
       "name" : "add_device",
       "service": "device",
       "method": "POST",
-      "path": "/devices"
+      "path": "/devices",
+      "request_transformer" : {
+        "remove" : {
+          "headers" : ["h3", "h4"],
+          "url_args" : ["q3", "q4"],
+          "body_args" : ["p3", "p4"]
+        },
+        "replace" : {
+          "headers" : ["h5:v2", "h6:v1"],
+          "url_args" : ["q5:v2", "q6:v1"],
+          "body_args" : ["p5:v2", "p6:v1"]
+        },
+        "add" : {
+          "headers" : ["h1:v2", "h2:v1"],
+          "url_args" : ["q1:v2", "q2:v1"],
+          "body_args" : ["p1:v2", "p2:v1"]
+        }
+      }
     }
   ]
 }

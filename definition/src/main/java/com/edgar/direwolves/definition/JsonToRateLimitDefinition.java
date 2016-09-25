@@ -42,32 +42,10 @@ public class JsonToRateLimitDefinition implements Function<JsonObject, List<Rate
             String limitBy = rateLimit.getString("limit_by");
             int limit = rateLimit.getInteger("limit");
 
-            RateLimitBy rateLimitBy = createRateLimitBy(limitBy);
-            RateLimitType rateLimitType = createRateLimitType(type);
-
-
-            if (rateLimitBy != null && rateLimitType != null) {
-                definitions.add(RateLimitDefinition.create(name, rateLimitBy, rateLimitType, limit));
-            }
+            definitions.add(RateLimitDefinition.create(limitBy, type, limit));
         }
 
         return definitions;
-    }
-
-    private RateLimitBy createRateLimitBy(String value) {
-        try {
-            return RateLimitBy.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private RateLimitType createRateLimitType(String value) {
-        try {
-            return RateLimitType.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 
 }

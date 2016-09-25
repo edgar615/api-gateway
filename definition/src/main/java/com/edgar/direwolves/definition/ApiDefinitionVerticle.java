@@ -58,7 +58,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
                     ApiDefinitionRegistry.create().add(apiDefinition);
                 }
 
-                List<AuthDefinition> authDefinitions = JsonToAuthDefinition.instance().apply(jsonObject);
+                List<AuthDefinition> authDefinitions = JsonToAuthDefinitions.instance().apply(jsonObject);
                 if (!authDefinitions.isEmpty()) {
                     authDefinitions.forEach(authDefinition -> AuthDefinitionRegistry.create().add(authDefinition));
                 }

@@ -181,7 +181,7 @@
                         <includeScope>runtime</includeScope>
                         <includeTypes>jar</includeTypes>
                         <overWriteSnapshots>true</overWriteSnapshots>
-                        <type>jar</type>
+                        <limitBy>jar</limitBy>
                         <outputDirectory>${project.build.directory}/lib</outputDirectory>
                     </configuration>
                 </plugin>

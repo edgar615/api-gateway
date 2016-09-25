@@ -64,7 +64,7 @@ class RateLimitDefinitionRegistryImpl implements RateLimitDefinitionRegistry {
 
         try {
             wl.lock();
-            remove(definition.apiName(), definition.rateLimitBy(), definition.rateLimitType());
+            remove(definition.apiName(), definition.rateLimitBy(), definition.type());
             this.definitions.add(definition);
         } finally {
             wl.unlock();
@@ -75,12 +75,12 @@ class RateLimitDefinitionRegistryImpl implements RateLimitDefinitionRegistry {
 
     /**
      * 根据组合条件查询映射.
-     * 如果apiName=get_device, rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE
-     * 会从注册表中删除apiName=get_device, rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE的映射.
-     * 如果apiName=get_device, rateLimitBy = null，rateLimitType=RateLimitType.SECODE
-     * 会从注册表中删除apiName=get_device, rateLimitType=RateLimitType.SECODE的映射.
-     * 如果apiName=null, rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE
-     * 会从注册表中删除rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE的映射.
+     * 如果apiName=get_device, rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE
+     * 会从注册表中删除apiName=get_device, rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE的映射.
+     * 如果apiName=get_device, rateLimitBy = null，type=RateLimitType.SECODE
+     * 会从注册表中删除apiName=get_device, type=RateLimitType.SECODE的映射.
+     * 如果apiName=null, rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE
+     * 会从注册表中删除rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE的映射.
      * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
      * *user会查询所有以user结尾对name,如add_user.
      * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
@@ -105,12 +105,12 @@ class RateLimitDefinitionRegistryImpl implements RateLimitDefinitionRegistry {
 
     /**
      * 根据组合条件查询映射.
-     * 如果apiName=get_device, rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE
-     * 会从注册表中查询apiName=get_device, rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE的映射.
-     * 如果apiName=get_device, rateLimitBy = null，rateLimitType=RateLimitType.SECODE
-     * 会从注册表中查询apiName=get_device, rateLimitType=RateLimitType.SECODE的映射.
-     * 如果apiName=null, rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE
-     * 会从注册表中查询rateLimitBy = RateLimitBy.USER，rateLimitType=RateLimitType.SECODE的映射.
+     * 如果apiName=get_device, rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE
+     * 会从注册表中查询apiName=get_device, rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE的映射.
+     * 如果apiName=get_device, rateLimitBy = null，type=RateLimitType.SECODE
+     * 会从注册表中查询apiName=get_device, type=RateLimitType.SECODE的映射.
+     * 如果apiName=null, rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE
+     * 会从注册表中查询rateLimitBy = RateLimitBy.USER，type=RateLimitType.SECODE的映射.
      * name支持两种通配符 user*会查询所有以user开头的name，如user.add．
      * *user会查询所有以user结尾对name,如add_user.
      * *表示所有.**也表示所有.但是***表示中间有一个*的字符串,如user*add
@@ -128,7 +128,7 @@ class RateLimitDefinitionRegistryImpl implements RateLimitDefinitionRegistry {
             predicate = predicate.and(definition -> rateLimitBy == definition.rateLimitBy());
         }
         if (rateLimitType != null) {
-            predicate = predicate.and(definition -> rateLimitType == definition.rateLimitType());
+            predicate = predicate.and(definition -> rateLimitType == definition.type());
         }
         try {
             rl.lock();

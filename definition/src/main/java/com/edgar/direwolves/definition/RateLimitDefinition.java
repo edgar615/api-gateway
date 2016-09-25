@@ -15,23 +15,23 @@ package com.edgar.direwolves.definition;
  */
 public interface RateLimitDefinition {
 
-    static RateLimitDefinition create(String apiName, RateLimitBy rateLimitBy, RateLimitType rateLimitType, long limit) {
-        return new RateLimitDefinitionImpl(apiName, rateLimitBy, rateLimitType, limit);
+    static RateLimitDefinition create(String limitBy, String type, long limit) {
+        return new RateLimitDefinitionImpl(limitBy, type, limit);
     }
 
     /**
-     * 限制条件,user | token | app_key
+     * 限制条件,user_rate | token_rate | app_key_rate
      *
      * @return 限制条件
      */
-    RateLimitBy rateLimitBy();
+    String limitBy();
 
     /**
      * 限制类型  second | minute | hour | day | month | year
      *
      * @return 限制类型
      */
-    RateLimitType rateLimitType();
+    String type();
 
     /**
      * 限制数量
@@ -40,10 +40,4 @@ public interface RateLimitDefinition {
      */
     long limit();
 
-    /**
-     * api名称
-     *
-     * @return api名称
-     */
-    String apiName();
 }

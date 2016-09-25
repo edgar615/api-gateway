@@ -27,18 +27,6 @@ public class AuthDefinitionRegistryTest {
     }
 
     @Test
-    public void testType() {
-        String type = "JWT";
-        System.out.println(AuthType.valueOf(type));
-        for (AuthType authType : AuthType.values()) {
-            if (type.equals(authType.getValue())) {
-                System.out.println(authType);
-            }
-        }
-        AuthType.valueOf("aaa");
-    }
-
-    @Test
     public void testRegister() {
         Assert.assertEquals(2, registry.getDefinitions().size());
     }

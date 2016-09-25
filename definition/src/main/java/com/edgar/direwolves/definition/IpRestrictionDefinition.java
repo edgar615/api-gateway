@@ -9,10 +9,6 @@ import java.util.List;
  */
 public interface IpRestrictionDefinition {
 
-    static IpRestrictionDefinition create(String apiName) {
-        return new IpRestrictionDefinitionImpl(apiName);
-    }
-
     /**
      * 增加白名单.
      * 如果黑名单中存在该IP，从黑名单删除.
@@ -48,12 +44,6 @@ public interface IpRestrictionDefinition {
      * @return IpRestriction
      */
     IpRestrictionDefinition removeBlacklist(String ip);
-
-    /**
-     *
-     * @return api名称
-     */
-    String apiName();
 
     /**
      *

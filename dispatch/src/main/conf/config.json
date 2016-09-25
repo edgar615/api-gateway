@@ -12,7 +12,7 @@
   "jwt.issuer" : "",
   "jwt.subject" : "",
   "jwt.expires" : 1800,
-  "app_key.expires" : 300,
+  "timeout.expires" : 300,
   "app_key.secret.import" : {
     "url" : "/secrets",
     "scan_period" : 2000,

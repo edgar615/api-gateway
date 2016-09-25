@@ -54,8 +54,12 @@ public class JWTFilter implements Filter {
 
     @Override
     public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.getApiDefinition() == null) {
+            return false;
+        }
+        String apiName = apiContext.getApiDefinition().name();
         List<AuthDefinition> definitions = AuthDefinitionRegistry.create()
-                .filter(apiContext.apiName(), AuthType.JWT);
+                .filter(apiName, AuthType.JWT);
         return definitions.size() == 1;
     }
 
@@ -103,6 +107,7 @@ public class JWTFilter implements Filter {
                         completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause()));
                     }
                 } else {
+//                    throw SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause());
                     completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause()));
                 }
             }

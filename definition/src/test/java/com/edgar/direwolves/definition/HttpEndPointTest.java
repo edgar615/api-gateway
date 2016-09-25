@@ -14,12 +14,7 @@ public class HttpEndPointTest {
 
     @Test
     public void testBuild() {
-//        Endpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "/devices", "device", null, null, true);
-        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setService("device")
-                .setArray(true).build();
+        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "/devices", "device", null, null);
 
         Assert.assertEquals("/devices", httpEndpoint.path());
         Assert.assertNull(httpEndpoint.bodyArgs());
@@ -27,39 +22,35 @@ public class HttpEndPointTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildGetShouldNoBody() {
-        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setService("device")
-                .setBodyArgs(Lists.newArrayList(new Parameter("username", null)))
-                .setArray(true).build();
-
+        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, Lists.newArrayList(new Parameter("username", null)));
         Assert.fail();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUrlArgsShouldImmutable() {
-        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setService("device")
-                .setUrlArgs(Lists.newArrayList(new Parameter("username", null)))
-                .setArray(true).build();
-
-        httpEndpoint.urlArgs().add(new Parameter("password", null));
-        Assert.fail();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testBodyArgsShouldImmutable() {
-        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
-                .setMethod(HttpMethod.POST)
-                .setPath("devices/")
-                .setService("device")
-                .setBodyArgs(Lists.newArrayList(new Parameter("username", null)))
-                .setArray(true).build();
-
-        httpEndpoint.bodyArgs().add(new Parameter("password", null));
-        Assert.fail();
-    }
+//    @Test(expected = UnsupportedOperationException.class)
+//    public void testUrlArgsShouldImmutable() {
+//        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
+//                .setMethod(HttpMethod.GET)
+//                .setPath("devices/")
+//                .setService("device")
+//                .setUrlArgs(Lists.newArrayList(new Parameter("username", null)))
+//                .setArray(true).build();
+//
+//        httpEndpoint.urlArgs().add(new Parameter("password", null));
+//
+//
+//        Assert.fail();
+//    }
+//
+//    @Test(expected = UnsupportedOperationException.class)
+//    public void testBodyArgsShouldImmutable() {
+//        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
+//                .setMethod(HttpMethod.POST)
+//                .setPath("devices/")
+//                .setService("device")
+//                .setBodyArgs(Lists.newArrayList(new Parameter("username", null)))
+//                .setArray(true).build();
+//
+//        httpEndpoint.bodyArgs().add(new Parameter("password", null));
+//        Assert.fail();
+//    }
 }

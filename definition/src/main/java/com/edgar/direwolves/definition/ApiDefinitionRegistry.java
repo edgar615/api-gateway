@@ -9,6 +9,10 @@ import java.util.Set;
  */
 public interface ApiDefinitionRegistry {
 
+    static ApiDefinitionRegistry create() {
+        return ApiDefinitionRegistryImpl.instance();
+    }
+
     /**
      * 获取路由映射的列表.
      *
@@ -47,7 +51,48 @@ public interface ApiDefinitionRegistry {
      */
     List<ApiDefinition> filter(String name);
 
-    static ApiDefinitionRegistry create() {
-        return ApiDefinitionRegistryImpl.instance();
-    }
+    /**
+     * 给api增加一个filter
+     *
+     * @param filterType
+     */
+    void addFilter(String name, String filterType);
+
+    /**
+     * 给api删除一个filter
+     * @param filterType
+     */
+    void removeFilter(String name, String filterType);
+
+    /**
+     * 向注册表中添加一个Ip黑名单限制.
+     *
+     * @param apiName API名称.
+     * @param ip      黑名单IP
+     */
+    void addBlacklist(String apiName, String ip);
+
+    /**
+     * 向注册表中添加一个Ip白名单限制.
+     *
+     * @param apiName API名称.
+     * @param ip      白名单IP
+     */
+    void addWhitelist(String apiName, String ip);
+
+    /**
+     * 向注册表中删除一个Ip黑名单限制.
+     *
+     * @param apiName API名称.
+     * @param ip      黑名单IP
+     */
+    void removeBlacklist(String apiName, String ip);
+
+    /**
+     * 向注册表中删除一个Ip白名单限制.
+     *
+     * @param apiName API名称.
+     * @param ip      白名单IP
+     */
+    void removeWhitelist(String apiName, String ip);
 }

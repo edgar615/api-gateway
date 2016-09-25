@@ -1,15 +1,10 @@
 package com.edgar.direwolves.definition;
 
-import com.edgar.util.validation.Rule;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -18,10 +13,10 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2016/9/13
  */
-public class JsonToAuthDefinition implements Function<JsonObject, List<AuthDefinition>> {
-    private static final JsonToAuthDefinition INSTANCE = new JsonToAuthDefinition();
+class JsonToAuthDefinitions implements Function<JsonObject, List<AuthDefinition>> {
+    private static final JsonToAuthDefinitions INSTANCE = new JsonToAuthDefinitions();
 
-    private JsonToAuthDefinition() {
+    private JsonToAuthDefinitions() {
     }
 
     public static Function<JsonObject, List<AuthDefinition>> instance() {

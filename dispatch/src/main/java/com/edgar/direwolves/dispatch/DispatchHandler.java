@@ -27,14 +27,14 @@ public class DispatchHandler implements Handler<RoutingContext> {
                         .findFirst();
         if (optional.isPresent()) {
             ApiDefinition apiDefinition = optional.get();
-            apiContext.setApiName(apiDefinition.name());
-
+            apiContext.setApiDefinition(apiDefinition);
+            String apiName = apiDefinition.name();
             Filters filters = new Filters();
             filters.init(rc.vertx());
             Task<ApiContext> task = filters.doFilter(apiContext);
             task.andThen(context -> rc.response().setChunked(true)
                     .end(new JsonObject()
-                            .put("apiName", apiContext.apiName())
+                            .put("apiName", apiName)
                             .encode()))
                     .onFailure(throwable -> {
                         throwable.printStackTrace();

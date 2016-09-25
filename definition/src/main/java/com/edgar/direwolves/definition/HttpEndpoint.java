@@ -1,16 +1,22 @@
 package com.edgar.direwolves.definition;
 
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 
 /**
  * Created by Edgar on 2016/9/14.
+ * 按照remove --> replace --> add的顺序执行
  *
  * @author Edgar  Date 2016/9/14
  */
 public interface HttpEndpoint extends Endpoint {
     String TYPE = "http-endpoint";
+
+    static HttpEndpoint fromJson(JsonObject jsonObject) {
+        return JsonToHttpEndpoint.instance().apply(jsonObject);
+    }
 
     default String type() {
         return TYPE;
@@ -50,4 +56,81 @@ public interface HttpEndpoint extends Endpoint {
      */
     List<Parameter> bodyArgs();
 
+    /**
+     * 增加一个header
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HttpEndpoint addRequestHeader(String key, String value);
+
+    /**
+     * 替换一个header,只有当header存在时才替换;
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HttpEndpoint replaceRequestHeader(String key, String value);
+
+    /**
+     * 删除一个header
+     *
+     * @param key
+     * @return
+     */
+    HttpEndpoint removeHeader(String key);
+
+    /**
+     * 增加一个url_arg
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HttpEndpoint addRequestUrlArg(String key, String value);
+
+    /**
+     * 替换一个url_arg,只有当url_arg存在时才替换;
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HttpEndpoint replaceRequestUrlArg(String key, String value);
+
+    /**
+     * 删除一个url_arg
+     *
+     * @param key
+     * @return
+     */
+    HttpEndpoint removeUrlArg(String key);
+
+    /**
+     * 增加一个body_arg
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HttpEndpoint addRequestBodyArg(String key, String value);
+
+    /**
+     * 替换一个body_arg,只有当body_arg存在时才替换;
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HttpEndpoint replaceRequestBodyArg(String key, String value);
+
+    /**
+     * 删除一个body_arg
+     *
+     * @param key
+     * @return
+     */
+    HttpEndpoint removeBodyArg(String key);
 }

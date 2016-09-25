@@ -2,6 +2,9 @@ package com.edgar.direwolves.definition;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Set;
 
 /**
  * 限流策略.
@@ -17,45 +20,42 @@ import com.google.common.base.Preconditions;
  * @author Edgar  Date 2016/9/8
  */
 public class RateLimitDefinitionImpl implements RateLimitDefinition {
-
-    /**
-     * api名称
-     */
-    private final String apiName;
     /**
      * 限制条件
      */
-    private final RateLimitBy rateLimitBy;
+    private final String limitBy;
 
     /**
      * 限制类型
      */
-    private final RateLimitType rateLimitType;
+    private final String type;
 
     /**
      * 最大请求数量
      */
     private final long limit;
 
-    RateLimitDefinitionImpl(String apiName, RateLimitBy rateLimitBy, RateLimitType rateLimitType, long limit) {
-        Preconditions.checkNotNull(apiName, "apiName can not be null");
-        Preconditions.checkNotNull(rateLimitBy, "rateLimitBy can not be null");
-        Preconditions.checkNotNull(rateLimitType, "rateLimitType can not be null");
+    private final Set<String> optionalTypes = ImmutableSet.of("second", "minute", "hour", "day", "month", "year");
+    private final Set<String> optionalLimits = ImmutableSet.of("ip", "token", "app_key");
+
+    RateLimitDefinitionImpl(String limitBy, String type, long limit) {
+        Preconditions.checkArgument(optionalLimits.contains(limitBy), "limitBy must be ip | token | app_key");
+        Preconditions.checkArgument(optionalTypes.contains(type), "type must be second | minute | hour | day | month | year");
         Preconditions.checkArgument(limit > 0, "limit must > 0");
-        this.apiName = apiName;
-        this.rateLimitBy = rateLimitBy;
-        this.rateLimitType = rateLimitType;
+        this.limitBy = limitBy;
+        this.type = type;
         this.limit = limit;
     }
 
+
     @Override
-    public RateLimitBy rateLimitBy() {
-        return rateLimitBy;
+    public String limitBy() {
+        return limitBy;
     }
 
     @Override
-    public RateLimitType rateLimitType() {
-        return rateLimitType;
+    public String type() {
+        return type;
     }
 
     @Override
@@ -64,17 +64,33 @@ public class RateLimitDefinitionImpl implements RateLimitDefinition {
     }
 
     @Override
-    public String apiName() {
-        return apiName;
+    public String toString() {
+        return MoreObjects.toStringHelper("RateLimitDefinition")
+                .add("limitBy", limitBy)
+                .add("type", type)
+                .add("limit", limit)
+                .toString();
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper("RateLimitDefinition")
-                .add("apiName", apiName)
-                .add("rateLimitBy", rateLimitBy)
-                .add("rateLimitType", rateLimitType)
-                .add("limit", limit)
-                .toString();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RateLimitDefinitionImpl that = (RateLimitDefinitionImpl) o;
+
+        if (limit != that.limit) return false;
+        if (limitBy != null ? !limitBy.equals(that.limitBy) : that.limitBy != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = limitBy != null ? limitBy.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (int) (limit ^ (limit >>> 32));
+        return result;
     }
 }

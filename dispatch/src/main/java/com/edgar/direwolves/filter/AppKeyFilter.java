@@ -30,14 +30,13 @@ import java.util.List;
  */
 public class AppKeyFilter implements Filter {
 
+    private Vertx vertx;
     private static final String TYPE = "app_key";
     private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
-    private int timeout = 5 * 60;
     private JsonArray secrets = new JsonArray();
 
     public AppKeyFilter() {
         commonParamRule.put("appKey", Rule.required());
-        commonParamRule.put("timestamp", Rule.required());
         commonParamRule.put("nonce", Rule.required());
         commonParamRule.put("v", Rule.required());
         commonParamRule.put("signMethod", Rule.required());
@@ -57,9 +56,7 @@ public class AppKeyFilter implements Filter {
 
     @Override
     public void config(Vertx vertx, JsonObject config) {
-        if (config.containsKey("app_key.expires")) {
-            this.timeout = config.getInteger("app_key.expires");
-        }
+        this.vertx = vertx;
         if (config.containsKey("app_key.secret")) {
             JsonArray secretArray = config.getJsonArray("app_key.secret");
             secrets.addAll(secretArray);
@@ -68,8 +65,12 @@ public class AppKeyFilter implements Filter {
 
     @Override
     public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.getApiDefinition() == null) {
+            return false;
+        }
+        String apiName = apiContext.getApiDefinition().name();
         List<AuthDefinition> definitions = AuthDefinitionRegistry.create()
-                .filter(apiContext.apiName(), AuthType.APP_KEY);
+                .filter(apiName, AuthType.APP_KEY);
         return definitions.size() == 1;
     }
 
@@ -79,12 +80,12 @@ public class AppKeyFilter implements Filter {
         Validations.validate(apiContext.params(), commonParamRule);
         Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
         //检查时间戳
-        Integer timestamp = Integer.parseInt(getFirst(params, "timestamp").toString());
-        long currentTime = Instant.now().getEpochSecond();
-        if ((timestamp > currentTime + timeout)
-                || (timestamp < currentTime - timeout)) {
-            throw SystemException.create(DefaultErrorCode.EXPIRE);
-        }
+//        Integer timestamp = Integer.parseInt(getFirst(params, "timestamp").toString());
+//        long currentTime = Instant.now().getEpochSecond();
+//        if ((timestamp > currentTime + timeout)
+//                || (timestamp < currentTime - timeout)) {
+//            completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE));
+//        }
 
         String clientSignValue = getFirst(params, "sign").toString();
         String signMethod = getFirst(params, "signMethod").toString();
@@ -97,34 +98,32 @@ public class AppKeyFilter implements Filter {
 
         JsonObject company = filterByAppKey(appKey);
         if (company == null) {
-            throw SystemException.create(DefaultErrorCode.INVALID_REQ);
-        }
-        String secret = company.getString("appSecret", "UNKOWNSECRET");
+            completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+        } else {
+            String secret = company.getString("secret", "UNKOWNSECRET");
 
-        String serverSignValue = signTopRequest(params, secret, signMethod);
-        if (!clientSignValue.equals(serverSignValue)) {
-            throw SystemException.create(DefaultErrorCode.INVALID_REQ);
+            String serverSignValue = signTopRequest(params, secret, signMethod);
+            if (!clientSignValue.equals(serverSignValue)) {
+                completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+            } else {
+                apiContext.addVariable("appCode", company.getInteger("code", 0));
+                apiContext.addVariable("scope", company.getString("scope", "default"));
+
+                apiContext.params().removeAll("sign");
+                apiContext.params().removeAll("signMethod");
+                apiContext.params().removeAll("v");
+                apiContext.params().removeAll("appKey");
+                completeFuture.complete(apiContext);
+            }
         }
-        apiContext.addVariable("appCode", company.getInteger("code", 0));
-        apiContext.addVariable("scope", company.getString("scope", "default"));
-        //检查有没有访问权限
-//        String scope = company.getString("scope", "");
-//        List<String> scopeList = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(scope);
-//        scopeList = new ArrayList<>(scopeList);
-//        scopeList.add("default");
-//        String apiScope = apiContext.
-//        if (!scopeList.contains("all") && !scopeList.contains(apiScope)) {
-//            throw SystemException.create(DefaultErrorCode.NO_AUTHORITY);
-//        }
-//        rc.put("companyCode", company.getInteger("companyCode", -1));
-//        rc.put("scope", company.getString("scope", "default"));
     }
 
     private JsonObject filterByAppKey(String appKey) {
+
         JsonObject appJson = null;
         for (int i = 0; i < secrets.size(); i++) {
             JsonObject c = secrets.getJsonObject(i);
-            String key = c.getString("name");
+            String key = c.getString("key");
             if (appKey.equalsIgnoreCase(key)) {
                 appJson = c;
             }

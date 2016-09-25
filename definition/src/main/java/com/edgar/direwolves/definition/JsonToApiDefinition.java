@@ -49,8 +49,25 @@ public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> 
         }
 
         builder.setEndpoints(createEndpoints(jsonObject.getJsonArray("endpoints")));
+        ApiDefinition apiDefinition =  builder.build();
 
-        return builder.build();
+        //filter
+        JsonArray filters = jsonObject.getJsonArray("filters", new JsonArray());
+        for (int i = 0; i < filters.size(); i ++) {
+            apiDefinition.addFilter(filters.getString(i));
+        }
+        //ip restriction
+        JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+        JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+        List<String> whitelist = new ArrayList<>();
+        List<String> blacklist = new ArrayList<>();
+        for (int i = 0; i < whiteArray.size(); i ++) {
+            whitelist.add(whiteArray.getString(i));
+        }
+        for (int i = 0; i < blackArray.size(); i ++) {
+            blacklist.add(blackArray.getString(i));
+        }
+        return apiDefinition;
     }
 
     private HttpMethod httpMethod(JsonObject jsonObject) {
@@ -148,22 +165,10 @@ public class JsonToApiDefinition implements Function<JsonObject, ApiDefinition> 
     private List<Endpoint> createEndpoints(JsonArray endpoints) {
         List<Endpoint> httpEndpoints = new ArrayList<>(endpoints.size());
         for (int i = 0; i < endpoints.size(); i++) {
-            HttpEndpointBuilder builder = HttpEndpoint.builder();
-
-            JsonObject endpoint = endpoints.getJsonObject(i);
-            String name = endpoint.getString("name");
-            Preconditions.checkNotNull(name, "arg name cannot be null");
-            builder.setName(name);
-
-            String service = endpoint.getString("service");
-            Preconditions.checkNotNull(name, "arg service cannot be null");
-            builder.setService(service);
-            builder.setMethod(httpMethod(endpoint));
-            String path = endpoint.getString("path");
-            Preconditions.checkNotNull(name, "arg path cannot be null");
-            builder.setPath(path);
-            httpEndpoints.add(builder.build());
+            httpEndpoints.add(JsonToHttpEndpoint.instance().apply(endpoints.getJsonObject(i)));
         }
         return httpEndpoints;
     }
+
+
 }
