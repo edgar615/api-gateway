@@ -23,11 +23,23 @@ public class ApiDefinitionToJson implements Function<ApiDefinition, JsonObject> 
 
     @Override
     public JsonObject apply(ApiDefinition definition) {
+      JsonArray rateLimtArray = new JsonArray();
+      for (RateLimit rateLimit : definition.rateLimits()) {
+        JsonObject jsonObject = new JsonObject()
+                .put("limit", rateLimit.limit())
+                .put("limit_by", rateLimit.limitBy())
+                .put("type", rateLimit.type());
+        rateLimtArray.add(rateLimit);
+      }
         return new JsonObject()
                 .put("name", definition.name())
                 .put("method", definition.method().name())
                 .put("path", definition.path())
                 .put("scope", definition.scope())
+                .put("filters", definition.filters())
+                .put("whitelist", definition.whitelist())
+                .put("blacklist", definition.blacklist())
+                .put("rate_limit", rateLimtArray)
                 .put("url_args", createParamterArray(definition.urlArgs()))
                 .put("body_args", createParamterArray(definition.bodyArgs()))
                 .put("endpoints", createEndpointArray(definition.endpoints()));

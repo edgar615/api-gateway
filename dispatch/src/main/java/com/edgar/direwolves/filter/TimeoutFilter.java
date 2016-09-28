@@ -1,8 +1,5 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.definition.AuthDefinition;
-import com.edgar.direwolves.definition.AuthDefinitionRegistry;
-import com.edgar.direwolves.definition.AuthType;
 import com.edgar.direwolves.dispatch.ApiContext;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -56,13 +53,11 @@ public class TimeoutFilter implements Filter {
 
     @Override
     public boolean shouldFilter(ApiContext apiContext) {
-        if (apiContext.getApiDefinition() == null) {
-            return false;
-        }
-        String apiName = apiContext.getApiDefinition().name();
-        List<AuthDefinition> definitions = AuthDefinitionRegistry.create()
-                .filter(apiName, AuthType.TIMEOUT);
-        return definitions.size() == 1;
+      if (apiContext.getApiDefinition() == null) {
+        return false;
+      }
+      List<String> filters = apiContext.getApiDefinition().filters();
+      return filters.contains(TYPE);
     }
 
     @Override

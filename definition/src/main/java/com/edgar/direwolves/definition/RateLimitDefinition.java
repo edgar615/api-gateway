@@ -1,43 +1,25 @@
 package com.edgar.direwolves.definition;
 
+import java.util.List;
+
 /**
- * 限流策略.
- * second
- * minute
- * hour
- * day
- * month
- * year
- * limit_by 限制条件：ip、token、app_key
- * policy 缓存策略，默认local，还支持cluster，redis，如果开启redis需要检查redis是否可以连接
+ * Created by Edgar on 2016/9/26.
  *
- * @author Edgar  Date 2016/9/8
+ * @author Edgar  Date 2016/9/26
  */
 public interface RateLimitDefinition {
+  /**
+   * 获取API限流的映射关系的列表.
+   *
+   * @return RateLimitDefinition的不可变集合.
+   */
+  List<RateLimit> rateLimits();
 
-    static RateLimitDefinition create(String limitBy, String type, long limit) {
-        return new RateLimitDefinitionImpl(limitBy, type, limit);
-    }
-
-    /**
-     * 限制条件,user_rate | token_rate | app_key_rate
-     *
-     * @return 限制条件
-     */
-    String limitBy();
-
-    /**
-     * 限制类型  second | minute | hour | day | month | year
-     *
-     * @return 限制类型
-     */
-    String type();
-
-    /**
-     * 限制数量
-     *
-     * @return
-     */
-    long limit();
-
+  /**
+   * 向注册表中添加一个限流策略.
+   * 映射表中limitBy和type的组合必须唯一.重复添加的数据会覆盖掉原来的策略.
+   *
+   * @param rateLimit 限流策略.
+   */
+  void add(RateLimit rateLimit);
 }

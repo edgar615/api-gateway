@@ -4,10 +4,8 @@
   "path": "/devices",
   "scope" : "device:write",
   "filters" : ["timeout", "app_key", "jwt", "ip_restriction"],
-  "ip_restriction" : {
-    "whitelist" : ["192.168.0.1", "10.4.7.*"],
-    "blacklist" : ["192.168.0.100"]
-  },
+  "whitelist" : ["192.168.0.1", "10.4.7.*"],
+  "blacklist" : ["192.168.0.100"],
   "rate_limit" : [
     {
       "limit" : 1000,

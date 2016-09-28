@@ -1,8 +1,5 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.definition.AuthDefinition;
-import com.edgar.direwolves.definition.AuthDefinitionRegistry;
-import com.edgar.direwolves.definition.AuthType;
 import com.edgar.direwolves.dispatch.ApiContext;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -38,10 +35,8 @@ public class ScopeFilter implements Filter {
         if (apiContext.getApiDefinition() == null) {
             return false;
         }
-        String apiName = apiContext.getApiDefinition().name();
-        List<AuthDefinition> definitions = AuthDefinitionRegistry.create()
-                .filter(apiName, AuthType.SCOPE);
-        return definitions.size() == 1;
+      List<String> filters = apiContext.getApiDefinition().filters();
+      return filters.contains(TYPE);
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Edgar on 2016/9/14.
@@ -14,7 +15,25 @@ import java.util.List;
 public interface HttpEndpoint extends Endpoint {
     String TYPE = "http-endpoint";
 
-    static HttpEndpoint fromJson(JsonObject jsonObject) {
+  List<Map<String, String>> bodyArgsReplace();
+
+  List<Map<String, String>> bodyArgsAdd();
+
+  List<String> bodyArgsRemove();
+
+  List<Map<String, String>> urlArgsReplace();
+
+  List<Map<String, String>> urlArgsAdd();
+
+  List<String> urlArgsRemove();
+
+  List<Map<String, String>> headersReplace();
+
+  List<Map<String, String>> headersAdd();
+
+  List<String> headersRemove();
+
+  static HttpEndpoint fromJson(JsonObject jsonObject) {
         return JsonToHttpEndpoint.instance().apply(jsonObject);
     }
 
