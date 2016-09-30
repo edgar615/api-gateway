@@ -17,96 +17,107 @@ import java.util.stream.Collectors;
 public class ApiDefinitionTest {
 
   @Test
-  public void testBuild() {
+  public void testCreate() {
 
     HttpEndpoint httpEndpoint =
             Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
 
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList(httpEndpoint))
-            .build();
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals("default", apiDefinition.scope());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testEndpointsShouldNotEmpty() {
-
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList())
-            .build();
-    Assert.fail();
+            .setEndpoints(Lists.newArrayList());
+    try {
+      ApiDefinition.create(option);
+      Assert.fail();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      Assert.assertTrue(e instanceof IllegalArgumentException);
+    }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testEndpointsShouldImmutable() {
     HttpEndpoint httpEndpoint =
             Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList(httpEndpoint))
-            .build();
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
 
     httpEndpoint =
             Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
-    apiDefinition.endpoints().add(httpEndpoint);
-
-    Assert.fail();
+    try {
+      apiDefinition.endpoints().add(httpEndpoint);
+      Assert.fail();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      Assert.assertTrue(e instanceof UnsupportedOperationException);
+    }
   }
 
-//    @Test(expected = UnsupportedOperationException.class)
-//    public void testUrlArgsShouldImmutable() {
-//        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
-//                .setMethod(HttpMethod.GET)
-//                .setPath("devices/")
-//                .setService("device")
-//                .setArray(true).build();
-//        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
-//                .setMethod(HttpMethod.GET)
-//                .setPath("devices/")
-//                .setEndpoints(Lists.newArrayList(httpEndpoint))
-//                .setUrlArgs(Lists.newArrayList(new Parameter("username", null)))
-//                .build();
-//
-//        apiDefinition.urlArgs().add(new Parameter("password", null));
-//        Assert.fail();
-//    }
-//
-//    @Test(expected = UnsupportedOperationException.class)
-//    public void testBodyArgsShouldImmutable() {
-//        HttpEndpoint httpEndpoint = HttpEndpoint.builder().setName("get_device")
-//                .setMethod(HttpMethod.GET)
-//                .setPath("devices/")
-//                .setService("device")
-//                .setArray(true).build();
-//        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
-//                .setMethod(HttpMethod.POST)
-//                .setPath("devices/")
-//                .setEndpoints(Lists.newArrayList(httpEndpoint))
-//                .setBodyArgs(Lists.newArrayList(new Parameter("username", null)))
-//                .build();
-//
-//        apiDefinition.bodyArgs().add(new Parameter("password", null));
-//        Assert.fail();
-//    }
+  @Test
+  public void testUrlArgsShouldImmutable() {
+    HttpEndpoint httpEndpoint =
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/")
+            .setUrlArgs(Lists.newArrayList(new ParameterImpl("username", null)))
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
+    try {
+      apiDefinition.urlArgs().add(new ParameterImpl("password", null));
+      Assert.fail();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      Assert.assertTrue(e instanceof UnsupportedOperationException);
+    }
+  }
+
+    @Test
+    public void testBodyArgsShouldImmutable() {
+      HttpEndpoint httpEndpoint =
+              Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+      ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+              .setMethod(HttpMethod.POST)
+              .setPath("devices/")
+              .setBodyArgs(Lists.newArrayList(new ParameterImpl("username", null)))
+              .setEndpoints(Lists.newArrayList(httpEndpoint));
+      ApiDefinition apiDefinition = ApiDefinition.create(option);
+      try {
+        apiDefinition.bodyArgs().add(new ParameterImpl("password", null));
+        Assert.fail();
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+        Assert.assertTrue(e instanceof UnsupportedOperationException);
+      }
+    }
 
 
   @Test
   public void testFilter() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
                                                     "device", null, null);
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList(httpEndpoint))
-            .build();
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
 
     apiDefinition.addFilter("jwt");
+    apiDefinition.addFilter("app_key");
     apiDefinition.addFilter("app_key");
     Assert.assertEquals(2, apiDefinition.filters().size());
 
@@ -120,11 +131,11 @@ public class ApiDefinitionTest {
   public void testBlackList() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
                                                     "device", null, null);
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList(httpEndpoint))
-            .build();
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
 
     apiDefinition.addBlacklist("192.168.1.100");
     Assert.assertEquals(1, apiDefinition.blacklist().size());
@@ -143,11 +154,11 @@ public class ApiDefinitionTest {
   public void testWhiteList() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
                                                     "device", null, null);
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList(httpEndpoint))
-            .build();
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
 
     apiDefinition.addWhitelist("192.168.1.100");
     Assert.assertEquals(1, apiDefinition.whitelist().size());
@@ -166,11 +177,11 @@ public class ApiDefinitionTest {
   public void testUniqueRateLimit() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
                                                     "device", null, null);
-    ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
-            .setEndpoints(Lists.newArrayList(httpEndpoint))
-            .build();
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
 
     apiDefinition.add(RateLimit.create("token", "second", 100));
     apiDefinition.add(RateLimit.create("token", "day", 100));

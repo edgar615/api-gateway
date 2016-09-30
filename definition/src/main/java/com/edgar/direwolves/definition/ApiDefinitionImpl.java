@@ -79,10 +79,18 @@ class ApiDefinitionImpl implements ApiDefinition {
   private final List<Parameter> bodyArgs;
 
   /**
+   * 是否严格校验参数，如果该值为false，允许传入接口中未定义的参数，如果为true，禁止传入接口中未定义的参数.
+   */
+  private final boolean strictArg;
+
+  /**
    * 远程请求定义.
    */
   private final List<Endpoint> endpoints;
 
+  /**
+   * 过滤器
+   */
   private final Set<String> filters = new HashSet<>();
 
   /**
@@ -97,8 +105,20 @@ class ApiDefinitionImpl implements ApiDefinition {
 
   private final Set<RateLimit> rateLimits = new HashSet<>();
 
-  ApiDefinitionImpl(String name, HttpMethod method, String path, String scope,
-                    List<Parameter> urlArgs, List<Parameter> bodyArgs, List<Endpoint> endpoints) {
+  public ApiDefinitionImpl(
+          ApiDefinitionOption option) {
+    this(option.getName(), option.getMethod(), option.getPath(), option.getScope(),
+         option.getUrlArgs(), option.getBodyArgs(), option.getEndpoints(), option.isStrictArg());
+    this.whitelist.addAll(option.getWhitelist());
+    this.blacklist.addAll(option.getBlacklist());
+    this.rateLimits.addAll(option.getRateLimits());
+    this.filters.addAll(option.getFilters());
+  }
+
+  private ApiDefinitionImpl(String name, HttpMethod method, String path, String scope,
+                            List<Parameter> urlArgs, List<Parameter> bodyArgs,
+                            List<Endpoint> endpoints,
+                            boolean strictArg) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
@@ -130,6 +150,7 @@ class ApiDefinitionImpl implements ApiDefinition {
     }
     this.endpoints = ImmutableList.copyOf(endpoints);
     this.pattern = Pattern.compile(path);
+    this.strictArg = strictArg;
   }
 
   @Override
@@ -175,6 +196,11 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public List<String> filters() {
     return ImmutableList.copyOf(filters);
+  }
+
+  @Override
+  public boolean strictArg() {
+    return strictArg;
   }
 
   @Override
@@ -280,6 +306,7 @@ class ApiDefinitionImpl implements ApiDefinition {
             .add("name", name)
             .add("method", method)
             .add("path", path)
+            .add("strictArg", strictArg)
             .add("urlArgs", urlArgs)
             .add("bodyArgs", bodyArgs)
             .add("scope", scope)

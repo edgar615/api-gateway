@@ -30,20 +30,20 @@ public class ApiDefinitionRegistryTest {
     public void testRegister() {
         HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setEndpoints(Lists.newArrayList(httpEndpoint))
-                .build();
+      ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+              .setMethod(HttpMethod.GET)
+              .setPath("devices/")
+              .setEndpoints(Lists.newArrayList(httpEndpoint));
+      ApiDefinition apiDefinition = ApiDefinition.create(option);
 
         registry.add(apiDefinition);
         Assert.assertEquals(1, registry.getDefinitions().size());
 
-        apiDefinition = ApiDefinition.builder().setName("get_device2")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setEndpoints(Lists.newArrayList(httpEndpoint))
-                .build();
+      option = new ApiDefinitionOption().setName("get_device2")
+              .setMethod(HttpMethod.GET)
+              .setPath("devices/")
+              .setEndpoints(Lists.newArrayList(httpEndpoint));
+      apiDefinition = ApiDefinition.create(option);
 
         registry.add(apiDefinition);
         Assert.assertEquals(2, registry.getDefinitions().size());
@@ -53,11 +53,11 @@ public class ApiDefinitionRegistryTest {
     public void testUniqueName() {
         HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setEndpoints(Lists.newArrayList(httpEndpoint))
-                .build();
+      ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+              .setMethod(HttpMethod.GET)
+              .setPath("devices/")
+              .setEndpoints(Lists.newArrayList(httpEndpoint));
+      ApiDefinition apiDefinition = ApiDefinition.create(option);
 
         registry.add(apiDefinition);
         registry.add(apiDefinition);
@@ -68,20 +68,20 @@ public class ApiDefinitionRegistryTest {
     public void testFilterByName() {
         HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
 
-        ApiDefinition apiDefinition = ApiDefinition.builder().setName("get_device")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setEndpoints(Lists.newArrayList(httpEndpoint))
-                .build();
+      ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+              .setMethod(HttpMethod.GET)
+              .setPath("devices/")
+              .setEndpoints(Lists.newArrayList(httpEndpoint));
+      ApiDefinition apiDefinition = ApiDefinition.create(option);
 
         registry.add(apiDefinition);
         Assert.assertEquals(1, registry.getDefinitions().size());
 
-        apiDefinition = ApiDefinition.builder().setName("get_device2")
-                .setMethod(HttpMethod.GET)
-                .setPath("devices/")
-                .setEndpoints(Lists.newArrayList(httpEndpoint))
-                .build();
+       option = new ApiDefinitionOption().setName("get_device2")
+              .setMethod(HttpMethod.GET)
+              .setPath("devices/")
+              .setEndpoints(Lists.newArrayList(httpEndpoint));
+       apiDefinition = ApiDefinition.create(option);
 
         registry.add(apiDefinition);
         Assert.assertEquals(2, registry.getDefinitions().size());

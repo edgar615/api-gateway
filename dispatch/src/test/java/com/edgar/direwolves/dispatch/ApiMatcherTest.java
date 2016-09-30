@@ -36,7 +36,7 @@
 //        vertx = Vertx.vertx();
 //        eb = vertx.eventBus();
 //        registry = ApiDefinitionRegistry.create();
-//        vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), context.asyncAssertSuccess());
+//        vertx.deployVerticle(ApiDefinitionVerticle.class.name(), context.asyncAssertSuccess());
 //
 //        addDeviceJson(context);
 //

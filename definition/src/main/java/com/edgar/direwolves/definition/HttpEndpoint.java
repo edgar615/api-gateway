@@ -34,7 +34,7 @@ public interface HttpEndpoint extends Endpoint {
   List<String> headersRemove();
 
   static HttpEndpoint fromJson(JsonObject jsonObject) {
-        return JsonToHttpEndpoint.instance().apply(jsonObject);
+        return HttpEndpointDecoder.instance().apply(jsonObject);
     }
 
     default String type() {

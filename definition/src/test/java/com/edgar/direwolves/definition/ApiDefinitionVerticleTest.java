@@ -32,7 +32,7 @@
 //    public void setUp(TestContext context) {
 //        vertx = Vertx.vertx();
 //        eb = vertx.eventBus();
-////        vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), context.asyncAssertSuccess());
+////        vertx.deployVerticle(ApiDefinitionVerticle.class.name(), context.asyncAssertSuccess());
 //    }
 //
 //    @After

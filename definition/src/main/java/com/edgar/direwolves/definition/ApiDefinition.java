@@ -1,6 +1,7 @@
 package com.edgar.direwolves.definition;
 
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -11,6 +12,14 @@ import java.util.regex.Pattern;
  * @author Edgar  Date 2016/9/13
  */
 public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinition {
+
+  static ApiDefinition create(ApiDefinitionOption option) {
+    return new ApiDefinitionImpl(option);
+  }
+
+  static ApiDefinition fromJson(JsonObject jsonObject) {
+    return ApiDefinitionDecoder.instance().apply(jsonObject);
+  }
 
   /**
    * @return 名称，必填项，全局唯一.
@@ -65,6 +74,12 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
   List<String> filters();
 
   /**
+   * 是否严格校验参数，如果该值为false，允许传入接口中未定义的参数，如果为true，禁止传入接口中未定义的参数.
+   * @return
+   */
+  boolean strictArg();
+
+  /**
    * 新增一个filter
    *
    * @param filterType filter的类型
@@ -78,8 +93,4 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
    */
   void removeFilter(String filterType);
 
-
-  static ApiDefinitionBuilder builder() {
-    return new ApiDefinitionBuilder();
-  }
 }

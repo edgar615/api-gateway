@@ -22,7 +22,7 @@ public class HttpEndPointTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildGetShouldNoBody() {
-        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, Lists.newArrayList(new Parameter("username", null)));
+        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, Lists.newArrayList(new ParameterImpl("username", null)));
         Assert.fail();
     }
 

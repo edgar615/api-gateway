@@ -7,7 +7,7 @@
   "url_args" : [
     {
       "name" : "limit",
-      "defaut_value" : 10,
+      "default_value" : 10,
       "rules" : {
         "integer":true,
         "max":100,
@@ -16,7 +16,7 @@
     },
     {
       "name" : "start",
-      "defaut_value" : 0,
+      "default_value" : 0,
       "rules" : {
         "integer":true
       }
