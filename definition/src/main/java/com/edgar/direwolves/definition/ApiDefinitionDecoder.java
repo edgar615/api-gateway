@@ -83,7 +83,7 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
     JsonArray
             rateLimitArray = jsonObject.getJsonArray("rate_limit", new JsonArray());
     List<RateLimit> rateLimits = rateLimitDefinitions(rateLimitArray);
-    rateLimits.forEach(rateLimitDefinition -> apiDefinition.add(rateLimitDefinition));
+    rateLimits.forEach(rateLimitDefinition -> apiDefinition.addRateLimit(rateLimitDefinition));
   }
 
   private List<RateLimit> rateLimitDefinitions(JsonArray rateLimitArray) {

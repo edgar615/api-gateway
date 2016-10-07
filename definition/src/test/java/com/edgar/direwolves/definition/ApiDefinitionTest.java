@@ -183,14 +183,14 @@ public class ApiDefinitionTest {
             .setEndpoints(Lists.newArrayList(httpEndpoint));
     ApiDefinition apiDefinition = ApiDefinition.create(option);
 
-    apiDefinition.add(RateLimit.create("token", "second", 100));
-    apiDefinition.add(RateLimit.create("token", "day", 100));
-    apiDefinition.add(RateLimit.create("user", "second", 100));
+    apiDefinition.addRateLimit(RateLimit.create("token", "second", 100));
+    apiDefinition.addRateLimit(RateLimit.create("token", "day", 100));
+    apiDefinition.addRateLimit(RateLimit.create("user", "second", 100));
     Assert.assertEquals(3, apiDefinition.rateLimits().size());
 
-    apiDefinition.add(RateLimit.create("token", "second", 1000));
-    apiDefinition.add(RateLimit.create("token", "day", 1000));
-    apiDefinition.add(RateLimit.create("user", "second", 1000));
+    apiDefinition.addRateLimit(RateLimit.create("token", "second", 1000));
+    apiDefinition.addRateLimit(RateLimit.create("token", "day", 1000));
+    apiDefinition.addRateLimit(RateLimit.create("user", "second", 1000));
     Assert.assertEquals(3, apiDefinition.rateLimits().size());
 
     List<RateLimit> filterDefintions = apiDefinition.rateLimits().stream()

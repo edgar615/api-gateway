@@ -13,84 +13,89 @@ import java.util.regex.Pattern;
  */
 public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinition {
 
-  static ApiDefinition create(ApiDefinitionOption option) {
-    return new ApiDefinitionImpl(option);
-  }
+    static ApiDefinition create(ApiDefinitionOption option) {
+        return new ApiDefinitionImpl(option);
+    }
 
-  static ApiDefinition fromJson(JsonObject jsonObject) {
-    return ApiDefinitionDecoder.instance().apply(jsonObject);
-  }
+    static ApiDefinition fromJson(JsonObject jsonObject) {
+        return ApiDefinitionDecoder.instance().apply(jsonObject);
+    }
 
-  /**
-   * @return 名称，必填项，全局唯一.
-   */
-  String name();
+    default JsonObject toJson() {
+        return ApiDefinitionEncoder.instance().apply(this);
+    }
 
-  /**
-   * @return 请求方法 GET | POST | DELETE | PUT.
-   */
-  HttpMethod method();
+    /**
+     * @return 名称，必填项，全局唯一.
+     */
+    String name();
 
-  /**
-   * API路径
-   * 示例：/tasks，匹配请求：/tasks.
-   * 示例：/tasks，匹配请求：/tasks.
-   * 示例：/tasks/([\\d+]+)/abandon，匹配请求/tasks/123/abandon
-   *
-   * @return API路径
-   */
-  String path();
+    /**
+     * @return 请求方法 GET | POST | DELETE | PUT.
+     */
+    HttpMethod method();
 
-  /**
-   * @return 路径的正则表达式.在目前的设计中，它和path保持一致.
-   */
-  Pattern pattern();
+    /**
+     * API路径
+     * 示例：/tasks，匹配请求：/tasks.
+     * 示例：/tasks，匹配请求：/tasks.
+     * 示例：/tasks/([\\d+]+)/abandon，匹配请求/tasks/123/abandon
+     *
+     * @return API路径
+     */
+    String path();
 
-  /**
-   * @return 权限范围
-   */
-  String scope();
+    /**
+     * @return 路径的正则表达式.在目前的设计中，它和path保持一致.
+     */
+    Pattern pattern();
 
-  /**
-   * @return URL参数
-   */
-  List<Parameter> urlArgs();
+    /**
+     * @return 权限范围
+     */
+    String scope();
 
-  /**
-   * @return body参数
-   */
-  List<Parameter> bodyArgs();
+    /**
+     * @return URL参数
+     */
+    List<Parameter> urlArgs();
 
-  /**
-   * @return 远程请求定义
-   */
-  List<Endpoint> endpoints();
+    /**
+     * @return body参数
+     */
+    List<Parameter> bodyArgs();
 
-  /**
-   * 返回filter的集合
-   *
-   * @return
-   */
-  List<String> filters();
+    /**
+     * @return 远程请求定义
+     */
+    List<Endpoint> endpoints();
 
-  /**
-   * 是否严格校验参数，如果该值为false，允许传入接口中未定义的参数，如果为true，禁止传入接口中未定义的参数.
-   * @return
-   */
-  boolean strictArg();
+    /**
+     * 返回filter的集合
+     *
+     * @return
+     */
+    List<String> filters();
 
-  /**
-   * 新增一个filter
-   *
-   * @param filterType filter的类型
-   */
-  void addFilter(String filterType);
+    /**
+     * 是否严格校验参数，如果该值为false，允许传入接口中未定义的参数，如果为true，禁止传入接口中未定义的参数.
+     *
+     * @return
+     */
+    boolean strictArg();
 
-  /**
-   * 删除一个filter
-   *
-   * @param filterType filter的类型
-   */
-  void removeFilter(String filterType);
+    /**
+     * 新增一个filter
+     *
+     * @param filterType filter的类型
+     */
+    void addFilter(String filterType);
+
+    /**
+     * 删除一个filter
+     *
+     * @param filterType filter的类型
+     */
+    void removeFilter(String filterType);
 
 }

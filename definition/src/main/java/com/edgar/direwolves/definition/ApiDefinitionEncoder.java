@@ -29,7 +29,7 @@ public class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject>
               .put("limit", rateLimit.limit())
               .put("limit_by", rateLimit.limitBy())
               .put("type", rateLimit.type());
-      rateLimtArray.add(rateLimit);
+      rateLimtArray.add(jsonObject);
     }
     return new JsonObject()
             .put("name", definition.name())
