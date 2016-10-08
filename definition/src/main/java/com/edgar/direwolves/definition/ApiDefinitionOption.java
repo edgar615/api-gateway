@@ -26,6 +26,9 @@ class ApiDefinitionOption {
    */
   private final Set<String> blacklist = new HashSet<>();
 
+  /**
+   * 限流策略
+   */
   private final Set<RateLimit> rateLimits = new HashSet<>();
 
   /**
@@ -53,7 +56,7 @@ class ApiDefinitionOption {
   /**
    * URL参数
    */
-  private  List<Parameter> urlArgs;
+  private List<Parameter> urlArgs;
 
   /**
    * body参数

@@ -36,115 +36,104 @@ class HttpEndpointDecoder implements Function<JsonObject, HttpEndpoint> {
     Preconditions.checkNotNull(path, "arg path cannot be null");
     if ("http".equalsIgnoreCase(type)) {
       HttpMethod method = HttpMethodDecoder.instance().apply(jsonObject);
-      HttpEndpoint httpEndpoint = Endpoint.createHttp(name, method, path, service, null);
-      removeTransformer(jsonObject, httpEndpoint);
-      replaceTransformer(jsonObject, httpEndpoint);
+      HttpEndpoint httpEndpoint = Endpoint.createHttp(name, method, path, service);
+      removeReqHeader(jsonObject, httpEndpoint);
+      removeReqUrlArg(jsonObject, httpEndpoint);
+      removeReqBodyArg(jsonObject, httpEndpoint);
+      replaceReqHeader(jsonObject, httpEndpoint);
+      replaceReqUrlArg(jsonObject, httpEndpoint);
+      replaceReqBodyArg(jsonObject, httpEndpoint);
+      addReqHeader(jsonObject, httpEndpoint);
+      addReqUrlArg(jsonObject, httpEndpoint);
+      addReqBodyArg(jsonObject, httpEndpoint);
       return httpEndpoint;
     } else {
       throw new UnsupportedOperationException("unsupport " + type);
     }
   }
 
-
-  private void removeTransformer(JsonObject endpoint, HttpEndpoint httpEndpoint) {
-    if (endpoint.containsKey("request_transformer")) {
-      JsonObject transfromer = endpoint.getJsonObject("request_transformer");
-      if (transfromer.containsKey("remove")) {
-        JsonObject remove = transfromer.getJsonObject("remove");
-        if (remove.containsKey("headers")) {
-          JsonArray removes = remove.getJsonArray("headers");
-          for (int j = 0; j < removes.size(); j++) {
-            httpEndpoint.removeHeader(removes.getString(j));
-          }
-        }
-        if (remove.containsKey("url_args")) {
-          JsonArray removes = remove.getJsonArray("url_args");
-          for (int j = 0; j < removes.size(); j++) {
-            httpEndpoint.removeUrlArg(removes.getString(j));
-          }
-        }
-        if (remove.containsKey("body_args")) {
-          JsonArray removes = remove.getJsonArray("body_args");
-          for (int j = 0; j < removes.size(); j++) {
-            httpEndpoint.removeBodyArg(removes.getString(j));
-          }
-        }
-      }
+  private void removeReqHeader(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray removes = endpoint.getJsonArray("request.header.remove", new JsonArray());
+    for (int j = 0; j < removes.size(); j++) {
+      httpEndpoint.removeReqHeader(removes.getString(j));
     }
   }
 
-  private void replaceTransformer(JsonObject endpoint, HttpEndpoint httpEndpoint) {
-    if (endpoint.containsKey("request_transformer")) {
-      JsonObject transfromer = endpoint.getJsonObject("request_transformer");
-      if (transfromer.containsKey("replace")) {
-        JsonObject replace = transfromer.getJsonObject("replace");
-        if (replace.containsKey("headers")) {
-          JsonArray replaces = replace.getJsonArray("headers");
-          for (int j = 0; j < replaces.size(); j++) {
-            String value = replaces.getString(j);
-            Iterable<String> iterable =
-                    Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-            httpEndpoint
-                    .replaceRequestHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-          }
-        }
-        if (replace.containsKey("url_args")) {
-          JsonArray replaces = replace.getJsonArray("url_args");
-          for (int j = 0; j < replaces.size(); j++) {
-            String value = replaces.getString(j);
-            Iterable<String> iterable =
-                    Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-            httpEndpoint
-                    .replaceRequestUrlArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-          }
-        }
-        if (replace.containsKey("body_args")) {
-          JsonArray replaces = replace.getJsonArray("body_args");
-          for (int j = 0; j < replaces.size(); j++) {
-            String value = replaces.getString(j);
-            Iterable<String> iterable =
-                    Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-            httpEndpoint
-                    .replaceRequestBodyArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-          }
-        }
-      }
+  private void removeReqUrlArg(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray removes = endpoint.getJsonArray("request.query.remove", new JsonArray());
+    for (int j = 0; j < removes.size(); j++) {
+      httpEndpoint.removeReqUrlArg(removes.getString(j));
     }
   }
 
-  private void addTransformer(JsonObject endpoint, HttpEndpoint httpEndpoint) {
-    if (endpoint.containsKey("request_transformer")) {
-      JsonObject transfromer = endpoint.getJsonObject("request_transformer");
-      if (transfromer.containsKey("add")) {
-        JsonObject add = transfromer.getJsonObject("add");
-        if (add.containsKey("headers")) {
-          JsonArray adds = add.getJsonArray("headers");
-          for (int j = 0; j < adds.size(); j++) {
-            String value = adds.getString(j);
-            Iterable<String> iterable =
-                    Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-            httpEndpoint.addRequestHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-          }
-        }
-        if (add.containsKey("url_args")) {
-          JsonArray adds = add.getJsonArray("url_args");
-          for (int j = 0; j < adds.size(); j++) {
-            String value = adds.getString(j);
-            Iterable<String> iterable =
-                    Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-            httpEndpoint.addRequestUrlArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-          }
-        }
-        if (add.containsKey("body_args")) {
-          JsonArray adds = add.getJsonArray("body_args");
-          for (int j = 0; j < adds.size(); j++) {
-            String value = adds.getString(j);
-            Iterable<String> iterable =
-                    Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-            httpEndpoint.addRequestBodyArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-          }
-        }
-      }
+  private void removeReqBodyArg(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray removes = endpoint.getJsonArray("request.body.remove", new JsonArray());
+    for (int j = 0; j < removes.size(); j++) {
+      httpEndpoint.removeReqBodyArg(removes.getString(j));
     }
   }
+
+  private void replaceReqHeader(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray replaces = endpoint.getJsonArray("request.header.replace", new JsonArray());
+    for (int j = 0; j < replaces.size(); j++) {
+      String value = replaces.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      httpEndpoint
+              .replaceReqHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
+  private void replaceReqUrlArg(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray replaces = endpoint.getJsonArray("request.query.replace", new JsonArray());
+    for (int j = 0; j < replaces.size(); j++) {
+      String value = replaces.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      httpEndpoint
+              .replaceReqUrlArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
+  private void replaceReqBodyArg(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray replaces = endpoint.getJsonArray("request.body.replace", new JsonArray());
+    for (int j = 0; j < replaces.size(); j++) {
+      String value = replaces.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      httpEndpoint
+              .replaceReqBodyArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
+  private void addReqHeader(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray adds = endpoint.getJsonArray("request.header.add", new JsonArray());
+    for (int j = 0; j < adds.size(); j++) {
+      String value = adds.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      httpEndpoint.addReqHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
+  private void addReqUrlArg(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray adds = endpoint.getJsonArray("request.query.add", new JsonArray());
+    for (int j = 0; j < adds.size(); j++) {
+      String value = adds.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      httpEndpoint.addReqUrlArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
+  private void addReqBodyArg(JsonObject endpoint, HttpEndpoint httpEndpoint) {
+    JsonArray adds = endpoint.getJsonArray("request.body.add", new JsonArray());
+    for (int j = 0; j < adds.size(); j++) {
+      String value = adds.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      httpEndpoint.addReqBodyArg(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
 }

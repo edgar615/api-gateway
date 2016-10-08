@@ -20,7 +20,7 @@ public class ApiDefinitionTest {
   public void testCreate() {
 
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
@@ -49,7 +49,7 @@ public class ApiDefinitionTest {
   @Test
   public void testEndpointsShouldImmutable() {
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
@@ -57,7 +57,7 @@ public class ApiDefinitionTest {
     ApiDefinition apiDefinition = ApiDefinition.create(option);
 
     httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
     try {
       apiDefinition.endpoints().add(httpEndpoint);
       Assert.fail();
@@ -70,7 +70,7 @@ public class ApiDefinitionTest {
   @Test
   public void testUrlArgsShouldImmutable() {
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
@@ -89,7 +89,7 @@ public class ApiDefinitionTest {
     @Test
     public void testBodyArgsShouldImmutable() {
       HttpEndpoint httpEndpoint =
-              Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+              Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
       ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
               .setMethod(HttpMethod.POST)
               .setPath("devices/")
@@ -109,7 +109,7 @@ public class ApiDefinitionTest {
   @Test
   public void testFilter() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
-                                                    "device", null, null);
+                                                    "device");
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
@@ -130,7 +130,7 @@ public class ApiDefinitionTest {
   @Test
   public void testBlackList() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
-                                                    "device", null, null);
+                                                    "device");
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
@@ -153,7 +153,7 @@ public class ApiDefinitionTest {
   @Test
   public void testWhiteList() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
-                                                    "device", null, null);
+                                                    "device");
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")
@@ -176,7 +176,7 @@ public class ApiDefinitionTest {
   @Test
   public void testUniqueRateLimit() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
-                                                    "device", null, null);
+                                                    "device");
     ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
             .setMethod(HttpMethod.GET)
             .setPath("devices/")

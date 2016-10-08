@@ -28,7 +28,7 @@ public class ApiDefinitionRegistryTest {
     }
     @Test
     public void testRegister() {
-        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
       ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
               .setMethod(HttpMethod.GET)
@@ -51,7 +51,7 @@ public class ApiDefinitionRegistryTest {
 
     @Test
     public void testUniqueName() {
-        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
       ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
               .setMethod(HttpMethod.GET)
@@ -66,7 +66,7 @@ public class ApiDefinitionRegistryTest {
 
     @Test
     public void testFilterByName() {
-        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device", null, null);
+        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
       ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
               .setMethod(HttpMethod.GET)

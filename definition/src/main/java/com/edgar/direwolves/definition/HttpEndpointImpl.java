@@ -2,12 +2,11 @@ package com.edgar.direwolves.definition;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,37 +44,25 @@ class HttpEndpointImpl implements HttpEndpoint {
    */
   private final String service;
 
-
-  /**
-   * URL参数
-   */
-  private final List<Parameter> urlArgs;
-
-  /**
-   * body参数
-   */
-  private final List<Parameter> bodyArgs;
-
   private final List<String> headersRemove = new ArrayList<>();
 
-  private final List<Map<String, String>> headersAdd = new ArrayList<>();
+  private final List<Map.Entry<String, String>> headersAdd = new ArrayList<>();
 
-  private final List<Map<String, String>> headersReplace = new ArrayList<>();
+  private final List<Map.Entry<String, String>> headersReplace = new ArrayList<>();
 
   private final List<String> urlArgsRemove = new ArrayList<>();
 
-  private final List<Map<String, String>> urlArgsAdd = new ArrayList<>();
+  private final List<Map.Entry<String, String>> urlArgsAdd = new ArrayList<>();
 
-  private final List<Map<String, String>> urlArgsReplace = new ArrayList<>();
+  private final List<Map.Entry<String, String>> urlArgsReplace = new ArrayList<>();
 
   private final List<String> bodyArgsRemove = new ArrayList<>();
 
-  private final List<Map<String, String>> bodyArgsAdd = new ArrayList<>();
+  private final List<Map.Entry<String, String>> bodyArgsAdd = new ArrayList<>();
 
-  private final List<Map<String, String>> bodyArgsReplace = new ArrayList<>();
+  private final List<Map.Entry<String, String>> bodyArgsReplace = new ArrayList<>();
 
-  HttpEndpointImpl(String name, HttpMethod method, String path, String service,
-                   List<Parameter> urlArgs, List<Parameter> bodyArgs) {
+  HttpEndpointImpl(String name, HttpMethod method, String path, String service) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
@@ -91,18 +78,6 @@ class HttpEndpointImpl implements HttpEndpoint {
     this.method = method;
     this.path = path;
     this.service = service;
-    if (urlArgs != null) {
-      this.urlArgs = ImmutableList.copyOf(urlArgs);
-    } else {
-      this.urlArgs = null;
-    }
-    if (bodyArgs != null) {
-      Preconditions.checkArgument(HttpMethod.PUT == method || HttpMethod.POST == method,
-                                  "can not set body on post|put method");
-      this.bodyArgs = ImmutableList.copyOf(bodyArgs);
-    } else {
-      this.bodyArgs = null;
-    }
   }
 
   @Override
@@ -126,123 +101,101 @@ class HttpEndpointImpl implements HttpEndpoint {
   }
 
   @Override
-  public List<Parameter> urlArgs() {
-    return urlArgs;
-  }
-
-  @Override
-  public List<Parameter> bodyArgs() {
-    return bodyArgs;
-  }
-
-  @Override
-  public HttpEndpoint addRequestHeader(String key, String value) {
-    Map<String, String> header = new HashMap<>();
-    header.put(key, value);
-    headersAdd.add(header);
+  public HttpEndpoint addReqHeader(String key, String value) {
+    headersAdd.add(Maps.immutableEntry(key, value));
     return this;
   }
 
   @Override
-  public HttpEndpoint replaceRequestHeader(String key, String value) {
-    Map<String, String> header = new HashMap<>();
-    header.put(key, value);
-    headersReplace.add(header);
+  public HttpEndpoint replaceReqHeader(String key, String value) {
+    headersReplace.add(Maps.immutableEntry(key, value));
     return this;
   }
 
   @Override
-  public HttpEndpoint removeHeader(String key) {
+  public HttpEndpoint removeReqHeader(String key) {
     headersRemove.add(key);
     return this;
   }
 
   @Override
-  public HttpEndpoint addRequestUrlArg(String key, String value) {
-    Map<String, String> urlArg = new HashMap<>();
-    urlArg.put(key, value);
-    urlArgsAdd.add(urlArg);
+  public HttpEndpoint addReqUrlArg(String key, String value) {
+    urlArgsAdd.add(Maps.immutableEntry(key, value));
     return this;
   }
 
   @Override
-  public HttpEndpoint replaceRequestUrlArg(String key, String value) {
-    Map<String, String> urlArg = new HashMap<>();
-    urlArg.put(key, value);
-    urlArgsReplace.add(urlArg);
+  public HttpEndpoint replaceReqUrlArg(String key, String value) {
+    urlArgsReplace.add(Maps.immutableEntry(key, value));
     return this;
   }
 
   @Override
-  public HttpEndpoint removeUrlArg(String key) {
+  public HttpEndpoint removeReqUrlArg(String key) {
     urlArgsRemove.add(key);
     return this;
   }
 
   @Override
-  public HttpEndpoint addRequestBodyArg(String key, String value) {
-    Map<String, String> bodyArg = new HashMap<>();
-    bodyArg.put(key, value);
-    bodyArgsAdd.add(bodyArg);
+  public HttpEndpoint addReqBodyArg(String key, String value) {
+    bodyArgsAdd.add(Maps.immutableEntry(key, value));
     return this;
   }
 
   @Override
-  public HttpEndpoint replaceRequestBodyArg(String key, String value) {
-    Map<String, String> bodyArg = new HashMap<>();
-    bodyArg.put(key, value);
-    bodyArgsReplace.add(bodyArg);
+  public HttpEndpoint replaceReqBodyArg(String key, String value) {
+    bodyArgsReplace.add(Maps.immutableEntry(key, value));
     return this;
   }
 
   @Override
-  public HttpEndpoint removeBodyArg(String key) {
+  public HttpEndpoint removeReqBodyArg(String key) {
     bodyArgsRemove.add(key);
     return this;
   }
 
   @Override
-  public List<Map<String, String>> bodyArgsReplace() {
+  public List<Map.Entry<String, String>> reqBodyArgsReplace() {
     return bodyArgsReplace;
   }
 
   @Override
-  public List<Map<String, String>> bodyArgsAdd() {
+  public List<Map.Entry<String, String>> reqBodyArgsAdd() {
     return bodyArgsAdd;
   }
 
   @Override
-  public List<String> bodyArgsRemove() {
+  public List<String> reqBodyArgsRemove() {
     return bodyArgsRemove;
   }
 
   @Override
-  public List<Map<String, String>> urlArgsReplace() {
+  public List<Map.Entry<String, String>> reqUrlArgsReplace() {
     return urlArgsReplace;
   }
 
   @Override
-  public List<Map<String, String>> urlArgsAdd() {
+  public List<Map.Entry<String, String>> reqUrlArgsAdd() {
     return urlArgsAdd;
   }
 
   @Override
-  public List<String> urlArgsRemove() {
+  public List<String> reqUrlArgsRemove() {
     return urlArgsRemove;
   }
 
   @Override
-  public List<Map<String, String>> headersReplace() {
+  public List<Map.Entry<String, String>> reqHeadersReplace() {
     return headersReplace;
   }
 
   @Override
-  public List<Map<String, String>> headersAdd() {
+  public List<Map.Entry<String, String>> reqHeadersAdd() {
     return headersAdd;
   }
 
   @Override
-  public List<String> headersRemove() {
+  public List<String> reqHeadersRemove() {
     return headersRemove;
   }
 
@@ -253,17 +206,15 @@ class HttpEndpointImpl implements HttpEndpoint {
             .add("service", service)
             .add("path", path)
             .add("method", method)
-            .add("urlArgs", urlArgs)
-            .add("bodyArgs", bodyArgs)
-            .add("headersRemove", headersRemove)
-            .add("headersReplace", headersReplace)
-            .add("headersAdd", headersAdd)
-            .add("urlArgsRemove", urlArgsRemove)
-            .add("urlArgsReplace", urlArgsReplace)
-            .add("urlArgsAdd", urlArgsAdd)
-            .add("bodyArgsRemove", bodyArgsRemove)
-            .add("bodyArgsReplace", bodyArgsReplace)
-            .add("bodyArgsAdd", bodyArgsAdd)
+            .add("reqHeadersRemove", headersRemove)
+            .add("reqHeadersReplace", headersReplace)
+            .add("reqHeadersAdd", headersAdd)
+            .add("reqUrlArgsRemove", urlArgsRemove)
+            .add("reqUrlArgsReplace", urlArgsReplace)
+            .add("reqUrlArgsAdd", urlArgsAdd)
+            .add("reqBodyArgsRemove", bodyArgsRemove)
+            .add("reqBodyArgsReplace", bodyArgsReplace)
+            .add("reqBodyArgsAdd", bodyArgsAdd)
             .toString();
   }
 

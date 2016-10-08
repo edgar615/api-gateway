@@ -74,23 +74,15 @@
       "service": "device",
       "method": "POST",
       "path": "/devices",
-      "request_transformer" : {
-        "remove" : {
-          "headers" : ["h3", "h4"],
-          "url_args" : ["q3", "q4"],
-          "body_args" : ["p3", "p4"]
-        },
-        "replace" : {
-          "headers" : ["h5:v2", "h6:v1"],
-          "url_args" : ["q5:v2", "q6:v1"],
-          "body_args" : ["p5:v2", "p6:v1"]
-        },
-        "add" : {
-          "headers" : ["h1:v2", "h2:v1"],
-          "url_args" : ["q1:v2", "q2:v1"],
-          "body_args" : ["p1:v2", "p2:v1"]
-        }
-      }
+      "request.header.remove" : ["h3", "h4"],
+      "request.query.remove" : ["q3", "q4"],
+      "request.body.remove" : ["p3", "p4"],
+      "request.header.replace" : ["h5:v2", "h6:v1"],
+      "request.query.replace" : ["q5:v2", "q6:v1"],
+      "request.body.replace" : ["p5:v2", "p6:v1"],
+      "request.header.add" : ["h1:v2", "h2:v1"],
+      "request.query.add" : ["q1:v2", "q2:v1"],
+      "request.body.add" : ["p1:v2", "p2:v1"]
     }
   ]
 }
