@@ -48,7 +48,7 @@ class HttpEndpointDecoder implements Function<JsonObject, HttpEndpoint> {
       addReqBodyArg(jsonObject, httpEndpoint);
       return httpEndpoint;
     } else {
-      throw new UnsupportedOperationException("unsupport " + type);
+      throw new UnsupportedOperationException("unsupport type:" + type);
     }
   }
 

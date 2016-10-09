@@ -22,13 +22,12 @@ public class ApiDefinitionCodec implements MessageCodec<ApiDefinition, ApiDefini
 
   @Override
   public ApiDefinition transform(ApiDefinition apiDefinition) {
-    JsonObject jsonObject = apiDefinition.toJson();
-    return ApiDefinition.fromJson(jsonObject);
+    return apiDefinition.copy();
   }
 
   @Override
   public String name() {
-    return "ApiDefinitionCodec";
+    return ApiDefinitionCodec.class.getSimpleName();
   }
 
   @Override

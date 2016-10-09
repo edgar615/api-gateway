@@ -1,5 +1,5 @@
 {
-  "name" : "add_device",
+  "name" : "update_device",
   "method": "PUT",
   "path": "/devices",
   "scope" : "device:write",

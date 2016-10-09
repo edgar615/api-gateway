@@ -216,21 +216,24 @@ class ApiDefinitionImpl implements ApiDefinition {
     this.filters.remove(filterType);
   }
 
+  @Override
+  public void removeAllFilter() {
+    this.filters.clear();
+  }
+
   /**
    * 增加白名单.
    * 如果黑名单中存在该IP，从黑名单删除.
    * 每个接口最多允许添加100个白名单，超过100个白名单应该采用其他方式。
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
    */
   @Override
-  public IpRestrictionDefinition addWhitelist(String ip) {
+  public void addWhitelist(String ip) {
     Preconditions.checkNotNull(ip, "ip cannot be null");
     Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
     blacklist.remove(ip);
     whitelist.add(ip);
-    return this;
   }
 
   /**
@@ -239,41 +242,45 @@ class ApiDefinitionImpl implements ApiDefinition {
    * 每个接口最多允许添加100个黑名单，超过100个黑名单应该采用其他方式。
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
    */
   @Override
-  public IpRestrictionDefinition addBlacklist(String ip) {
+  public void addBlacklist(String ip) {
     Preconditions.checkNotNull(ip, "ip cannot be null");
     Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
     whitelist.remove(ip);
     blacklist.add(ip);
-    return this;
   }
 
   /**
    * 删除白名单.
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
    */
   @Override
-  public IpRestrictionDefinition removeWhitelist(String ip) {
+  public void removeWhitelist(String ip) {
     Preconditions.checkNotNull(ip, "ip cannot be null");
     whitelist.remove(ip);
-    return this;
   }
 
   /**
    * 删除黑名单.
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
    */
   @Override
-  public IpRestrictionDefinition removeBlacklist(String ip) {
+  public void removeBlacklist(String ip) {
     Preconditions.checkNotNull(ip, "ip cannot be null");
     blacklist.remove(ip);
-    return this;
+  }
+
+  @Override
+  public void removeAllWhitelist() {
+    whitelist.clear();
+  }
+
+  @Override
+  public void removeAllBlacklist() {
+    blacklist.clear();
   }
 
   @Override

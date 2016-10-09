@@ -24,6 +24,7 @@ public class HttpEndpointEncoder implements Function<HttpEndpoint, JsonObject> {
   @Override
   public JsonObject apply(HttpEndpoint httpEndpoint) {
     return new JsonObject()
+            .put("type", httpEndpoint.type())
             .put("name", httpEndpoint.name())
             .put("service", httpEndpoint.service())
             .put("path", httpEndpoint.path())

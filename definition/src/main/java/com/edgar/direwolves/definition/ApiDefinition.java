@@ -86,6 +86,11 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
    */
   void removeFilter(String filterType);
 
+  /**
+   * 删除所有filter
+   */
+  void removeAllFilter();
+
   static ApiDefinition create(ApiDefinitionOption option) {
     return new ApiDefinitionImpl(option);
   }
@@ -96,6 +101,11 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
 
   default JsonObject toJson() {
     return ApiDefinitionEncoder.instance().apply(this);
+  }
+
+  default ApiDefinition copy() {
+    JsonObject jsonObject = toJson();
+    return ApiDefinition.fromJson(jsonObject);
   }
 
 }

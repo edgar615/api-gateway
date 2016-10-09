@@ -10,7 +10,7 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2016/9/14
  */
 public interface HttpEndpoint extends Endpoint, RequestTransformer {
-  String TYPE = "http-endpoint";
+  String TYPE = "http";
 
   /**
    * @return 名称，必填项，全局唯一.

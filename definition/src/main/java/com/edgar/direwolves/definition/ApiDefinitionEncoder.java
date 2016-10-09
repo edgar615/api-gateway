@@ -53,10 +53,10 @@ public class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject>
               .put("name", parameter.name())
               .put("default_value", parameter.defaultValue());
       jsonArray.add(jsonObject);
-      JsonArray ruleArray = new JsonArray();
-      jsonObject.put("rules", ruleArray);
+      JsonObject rules = new JsonObject();
+      jsonObject.put("rules", rules);
       parameter.rules().forEach(rule -> {
-        ruleArray.add(new JsonObject(rule.toMap()));
+        rules.mergeIn(new JsonObject(rule.toMap()));
       });
     });
     return jsonArray;
@@ -65,14 +65,9 @@ public class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject>
   private JsonArray createEndpointArray(List<Endpoint> endpoints) {
     JsonArray jsonArray = new JsonArray();
     endpoints.forEach(endpoint -> {
-      if ("http-endpoint".equals(endpoint.type())) {
+      if ("http".equals(endpoint.type())) {
         HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
-        JsonObject jsonObject = new JsonObject()
-                .put("name", httpEndpoint.name())
-                .put("method", httpEndpoint.method())
-                .put("path", httpEndpoint.path())
-                .put("service", httpEndpoint.service());
-        jsonArray.add(jsonObject);
+        jsonArray.add(httpEndpoint.toJson());
       }
     });
     return jsonArray;

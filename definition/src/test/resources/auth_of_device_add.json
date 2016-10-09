@@ -1,4 +1,0 @@
-{
-  "name" : "add_device",
-  "filter" : ["jwt", "oauth", "timeout", "app_key"]
-}

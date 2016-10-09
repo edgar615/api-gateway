@@ -1,1 +1,11 @@
 com.edgar.direwolves.definition.AddApiHandler
+com.edgar.direwolves.definition.GetApiHandler
+com.edgar.direwolves.definition.DeleteApiHandler
+com.edgar.direwolves.definition.ListApiHandler
+com.edgar.direwolves.definition.AddFilterHandler
+com.edgar.direwolves.definition.DeleteFilterHandler
+com.edgar.direwolves.definition.AddBlacklistHandler
+com.edgar.direwolves.definition.AddWhitelistHandler
+com.edgar.direwolves.definition.DeleteBlacklistHandler
+com.edgar.direwolves.definition.DeleteWhitelistHandler
+com.edgar.direwolves.definition.AddRateLimitHandler
