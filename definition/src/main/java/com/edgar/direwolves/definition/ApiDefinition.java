@@ -4,6 +4,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -97,6 +98,23 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
     return ApiDefinitionDecoder.instance().apply(jsonObject);
+  }
+
+  /**
+   * 校验传入的参数是否符合api定义.
+   * 只有当method相同，且path符合ApiDefinition的正则表达式才认为二者匹配.
+   *
+   * @param method 请求方法
+   * @param path   路径
+   * @return true 符合
+   */
+  default boolean match(HttpMethod method, String path) {
+    if (method != method()) {
+      return false;
+    }
+    Pattern pattern = pattern();
+    Matcher matcher = pattern.matcher(path);
+    return matcher.matches();
   }
 
   default JsonObject toJson() {

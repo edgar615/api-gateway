@@ -10,14 +10,14 @@ import java.util.function.Function;
  * 将ApiDefinition转换为JsonObject.
  * Created by edgar on 16-9-13.
  */
-public class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
+class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
 
   private static final ApiDefinitionEncoder INSTANCE = new ApiDefinitionEncoder();
 
   private ApiDefinitionEncoder() {
   }
 
-  public static Function<ApiDefinition, JsonObject> instance() {
+  static Function<ApiDefinition, JsonObject> instance() {
     return INSTANCE;
   }
 

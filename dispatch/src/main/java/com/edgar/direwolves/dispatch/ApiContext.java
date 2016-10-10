@@ -1,142 +1,128 @@
 package com.edgar.direwolves.dispatch;
 
-import com.edgar.direwolves.definition.ApiDefinition;
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-public class ApiContext {
+/**
+ * API调用的上下文.
+ *
+ * @author Edgar  Date 2016/10/10
+ */
+public interface ApiContext {
 
-    private final String id = UUID.randomUUID().toString();
+  /**
+   * @return ID，全局唯一.
+   */
+  String id();
 
-    private final String path;
+  /**
+   * @return url参数
+   */
+  Multimap<String, String> params();
 
-    private final HttpMethod method;
+  /**
+   * @return 请求头
+   */
+  Multimap<String, String> headers();
 
-    private final Multimap<String, String> headers;
+  /**
+   * @return 请求体, json格式.
+   */
+  JsonObject body();
 
-    private final Multimap<String, String> params;
+  /**
+   * @return 请求路径.
+   */
+  String path();
 
-    private final JsonObject body;
+  /**
+   * @return 请求方法
+   */
+  HttpMethod method();
 
-    private JsonObject principal;
+  /**
+   * @return 用户信息.
+   */
+  JsonObject principal();
 
-    private final Map<String, Object> variables = new HashMap<>();
+  /**
+   * 设置用户信息.
+   *
+   * @param principal 用户信息
+   */
+  void setPrincipal(JsonObject principal);
 
-    private ApiDefinition apiDefinition;
+  /**
+   * @return 变量
+   */
+  Map<String, Object> variables();
 
-    private ApiContext(String path, HttpMethod method, Multimap<String, String> headers, Multimap<String, String> params, JsonObject body) {
-        this.path = path;
-        this.method = method;
-        this.headers = headers;
-        this.params = params;
-        this.body = body;
+  /**
+   * 增加变量
+   *
+   * @param name  变量名
+   * @param value 变量值
+   */
+  void addVariable(String name, Object value);
+
+  /**
+   * @return api定义
+   */
+  ApiDefinition apiDefinition();
+
+  /**
+   * 设置api定义
+   *
+   * @param apiDefinition
+   */
+  void setApiDefinition(ApiDefinition apiDefinition);
+
+  static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
+                           Multimap<String, String> params, JsonObject body) {
+    return new ApiContextImpl(method, path, headers, params, body);
+  }
+
+  static ApiContext create(RoutingContext rc) {
+    String path = rc.normalisedPath();
+    HttpMethod method = rc.request().method();
+    Multimap<String, String> headers =
+            MultiMapToMultimap.instance().apply(rc.request().headers());
+    Multimap<String, String> params =
+            MultiMapToMultimap.instance().apply(rc.request().params());
+    JsonObject body = null;
+    if (rc.request().method() == HttpMethod.POST || rc.request().method() == HttpMethod.PUT) {
+      try {
+        body = rc.getBodyAsJson();
+      } catch (DecodeException e) {
+        throw SystemException.create(DefaultErrorCode.INVALID_JSON);
+      }
     }
+    ApiContext apiContext = create(method, path, headers, params, body);
+    Map<String, String> variables = getVariables(rc);
+    variables.forEach((key, value) -> apiContext.addVariable(key, value));
+    return apiContext;
+  }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public Multimap<String, String> params() {
-        return params;
-    }
-
-    public Multimap<String, String> headers() {
-        return headers;
-    }
-
-    public JsonObject body() {
-        return body;
-    }
-
-    public String path() {
-        return path;
-    }
-
-    public HttpMethod method() {
-        return method;
-    }
-
-    public JsonObject principal() {
-        return principal;
-    }
-
-    public void setPrincipal(JsonObject principal) {
-        this.principal = principal;
-    }
-
-    public Map<String, Object> getVariables() {
-        return variables;
-    }
-
-    public void addVariable(String name, Object value) {
-        variables.put(name, value);
-    }
-
-    public ApiDefinition getApiDefinition() {
-        return apiDefinition;
-    }
-
-    public void setApiDefinition(ApiDefinition apiDefinition) {
-        this.apiDefinition = apiDefinition;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper("Api")
-                .add("method", method)
-                .add("path", path)
-                .add("params", params)
-                .add("headers", headers)
-                .add("body", body)
-                .add("principal", principal.encode())
-                .add("variables", variables)
-                .toString();
-    }
-
-    public static class Builder {
-        private String path = "/";
-        private HttpMethod method = HttpMethod.GET;
-        private Multimap<String, String> headers = ArrayListMultimap.create();
-        private Multimap<String, String> params = ArrayListMultimap.create();
-        private JsonObject body;
-
-        private Builder() {
-        }
-
-        public Builder setPath(String path) {
-            this.path = path;
-            return this;
-        }
-
-        public Builder setMethod(HttpMethod method) {
-            this.method = method;
-            return this;
-        }
-
-        public Builder setHeaders(Multimap<String, String> headers) {
-            this.headers = headers;
-            return this;
-        }
-
-        public Builder setParams(Multimap<String, String> params) {
-            this.params = params;
-            return this;
-        }
-
-        public Builder setBody(JsonObject body) {
-            this.body = body;
-            return this;
-        }
-
-        public ApiContext build() {
-            return new ApiContext(path, method, headers, params, body);
-        }
-    }
+  static Map<String, String> getVariables(RoutingContext rc) {
+    Map<String, String> variables = new HashMap<>();
+    HttpServerRequest req = rc.request();
+    variables.put("request.scheme", req.scheme());
+    variables.put("request.method", req.method().name());
+    variables.put("request.query_string", req.query());
+    variables.put("request.uri", req.uri());
+    variables.put("request.path_info", req.path());
+    variables.put("request.client_ip", req.remoteAddress().host());
+    return variables;
+  }
 }

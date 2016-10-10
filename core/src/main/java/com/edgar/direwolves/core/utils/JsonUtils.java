@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.core.utils;
 
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;

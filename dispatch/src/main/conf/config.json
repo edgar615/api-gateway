@@ -1,9 +1,7 @@
 {
   "http.port" : 9000,
-  "filter" : [
-    "jwt",
-    "app_key"
-  ],
+  "api.config.dir":"/",
+  "api.config.auto_refresh" : false,
   "keystore.path" : "keystore.jceks",
   "keystore.type" : "jceks",
   "keystore.password" : "secret",
@@ -12,12 +10,14 @@
   "jwt.issuer" : "",
   "jwt.subject" : "",
   "jwt.expires" : 1800,
+  "jwt.principal.storage" : false,
   "timeout.expires" : 300,
   "app_key.secret.import" : {
     "url" : "/secrets",
     "scan_period" : 2000,
     "service" : "user"
   },
+  "app_key.secret.dir" : "",
   "app_key.secret" : [
     {
       "key" : "1",

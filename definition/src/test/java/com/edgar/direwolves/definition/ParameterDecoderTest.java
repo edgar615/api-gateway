@@ -1,12 +1,9 @@
 package com.edgar.direwolves.definition;
 
-import com.edgar.util.validation.Rule;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * Created by Edgar on 2016/9/13.

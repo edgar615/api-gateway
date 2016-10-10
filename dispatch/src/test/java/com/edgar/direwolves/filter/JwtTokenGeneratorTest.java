@@ -1,17 +1,8 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.dispatch.ApiContext;
 import com.edgar.direwolves.dispatch.JwtTokenGenerator;
-import com.edgar.util.exception.SystemException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.jwt.JWTAuth;
-import io.vertx.ext.auth.jwt.JWTOptions;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.Assert;

@@ -1,14 +1,14 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.definition.verticle;
 
 import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
+import com.edgar.direwolves.definition.ApiDefinitionCodec;
+import com.edgar.direwolves.definition.ApiDefinitionListCodec;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -37,22 +37,6 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
     EventBus eb = vertx.eventBus();
     eb.registerCodec(new ApiDefinitionCodec())
-    .registerCodec(new ApiDefinitionListCodec());
-
-    eb.<JsonObject>consumer(API_DELETE_RATE_LIMIT, msg -> {
-      try {
-        JsonObject jsonObject = msg.body();
-        String name = jsonObject.getString("name");
-        String type = jsonObject.getString("type", null);
-        String limitBy = jsonObject.getString("limit_by", null);
-
-        List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-        definitions.forEach(definition -> definition.removeRateLimit(limitBy, type));
-        msg.reply(RESULT_OK);
-
-      } catch (Exception e) {
-        msg.fail(-1, e.getMessage());
-      }
-    });
+            .registerCodec(new ApiDefinitionListCodec());
   }
 }

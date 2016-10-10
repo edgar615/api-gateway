@@ -2,10 +2,9 @@ package com.edgar.direwolves.definition;
 
 import static org.awaitility.Awaitility.await;
 
+import com.edgar.direwolves.core.utils.JsonUtils;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;

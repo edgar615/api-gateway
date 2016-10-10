@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2016/9/30
  */
-public class ParameterDecoder implements Function<JsonObject, Parameter> {
+class ParameterDecoder implements Function<JsonObject, Parameter> {
 
   private static final ParameterDecoder INSTANCE = new ParameterDecoder();
 

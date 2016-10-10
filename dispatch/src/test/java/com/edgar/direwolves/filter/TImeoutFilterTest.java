@@ -1,11 +1,12 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.dispatch.ApiContext;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -28,92 +29,83 @@ import java.time.Instant;
 @RunWith(VertxUnitRunner.class)
 public class TImeoutFilterTest {
 
-    Vertx vertx;
+  Vertx vertx;
 
-    @Before
-    public void setUp(TestContext testContext) {
-        vertx = Vertx.vertx();
+  @Before
+  public void setUp(TestContext testContext) {
+    vertx = Vertx.vertx();
+  }
+
+
+  @Test
+  public void testTimeoutParam(TestContext testContext) {
+
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
+
+    TimeoutFilter filter = new TimeoutFilter();
+    filter.config(vertx, new JsonObject());
+
+    Future<ApiContext> future = Future.future();
+    try {
+      filter.doFilter(apiContext, future);
+    } catch (Exception e) {
+      e.printStackTrace();
+      Assert.assertTrue(e instanceof ValidationException);
     }
+  }
 
+  @Test
+  public void testTimeout(TestContext testContext) {
 
-    @Test
-    public void testTimeoutParam(TestContext testContext) {
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("timestamp", Instant.now().getEpochSecond() + (10 * 60) + "");
 
-        ApiContext apiContext = ApiContext.builder()
-                .setMethod(HttpMethod.GET)
-                .setPath("/devices")
-                .build();
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-        TimeoutFilter filter = new TimeoutFilter();
-        filter.config(vertx, new JsonObject());
+    TimeoutFilter filter = new TimeoutFilter();
+    filter.config(vertx, new JsonObject());
 
-        Future<ApiContext> future = Future.future();
-        try {
-            filter.doFilter(apiContext, future);
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof ValidationException);
-        }
-    }
+    Future<ApiContext> future = Future.future();
+    filter.doFilter(apiContext, future);
 
-    @Test
-    public void testTimeout(TestContext testContext) {
+    Async async = testContext.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        Throwable e = ar.cause();
+        testContext.assertTrue(e instanceof SystemException);
+        SystemException ex = (SystemException) e;
+        testContext
+                .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
 
-        Multimap<String, String> params = ArrayListMultimap.create();
-        params.put("timestamp", Instant.now().getEpochSecond() + (10 * 60) + "");
+        async.complete();
+      }
+    });
+  }
 
-        ApiContext apiContext = ApiContext.builder()
-                .setMethod(HttpMethod.GET)
-                .setPath("/devices")
-                .setParams(params)
-                .build();
+  @Test
+  public void testTimeoutOK(TestContext testContext) {
 
-        TimeoutFilter filter = new TimeoutFilter();
-        filter.config(vertx, new JsonObject());
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("timestamp", Instant.now().getEpochSecond() + "");
 
-        Future<ApiContext> future = Future.future();
-        filter.doFilter(apiContext, future);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-        Async async = testContext.async();
-        future.setHandler(ar -> {
-            if (ar.succeeded()) {
-                testContext.fail();
-            } else {
-                Throwable e = ar.cause();
-                testContext.assertTrue(e instanceof SystemException);
-                SystemException ex = (SystemException) e;
-                testContext.assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
+    TimeoutFilter filter = new TimeoutFilter();
+    filter.config(vertx, new JsonObject());
 
-                async.complete();
-            }
-        });
-    }
-
-    @Test
-    public void testTimeoutOK(TestContext testContext) {
-
-        Multimap<String, String> params = ArrayListMultimap.create();
-        params.put("timestamp", Instant.now().getEpochSecond() + "");
-
-        ApiContext apiContext = ApiContext.builder()
-                .setMethod(HttpMethod.GET)
-                .setPath("/devices")
-                .setParams(params)
-                .build();
-
-        TimeoutFilter filter = new TimeoutFilter();
-        filter.config(vertx, new JsonObject());
-
-        Future<ApiContext> future = Future.future();
-        filter.doFilter(apiContext, future);
-        future.setHandler(ar -> {
-            if (ar.succeeded()) {
-                ApiContext apiContext1 = ar.result();
-                testContext.assertTrue(apiContext1.params().containsKey("timestamp"));
-            } else {
-                testContext.fail();
-            }
-        });
-    }
+    Future<ApiContext> future = Future.future();
+    filter.doFilter(apiContext, future);
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        ApiContext apiContext1 = ar.result();
+        testContext.assertTrue(apiContext1.params().containsKey("timestamp"));
+      } else {
+        testContext.fail();
+      }
+    });
+  }
 
 
 }

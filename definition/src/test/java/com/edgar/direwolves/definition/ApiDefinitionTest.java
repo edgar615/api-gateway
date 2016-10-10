@@ -200,4 +200,50 @@ public class ApiDefinitionTest {
     RateLimit rateLimit = filterDefintions.get(0);
     Assert.assertEquals(1000, rateLimit.limit());
   }
+
+  @Test
+  public void testMatcher() {
+    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
+                                                    "device");
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
+
+    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/123"));
+
+
+    httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices",
+                                                    "device");
+    option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/([\\d+]+)")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    apiDefinition = ApiDefinition.create(option);
+
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
+    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/123"));
+
+    httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices",
+                                       "device");
+    option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/([\\w+]+)")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    apiDefinition = ApiDefinition.create(option);
+
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
+    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/"));
+    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
+    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/123"));
+  }
 }

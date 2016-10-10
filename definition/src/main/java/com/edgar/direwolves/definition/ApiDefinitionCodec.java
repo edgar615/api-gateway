@@ -2,7 +2,6 @@ package com.edgar.direwolves.definition;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
-import io.vertx.core.json.JsonObject;
 
 /**
  * Created by Edgar on 2016/10/8.

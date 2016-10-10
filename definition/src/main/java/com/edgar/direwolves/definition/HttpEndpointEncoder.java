@@ -10,16 +10,15 @@ import java.util.stream.Collectors;
  *
  * @author Edgar  Date 2016/10/8
  */
-public class HttpEndpointEncoder implements Function<HttpEndpoint, JsonObject> {
+class HttpEndpointEncoder implements Function<HttpEndpoint, JsonObject> {
   private static final HttpEndpointEncoder INSTANCE = new HttpEndpointEncoder();
 
   private HttpEndpointEncoder() {
   }
 
-  public static Function<HttpEndpoint, JsonObject> instance() {
+  static Function<HttpEndpoint, JsonObject> instance() {
     return INSTANCE;
   }
-
 
   @Override
   public JsonObject apply(HttpEndpoint httpEndpoint) {

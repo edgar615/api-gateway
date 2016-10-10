@@ -20,10 +20,9 @@ class HttpEndpointDecoder implements Function<JsonObject, HttpEndpoint> {
   private HttpEndpointDecoder() {
   }
 
-  public static Function<JsonObject, HttpEndpoint> instance() {
+  static Function<JsonObject, HttpEndpoint> instance() {
     return INSTANCE;
   }
-
 
   @Override
   public HttpEndpoint apply(JsonObject jsonObject) {

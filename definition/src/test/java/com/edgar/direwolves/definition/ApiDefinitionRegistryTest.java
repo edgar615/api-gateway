@@ -1,6 +1,8 @@
 package com.edgar.direwolves.definition;
 
 import com.google.common.collect.Lists;
+
+import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
 import io.vertx.core.http.HttpMethod;
 import org.junit.After;
 import org.junit.Assert;
@@ -19,7 +21,7 @@ public class ApiDefinitionRegistryTest {
     ApiDefinitionRegistry registry;
     @Before
     public void setUp() {
-        registry = ApiDefinitionRegistryImpl.instance();
+        registry = ApiDefinitionRegistry.create();
     }
 
     @After
@@ -28,7 +30,8 @@ public class ApiDefinitionRegistryTest {
     }
     @Test
     public void testRegister() {
-        HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint httpEndpoint = Endpoint
+                .createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
       ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
               .setMethod(HttpMethod.GET)

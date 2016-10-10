@@ -1,6 +1,8 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.definition.eb;
 
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
+import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -13,8 +15,8 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/8
  */
-public class AddFilterHandler implements EventbusMessageConsumer<JsonObject> {
-  public static final String ADDRESS = "api.filter.add";
+public class DeleteFilterHandler implements EventbusMessageConsumer<JsonObject> {
+  public static final String ADDRESS = "api.filter.delete";
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
@@ -26,11 +28,16 @@ public class AddFilterHandler implements EventbusMessageConsumer<JsonObject> {
   public void handle(Message<JsonObject> msg) {
     try {
       JsonObject jsonObject = msg.body();
-      String name = jsonObject.getString("name", null);
-      String filter = jsonObject.getString("filter", "UNKOWN");
+      String name = jsonObject.getString("name");
+      String filter = jsonObject.getString("filter");
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      definitions.forEach(definition -> definition.addFilter(filter));
+      if (filter == null) {
+        definitions.forEach(definition -> definition.removeAllFilter());
+      } else {
+        definitions.forEach(definition -> definition.removeFilter(filter));
+      }
       msg.reply(new JsonObject().put("result", "OK"));
+
     } catch (Exception e) {
       msg.fail(-1, e.getMessage());
     }

@@ -1,7 +1,13 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.definition.eb;
+
+import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
+import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.definition.ApiDefinitionListCodec;
+import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -13,8 +19,8 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/8
  */
-public class DeleteWhitelistHandler implements EventbusMessageConsumer<JsonObject> {
-  public static final String ADDRESS = "api.whitelist.delete";
+public class ListApiHandler implements EventbusMessageConsumer<JsonObject> {
+  public static final String ADDRESS = "api.list";
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
@@ -26,15 +32,16 @@ public class DeleteWhitelistHandler implements EventbusMessageConsumer<JsonObjec
   public void handle(Message<JsonObject> msg) {
     try {
       JsonObject jsonObject = msg.body();
+      Integer start = jsonObject.getInteger("start", 0);
+      Integer limit = jsonObject.getInteger("limit", 10);
       String name = jsonObject.getString("name", null);
-      String ip = jsonObject.getString("ip");
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      if (ip == null) {
-        definitions.forEach(definition -> definition.removeAllWhitelist());
-      } else {
-        definitions.forEach(definition -> definition.removeWhitelist(ip));
+      int toIndex = start + limit;
+      if (toIndex > definitions.size()) {
+        toIndex = definitions.size();
       }
-      msg.reply(new JsonObject().put("result", "OK"));
+      msg.reply(Lists.newArrayList(definitions.subList(start, toIndex)), new DeliveryOptions().setCodecName
+              (ApiDefinitionListCodec.class.getSimpleName()));
     } catch (Exception e) {
       msg.fail(-1, e.getMessage());
     }

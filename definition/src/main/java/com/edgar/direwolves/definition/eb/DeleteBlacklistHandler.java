@@ -1,15 +1,13 @@
-package com.edgar.direwolves.definition;
-
-import com.google.common.collect.Lists;
+package com.edgar.direwolves.definition.eb;
 
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
+import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,8 +15,8 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/8
  */
-public class ListApiHandler implements EventbusMessageConsumer<JsonObject> {
-  public static final String ADDRESS = "api.list";
+public class DeleteBlacklistHandler implements EventbusMessageConsumer<JsonObject> {
+  public static final String ADDRESS = "api.blacklist.delete";
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
@@ -30,16 +28,15 @@ public class ListApiHandler implements EventbusMessageConsumer<JsonObject> {
   public void handle(Message<JsonObject> msg) {
     try {
       JsonObject jsonObject = msg.body();
-      Integer start = jsonObject.getInteger("start", 0);
-      Integer limit = jsonObject.getInteger("limit", 10);
       String name = jsonObject.getString("name", null);
+      String ip = jsonObject.getString("ip");
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      int toIndex = start + limit;
-      if (toIndex > definitions.size()) {
-        toIndex = definitions.size();
+      if (ip == null) {
+        definitions.forEach(definition -> definition.removeAllBlacklist());
+      } else {
+        definitions.forEach(definition -> definition.removeBlacklist(ip));
       }
-      msg.reply(Lists.newArrayList(definitions.subList(start, toIndex)), new DeliveryOptions().setCodecName
-              (ApiDefinitionListCodec.class.getSimpleName()));
+      msg.reply(new JsonObject().put("result", "OK"));
     } catch (Exception e) {
       msg.fail(-1, e.getMessage());
     }

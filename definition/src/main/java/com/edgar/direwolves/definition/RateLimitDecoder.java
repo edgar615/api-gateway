@@ -9,7 +9,7 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2016/9/30
  */
-public class RateLimitDecoder implements Function<JsonObject, RateLimit> {
+class RateLimitDecoder implements Function<JsonObject, RateLimit> {
 
   private static final RateLimitDecoder INSTANCE = new RateLimitDecoder();
 

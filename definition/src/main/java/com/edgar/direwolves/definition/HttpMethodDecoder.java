@@ -10,7 +10,7 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2016/9/30
  */
-public class HttpMethodDecoder implements Function<JsonObject, HttpMethod> {
+class HttpMethodDecoder implements Function<JsonObject, HttpMethod> {
 
   private static final HttpMethodDecoder INSTANCE = new HttpMethodDecoder();
 
