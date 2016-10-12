@@ -1,64 +1,73 @@
 {
-  "name" : "add_device",
+  "name": "add_device",
   "method": "POST",
   "path": "/devices",
-  "scope" : "device:write",
-  "auth" : "jwt",
-  "ip_restriction" : {
-    "whitelist" : ["192.168.0.1", "10.4.7.*"],
-    "blacklist" : ["192.168.0.100"]
+  "scope": "device:write",
+  "auth": "jwt",
+  "ip_restriction": {
+    "whitelist": [
+      "192.168.0.1",
+      "10.4.7.*"
+    ],
+    "blacklist": [
+      "192.168.0.100"
+    ]
   },
-  "rate_limit" : [
+  "rate_limit": [
     {
-      "limit" : 1000,
-      "limit_by" : "token",
-      "type" : "hour"
+      "limit": 1000,
+      "limit_by": "token",
+      "type": "hour"
     },
     {
-      "limit" : 100,
-      "limit_by" : "app_key",
-      "type" : "second"
+      "limit": 100,
+      "limit_by": "app_key",
+      "type": "second"
     }
   ],
-  "url_args" : [
+  "url_args": [
     {
-      "name" : "limit",
-      "default_value" : 10,
-      "rules" : {
-        "integer":true,
-        "max":100,
-        "min":1
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
       }
     },
     {
-      "name" : "start",
-      "default_value" : 0,
-      "rules" : {
-        "integer":true
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
       }
     }
   ],
-  "body_args" : [
+  "body_args": [
     {
-      "name" : "encryptKey",
-      "rules" : {
-        "required" : true,
-        "regex" : "[0-9A-F]{16}"
+      "name": "encryptKey",
+      "rules": {
+        "required": true,
+        "regex": "[0-9A-F]{16}"
       }
     },
     {
-      "name" : "type",
-      "default_value" : 1,
-      "rules" : {
-        "required" : true,
-        "optional" : [1, 2, 3]
+      "name": "type",
+      "default_value": 1,
+      "rules": {
+        "required": true,
+        "optional": [
+          1,
+          2,
+          3
+        ]
       }
     },
     {
-      "name" : "barcode",
-      "rules" : {
-        "required" : true,
-        "regex" : "[0-9a-zA-Z]{16}"
+      "name": "barcode",
+      "rules": {
+        "required": true,
+        "regex": "[0-9a-zA-Z]{16}"
       }
     },
     {
@@ -70,7 +79,7 @@
   ],
   "endpoints": [
     {
-      "name" : "add_device",
+      "name": "add_device",
       "service": "device",
       "method": "POST",
       "path": "/devices"

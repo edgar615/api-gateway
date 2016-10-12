@@ -1,6 +1,7 @@
 package com.edgar.direwolves.dispatch;
 
 import com.edgar.direwolves.filter.Filters;
+import com.edgar.direwolves.service.RecordSelect;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.ext.web.Route;
@@ -20,6 +21,10 @@ public class DispatchVerticle extends AbstractVerticle {
     //初始化Filter
     Filters filters = Filters.instance();
     filters.init(vertx);
+
+    //服务发现
+    RecordSelect recordSelect = RecordSelect.create();
+    recordSelect.config(vertx, config());
 
     int port = config().getInteger("http.port", 8080);
 

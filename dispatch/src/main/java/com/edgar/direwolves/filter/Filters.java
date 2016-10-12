@@ -23,11 +23,11 @@ public class Filters {
 
   private final List<Filter> filters = new ArrayList<>();
 
-  public static Filters instance() {
-    return INSTANCE;
+  private Filters() {
   }
 
-  private Filters() {
+  public static Filters instance() {
+    return INSTANCE;
   }
 
   public void init(Vertx vertx) {

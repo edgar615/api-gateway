@@ -1,29 +1,35 @@
 {
-  "http.port" : 9000,
-  "api.config.dir":"/",
-  "api.config.auto_refresh" : false,
-  "keystore.path" : "keystore.jceks",
-  "keystore.type" : "jceks",
-  "keystore.password" : "secret",
-  "jwt.algorithm" : "HS512",
-  "jwt.audience" : "",
-  "jwt.issuer" : "",
-  "jwt.subject" : "",
-  "jwt.expires" : 1800,
-  "jwt.principal.storage" : false,
-  "timeout.expires" : 300,
-  "app_key.secret.import" : {
-    "url" : "/secrets",
-    "scan_period" : 2000,
-    "service" : "user"
+  "http.port": 9000,
+  "api.config.dir": "/",
+  "api.config.auto_refresh": false,
+  "service.discovery": "consul://localhost:8500",
+  "service.discovery.scan-period": 2000,
+  "service.discovery.select-strategy": {
+    "user": "random",
+    "device": "round_robin"
   },
-  "app_key.secret.dir" : "",
-  "app_key.secret" : [
+  "keystore.path": "keystore.jceks",
+  "keystore.type": "jceks",
+  "keystore.password": "secret",
+  "jwt.algorithm": "HS512",
+  "jwt.audience": "",
+  "jwt.issuer": "",
+  "jwt.subject": "",
+  "jwt.expires": 1800,
+  "jwt.principal.storage": false,
+  "timeout.expires": 300,
+  "app_key.secret.import": {
+    "url": "/secrets",
+    "scan_period": 2000,
+    "service": "user"
+  },
+  "app_key.secret.dir": "",
+  "app_key.secret": [
     {
-      "key" : "1",
-      "secret" : "2",
-      "code" : 0,
-      "scope" : "all"
+      "key": "1",
+      "secret": "2",
+      "code": 0,
+      "scope": "all"
     }
   ]
 }

@@ -18,16 +18,16 @@ import java.util.List;
 /**
  * JWT类型token的校验.
  * 在校验通过之后，会设置上下文的principal.
- * <p/>
+ * <p>
  * 如果开启了这个过滤器，那么对API的调用必须包含请求头Authorization: Bearer <token>，如果不包含该格式的请求头，服务端会认为是非法请求。
- * <p/>
+ * <p>
  * 可以通过keystore.*配置项来指定jwt用的加密证书.
  * <pre>
  *   keystore.path : 证书路径，默认值keystore.jceks
  *   keystore.type : 证书类型，默认值jceks
  *   keystore.password : 证书密码，默认值secret
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class JWTFilter implements Filter {
