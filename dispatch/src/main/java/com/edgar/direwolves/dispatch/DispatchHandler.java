@@ -1,6 +1,8 @@
 package com.edgar.direwolves.dispatch;
 
 import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.definition.Endpoint;
+import com.edgar.direwolves.definition.HttpEndpoint;
 import com.edgar.direwolves.definition.eb.ApiMatchHandler;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.vertx.task.Task;
@@ -8,6 +10,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.servicediscovery.Record;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -19,6 +22,15 @@ import java.util.regex.Pattern;
  * Created by edgar on 16-9-12.
  */
 public class DispatchHandler implements Handler<RoutingContext> {
+
+  private JsonObject httpJson(ApiContext apiContext, HttpEndpoint endpoint) {
+    //host,port
+    //path
+    //query
+    //body
+    //header
+    return null;
+  }
 
   @Override
   public void handle(RoutingContext rc) {
@@ -33,7 +45,18 @@ public class DispatchHandler implements Handler<RoutingContext> {
               //设置变量
               matches(apiContext, apiDefinition);
               return apiContext;
-            }).flatMapTask(apiContext -> Filters.instance().doFilter(apiContext))
+            }).flatMapTask("do filters", apiContext -> Filters.instance().doFilter(apiContext))
+            .andThen(apiContext ->{
+              ApiDefinition apiDefinition = apiContext.apiDefinition();
+              List<Endpoint> endpoints = apiDefinition.endpoints();
+              endpoints.forEach(endpoint -> {
+                if (endpoint instanceof HttpEndpoint) {
+                  HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+
+
+                }
+              });
+            } )
             .onFailure(throwable -> {
               rc.response().setStatusCode(404).setChunked(true)
                       .end(new JsonObject()
