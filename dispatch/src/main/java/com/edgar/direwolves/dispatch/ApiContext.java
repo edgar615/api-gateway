@@ -8,6 +8,7 @@ import com.edgar.util.exception.SystemException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.DecodeException;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -87,6 +88,17 @@ public interface ApiContext {
    * @param apiDefinition
    */
   void setApiDefinition(ApiDefinition apiDefinition);
+
+
+  /**
+   * @return 经过requestTransformer后的请求.
+   */
+  JsonArray request();
+
+  /**
+   * @param jsonObject 添加一个经过requestTransformer后的请求
+   */
+  void addRequest(JsonObject jsonObject);
 
   static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
                            Multimap<String, String> params, JsonObject body) {

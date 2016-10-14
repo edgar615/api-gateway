@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
@@ -31,6 +32,8 @@ class ApiContextImpl implements ApiContext {
   private JsonObject principal;
 
   private ApiDefinition apiDefinition;
+
+  private JsonArray request = new JsonArray();
 
   ApiContextImpl(HttpMethod method, String path, Multimap<String, String> headers,
                  Multimap<String, String> params, JsonObject body) {
@@ -105,6 +108,16 @@ class ApiContextImpl implements ApiContext {
   @Override
   public void setApiDefinition(ApiDefinition apiDefinition) {
     this.apiDefinition = apiDefinition;
+  }
+
+  @Override
+  public JsonArray request() {
+    return request;
+  }
+
+  @Override
+  public void addRequest(JsonObject jsonObject) {
+    this.request.add(request);
   }
 
   @Override

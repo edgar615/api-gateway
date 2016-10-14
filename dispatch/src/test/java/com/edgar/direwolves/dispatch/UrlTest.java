@@ -35,9 +35,10 @@ public class UrlTest {
 
   @Test
   public void test() {
-    System.out.println(matchValue("devices/new/$param.param0/test", "[\\w./]+([\\w$.]+)[\\w./]+"));
-    String url = "devices/new/$param.param0";
-    Pattern pattern = Pattern.compile("[\\w./]+([\\w$.]+)");
+    System.out.println(matchValue("devices/new/$param.param0/test/$param.param1", "[\\w./$]*([\\w$"
+                                                                                + ".]+)"));
+    String url = "devices/new/$param.param0/test/$param.param0";
+    Pattern pattern = Pattern.compile("[\\w./]+([\\w$.]+)[\\w./]*");
     Matcher matcher = pattern.matcher(url);
     System.out.println(matcher.matches());
     if (matcher.matches()) {
