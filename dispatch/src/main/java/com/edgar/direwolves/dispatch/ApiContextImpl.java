@@ -117,7 +117,7 @@ class ApiContextImpl implements ApiContext {
 
   @Override
   public void addRequest(JsonObject jsonObject) {
-    this.request.add(request);
+    this.request.add(jsonObject);
   }
 
   @Override

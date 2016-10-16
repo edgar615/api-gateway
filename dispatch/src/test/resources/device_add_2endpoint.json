@@ -83,6 +83,22 @@
       "request.header.add" : ["h1:v1", "h2:v2"],
       "request.query.add" : ["q1:v1", "q2:v2"],
       "request.body.add" : ["p1:v1", "p2:v2"]
+    },
+    {
+      "type" : "http",
+      "name" : "add_device2",
+      "service": "device",
+      "method": "POST",
+      "path": "/devices",
+      "request.header.remove" : ["h3", "h4"],
+      "request.query.remove" : ["q3", "q4"],
+      "request.body.remove" : ["p3", "p4"],
+      "request.header.replace" : ["h5:v5", "h6:v6"],
+      "request.query.replace" : ["q5:b5", "q6:v6"],
+      "request.body.replace" : ["p5:v5", "p6:v6"],
+      "request.header.add" : ["h1:v1", "h2:v2"],
+      "request.query.add" : ["q1:v1", "q2:v2"],
+      "request.body.add" : ["p1:v1", "p2:v2"]
     }
   ]
 }

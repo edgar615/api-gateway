@@ -113,7 +113,7 @@ public interface ApiContext {
     Multimap<String, String> params =
             MultiMapToMultimap.instance().apply(rc.request().params());
     JsonObject body = null;
-    if (rc.request().method() == HttpMethod.POST || rc.request().method() == HttpMethod.PUT) {
+    if (rc.getBody().length() > 0) {
       try {
         body = rc.getBodyAsJson();
       } catch (DecodeException e) {
