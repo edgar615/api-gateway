@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.edgar.util.base.MorePreconditions;
 import io.vertx.core.http.HttpMethod;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -105,6 +106,10 @@ class ApiDefinitionImpl implements ApiDefinition {
   private final Set<String> blacklist = new HashSet<>();
 
   private final Set<RateLimit> rateLimits = new HashSet<>();
+
+  private final List<ResponseTransformer> responseTransformers = new ArrayList<>();
+
+  private final List<RequestTransformer> requestTransformers = new ArrayList<>();
 
   public ApiDefinitionImpl(
           ApiDefinitionOption option) {
@@ -219,6 +224,44 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public void removeAllFilter() {
     this.filters.clear();
+  }
+
+  @Override
+  public List<ResponseTransformer> responseTransformer() {
+    return ImmutableList.copyOf(responseTransformers);
+  }
+
+  @Override
+  public void addResponseTransformer(ResponseTransformer transformer) {
+    removeResponseTransformer(transformer.name());
+    this.responseTransformers.add(transformer);
+  }
+
+  @Override
+  public void removeResponseTransformer(String name) {
+    List<ResponseTransformer> list = this.responseTransformers.stream()
+            .filter(t -> t.name().equalsIgnoreCase(name))
+            .collect(Collectors.toList());
+    this.responseTransformers.removeAll(list);
+  }
+
+  @Override
+  public List<RequestTransformer> requestTransformer() {
+    return ImmutableList.copyOf(requestTransformers);
+  }
+
+  @Override
+  public void addRequestTransformer(RequestTransformer transformer) {
+    removeRequestTransformer(transformer.name());
+    this.requestTransformers.add(transformer);
+  }
+
+  @Override
+  public void removeRequestTransformer(String name) {
+    List<RequestTransformer> list = this.requestTransformers.stream()
+            .filter(t -> t.name().equalsIgnoreCase(name))
+            .collect(Collectors.toList());
+    this.requestTransformers.removeAll(list);
   }
 
   /**
@@ -341,6 +384,8 @@ class ApiDefinitionImpl implements ApiDefinition {
             .add("rateLimits", rateLimits)
             .add("whitelist", whitelist)
             .add("blacklist", blacklist)
+            .add("responseTransformers", responseTransformers)
+            .add("requestTransformer", requestTransformers)
             .toString();
   }
 

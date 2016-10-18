@@ -92,6 +92,44 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
    */
   void removeAllFilter();
 
+  /**
+   * @return 返回结果的替换规则
+   */
+  List<ResponseTransformer> responseTransformer();
+
+  /**
+   * 增加结果的替换规则
+   *
+   * @param transformer
+   */
+  void addResponseTransformer(ResponseTransformer transformer);
+
+  /**
+   * 删除结果的替换规则
+   *
+   * @param  name transformer的名称
+   */
+  void removeResponseTransformer(String name);
+
+  /**
+   * @return 返回请求的替换规则
+   */
+  List<RequestTransformer> requestTransformer();
+
+  /**
+   * 增加请求的替换规则
+   *
+   * @param transformer
+   */
+  void addRequestTransformer(RequestTransformer transformer);
+
+  /**
+   * 删除请求的替换规则
+   *
+   * @param  name transformer的名称
+   */
+  void removeRequestTransformer(String name);
+
   static ApiDefinition create(ApiDefinitionOption option) {
     return new ApiDefinitionImpl(option);
   }

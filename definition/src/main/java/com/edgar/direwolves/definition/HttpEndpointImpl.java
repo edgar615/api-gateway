@@ -230,68 +230,68 @@ class HttpEndpointImpl implements HttpEndpoint {
     }
 
 //    @Override
-//    public List<Map.Entry<String, String>> respBodyReplace() {
-//        return bodyReplace;
+//    public List<Map.Entry<String, String>> bodyReplaced() {
+//        return bodyReplaced;
 //    }
 //
 //    @Override
-//    public List<Map.Entry<String, String>> respBodyAdd() {
-//        return bodyAdd;
+//    public List<Map.Entry<String, String>> bodyAdded() {
+//        return bodyAdded;
 //    }
 //
 //    @Override
-//    public List<String> respBodyRemove() {
-//        return bodyRemove;
+//    public List<String> bodyRemoved() {
+//        return bodyRemoved;
 //    }
 //
 //    @Override
-//    public List<Map.Entry<String, String>> respHeadersReplace() {
-//        return respHeadersReplace;
+//    public List<Map.Entry<String, String>> headerReplaced() {
+//        return headerReplaced;
 //    }
 //
 //    @Override
-//    public List<Map.Entry<String, String>> respHeadersAdd() {
-//        return respHeadersAdd;
+//    public List<Map.Entry<String, String>> headerAdded() {
+//        return headerAdded;
 //    }
 //
 //    @Override
-//    public List<String> respHeadersRemove() {
-//        return respHeadersRemove;
+//    public List<String> headerRemoved() {
+//        return headerRemoved;
 //    }
 //
 //    @Override
-//    public HttpEndpoint addRespHeader(String key, String value) {
-//        respHeadersAdd.add(Maps.immutableEntry(key, value));
+//    public HttpEndpoint addHeader(String key, String value) {
+//        headerAdded.add(Maps.immutableEntry(key, value));
 //        return this;
 //    }
 //
 //    @Override
-//    public HttpEndpoint replaceRespHeader(String key, String value) {
-//        respHeadersReplace.add(Maps.immutableEntry(key, value));
+//    public HttpEndpoint replaceHeader(String key, String value) {
+//        headerReplaced.add(Maps.immutableEntry(key, value));
 //        return this;
 //    }
 //
 //    @Override
-//    public HttpEndpoint removeRespHeader(String key) {
-//        respHeadersRemove.add(key);
+//    public HttpEndpoint removeHeader(String key) {
+//        headerRemoved.add(key);
 //        return this;
 //    }
 //
 //    @Override
-//    public HttpEndpoint addRespBody(String key, String value) {
-//        bodyAdd.add(Maps.immutableEntry(key, value));
+//    public HttpEndpoint addBody(String key, String value) {
+//        bodyAdded.add(Maps.immutableEntry(key, value));
 //        return this;
 //    }
 //
 //    @Override
-//    public HttpEndpoint replaceRespBody(String key, String value) {
-//        bodyReplace.add(Maps.immutableEntry(key, value));
+//    public HttpEndpoint replaceBody(String key, String value) {
+//        bodyReplaced.add(Maps.immutableEntry(key, value));
 //        return this;
 //    }
 //
 //    @Override
-//    public HttpEndpoint removeRespBody(String key) {
-//        bodyRemove.add(key);
+//    public HttpEndpoint removeBody(String key) {
+//        bodyRemoved.add(key);
 //        return this;
 //    }
 

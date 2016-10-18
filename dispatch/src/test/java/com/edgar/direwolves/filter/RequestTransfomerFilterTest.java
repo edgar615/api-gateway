@@ -106,6 +106,7 @@ public class RequestTransfomerFilterTest {
         testContext.assertEquals(4, jsonObject.getJsonObject("params").size());
         testContext.assertEquals(4, jsonObject.getJsonObject("headers").size());
         testContext.assertEquals(4, jsonObject.getJsonObject("body").size());
+        testContext.assertTrue(jsonObject.containsKey("id"));
       } else {
         testContext.fail();
       }
@@ -141,6 +142,7 @@ public class RequestTransfomerFilterTest {
         testContext.assertEquals(4, jsonObject.getJsonObject("params").size());
         testContext.assertEquals(4, jsonObject.getJsonObject("headers").size());
         testContext.assertEquals(4, jsonObject.getJsonObject("body").size());
+        testContext.assertTrue(jsonObject.containsKey("id"));
       } else {
         ar.cause().printStackTrace();
         testContext.fail();

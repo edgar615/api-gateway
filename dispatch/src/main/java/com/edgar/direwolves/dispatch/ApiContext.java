@@ -100,6 +100,16 @@ public interface ApiContext {
    */
   void addRequest(JsonObject jsonObject);
 
+  /**
+   * @return 经过requestTransformer后的请求.
+   */
+  JsonArray result();
+
+  /**
+   * @param jsonObject 添加一个经过requestTransformer后的请求
+   */
+  void addResult(JsonObject jsonObject);
+
   static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
                            Multimap<String, String> params, JsonObject body) {
     return new ApiContextImpl(method, path, headers, params, body);

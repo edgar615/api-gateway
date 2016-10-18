@@ -10,6 +10,7 @@ import io.vertx.servicediscovery.Record;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 转换为rpc调用的过滤器.
@@ -52,6 +53,7 @@ public class RequestTransfomerFilter implements Filter {
                 String newPath = Uitls.replaceUrl(httpEndpoint.path(), apiContext);
                 JsonObject request = new JsonObject();
                 apiContext.addRequest(request);
+                request.put("id", UUID.randomUUID().toString());
                 request.put("type", "http");
                 request.put("path", newPath);
                 String method = httpEndpoint.method().name();

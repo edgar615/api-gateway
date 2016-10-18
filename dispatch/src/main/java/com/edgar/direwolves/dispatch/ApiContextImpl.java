@@ -35,6 +35,8 @@ class ApiContextImpl implements ApiContext {
 
   private JsonArray request = new JsonArray();
 
+  private JsonArray result = new JsonArray();
+
   ApiContextImpl(HttpMethod method, String path, Multimap<String, String> headers,
                  Multimap<String, String> params, JsonObject body) {
     this.path = path;
@@ -118,6 +120,16 @@ class ApiContextImpl implements ApiContext {
   @Override
   public void addRequest(JsonObject jsonObject) {
     this.request.add(jsonObject);
+  }
+
+  @Override
+  public JsonArray result() {
+    return result;
+  }
+
+  @Override
+  public void addResult(JsonObject jsonObject) {
+    this.result.add(jsonObject);
   }
 
   @Override

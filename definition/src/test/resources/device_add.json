@@ -4,6 +4,10 @@
   "path": "/devices",
   "scope" : "device:write",
   "filters" : ["timeout", "app_key", "jwt", "ip_restriction"],
+  "request_filter" : [],
+  "response_filter" : [],
+  "request_transformer" : [],
+  "response_transformer" : [],
   "whitelist" : ["192.168.0.1", "10.4.7.*"],
   "blacklist" : ["192.168.0.100"],
   "rate_limit" : [

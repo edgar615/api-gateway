@@ -1,57 +1,19 @@
 package com.edgar.direwolves.definition;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * Created by Edgar on 2016/10/8.
+ * request的转换规则.
  *
  * @author Edgar  Date 2016/10/8
  */
-public interface RequestTransformer {
+public interface RequestTransformer extends BodyTransfomer, HeaderTransfomer, ParamTransfomer {
 
   /**
-   * @return body参数的替换规则.
+   * @return endpoint的名称
    */
-  List<Map.Entry<String, String>> reqBodyArgsReplace();
+  String name();
 
-  /**
-   * @return body参数的增加规则
-   */
-  List<Map.Entry<String, String>> reqBodyArgsAdd();
+  static RequestTransformer create(String name) {
+    return new RequestTransformerImpl(name);
+  }
 
-  /**
-   * @return body参数的删除规则
-   */
-  List<String> reqBodyArgsRemove();
-
-  /**
-   * @return url参数的替换规则
-   */
-  List<Map.Entry<String, String>> reqUrlArgsReplace();
-
-  /**
-   * @return url参数的增加规则
-   */
-  List<Map.Entry<String, String>> reqUrlArgsAdd();
-
-  /**
-   * @return url参数的删除规则
-   */
-  List<String> reqUrlArgsRemove();
-
-  /**
-   * @return header的替换规则
-   */
-  List<Map.Entry<String, String>> reqHeadersReplace();
-
-  /**
-   * @return header的新增规则
-   */
-  List<Map.Entry<String, String>> reqHeadersAdd();
-
-  /**
-   * @return header的删除规则
-   */
-  List<String> reqHeadersRemove();
 }
