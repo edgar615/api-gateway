@@ -1,5 +1,6 @@
 package com.edgar.direwolves.dispatch;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.definition.ApiDefinition;
@@ -11,6 +12,7 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.servicediscovery.Record;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +80,19 @@ public interface ApiContext {
   void addVariable(String name, Object value);
 
   /**
+   * @return 服务地址
+   */
+  Map<String, Record> records();
+
+  /**
+   * 增加record
+   *
+   * @param name   服务名
+   * @param record
+   */
+  void addRecord(String name, Record record);
+
+  /**
    * @return api定义
    */
   ApiDefinition apiDefinition();
@@ -109,6 +124,28 @@ public interface ApiContext {
    * @param jsonObject 添加一个经过requestTransformer后的请求
    */
   void addResult(JsonObject jsonObject);
+
+  default ApiContext copy() {
+    ApiContext apiContext = null;
+    if (body() == null) {
+      apiContext = create(method(), path(), ArrayListMultimap.create(headers()),
+                          ArrayListMultimap.create(params()), null);
+    } else {
+      apiContext = create(method(), path(), ArrayListMultimap.create(headers()),
+                          ArrayListMultimap.create(params()), body().copy());
+    }
+
+    final ApiContext finalApiContext = apiContext;
+    variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
+    records().forEach((key, value) -> finalApiContext.addRecord(key, new Record(value.toJson())));
+    for (int i = 0; i < request().size(); i ++) {
+      finalApiContext.addRequest(request().getJsonObject(i).copy());
+    }
+    for (int i = 0; i < result().size(); i ++) {
+      finalApiContext.addResult(result().getJsonObject(i).copy());
+    }
+    return  finalApiContext;
+  }
 
   static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
                            Multimap<String, String> params, JsonObject body) {

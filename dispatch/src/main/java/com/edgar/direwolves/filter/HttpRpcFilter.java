@@ -16,13 +16,18 @@ import java.util.List;
  * Created by edgar on 16-10-16.
  */
 public class HttpRpcFilter implements Filter {
-  private static final String TYPE = "http-rpc";
+  private static final String NAME = "http-rpc";
 
   private Vertx vertx;
 
   @Override
+  public String name() {
+    return NAME;
+  }
+
+  @Override
   public String type() {
-    return TYPE;
+    return PRE;
   }
 
   @Override

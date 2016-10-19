@@ -45,7 +45,7 @@ public class Filters {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), context -> {
         Future<ApiContext> completeFuture = Future.future();
-        filter.doFilter(context, completeFuture);
+        filter.doFilter(context.copy(), completeFuture);
         return completeFuture;
       });
     }

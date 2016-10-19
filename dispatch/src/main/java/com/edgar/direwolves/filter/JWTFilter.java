@@ -36,7 +36,7 @@ public class JWTFilter implements Filter {
 
   private static final String AUTH_PREFIX = "Bearer ";
 
-  private static final String TYPE = "jwt";
+  private static final String NAME = "jwt";
 
   private JsonObject config = new JsonObject()
           .put("path", "keystore.jceks")
@@ -46,8 +46,13 @@ public class JWTFilter implements Filter {
   private Vertx vertx;
 
   @Override
+  public String name() {
+    return NAME;
+  }
+
+  @Override
   public String type() {
-    return TYPE;
+    return PRE;
   }
 
   @Override
@@ -70,7 +75,7 @@ public class JWTFilter implements Filter {
       return false;
     }
     List<String> filters = apiContext.apiDefinition().filters();
-    return filters.contains(TYPE);
+    return filters.contains(NAME);
   }
 
   @Override

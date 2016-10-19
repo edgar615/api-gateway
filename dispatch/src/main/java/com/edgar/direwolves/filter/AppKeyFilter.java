@@ -94,7 +94,7 @@ import java.util.List;
  */
 public class AppKeyFilter implements Filter {
 
-  private static final String TYPE = "app_key";
+  private static final String NAME = "app_key";
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
@@ -117,8 +117,13 @@ public class AppKeyFilter implements Filter {
   }
 
   @Override
+  public String name() {
+    return NAME;
+  }
+
+  @Override
   public String type() {
-    return TYPE;
+    return PRE;
   }
 
   @Override
@@ -134,7 +139,7 @@ public class AppKeyFilter implements Filter {
       return false;
     }
     List<String> filters = apiContext.apiDefinition().filters();
-    return filters.contains(TYPE);
+    return filters.contains(NAME);
   }
 
   @Override

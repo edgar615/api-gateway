@@ -70,6 +70,7 @@ public class ServiceDiscoveryVerticleTest {
           Record record = new Record(jsonObject);
 //        context.assertEquals("OK", jsonObject.getString("result"));
           int port = record.getLocation().getInteger("port");
+          System.out.println(record.getName());
           group.put(port, record);
         } else {
           System.out.println(ar.cause());

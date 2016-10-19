@@ -8,6 +8,7 @@ import com.edgar.direwolves.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.servicediscovery.Record;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,13 +30,15 @@ class ApiContextImpl implements ApiContext {
 
   private final Map<String, Object> variables = new HashMap<>();
 
+  private final Map<String, Record> records = new HashMap<>();
+
+  private final JsonArray request = new JsonArray();
+
+  private final JsonArray result = new JsonArray();
+
   private JsonObject principal;
 
   private ApiDefinition apiDefinition;
-
-  private JsonArray request = new JsonArray();
-
-  private JsonArray result = new JsonArray();
 
   ApiContextImpl(HttpMethod method, String path, Multimap<String, String> headers,
                  Multimap<String, String> params, JsonObject body) {
@@ -100,6 +103,16 @@ class ApiContextImpl implements ApiContext {
   @Override
   public void addVariable(String name, Object value) {
     variables.put(name, value);
+  }
+
+  @Override
+  public Map<String, Record> records() {
+    return records;
+  }
+
+  @Override
+  public void addRecord(String name, Record record) {
+    records.put(name, record);
   }
 
   @Override

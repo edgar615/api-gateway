@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface HttpEndpoint extends Endpoint, RequestTransformer2 {
+public interface HttpEndpoint extends Endpoint {
   String TYPE = "http";
 
   /**
@@ -35,84 +35,6 @@ public interface HttpEndpoint extends Endpoint, RequestTransformer2 {
    * @return 服务名，用于服务发现.
    */
   String service();
-
-  /**
-   * 增加一个header
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HttpEndpoint addReqHeader(String key, String value);
-
-  /**
-   * 替换一个header,只有当header存在时才替换;
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HttpEndpoint replaceReqHeader(String key, String value);
-
-  /**
-   * 删除一个header
-   *
-   * @param key
-   * @return
-   */
-  HttpEndpoint removeReqHeader(String key);
-
-  /**
-   * 增加一个url_arg
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HttpEndpoint addReqUrlArg(String key, String value);
-
-  /**
-   * 替换一个url_arg,只有当url_arg存在时才替换;
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HttpEndpoint replaceReqUrlArg(String key, String value);
-
-  /**
-   * 删除一个url_arg
-   *
-   * @param key
-   * @return
-   */
-  HttpEndpoint removeReqUrlArg(String key);
-
-  /**
-   * 增加一个body_arg
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HttpEndpoint addReqBodyArg(String key, String value);
-
-  /**
-   * 替换一个body_arg,只有当body_arg存在时才替换;
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HttpEndpoint replaceReqBodyArg(String key, String value);
-
-  /**
-   * 删除一个body_arg
-   *
-   * @param key
-   * @return
-   */
-  HttpEndpoint removeReqBodyArg(String key);
 
   static HttpEndpoint fromJson(JsonObject jsonObject) {
     return HttpEndpointDecoder.instance().apply(jsonObject);

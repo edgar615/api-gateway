@@ -19,11 +19,16 @@ import java.util.List;
  */
 public class ScopeFilter implements Filter {
 
-  private static final String TYPE = "scope";
+  private static final String NAME = "scope";
+
+  @Override
+  public String name() {
+    return NAME;
+  }
 
   @Override
   public String type() {
-    return TYPE;
+    return PRE;
   }
 
   @Override
@@ -37,7 +42,7 @@ public class ScopeFilter implements Filter {
       return false;
     }
     List<String> filters = apiDefinition.filters();
-    return filters.contains(TYPE)
+    return filters.contains(NAME)
            && !"default".equalsIgnoreCase(apiDefinition.scope());
   }
 

@@ -246,4 +246,181 @@ public class ApiDefinitionTest {
     Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
     Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/123"));
   }
+
+  @Test
+  public void testAddRequestTransformer() {
+    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
+                                                    "device");
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
+
+    RequestTransformer transformer = RequestTransformer.create("device");
+    transformer.addBody("b1", "v1");
+    transformer.addHeader("h1", "v1");
+    transformer.addParam("p1", "v1");
+    transformer.addBody("b2", "v2");
+    transformer.addHeader("h2", "v2");
+    transformer.addParam("p2", "v2");
+
+    transformer.removeBody("b3");
+    transformer.removeHeader("h3");
+    transformer.removeParam("p3");
+
+    transformer.replaceBody("b4", "v4");
+    transformer.replaceHeader("h4", "v4");
+    transformer.replaceParam("p4", "v4");
+
+    apiDefinition.addRequestTransformer(transformer);
+
+    Assert.assertEquals(1, apiDefinition.requestTransformer().size());
+    Assert.assertEquals(2, apiDefinition.requestTransformer().get(0).bodyAdded().size());
+    Assert.assertEquals(2, apiDefinition.requestTransformer().get(0).headerAdded().size());
+    Assert.assertEquals(2, apiDefinition.requestTransformer().get(0).paramAdded().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).bodyRemoved().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).headerRemoved().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).paramRemoved().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).bodyReplaced().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).headerReplaced().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).paramReplaced().size());
+
+    transformer = RequestTransformer.create("device");
+    transformer.addBody("b1", "v1");
+
+    apiDefinition.addRequestTransformer(transformer);
+
+    Assert.assertEquals(1, apiDefinition.requestTransformer().size());
+    Assert.assertEquals(1, apiDefinition.requestTransformer().get(0).bodyAdded().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).headerAdded().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).paramAdded().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).bodyRemoved().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).headerRemoved().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).paramRemoved().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).bodyReplaced().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).headerReplaced().size());
+    Assert.assertEquals(0, apiDefinition.requestTransformer().get(0).paramReplaced().size());
+
+    transformer = RequestTransformer.create("device2");
+    transformer.addBody("b1", "v1");
+
+    apiDefinition.addRequestTransformer(transformer);
+
+    Assert.assertEquals(2, apiDefinition.requestTransformer().size());
+
+  }
+
+  @Test
+  public void testRemoveRequestTransfomer() {
+    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
+                                                    "device");
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
+
+    RequestTransformer transformer = RequestTransformer.create("device");
+    transformer.addBody("b1", "v1");
+    transformer.addHeader("h1", "v1");
+    transformer.addParam("p1", "v1");
+    transformer.addBody("b2", "v2");
+    transformer.addHeader("h2", "v2");
+    transformer.addParam("p2", "v2");
+
+    transformer.removeBody("b3");
+    transformer.removeHeader("h3");
+    transformer.removeParam("p3");
+
+    transformer.replaceBody("b4", "v4");
+    transformer.replaceHeader("h4", "v4");
+    transformer.replaceParam("p4", "v4");
+    apiDefinition.addRequestTransformer(transformer);
+
+    Assert.assertEquals(1, apiDefinition.requestTransformer().size());
+    apiDefinition.removeRequestTransformer("device");
+    Assert.assertEquals(0, apiDefinition.requestTransformer().size());
+
+  }
+
+  @Test
+  public void testAddResponseTransformer() {
+    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
+                                                    "device");
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
+
+    ResponseTransformer transformer = ResponseTransformer.create("device");
+    transformer.addBody("b1", "v1");
+    transformer.addHeader("h1", "v1");
+    transformer.addBody("b2", "v2");
+    transformer.addHeader("h2", "v2");
+    transformer.removeBody("b3");
+    transformer.removeHeader("h3");
+    transformer.replaceBody("b4", "v4");
+    transformer.replaceHeader("h4", "v4");
+
+    apiDefinition.addResponseTransformer(transformer);
+
+    Assert.assertEquals(1, apiDefinition.responseTransformer().size());
+    Assert.assertEquals(2, apiDefinition.responseTransformer().get(0).bodyAdded().size());
+    Assert.assertEquals(2, apiDefinition.responseTransformer().get(0).headerAdded().size());
+    Assert.assertEquals(1, apiDefinition.responseTransformer().get(0).bodyRemoved().size());
+    Assert.assertEquals(1, apiDefinition.responseTransformer().get(0).headerRemoved().size());
+    Assert.assertEquals(1, apiDefinition.responseTransformer().get(0).bodyReplaced().size());
+    Assert.assertEquals(1, apiDefinition.responseTransformer().get(0).headerReplaced().size());
+
+    transformer = ResponseTransformer.create("device");
+    transformer.addBody("b1", "v1");
+
+    apiDefinition.addResponseTransformer(transformer);
+
+    Assert.assertEquals(1, apiDefinition.responseTransformer().size());
+    Assert.assertEquals(1, apiDefinition.responseTransformer().get(0).bodyAdded().size());
+    Assert.assertEquals(0, apiDefinition.responseTransformer().get(0).headerAdded().size());
+    Assert.assertEquals(0, apiDefinition.responseTransformer().get(0).bodyRemoved().size());
+    Assert.assertEquals(0, apiDefinition.responseTransformer().get(0).headerRemoved().size());
+    Assert.assertEquals(0, apiDefinition.responseTransformer().get(0).bodyReplaced().size());
+    Assert.assertEquals(0, apiDefinition.responseTransformer().get(0).headerReplaced().size());
+
+    transformer = ResponseTransformer.create("device2");
+    transformer.addBody("b1", "v1");
+
+    apiDefinition.addResponseTransformer(transformer);
+
+    Assert.assertEquals(2, apiDefinition.responseTransformer().size());
+
+  }
+
+  @Test
+  public void testRemoveResponseTransfomer() {
+    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
+                                                    "device");
+    ApiDefinitionOption option = new ApiDefinitionOption().setName("get_device")
+            .setMethod(HttpMethod.GET)
+            .setPath("devices/")
+            .setEndpoints(Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create(option);
+
+    ResponseTransformer transformer = ResponseTransformer.create("device");
+    transformer.addBody("b1", "v1");
+    transformer.addHeader("h1", "v1");
+    transformer.addBody("b2", "v2");
+    transformer.addHeader("h2", "v2");
+    transformer.removeBody("b3");
+    transformer.removeHeader("h3");
+    transformer.replaceBody("b4", "v4");
+    transformer.replaceHeader("h4", "v4");
+
+    apiDefinition.addResponseTransformer(transformer);
+
+    Assert.assertEquals(1, apiDefinition.responseTransformer().size());
+    apiDefinition.removeResponseTransformer("device");
+    Assert.assertEquals(0, apiDefinition.responseTransformer().size());
+
+  }
 }
