@@ -60,7 +60,7 @@ public class ServiceDiscoveryFilter implements Filter {
             .collect(Collectors.toSet())
             .forEach(s -> futures.add(serviceFuture(s)));
     Task.par(futures)
-            .andThen(records -> records.forEach(r -> apiContext.addRecord(r.getName(), r)))
+            .andThen(records -> records.forEach(r -> apiContext.addRecord(r)))
             .onFailure(throwable -> completeFuture.fail(SystemException.create(
                     DefaultErrorCode.UNKOWN_REMOTE)));
   }

@@ -15,6 +15,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.servicediscovery.Record;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,15 +83,14 @@ public interface ApiContext {
   /**
    * @return 服务地址
    */
-  Map<String, Record> records();
+  List<Record> records();
 
   /**
    * 增加record
    *
-   * @param name   服务名
    * @param record
    */
-  void addRecord(String name, Record record);
+  void addRecord(Record record);
 
   /**
    * @return api定义
@@ -124,28 +124,6 @@ public interface ApiContext {
    * @param jsonObject 添加一个经过requestTransformer后的请求
    */
   void addResult(JsonObject jsonObject);
-
-  default ApiContext copy() {
-    ApiContext apiContext = null;
-    if (body() == null) {
-      apiContext = create(method(), path(), ArrayListMultimap.create(headers()),
-                          ArrayListMultimap.create(params()), null);
-    } else {
-      apiContext = create(method(), path(), ArrayListMultimap.create(headers()),
-                          ArrayListMultimap.create(params()), body().copy());
-    }
-
-    final ApiContext finalApiContext = apiContext;
-    variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
-    records().forEach((key, value) -> finalApiContext.addRecord(key, new Record(value.toJson())));
-    for (int i = 0; i < request().size(); i ++) {
-      finalApiContext.addRequest(request().getJsonObject(i).copy());
-    }
-    for (int i = 0; i < result().size(); i ++) {
-      finalApiContext.addResult(result().getJsonObject(i).copy());
-    }
-    return  finalApiContext;
-  }
 
   static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
                            Multimap<String, String> params, JsonObject body) {
@@ -183,5 +161,27 @@ public interface ApiContext {
     variables.put("request.path_info", req.path());
     variables.put("request.client_ip", req.remoteAddress().host());
     return variables;
+  }
+
+  default ApiContext copy() {
+    ApiContext apiContext = null;
+    if (body() == null) {
+      apiContext = create(method(), path(), ArrayListMultimap.create(headers()),
+                          ArrayListMultimap.create(params()), null);
+    } else {
+      apiContext = create(method(), path(), ArrayListMultimap.create(headers()),
+                          ArrayListMultimap.create(params()), body().copy());
+    }
+
+    final ApiContext finalApiContext = apiContext;
+    variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
+    records().forEach(r -> finalApiContext.addRecord(new Record(r.toJson())));
+    for (int i = 0; i < request().size(); i++) {
+      finalApiContext.addRequest(request().getJsonObject(i).copy());
+    }
+    for (int i = 0; i < result().size(); i++) {
+      finalApiContext.addResult(result().getJsonObject(i).copy());
+    }
+    return finalApiContext;
   }
 }

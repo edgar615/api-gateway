@@ -10,7 +10,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ class ApiContextImpl implements ApiContext {
 
   private final Map<String, Object> variables = new HashMap<>();
 
-  private final Map<String, Record> records = new HashMap<>();
+  private final List<Record> records = new ArrayList<>();
 
   private final JsonArray request = new JsonArray();
 
@@ -106,13 +108,13 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public Map<String, Record> records() {
+  public List<Record> records() {
     return records;
   }
 
   @Override
-  public void addRecord(String name, Record record) {
-    records.put(name, record);
+  public void addRecord(Record record) {
+    records.add(record);
   }
 
   @Override

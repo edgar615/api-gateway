@@ -1,12 +1,13 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.dispatch.ApiContext;
 import com.edgar.direwolves.service.ServiceDiscoveryVerticle;
 import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class RequestTransfomerFilterTest {
+public class RequestTranformerFilterTest2 {
 
   Vertx vertx;
 
@@ -94,7 +95,7 @@ public class RequestTransfomerFilterTest {
     ApiDefinition definition = ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    RequestTransfomerFilter filter = new RequestTransfomerFilter();
+    RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();
@@ -130,7 +131,7 @@ public class RequestTransfomerFilterTest {
     ApiDefinition definition = ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
 
-    RequestTransfomerFilter filter = new RequestTransfomerFilter();
+    RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();

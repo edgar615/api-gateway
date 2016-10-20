@@ -1,4 +1,4 @@
 com.edgar.direwolves.filter.JWTFilter
 com.edgar.direwolves.filter.AppKeyFilter
 com.edgar.direwolves.filter.TimeoutFilter
-com.edgar.direwolves.filter.RequestTransfomerFilter
+com.edgar.direwolves.filter.RequestFilter
