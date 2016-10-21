@@ -1,13 +1,15 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.ip;
+
+import com.edgar.direwolves.plugin.ApiPlugin;
 
 import java.util.List;
 
 /**
- * Created by Edgar on 2016/9/14.
+ * IP限制策略.
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface IpRestrictionDefinition {
+public interface IpRestriction extends ApiPlugin {
 
   /**
    * 增加白名单.
@@ -15,8 +17,9 @@ public interface IpRestrictionDefinition {
    * 每个接口最多允许添加100个白名单，超过100个白名单应该采用其他方式。
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+   * @return IpRestriction
    */
-  void addWhitelist(String ip);
+  IpRestriction addWhitelist(String ip);
 
   /**
    * 增加黑名单.
@@ -24,32 +27,39 @@ public interface IpRestrictionDefinition {
    * 每个接口最多允许添加100个黑名单，超过100个黑名单应该采用其他方式。
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+   * @return IpRestriction
    */
-  void addBlacklist(String ip);
+  IpRestriction addBlacklist(String ip);
 
   /**
    * 删除白名单.
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+   * @return IpRestriction
    */
-  void removeWhitelist(String ip);
+  IpRestriction removeWhitelist(String ip);
 
   /**
    * 删除黑名单.
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
+   * @return IpRestriction
    */
-  void removeBlacklist(String ip);
+  IpRestriction removeBlacklist(String ip);
 
   /**
    * 删除所有白名单.
+   *
+   * @return IpRestriction
    */
-  void removeAllWhitelist();
+  IpRestriction clearWhitelist();
 
   /**
    * 删除所有黑名单.
+   *
+   * @return IpRestriction
    */
-  void removeAllBlacklist();
+  IpRestriction clearBlacklist();
 
   /**
    * @return 白名单列表
@@ -60,4 +70,8 @@ public interface IpRestrictionDefinition {
    * @return 黑名单列表
    */
   List<String> blacklist();
+
+  default String name() {
+    return "IP_RESTRICTION";
+  }
 }

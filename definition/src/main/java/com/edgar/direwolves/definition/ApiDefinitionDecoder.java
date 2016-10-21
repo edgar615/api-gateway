@@ -2,6 +2,7 @@ package com.edgar.direwolves.definition;
 
 import com.google.common.base.Preconditions;
 
+import com.edgar.direwolves.plugin.ratelimit.RateLimit;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -68,15 +69,15 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
   }
 
   private void ipRestriction(JsonObject jsonObject, ApiDefinition apiDefinition) {
-    JsonArray
-            whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-    for (int i = 0; i < whiteArray.size(); i++) {
-      apiDefinition.addWhitelist(whiteArray.getString(i));
-    }
-    for (int i = 0; i < blackArray.size(); i++) {
-      apiDefinition.addBlacklist(blackArray.getString(i));
-    }
+//    JsonArray
+//            whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+//    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+//    for (int i = 0; i < whiteArray.size(); i++) {
+//      apiDefinition.addWhitelist(whiteArray.getString(i));
+//    }
+//    for (int i = 0; i < blackArray.size(); i++) {
+//      apiDefinition.addBlacklist(blackArray.getString(i));
+//    }
   }
 
   private void rateLimit(JsonObject jsonObject, ApiDefinition apiDefinition) {

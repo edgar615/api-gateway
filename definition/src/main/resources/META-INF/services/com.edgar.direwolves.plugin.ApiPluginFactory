@@ -1,0 +1,3 @@
+com.edgar.direwolves.plugin.acl.AclRestrictionFactory
+com.edgar.direwolves.plugin.ip.IpRestrictionFactory
+com.edgar.direwolves.plugin.ratelimit.RateLimitPluginFactory

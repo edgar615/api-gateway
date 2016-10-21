@@ -1,5 +1,6 @@
 package com.edgar.direwolves.definition;
 
+import com.edgar.direwolves.plugin.ratelimit.RateLimit;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -37,8 +38,8 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
             .put("path", definition.path())
             .put("scope", definition.scope())
             .put("filters", definition.filters())
-            .put("whitelist", definition.whitelist())
-            .put("blacklist", definition.blacklist())
+//            .put("whitelist", definition.whitelist())
+//            .put("blacklist", definition.blacklist())
             .put("rate_limit", rateLimtArray)
             .put("url_args", createParamterArray(definition.urlArgs()))
             .put("body_args", createParamterArray(definition.bodyArgs()))

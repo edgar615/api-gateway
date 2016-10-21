@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import com.edgar.direwolves.plugin.ApiPlugin;
+import com.edgar.direwolves.plugin.ratelimit.RateLimit;
 import com.edgar.util.base.MorePreconditions;
 import io.vertx.core.http.HttpMethod;
 
@@ -95,28 +97,18 @@ class ApiDefinitionImpl implements ApiDefinition {
    */
   private final Set<String> filters = new HashSet<>();
 
-  /**
-   * 白名单
-   */
-  private final Set<String> whitelist = new HashSet<>();
-
-  /**
-   * 黑名单
-   */
-  private final Set<String> blacklist = new HashSet<>();
-
   private final Set<RateLimit> rateLimits = new HashSet<>();
 
   private final List<ResponseTransformer> responseTransformers = new ArrayList<>();
 
   private final List<RequestTransformer> requestTransformers = new ArrayList<>();
 
+  private final List<ApiPlugin> plugins = new ArrayList<>();
+
   public ApiDefinitionImpl(
           ApiDefinitionOption option) {
     this(option.getName(), option.getMethod(), option.getPath(), option.getScope(),
          option.getUrlArgs(), option.getBodyArgs(), option.getEndpoints(), option.isStrictArg());
-    this.whitelist.addAll(option.getWhitelist());
-    this.blacklist.addAll(option.getBlacklist());
     this.rateLimits.addAll(option.getRateLimits());
     this.filters.addAll(option.getFilters());
   }
@@ -264,76 +256,27 @@ class ApiDefinitionImpl implements ApiDefinition {
     this.requestTransformers.removeAll(list);
   }
 
-  /**
-   * 增加白名单.
-   * 如果黑名单中存在该IP，从黑名单删除.
-   * 每个接口最多允许添加100个白名单，超过100个白名单应该采用其他方式。
-   *
-   * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   */
   @Override
-  public void addWhitelist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
-    Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
-    blacklist.remove(ip);
-    whitelist.add(ip);
-  }
-
-  /**
-   * 增加黑名单.
-   * 如果白名单中存在该IP，从白名单中删除.
-   * 每个接口最多允许添加100个黑名单，超过100个黑名单应该采用其他方式。
-   *
-   * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   */
-  @Override
-  public void addBlacklist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
-    Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
-    whitelist.remove(ip);
-    blacklist.add(ip);
-  }
-
-  /**
-   * 删除白名单.
-   *
-   * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   */
-  @Override
-  public void removeWhitelist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
-    whitelist.remove(ip);
-  }
-
-  /**
-   * 删除黑名单.
-   *
-   * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   */
-  @Override
-  public void removeBlacklist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
-    blacklist.remove(ip);
+  public List<ApiPlugin> plugins() {
+    return ImmutableList.copyOf(plugins);
   }
 
   @Override
-  public void removeAllWhitelist() {
-    whitelist.clear();
+  public ApiDefinition addPlugin(ApiPlugin plugin) {
+    Preconditions.checkNotNull(plugin, "plugin cannot be null");
+    removePlugin(plugin.name());
+    plugins.add(plugin);
+    return this;
   }
 
   @Override
-  public void removeAllBlacklist() {
-    blacklist.clear();
-  }
-
-  @Override
-  public List<String> whitelist() {
-    return ImmutableList.copyOf(whitelist);
-  }
-
-  @Override
-  public List<String> blacklist() {
-    return ImmutableList.copyOf(blacklist);
+  public ApiDefinition removePlugin(String name) {
+    Preconditions.checkNotNull(name, "name cannot be null");
+    ApiPlugin apiPlugin = plugin(name);
+    if (apiPlugin != null) {
+      plugins.remove(apiPlugin);
+    }
+    return this;
   }
 
   @Override
@@ -382,8 +325,6 @@ class ApiDefinitionImpl implements ApiDefinition {
             .add("endpoints", endpoints)
             .add("filters", filters)
             .add("rateLimits", rateLimits)
-            .add("whitelist", whitelist)
-            .add("blacklist", blacklist)
             .add("responseTransformers", responseTransformers)
             .add("requestTransformer", requestTransformers)
             .toString();

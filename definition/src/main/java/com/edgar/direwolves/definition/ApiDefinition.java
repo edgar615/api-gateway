@@ -1,18 +1,22 @@
 package com.edgar.direwolves.definition;
 
+import com.google.common.base.Preconditions;
+
+import com.edgar.direwolves.plugin.ApiPlugin;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * API定义的接口.
  *
  * @author Edgar  Date 2016/9/13
  */
-public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinition {
+public interface ApiDefinition extends RateLimitDefinition {
 
   /**
    * @return 名称，必填项，全局唯一.
@@ -107,7 +111,7 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
   /**
    * 删除结果的替换规则
    *
-   * @param  name transformer的名称
+   * @param name transformer的名称
    */
   void removeResponseTransformer(String name);
 
@@ -126,9 +130,30 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
   /**
    * 删除请求的替换规则
    *
-   * @param  name transformer的名称
+   * @param name transformer的名称
    */
   void removeRequestTransformer(String name);
+
+  /**
+   * @return 插件列表
+   */
+  List<ApiPlugin> plugins();
+
+  /**
+   * 增加一个插件.同一个名字的插件有且只能有一个，后加入的插件会覆盖掉之前的同名插件
+   *
+   * @param plugin 插件
+   * @return ApiDefinition
+   */
+  ApiDefinition addPlugin(ApiPlugin plugin);
+
+  /**
+   * 删除一个插件.
+   *
+   * @param name 插件名称
+   * @return ApiDefinition
+   */
+  ApiDefinition removePlugin(String name);
 
   static ApiDefinition create(ApiDefinitionOption option) {
     return new ApiDefinitionImpl(option);
@@ -136,6 +161,22 @@ public interface ApiDefinition extends IpRestrictionDefinition, RateLimitDefinit
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
     return ApiDefinitionDecoder.instance().apply(jsonObject);
+  }
+
+  /**
+   * 根据插件名称返回插件
+   *
+   * @param name 插件名称
+   * @return 如果未找到对应的插件，返回null;
+   */
+  default ApiPlugin plugin(String name) {
+    Preconditions.checkNotNull(name, "name cannot be null");
+    List<ApiPlugin> apiPlugins = plugins().stream().filter(p -> p.name().equalsIgnoreCase(name))
+            .collect(Collectors.toList());
+    if (apiPlugins.isEmpty()) {
+      return null;
+    }
+    return apiPlugins.get(0);
   }
 
   /**

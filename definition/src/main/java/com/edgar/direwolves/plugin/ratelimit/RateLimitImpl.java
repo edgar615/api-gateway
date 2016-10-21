@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.ratelimit;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;

@@ -1,5 +1,6 @@
 package com.edgar.direwolves.definition;
 
+import com.edgar.direwolves.plugin.ratelimit.RateLimit;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.Collection;
