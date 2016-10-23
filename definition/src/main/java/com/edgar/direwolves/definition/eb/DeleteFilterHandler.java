@@ -31,11 +31,11 @@ public class DeleteFilterHandler implements EventbusMessageConsumer<JsonObject> 
       String name = jsonObject.getString("name");
       String filter = jsonObject.getString("filter");
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      if (filter == null) {
-        definitions.forEach(definition -> definition.removeAllFilter());
-      } else {
-        definitions.forEach(definition -> definition.removeFilter(filter));
-      }
+//      if (filter == null) {
+//        definitions.forEach(definition -> definition.removeAllFilter());
+//      } else {
+//        definitions.forEach(definition -> definition.removeFilter(filter));
+//      }
       msg.reply(new JsonObject().put("result", "OK"));
 
     } catch (Exception e) {

@@ -1,9 +1,8 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.edgar.util.validation.Rule;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-
-import com.edgar.util.validation.Rule;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;

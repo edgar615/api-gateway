@@ -47,8 +47,7 @@ public class ServiceDiscoveryFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    List<String> filters = apiContext.apiDefinition().filters();
-    return filters.contains(NAME);
+    return apiContext.apiDefinition().endpoints().size() > 0;
   }
 
   @Override

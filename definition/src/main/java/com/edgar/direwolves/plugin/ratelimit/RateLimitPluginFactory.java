@@ -13,6 +13,9 @@ import io.vertx.core.json.JsonObject;
 public class RateLimitPluginFactory implements ApiPluginFactory<RateLimitPlugin> {
   @Override
   public RateLimitPlugin decode(JsonObject jsonObject) {
+    if (!jsonObject.containsKey("rate_limit")) {
+      return null;
+    }
     JsonArray jsonArray = jsonObject.getJsonArray("rate_limit", new JsonArray());
     RateLimitPlugin rateLimitPlugin = new RateLimitPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {
@@ -39,7 +42,7 @@ public class RateLimitPluginFactory implements ApiPluginFactory<RateLimitPlugin>
 
   @Override
   public String name() {
-    return "RATE_LIMIT";
+    return RateLimitPlugin.NAME;
   }
 
   @Override

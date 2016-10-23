@@ -8,8 +8,9 @@ import java.util.List;
  * Created by edgar on 16-10-22.
  */
 public interface ResponseTransformerPlugin extends ApiPlugin {
+  String NAME = "RESPONSE_TRANSFORMER";
   default String name() {
-    return "RESPONSE_TRANSFORMER";
+    return NAME;
   }
 
   /**

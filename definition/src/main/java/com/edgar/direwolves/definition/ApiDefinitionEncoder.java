@@ -1,6 +1,5 @@
 package com.edgar.direwolves.definition;
 
-import com.edgar.direwolves.plugin.arg.Parameter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -24,45 +23,34 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
 
   @Override
   public JsonObject apply(ApiDefinition definition) {
-    return new JsonObject()
-            .put("name", definition.name())
-            .put("method", definition.method().name())
-            .put("path", definition.path())
-            .put("scope", definition.scope())
-            .put("filters", definition.filters())
-//            .put("whitelist", definition.whitelist())
-//            .put("blacklist", definition.blacklist())
-            .put("url_args", createParamterArray(definition.urlArgs()))
-            .put("body_args", createParamterArray(definition.bodyArgs()))
-            .put("endpoints", createEndpointArray(definition.endpoints()));
+    JsonObject jsonObject = new JsonObject()
+        .put("name", definition.name())
+        .put("method", definition.method().name())
+        .put("path", definition.path())
+        .put("scope", definition.scope())
+        .put("endpoints", createEndpointArray(definition.endpoints()));
+    definition.plugins().forEach(p -> jsonObject.mergeIn(p.encode()));
+    return jsonObject;
 
-  }
-
-  private JsonArray createParamterArray(List<Parameter> parameters) {
-    JsonArray jsonArray = new JsonArray();
-    parameters.forEach(parameter -> {
-      JsonObject jsonObject = new JsonObject()
-              .put("name", parameter.name())
-              .put("default_value", parameter.defaultValue());
-      jsonArray.add(jsonObject);
-      JsonObject rules = new JsonObject();
-      jsonObject.put("rules", rules);
-      parameter.rules().forEach(rule -> {
-        rules.mergeIn(new JsonObject(rule.toMap()));
-      });
-    });
-    return jsonArray;
   }
 
   private JsonArray createEndpointArray(List<Endpoint> endpoints) {
     JsonArray jsonArray = new JsonArray();
     endpoints.forEach(endpoint -> {
       if ("http".equals(endpoint.type())) {
-        HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
-        jsonArray.add(httpEndpoint.toJson());
+        jsonArray.add(endpoint((HttpEndpoint) endpoint));
       }
     });
     return jsonArray;
+  }
+
+  private JsonObject endpoint(HttpEndpoint httpEndpoint) {
+    return new JsonObject()
+        .put("type", httpEndpoint.type())
+        .put("name", httpEndpoint.name())
+        .put("service", httpEndpoint.service())
+        .put("path", httpEndpoint.path())
+        .put("method", httpEndpoint.method());
   }
 
 }

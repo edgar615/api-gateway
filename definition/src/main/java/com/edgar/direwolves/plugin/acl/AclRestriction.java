@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface AclRestriction extends ApiPlugin {
 
+  String NAME = "ACL_RESTRICTION";
+
   /**
    * 增加白名单.
    * 如果黑名单中存在该group，从黑名单删除.
@@ -72,6 +74,6 @@ public interface AclRestriction extends ApiPlugin {
   List<String> blacklist();
 
   default String name() {
-    return "ACL_RESTRICTION";
+    return NAME;
   }
 }

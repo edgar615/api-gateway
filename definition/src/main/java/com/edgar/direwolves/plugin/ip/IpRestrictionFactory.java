@@ -1,7 +1,5 @@
 package com.edgar.direwolves.plugin.ip;
 
-import com.google.common.base.Preconditions;
-
 import com.edgar.direwolves.plugin.ApiPlugin;
 import com.edgar.direwolves.plugin.ApiPluginFactory;
 import io.vertx.core.json.JsonArray;
@@ -18,6 +16,9 @@ import java.util.List;
 public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
   @Override
   public IpRestriction decode(JsonObject jsonObject) {
+    if (!jsonObject.containsKey("ip_restriction")) {
+      return null;
+    }
     JsonObject config = jsonObject.getJsonObject("ip_restriction", new JsonObject());
     JsonArray whiteArray = config.getJsonArray("whitelist", new JsonArray());
     JsonArray blackArray = config.getJsonArray("blacklist", new JsonArray());
@@ -45,7 +46,7 @@ public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
 
   @Override
   public String name() {
-    return "IP_RESTRICTION";
+    return IpRestriction.NAME;
   }
 
   @Override

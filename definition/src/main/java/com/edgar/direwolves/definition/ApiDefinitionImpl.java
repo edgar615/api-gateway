@@ -1,9 +1,6 @@
 package com.edgar.direwolves.definition;
 
 import com.edgar.direwolves.plugin.ApiPlugin;
-import com.edgar.direwolves.plugin.arg.Parameter;
-import com.edgar.direwolves.plugin.ratelimit.RateLimit;
-import com.edgar.direwolves.plugin.transformer.ResponseTransformer;
 import com.edgar.util.base.MorePreconditions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -11,11 +8,8 @@ import com.google.common.collect.ImmutableList;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * API的路由转发定义.
@@ -73,48 +67,14 @@ class ApiDefinitionImpl implements ApiDefinition {
   private final String scope;
 
   /**
-   * URL参数
-   */
-  private final List<Parameter> urlArgs;
-
-  /**
-   * body参数
-   */
-  private final List<Parameter> bodyArgs;
-
-  /**
-   * 是否严格校验参数，如果该值为false，允许传入接口中未定义的参数，如果为true，禁止传入接口中未定义的参数.
-   */
-  private final boolean strictArg;
-
-  /**
    * 远程请求定义.
    */
   private final List<Endpoint> endpoints;
 
-  /**
-   * 过滤器
-   */
-  private final Set<String> filters = new HashSet<>();
-
-  private final Set<RateLimit> rateLimits = new HashSet<>();
-
-  private final List<ResponseTransformer> responseTransformers = new ArrayList<>();
-
   private final List<ApiPlugin> plugins = new ArrayList<>();
 
-  public ApiDefinitionImpl(
-      ApiDefinitionOption option) {
-    this(option.getName(), option.getMethod(), option.getPath(), option.getScope(),
-        option.getUrlArgs(), option.getBodyArgs(), option.getEndpoints(), option.isStrictArg());
-    this.rateLimits.addAll(option.getRateLimits());
-    this.filters.addAll(option.getFilters());
-  }
-
-  private ApiDefinitionImpl(String name, HttpMethod method, String path, String scope,
-                            List<Parameter> urlArgs, List<Parameter> bodyArgs,
-                            List<Endpoint> endpoints,
-                            boolean strictArg) {
+  ApiDefinitionImpl(String name, HttpMethod method, String path, String scope,
+                            List<Endpoint> endpoints) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
@@ -132,21 +92,8 @@ class ApiDefinitionImpl implements ApiDefinition {
     this.method = method;
     this.path = path;
     this.scope = scope;
-    if (urlArgs != null) {
-      this.urlArgs = ImmutableList.copyOf(urlArgs);
-    } else {
-      this.urlArgs = null;
-    }
-    if (bodyArgs != null) {
-      Preconditions.checkArgument(HttpMethod.PUT == method || HttpMethod.POST == method,
-          "can not set body on post|put method");
-      this.bodyArgs = ImmutableList.copyOf(bodyArgs);
-    } else {
-      this.bodyArgs = null;
-    }
     this.endpoints = ImmutableList.copyOf(endpoints);
     this.pattern = Pattern.compile(path);
-    this.strictArg = strictArg;
   }
 
   @Override
@@ -175,64 +122,8 @@ class ApiDefinitionImpl implements ApiDefinition {
   }
 
   @Override
-  public List<Parameter> urlArgs() {
-    return urlArgs;
-  }
-
-  @Override
-  public List<Parameter> bodyArgs() {
-    return bodyArgs;
-  }
-
-  @Override
   public List<Endpoint> endpoints() {
     return endpoints;
-  }
-
-  @Override
-  public List<String> filters() {
-    return ImmutableList.copyOf(filters);
-  }
-
-  @Override
-  public boolean strictArg() {
-    return strictArg;
-  }
-
-  @Override
-  public void addFilter(String filterType) {
-    Preconditions.checkNotNull(filterType);
-    this.filters.add(filterType);
-  }
-
-  @Override
-  public void removeFilter(String filterType) {
-    Preconditions.checkNotNull(filterType);
-    this.filters.remove(filterType);
-  }
-
-  @Override
-  public void removeAllFilter() {
-    this.filters.clear();
-  }
-
-  @Override
-  public List<ResponseTransformer> responseTransformer() {
-    return ImmutableList.copyOf(responseTransformers);
-  }
-
-  @Override
-  public void addResponseTransformer(ResponseTransformer transformer) {
-    removeResponseTransformer(transformer.name());
-    this.responseTransformers.add(transformer);
-  }
-
-  @Override
-  public void removeResponseTransformer(String name) {
-    List<ResponseTransformer> list = this.responseTransformers.stream()
-        .filter(t -> t.name().equalsIgnoreCase(name))
-        .collect(Collectors.toList());
-    this.responseTransformers.removeAll(list);
   }
 
   @Override
@@ -264,13 +155,9 @@ class ApiDefinitionImpl implements ApiDefinition {
         .add("name", name)
         .add("method", method)
         .add("path", path)
-        .add("strictArg", strictArg)
-        .add("parameters", urlArgs)
-        .add("bodyArgs", bodyArgs)
         .add("scope", scope)
         .add("endpoints", endpoints)
-        .add("filters", filters)
-        .add("responseTransformers", responseTransformers)
+        .add("plugins", plugins)
         .toString();
   }
 

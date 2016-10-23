@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface IpRestriction extends ApiPlugin {
 
+  String NAME = "IP_RESTRICTION";
+
   /**
    * 增加白名单.
    * 如果黑名单中存在该IP，从黑名单删除.
@@ -72,6 +74,6 @@ public interface IpRestriction extends ApiPlugin {
   List<String> blacklist();
 
   default String name() {
-    return "IP_RESTRICTION";
+    return NAME;
   }
 }

@@ -16,7 +16,7 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
 
   @Override
   public String name() {
-    return "URL_ARG";
+    return UrlArgPlugin.NAME;
   }
 
   @Override
@@ -26,11 +26,9 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
 
   @Override
   public UrlArgPlugin decode(JsonObject jsonObject) {
-//    Preconditions.checkArgument(jsonObject.containsKey("name"), "name cannot be null");
-//    Preconditions.checkArgument("url_args".equalsIgnoreCase(jsonObject.getString("name")),
-//        "name must be url_args");
-//
-//    Preconditions.checkArgument(jsonObject.containsKey("url_args"), "url_args cannot be null");
+    if (!jsonObject.containsKey("url_arg")) {
+      return null;
+    }
     JsonArray jsonArray = jsonObject.getJsonArray("url_arg", new JsonArray());
     UrlArgPlugin urlArgPlugin = new UrlArgPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {

@@ -2,7 +2,6 @@ package com.edgar.direwolves.definition;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-
 import io.vertx.core.http.HttpMethod;
 
 /**
@@ -83,7 +82,7 @@ class HttpEndpointImpl implements HttpEndpoint {
             .add("name", name)
             .add("service", service)
             .add("path", path)
-            .add("method", method)
+            .add("method", method.name())
             .toString();
   }
 

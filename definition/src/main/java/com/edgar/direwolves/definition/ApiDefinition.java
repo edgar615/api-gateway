@@ -1,10 +1,7 @@
 package com.edgar.direwolves.definition;
 
-import com.edgar.direwolves.plugin.arg.Parameter;
-import com.edgar.direwolves.plugin.transformer.ResponseTransformer;
-import com.google.common.base.Preconditions;
-
 import com.edgar.direwolves.plugin.ApiPlugin;
+import com.google.common.base.Preconditions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -51,71 +48,9 @@ public interface ApiDefinition {
   String scope();
 
   /**
-   * @return URL参数
-   */
-  List<Parameter> urlArgs();
-
-  /**
-   * @return body参数
-   */
-  List<Parameter> bodyArgs();
-
-  /**
    * @return 远程请求定义
    */
   List<Endpoint> endpoints();
-
-  /**
-   * 返回filter的集合
-   *
-   * @return
-   */
-  List<String> filters();
-
-  /**
-   * 是否严格校验参数，如果该值为false，允许传入接口中未定义的参数，如果为true，禁止传入接口中未定义的参数.
-   *
-   * @return
-   */
-  boolean strictArg();
-
-  /**
-   * 新增一个filter
-   *
-   * @param filterType filter的类型
-   */
-  void addFilter(String filterType);
-
-  /**
-   * 删除一个filter
-   *
-   * @param filterType filter的类型
-   */
-  void removeFilter(String filterType);
-
-  /**
-   * 删除所有filter
-   */
-  void removeAllFilter();
-
-  /**
-   * @return 返回结果的替换规则
-   */
-  List<ResponseTransformer> responseTransformer();
-
-  /**
-   * 增加结果的替换规则
-   *
-   * @param transformer
-   */
-  void addResponseTransformer(ResponseTransformer transformer);
-
-  /**
-   * 删除结果的替换规则
-   *
-   * @param name transformer的名称
-   */
-  void removeResponseTransformer(String name);
 
   /**
    * @return 插件列表
@@ -138,13 +73,13 @@ public interface ApiDefinition {
    */
   ApiDefinition removePlugin(String name);
 
-  static ApiDefinition create(ApiDefinitionOption option) {
-    return new ApiDefinitionImpl(option);
+  static ApiDefinition create(String name, HttpMethod method, String path, String scope,
+                    List<Endpoint> endpoints) {
+    return new ApiDefinitionImpl(name, method, path, scope, endpoints);
   }
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
-    return null;
-//    return ApiDefinitionDecoder.instance().apply(jsonObject);
+    return ApiDefinitionDecoder.instance().apply(jsonObject);
   }
 
   /**

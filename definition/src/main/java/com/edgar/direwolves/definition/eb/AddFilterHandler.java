@@ -31,7 +31,7 @@ public class AddFilterHandler implements EventbusMessageConsumer<JsonObject> {
       String name = jsonObject.getString("name", null);
       String filter = jsonObject.getString("filter", "UNKOWN");
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      definitions.forEach(definition -> definition.addFilter(filter));
+//      definitions.forEach(definition -> definition.addFilter(filter));
       msg.reply(new JsonObject().put("result", "OK"));
     } catch (Exception e) {
       msg.fail(-1, e.getMessage());

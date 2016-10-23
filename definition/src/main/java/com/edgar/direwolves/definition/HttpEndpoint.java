@@ -36,14 +36,6 @@ public interface HttpEndpoint extends Endpoint {
    */
   String service();
 
-  static HttpEndpoint fromJson(JsonObject jsonObject) {
-    return HttpEndpointDecoder.instance().apply(jsonObject);
-  }
-
-  default JsonObject toJson() {
-    return HttpEndpointEncoder.instance().apply(this);
-  }
-
   default String type() {
     return TYPE;
   }

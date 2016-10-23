@@ -16,6 +16,9 @@ import java.util.List;
 public class AclRestrictionFactory implements ApiPluginFactory<AclRestriction> {
   @Override
   public AclRestriction decode(JsonObject jsonObject) {
+    if (!jsonObject.containsKey("acl_restriction")) {
+      return null;
+    }
     JsonObject args = jsonObject.getJsonObject("acl_restriction", new JsonObject());
     JsonArray whiteArray = args.getJsonArray("whitelist", new JsonArray());
     JsonArray blackArray = args.getJsonArray("blacklist", new JsonArray());

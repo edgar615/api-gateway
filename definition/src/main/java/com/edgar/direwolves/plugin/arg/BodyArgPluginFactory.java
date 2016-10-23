@@ -16,7 +16,7 @@ public class BodyArgPluginFactory implements ApiPluginFactory<BodyArgPlugin> {
 
   @Override
   public String name() {
-    return "BODY_ARG";
+    return BodyArgPlugin.NAME;
   }
 
   @Override
@@ -26,6 +26,9 @@ public class BodyArgPluginFactory implements ApiPluginFactory<BodyArgPlugin> {
 
   @Override
   public BodyArgPlugin decode(JsonObject jsonObject) {
+    if (!jsonObject.containsKey("body_arg")) {
+      return null;
+    }
     JsonArray jsonArray = jsonObject.getJsonArray("body_arg", new JsonArray());
     BodyArgPlugin bodyArgPlugin = new BodyArgPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ResponseTransformerPluginFactory implements ApiPluginFactory<ResponseTransformerPlugin> {
   @Override
   public String name() {
-    return "RESPONSE_TRANSFORMER";
+    return ResponseTransformerPlugin.NAME;
   }
 
   @Override
@@ -25,6 +25,9 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory<Respon
 
   @Override
   public ResponseTransformerPlugin decode(JsonObject jsonObject) {
+    if (!jsonObject.containsKey("response_transformer")) {
+      return null;
+    }
     ResponseTransformerPlugin plugin = new ResponseTransformerPluginImpl();
     JsonArray jsonArray = jsonObject.getJsonArray("response_transformer", new JsonArray());
     for (int i = 0; i < jsonArray.size(); i++) {
@@ -58,42 +61,42 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory<Respon
   private JsonObject toJson(ResponseTransformer transformer) {
     return new JsonObject()
         .put("name", transformer.name())
-        .put("response.header.remove", transformer.headerRemoved())
-        .put("response.body.remove", transformer.bodyRemoved())
-        .put("response.header.replace", transformer.headerReplaced()
+        .put("header.remove", transformer.headerRemoved())
+        .put("body.remove", transformer.bodyRemoved())
+        .put("header.replace", transformer.headerReplaced()
             .stream()
             .map(entry -> entry.getKey() + ":" + entry.getValue())
             .collect(Collectors.toList()))
-        .put("response.body.replace", transformer.bodyReplaced()
+        .put("body.replace", transformer.bodyReplaced()
             .stream()
             .map(entry -> entry.getKey() + ":" + entry.getValue())
             .collect(Collectors.toList()))
-        .put("response.header.add", transformer.headerAdded()
+        .put("header.add", transformer.headerAdded()
             .stream()
             .map(entry -> entry.getKey() + ":" + entry.getValue())
             .collect(Collectors.toList()))
-        .put("response.body.add", transformer.bodyAdded()
+        .put("body.add", transformer.bodyAdded()
             .stream()
             .map(entry -> entry.getKey() + ":" + entry.getValue())
             .collect(Collectors.toList()));
   }
 
   private void removeHeader(JsonObject endpoint, ResponseTransformer transformer) {
-    JsonArray removes = endpoint.getJsonArray("response.header.remove", new JsonArray());
+    JsonArray removes = endpoint.getJsonArray("header.remove", new JsonArray());
     for (int j = 0; j < removes.size(); j++) {
       transformer.removeHeader(removes.getString(j));
     }
   }
 
   private void removeBody(JsonObject endpoint, ResponseTransformer transformer) {
-    JsonArray removes = endpoint.getJsonArray("response.body.remove", new JsonArray());
+    JsonArray removes = endpoint.getJsonArray("body.remove", new JsonArray());
     for (int j = 0; j < removes.size(); j++) {
       transformer.removeBody(removes.getString(j));
     }
   }
 
   private void replaceHeader(JsonObject endpoint, ResponseTransformer transformer) {
-    JsonArray replaces = endpoint.getJsonArray("response.header.replace", new JsonArray());
+    JsonArray replaces = endpoint.getJsonArray("header.replace", new JsonArray());
     for (int j = 0; j < replaces.size(); j++) {
       String value = replaces.getString(j);
       Iterable<String> iterable =
@@ -104,7 +107,7 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory<Respon
   }
 
   private void replaceBody(JsonObject endpoint, ResponseTransformer transformer) {
-    JsonArray replaces = endpoint.getJsonArray("response.body.replace", new JsonArray());
+    JsonArray replaces = endpoint.getJsonArray("body.replace", new JsonArray());
     for (int j = 0; j < replaces.size(); j++) {
       String value = replaces.getString(j);
       Iterable<String> iterable =
@@ -115,7 +118,7 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory<Respon
   }
 
   private void addHeader(JsonObject endpoint, ResponseTransformer transformer) {
-    JsonArray adds = endpoint.getJsonArray("response.header.add", new JsonArray());
+    JsonArray adds = endpoint.getJsonArray("header.add", new JsonArray());
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =
@@ -125,7 +128,7 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory<Respon
   }
 
   private void addBody(JsonObject endpoint, ResponseTransformer transformer) {
-    JsonArray adds = endpoint.getJsonArray("response.body.add", new JsonArray());
+    JsonArray adds = endpoint.getJsonArray("body.add", new JsonArray());
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =

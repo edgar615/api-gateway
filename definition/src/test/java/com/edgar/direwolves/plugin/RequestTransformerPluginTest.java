@@ -23,15 +23,15 @@ public class RequestTransformerPluginTest {
     JsonArray jsonArray = new JsonArray();
     JsonObject request = new JsonObject()
         .put("name", "add_device")
-        .put("request.header.remove", new JsonArray().add("h3").add("h4"))
-        .put("request.query.remove", new JsonArray().add("q3").add("q4"))
-        .put("request.body.remove", new JsonArray().add("p3").add("p4"))
-        .put("request.header.replace", new JsonArray().add("h5:v2").add("h6:v1"))
-        .put("request.query.replace", new JsonArray().add("q5:v2").add("q6:v1"))
-        .put("request.body.replace", new JsonArray().add("p5:v2").add("p6:v1"))
-        .put("request.header.add", new JsonArray().add("h1:v2").add("h2:v1"))
-        .put("request.query.add", new JsonArray().add("q1:v2").add("q2:v1"))
-        .put("request.body.add", new JsonArray().add("p1:v2").add("p2:v1"));
+        .put("header.remove", new JsonArray().add("h3").add("h4"))
+        .put("query.remove", new JsonArray().add("q3").add("q4"))
+        .put("body.remove", new JsonArray().add("p3").add("p4"))
+        .put("header.replace", new JsonArray().add("h5:v2").add("h6:v1"))
+        .put("query.replace", new JsonArray().add("q5:v2").add("q6:v1"))
+        .put("body.replace", new JsonArray().add("p5:v2").add("p6:v1"))
+        .put("header.add", new JsonArray().add("h1:v2").add("h2:v1"))
+        .put("query.add", new JsonArray().add("q1:v2").add("q2:v1"))
+        .put("body.add", new JsonArray().add("p1:v2").add("p2:v1"));
     jsonArray.add(request);
     RequestTransformerPlugin plugin = new RequestTransformerPluginFactory().decode(new JsonObject().put("request_transformer", jsonArray));
     RequestTransformer transformer = plugin.transformer("add_device");

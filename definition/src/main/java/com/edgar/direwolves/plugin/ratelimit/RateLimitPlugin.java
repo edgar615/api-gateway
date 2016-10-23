@@ -35,6 +35,8 @@ public interface RateLimitPlugin extends ApiPlugin {
   void removeRateLimit(String limitBy, String type);
 
   default String name() {
-    return "RATE_LIMIT";
+    return NAME;
   }
+
+  String NAME = "RATE_LIMIT";
 }

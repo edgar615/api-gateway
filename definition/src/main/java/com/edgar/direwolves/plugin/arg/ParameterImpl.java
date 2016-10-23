@@ -1,6 +1,5 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.edgar.direwolves.plugin.arg.Parameter;
 import com.edgar.util.validation.Rule;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;

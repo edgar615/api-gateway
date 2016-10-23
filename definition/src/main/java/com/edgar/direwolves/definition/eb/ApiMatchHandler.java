@@ -1,11 +1,10 @@
 package com.edgar.direwolves.definition.eb;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.definition.ApiDefinitionListCodec;
 import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
+import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;

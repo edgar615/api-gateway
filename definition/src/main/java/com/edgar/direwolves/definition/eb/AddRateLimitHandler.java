@@ -3,7 +3,6 @@ package com.edgar.direwolves.definition.eb;
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
-import com.edgar.direwolves.plugin.ratelimit.RateLimit;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;

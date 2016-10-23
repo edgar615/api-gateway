@@ -1,10 +1,9 @@
 package com.edgar.direwolves.definition.verticle;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
 import com.edgar.direwolves.definition.ApiDefinitionCodec;
 import com.edgar.direwolves.definition.ApiDefinitionListCodec;
+import com.google.common.collect.Lists;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
