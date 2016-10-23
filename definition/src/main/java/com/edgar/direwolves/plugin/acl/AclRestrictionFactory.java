@@ -1,7 +1,5 @@
 package com.edgar.direwolves.plugin.acl;
 
-import com.google.common.base.Preconditions;
-
 import com.edgar.direwolves.plugin.ApiPlugin;
 import com.edgar.direwolves.plugin.ApiPluginFactory;
 import io.vertx.core.json.JsonArray;
@@ -18,11 +16,9 @@ import java.util.List;
 public class AclRestrictionFactory implements ApiPluginFactory<AclRestriction> {
   @Override
   public AclRestriction decode(JsonObject jsonObject) {
-    Preconditions.checkArgument(jsonObject.containsKey("name"), "name cannot be null");
-    Preconditions.checkArgument("acl_restriction".equalsIgnoreCase(jsonObject.getString("name")),
-                                "name must be acl_restriction");
-    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+    JsonObject args = jsonObject.getJsonObject("acl_restriction", new JsonObject());
+    JsonArray whiteArray = args.getJsonArray("whitelist", new JsonArray());
+    JsonArray blackArray = args.getJsonArray("blacklist", new JsonArray());
     List<String> whitelist = new ArrayList<>();
     List<String> blacklist = new ArrayList<>();
     for (int i = 0; i < whiteArray.size(); i++) {
@@ -40,10 +36,9 @@ public class AclRestrictionFactory implements ApiPluginFactory<AclRestriction> {
 
   @Override
   public JsonObject encode(AclRestriction aclRestriction) {
-    return new JsonObject()
-            .put("name", "acl_restriction")
-            .put("whitelist", new JsonArray(aclRestriction.whitelist()))
-            .put("blacklist", new JsonArray(aclRestriction.blacklist()));
+    return new JsonObject().put("acl_restriction", new JsonObject()
+        .put("whitelist", new JsonArray(aclRestriction.whitelist()))
+        .put("blacklist", new JsonArray(aclRestriction.blacklist())));
   }
 
   @Override

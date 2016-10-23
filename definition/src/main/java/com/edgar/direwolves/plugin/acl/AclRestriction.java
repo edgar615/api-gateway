@@ -72,6 +72,6 @@ public interface AclRestriction extends ApiPlugin {
   List<String> blacklist();
 
   default String name() {
-    return "ACL";
+    return "ACL_RESTRICTION";
   }
 }

@@ -78,7 +78,7 @@
 //            .setEndpoints(Lists.newArrayList(httpEndpoint));
 //    ApiDefinition apiDefinition = ApiDefinition.create(option);
 //    try {
-//      apiDefinition.urlArgs().add(new ParameterImpl("password", null));
+//      apiDefinition.parameters().add(new ParameterImpl("password", null));
 //      Assert.fail();
 //    } catch (Exception e) {
 //      System.out.println(e.getMessage());

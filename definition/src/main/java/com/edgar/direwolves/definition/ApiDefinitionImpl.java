@@ -1,19 +1,19 @@
 package com.edgar.direwolves.definition;
 
+import com.edgar.direwolves.plugin.ApiPlugin;
+import com.edgar.direwolves.plugin.arg.Parameter;
+import com.edgar.direwolves.plugin.ratelimit.RateLimit;
+import com.edgar.direwolves.plugin.transformer.ResponseTransformer;
+import com.edgar.util.base.MorePreconditions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
-import com.edgar.direwolves.plugin.ApiPlugin;
-import com.edgar.direwolves.plugin.ratelimit.RateLimit;
-import com.edgar.util.base.MorePreconditions;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -101,14 +101,12 @@ class ApiDefinitionImpl implements ApiDefinition {
 
   private final List<ResponseTransformer> responseTransformers = new ArrayList<>();
 
-  private final List<RequestTransformer> requestTransformers = new ArrayList<>();
-
   private final List<ApiPlugin> plugins = new ArrayList<>();
 
   public ApiDefinitionImpl(
-          ApiDefinitionOption option) {
+      ApiDefinitionOption option) {
     this(option.getName(), option.getMethod(), option.getPath(), option.getScope(),
-         option.getUrlArgs(), option.getBodyArgs(), option.getEndpoints(), option.isStrictArg());
+        option.getUrlArgs(), option.getBodyArgs(), option.getEndpoints(), option.isStrictArg());
     this.rateLimits.addAll(option.getRateLimits());
     this.filters.addAll(option.getFilters());
   }
@@ -141,7 +139,7 @@ class ApiDefinitionImpl implements ApiDefinition {
     }
     if (bodyArgs != null) {
       Preconditions.checkArgument(HttpMethod.PUT == method || HttpMethod.POST == method,
-                                  "can not set body on post|put method");
+          "can not set body on post|put method");
       this.bodyArgs = ImmutableList.copyOf(bodyArgs);
     } else {
       this.bodyArgs = null;
@@ -232,28 +230,9 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public void removeResponseTransformer(String name) {
     List<ResponseTransformer> list = this.responseTransformers.stream()
-            .filter(t -> t.name().equalsIgnoreCase(name))
-            .collect(Collectors.toList());
+        .filter(t -> t.name().equalsIgnoreCase(name))
+        .collect(Collectors.toList());
     this.responseTransformers.removeAll(list);
-  }
-
-  @Override
-  public List<RequestTransformer> requestTransformer() {
-    return ImmutableList.copyOf(requestTransformers);
-  }
-
-  @Override
-  public void addRequestTransformer(RequestTransformer transformer) {
-    removeRequestTransformer(transformer.name());
-    this.requestTransformers.add(transformer);
-  }
-
-  @Override
-  public void removeRequestTransformer(String name) {
-    List<RequestTransformer> list = this.requestTransformers.stream()
-            .filter(t -> t.name().equalsIgnoreCase(name))
-            .collect(Collectors.toList());
-    this.requestTransformers.removeAll(list);
   }
 
   @Override
@@ -280,54 +259,19 @@ class ApiDefinitionImpl implements ApiDefinition {
   }
 
   @Override
-  public List<RateLimit> rateLimits() {
-    return ImmutableList.copyOf(rateLimits);
-  }
-
-  @Override
-  public void addRateLimit(RateLimit definition) {
-    List<RateLimit> filterDefintions = rateLimits.stream()
-            .filter(d -> definition.limitBy().equalsIgnoreCase(d.limitBy())
-                         && definition.type().equalsIgnoreCase(d.type()))
-            .collect(Collectors.toList());
-    rateLimits.add(definition);
-    rateLimits.removeAll(filterDefintions);
-  }
-
-  /**
-   * 根据组合条件查询映射.
-   *
-   * @param limitBy 限流分类
-   * @param type    限流类型
-   */
-  @Override
-  public void removeRateLimit(String limitBy, String type) {
-    Predicate<RateLimit> predicate = rateLimit -> true;
-    if (limitBy != null) {
-      predicate = predicate.and(rateLimit -> limitBy.equalsIgnoreCase(rateLimit.limitBy()));
-    }
-    if (type != null) {
-      predicate = predicate.and(rateLimit -> type.equalsIgnoreCase(rateLimit.type()));
-    }
-    this.rateLimits.removeIf(predicate);
-  }
-
-  @Override
   public String toString() {
     return MoreObjects.toStringHelper("ApiDefinition")
-            .add("name", name)
-            .add("method", method)
-            .add("path", path)
-            .add("strictArg", strictArg)
-            .add("urlArgs", urlArgs)
-            .add("bodyArgs", bodyArgs)
-            .add("scope", scope)
-            .add("endpoints", endpoints)
-            .add("filters", filters)
-            .add("rateLimits", rateLimits)
-            .add("responseTransformers", responseTransformers)
-            .add("requestTransformer", requestTransformers)
-            .toString();
+        .add("name", name)
+        .add("method", method)
+        .add("path", path)
+        .add("strictArg", strictArg)
+        .add("parameters", urlArgs)
+        .add("bodyArgs", bodyArgs)
+        .add("scope", scope)
+        .add("endpoints", endpoints)
+        .add("filters", filters)
+        .add("responseTransformers", responseTransformers)
+        .toString();
   }
 
 }

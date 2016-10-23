@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.transformer;
 
 /**
  * response的转换规则.

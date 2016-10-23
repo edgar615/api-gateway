@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.transformer;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -45,14 +45,14 @@ class ResponseTransformerImpl implements ResponseTransformer {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("ResponseTransformer")
-            .add("name", name)
-            .add("headerRemove", headerRemove)
-            .add("headerReplace", headerReplace)
-            .add("headerAdd", headerAdd)
-            .add("bodyRemove", bodyRemove)
-            .add("bodyReplace", bodyReplace)
-            .add("bodyAdd", bodyAdd)
-            .toString();
+        .add("name", name)
+        .add("headerRemove", headerRemove)
+        .add("headerReplace", headerReplace)
+        .add("headerAdd", headerAdd)
+        .add("bodyRemove", bodyRemove)
+        .add("bodyReplace", bodyReplace)
+        .add("bodyAdd", bodyAdd)
+        .toString();
   }
 
   @Override
@@ -71,18 +71,21 @@ class ResponseTransformerImpl implements ResponseTransformer {
   }
 
   @Override
-  public void addBody(String key, String value) {
+  public ResponseTransformer addBody(String key, String value) {
     this.bodyAdd.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void replaceBody(String key, String value) {
+  public ResponseTransformer replaceBody(String key, String value) {
     this.bodyReplace.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void removeBody(String key) {
+  public ResponseTransformer removeBody(String key) {
     this.bodyRemove.add(key);
+    return this;
   }
 
   @Override
@@ -101,18 +104,21 @@ class ResponseTransformerImpl implements ResponseTransformer {
   }
 
   @Override
-  public void addHeader(String key, String value) {
+  public ResponseTransformer addHeader(String key, String value) {
     this.headerAdd.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void replaceHeader(String key, String value) {
+  public ResponseTransformer replaceHeader(String key, String value) {
     this.headerReplace.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void removeHeader(String key) {
+  public ResponseTransformer removeHeader(String key) {
     this.headerRemove.add(key);
+    return this;
   }
 
 }

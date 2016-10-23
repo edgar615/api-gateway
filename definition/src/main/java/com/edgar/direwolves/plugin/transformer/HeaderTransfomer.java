@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.transformer;
 
 import java.util.List;
 import java.util.Map;
@@ -29,22 +29,25 @@ public interface HeaderTransfomer {
    *
    * @param key
    * @param value
+   * @return
    */
-  void addHeader(String key, String value);
+  HeaderTransfomer addHeader(String key, String value);
 
   /**
    * 替换一个header,只有当header存在时才替换;
    *
    * @param key
    * @param value
+   * @return
    */
-  void replaceHeader(String key, String value);
+  HeaderTransfomer replaceHeader(String key, String value);
 
   /**
    * 删除一个header
    *
    * @param key
+   * @return
    */
-  void removeHeader(String key);
+  HeaderTransfomer removeHeader(String key);
 
 }

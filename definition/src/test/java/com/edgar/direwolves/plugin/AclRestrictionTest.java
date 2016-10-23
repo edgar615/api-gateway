@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition.plugin;
+package com.edgar.direwolves.plugin;
 
 import com.edgar.direwolves.plugin.acl.AclRestriction;
 import com.edgar.direwolves.plugin.acl.AclRestrictionFactory;
@@ -20,10 +20,11 @@ public class AclRestrictionTest {
 
   @Test
   public void testDecode() {
-    JsonObject jsonObject = new JsonObject()
-            .put("name", "acl_restriction")
+    JsonObject config = new JsonObject()
             .put("whitelist", new JsonArray().add("super").add("admin"))
             .put("blacklist", new JsonArray().add("user"));
+    JsonObject jsonObject = new JsonObject()
+        .put("acl_restriction", config);
     ApiPluginFactory<AclRestriction> factory = new AclRestrictionFactory();
     AclRestriction acl = factory.decode(jsonObject);
     Assert.assertEquals(2, acl.whitelist().size());
@@ -40,12 +41,12 @@ public class AclRestrictionTest {
     Assert.assertEquals(2, acl.blacklist().size());
     Assert.assertEquals(1, acl.whitelist().size());
 
-    ApiPluginFactory<AclRestriction> factory = new AclRestrictionFactory();
-    JsonObject jsonObject = factory.encode(acl);
+    JsonObject jsonObject = acl.encode();
     System.out.println(jsonObject);
-    Assert.assertEquals("acl_restriction", jsonObject.getString("name"));
-    JsonArray blacklist = jsonObject.getJsonArray("blacklist");
-    JsonArray whitelist = jsonObject.getJsonArray("whitelist");
+    Assert.assertTrue(jsonObject.containsKey("acl_restriction"));
+    JsonObject config = jsonObject.getJsonObject("acl_restriction");
+    JsonArray blacklist = config.getJsonArray("blacklist");
+    JsonArray whitelist = config.getJsonArray("whitelist");
     Assert.assertEquals(2, blacklist.size());
     Assert.assertEquals(1, whitelist.size());
   }

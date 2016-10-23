@@ -2,6 +2,7 @@ package com.edgar.direwolves.plugin;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,22 +16,30 @@ import java.util.stream.Collectors;
  */
 public interface ApiPlugin {
   List<ApiPluginFactory> factories = Lists.newArrayList(
-          ServiceLoader.load(ApiPluginFactory.class));
+      ServiceLoader.load(ApiPluginFactory.class));
+
+  static ApiPlugin create(String name) {
+    return factory(name).create();
+  }
+
+  static ApiPluginFactory factory(String name) {
+    Preconditions.checkNotNull(name, "name cannot null");
+    List<ApiPluginFactory> apiPluginFactories =
+        factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
+            .collect(Collectors.toList());
+    if (apiPluginFactories.isEmpty()) {
+      throw new NoSuchElementException("no such factory->" + name);
+    }
+    return apiPluginFactories.get(0);
+  }
 
   /**
    * @return 插件名称
    */
   String name();
 
-  static ApiPlugin create(String name) {
-    Preconditions.checkNotNull(name, "name cannot null");
-    List<ApiPluginFactory> apiPluginFactories =
-            factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
-                    .collect(Collectors.toList());
-    if (apiPluginFactories.isEmpty()) {
-      throw new NoSuchElementException("no such factory->" + name);
-    }
-    return apiPluginFactories.get(0).create();
+  default JsonObject encode() {
+    return factory(this.name()).encode(this);
   }
 
 }

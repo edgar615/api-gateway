@@ -1,7 +1,7 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.arg;
 
+import com.edgar.direwolves.plugin.arg.RulesDecoder;
 import com.edgar.util.validation.Rule;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

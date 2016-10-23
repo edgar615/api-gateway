@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.transformer;
 
 import java.util.List;
 import java.util.Map;
@@ -29,22 +29,25 @@ public interface ParamTransfomer {
    *
    * @param key
    * @param value
+   * @return
    */
-  void addParam(String key, String value);
+  ParamTransfomer addParam(String key, String value);
 
   /**
    * 替换一个param,只有当param存在时才替换;
    *
    * @param key
    * @param value
+   * @return
    */
-  void replaceParam(String key, String value);
+  ParamTransfomer replaceParam(String key, String value);
 
   /**
    * 删除一个param
    *
    * @param key
+   * @return
    */
-  void removeParam(String key);
+  ParamTransfomer removeParam(String key);
 
 }

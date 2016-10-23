@@ -18,11 +18,9 @@ import java.util.List;
 public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
   @Override
   public IpRestriction decode(JsonObject jsonObject) {
-    Preconditions.checkArgument(jsonObject.containsKey("name"), "name cannot be null");
-    Preconditions.checkArgument("ip_restriction".equalsIgnoreCase(jsonObject.getString("name")),
-                                "name must be ip_restriction");
-    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+    JsonObject config = jsonObject.getJsonObject("ip_restriction", new JsonObject());
+    JsonArray whiteArray = config.getJsonArray("whitelist", new JsonArray());
+    JsonArray blackArray = config.getJsonArray("blacklist", new JsonArray());
     List<String> whitelist = new ArrayList<>();
     List<String> blacklist = new ArrayList<>();
     for (int i = 0; i < whiteArray.size(); i++) {
@@ -40,10 +38,9 @@ public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
 
   @Override
   public JsonObject encode(IpRestriction ipRestriction) {
-    return new JsonObject()
-            .put("name", "ip_restriction")
-            .put("whitelist", new JsonArray(ipRestriction.whitelist()))
-            .put("blacklist", new JsonArray(ipRestriction.blacklist()));
+    return new JsonObject().put("ip_restriction", new JsonObject()
+        .put("whitelist", new JsonArray(ipRestriction.whitelist()))
+        .put("blacklist", new JsonArray(ipRestriction.blacklist())));
   }
 
   @Override

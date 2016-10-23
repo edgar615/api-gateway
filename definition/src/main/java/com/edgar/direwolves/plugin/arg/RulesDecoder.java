@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.arg;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;

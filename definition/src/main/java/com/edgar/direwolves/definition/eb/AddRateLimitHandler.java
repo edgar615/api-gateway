@@ -34,8 +34,8 @@ public class AddRateLimitHandler implements EventbusMessageConsumer<JsonObject> 
       int limit = jsonObject.getInteger("limit");
       String limitBy = jsonObject.getString("limit_by");
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      definitions.forEach(
-              definition -> definition.addRateLimit(RateLimit.create(limitBy, type, limit)));
+//      definitions.forEach(
+//              definition -> definition.addRateLimit(RateLimit.create(limitBy, type, limit)));
       msg.reply(new JsonObject().put("result", "OK"));
     } catch (Exception e) {
       msg.fail(-1, e.getMessage());

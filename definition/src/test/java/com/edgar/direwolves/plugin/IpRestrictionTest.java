@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition.plugin;
+package com.edgar.direwolves.plugin;
 
 import com.edgar.direwolves.plugin.ApiPlugin;
 import com.edgar.direwolves.plugin.ApiPluginFactory;
@@ -20,11 +20,11 @@ public class IpRestrictionTest {
   @Test
   public void testDecode() {
     JsonObject jsonObject = new JsonObject()
-            .put("name", "ip_restriction")
             .put("whitelist", new JsonArray().add("192.168.1.*").add("10.4.7.12"))
             .put("blacklist", new JsonArray().add("127.0.0.1"));
     ApiPluginFactory<IpRestriction> factory = new IpRestrictionFactory();
-    IpRestriction ip = factory.decode(jsonObject);
+    IpRestriction ip = factory.decode(new JsonObject()
+        .put("ip_restriction", jsonObject));
     Assert.assertEquals(2, ip.whitelist().size());
     Assert.assertEquals(1, ip.blacklist().size());
   }
@@ -39,12 +39,12 @@ public class IpRestrictionTest {
     Assert.assertEquals(2, ip.blacklist().size());
     Assert.assertEquals(1, ip.whitelist().size());
 
-    ApiPluginFactory<IpRestriction> factory = new IpRestrictionFactory();
-    JsonObject jsonObject = factory.encode(ip);
+    JsonObject jsonObject = ip.encode();
     System.out.println(jsonObject);
-    Assert.assertEquals("ip_restriction", jsonObject.getString("name"));
-    JsonArray blacklist = jsonObject.getJsonArray("blacklist");
-    JsonArray whitelist = jsonObject.getJsonArray("whitelist");
+    Assert.assertTrue(jsonObject.containsKey("ip_restriction"));
+    JsonObject config = jsonObject.getJsonObject("ip_restriction");
+    JsonArray blacklist = config.getJsonArray("blacklist");
+    JsonArray whitelist = config.getJsonArray("whitelist");
     Assert.assertEquals(2, blacklist.size());
     Assert.assertEquals(1, whitelist.size());
   }

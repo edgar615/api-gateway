@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.transformer;
 
 import java.util.List;
 import java.util.Map;
@@ -30,21 +30,24 @@ public interface BodyTransfomer {
    *
    * @param key
    * @param value
+   * @return
    */
-  void addBody(String key, String value);
+  BodyTransfomer addBody(String key, String value);
 
   /**
    * 替换一个body,只有当body存在时才替换;
    *
    * @param key
    * @param value
+   * @return
    */
-  void replaceBody(String key, String value);
+  BodyTransfomer replaceBody(String key, String value);
 
   /**
    * 删除一个body
    *
    * @param key
+   * @return
    */
-  void removeBody(String key);
+  BodyTransfomer removeBody(String key);
 }

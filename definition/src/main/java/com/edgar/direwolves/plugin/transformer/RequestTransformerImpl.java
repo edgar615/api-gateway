@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.plugin.transformer;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -51,17 +51,17 @@ class RequestTransformerImpl implements RequestTransformer {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("ResponseTransformer")
-            .add("name", name)
-            .add("headerRemove", headerRemove)
-            .add("headerReplace", headerReplace)
-            .add("headerAdd", headerAdd)
-            .add("bodyRemove", bodyRemove)
-            .add("bodyReplace", bodyReplace)
-            .add("bodyAdd", bodyAdd)
-            .add("bodyRemove", paramRemove)
-            .add("bodyReplace", paramReplace)
-            .add("bodyAdd", paramAdd)
-            .toString();
+        .add("name", name)
+        .add("headerRemove", headerRemove)
+        .add("headerReplace", headerReplace)
+        .add("headerAdd", headerAdd)
+        .add("bodyRemove", bodyRemove)
+        .add("bodyReplace", bodyReplace)
+        .add("bodyAdd", bodyAdd)
+        .add("bodyRemove", paramRemove)
+        .add("bodyReplace", paramReplace)
+        .add("bodyAdd", paramAdd)
+        .toString();
   }
 
   @Override
@@ -80,18 +80,21 @@ class RequestTransformerImpl implements RequestTransformer {
   }
 
   @Override
-  public void addBody(String key, String value) {
+  public RequestTransformer addBody(String key, String value) {
     this.bodyAdd.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void replaceBody(String key, String value) {
+  public RequestTransformer replaceBody(String key, String value) {
     this.bodyReplace.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void removeBody(String key) {
+  public RequestTransformer removeBody(String key) {
     this.bodyRemove.add(key);
+    return this;
   }
 
   @Override
@@ -110,18 +113,21 @@ class RequestTransformerImpl implements RequestTransformer {
   }
 
   @Override
-  public void addHeader(String key, String value) {
+  public RequestTransformer addHeader(String key, String value) {
     this.headerAdd.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void replaceHeader(String key, String value) {
+  public RequestTransformer replaceHeader(String key, String value) {
     this.headerReplace.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void removeHeader(String key) {
+  public RequestTransformer removeHeader(String key) {
     this.headerRemove.add(key);
+    return this;
   }
 
   @Override
@@ -140,17 +146,20 @@ class RequestTransformerImpl implements RequestTransformer {
   }
 
   @Override
-  public void addParam(String key, String value) {
+  public RequestTransformer addParam(String key, String value) {
     this.paramAdd.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void replaceParam(String key, String value) {
+  public RequestTransformer replaceParam(String key, String value) {
     this.paramReplace.add(Maps.immutableEntry(key, value));
+    return this;
   }
 
   @Override
-  public void removeParam(String key) {
+  public RequestTransformer removeParam(String key) {
     this.paramRemove.add(key);
+    return this;
   }
 }

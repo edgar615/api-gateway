@@ -33,7 +33,7 @@ public class DeleteRateLimitHandler implements EventbusMessageConsumer<JsonObjec
       String limitBy = jsonObject.getString("limit_by", null);
 
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-      definitions.forEach(definition -> definition.removeRateLimit(limitBy, type));
+//      definitions.forEach(definition -> definition.removeRateLimit(limitBy, type));
       msg.reply(new JsonObject().put("result", "OK"));
     } catch (Exception e) {
       msg.fail(-1, e.getMessage());

@@ -1,5 +1,7 @@
 package com.edgar.direwolves.definition;
 
+import com.edgar.direwolves.plugin.arg.Parameter;
+import com.edgar.direwolves.plugin.transformer.ResponseTransformer;
 import com.google.common.base.Preconditions;
 
 import com.edgar.direwolves.plugin.ApiPlugin;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author Edgar  Date 2016/9/13
  */
-public interface ApiDefinition extends RateLimitDefinition {
+public interface ApiDefinition {
 
   /**
    * @return 名称，必填项，全局唯一.
@@ -116,25 +118,6 @@ public interface ApiDefinition extends RateLimitDefinition {
   void removeResponseTransformer(String name);
 
   /**
-   * @return 返回请求的替换规则
-   */
-  List<RequestTransformer> requestTransformer();
-
-  /**
-   * 增加请求的替换规则
-   *
-   * @param transformer
-   */
-  void addRequestTransformer(RequestTransformer transformer);
-
-  /**
-   * 删除请求的替换规则
-   *
-   * @param name transformer的名称
-   */
-  void removeRequestTransformer(String name);
-
-  /**
    * @return 插件列表
    */
   List<ApiPlugin> plugins();
@@ -160,7 +143,8 @@ public interface ApiDefinition extends RateLimitDefinition {
   }
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
-    return ApiDefinitionDecoder.instance().apply(jsonObject);
+    return null;
+//    return ApiDefinitionDecoder.instance().apply(jsonObject);
   }
 
   /**

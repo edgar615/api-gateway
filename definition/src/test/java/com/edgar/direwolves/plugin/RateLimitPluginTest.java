@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition.plugin;
+package com.edgar.direwolves.plugin;
 
 import com.edgar.direwolves.plugin.ApiPlugin;
 import com.edgar.direwolves.plugin.ApiPluginFactory;
@@ -21,7 +21,6 @@ public class RateLimitPluginTest {
   public void testDecode() {
     JsonArray jsonArray = new JsonArray();
     JsonObject jsonObject = new JsonObject()
-            .put("name", "rate_limit")
             .put("rate_limit", jsonArray);
     jsonArray.add(new JsonObject().put("type", "second")
                           .put("limit", 100)
@@ -38,9 +37,8 @@ public class RateLimitPluginTest {
     rateLimitPlugin.addRateLimit(RateLimit.create("token", "second", 100));
     rateLimitPlugin.addRateLimit(RateLimit.create("user", "day", 100));
     Assert.assertEquals(2, rateLimitPlugin.rateLimits().size());
-    ApiPluginFactory<RateLimitPlugin> factory = new RateLimitPluginFactory();
-    JsonObject jsonObject = factory.encode(rateLimitPlugin);
-    Assert.assertEquals("rate_limit", jsonObject.getString("name"));
+    JsonObject jsonObject = rateLimitPlugin.encode();
+    Assert.assertTrue(jsonObject.containsKey("rate_limit"));
     JsonArray jsonArray = jsonObject.getJsonArray("rate_limit");
     Assert.assertEquals(2, jsonArray.size());
     System.out.println(jsonObject);

@@ -106,24 +106,24 @@
 //    jsonObject.put("endpoints", endpoints);
 //
 //    jsonObject.put("strict_arg", true);
-//    JsonArray urlArgs = new JsonArray();
-//    jsonObject.put("url_args", urlArgs);
+//    JsonArray parameters = new JsonArray();
+//    jsonObject.put("url_args", parameters);
 //    JsonObject urlArg1 = new JsonObject()
 //            .put("name", "macAddress")
 //            .put("default_value", "FFFFFFFFFFFF")
 //            .put("rules", new JsonObject().put("required", true)
 //                    .put("regex", "[0-9A-F]{16}"));
-//    urlArgs.add(urlArg1);
+//    parameters.add(urlArg1);
 //
 //    JsonObject urlArg2 = new JsonObject()
 //            .put("name", "type")
 //            .put("rules", new JsonObject().put("required", true)
 //                    .put("integer", true));
-//    urlArgs.add(urlArg2);
+//    parameters.add(urlArg2);
 //
 //    JsonObject urlArg3 = new JsonObject()
 //            .put("name", "barcode");
-//    urlArgs.add(urlArg3);
+//    parameters.add(urlArg3);
 //
 //    ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
 //    Assert.assertEquals("/devices", apiDefinition.path());
@@ -133,16 +133,16 @@
 //    Assert.assertEquals("device:write", apiDefinition.scope());
 //    Assert.assertTrue(apiDefinition.strictArg());
 //
-//    Assert.assertEquals(3, apiDefinition.urlArgs().size());
-//    Parameter parameter1 = apiDefinition.urlArgs().get(0);
+//    Assert.assertEquals(3, apiDefinition.parameters().size());
+//    Parameter parameter1 = apiDefinition.parameters().get(0);
 //    Assert.assertEquals(2, parameter1.rules().size());
 //    Assert.assertEquals("FFFFFFFFFFFF", parameter1.defaultValue());
 //
-//    Parameter parameter2 = apiDefinition.urlArgs().get(1);
+//    Parameter parameter2 = apiDefinition.parameters().get(1);
 //    Assert.assertEquals(2, parameter2.rules().size());
 //    Assert.assertNull(parameter2.defaultValue());
 //
-//    Parameter parameter3 = apiDefinition.urlArgs().get(2);
+//    Parameter parameter3 = apiDefinition.parameters().get(2);
 //    Assert.assertEquals(0, parameter3.rules().size());
 //  }
 //
