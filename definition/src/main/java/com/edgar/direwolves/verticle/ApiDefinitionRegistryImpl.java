@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition.verticle;
+package com.edgar.direwolves.verticle;
 
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.google.common.base.Preconditions;

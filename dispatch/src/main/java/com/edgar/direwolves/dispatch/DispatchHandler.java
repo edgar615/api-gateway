@@ -3,14 +3,13 @@ package com.edgar.direwolves.dispatch;
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.definition.Endpoint;
 import com.edgar.direwolves.definition.HttpEndpoint;
-import com.edgar.direwolves.definition.eb.ApiMatchHandler;
+import com.edgar.direwolves.eb.ApiMatchHandler;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.servicediscovery.Record;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

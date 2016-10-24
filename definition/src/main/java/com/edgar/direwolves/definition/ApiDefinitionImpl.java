@@ -74,7 +74,7 @@ class ApiDefinitionImpl implements ApiDefinition {
   private final List<ApiPlugin> plugins = new ArrayList<>();
 
   ApiDefinitionImpl(String name, HttpMethod method, String path, String scope,
-                            List<Endpoint> endpoints) {
+                    List<Endpoint> endpoints) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
@@ -133,6 +133,9 @@ class ApiDefinitionImpl implements ApiDefinition {
 
   @Override
   public ApiDefinition addPlugin(ApiPlugin plugin) {
+    if (plugin == null) {
+      return this;
+    }
     Preconditions.checkNotNull(plugin, "plugin cannot be null");
     removePlugin(plugin.name());
     plugins.add(plugin);

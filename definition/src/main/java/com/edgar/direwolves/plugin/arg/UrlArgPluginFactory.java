@@ -10,6 +10,28 @@ import io.vertx.core.json.JsonObject;
 import java.util.List;
 
 /**
+ * URL参数控制的工厂类.
+ * json配置
+ * <pre>
+ *   "url_arg" : [
+ * {
+ * "name" : "limit",
+ * "default_value" : 10,
+ * "rules" : {
+ * "integer":true,
+ * "max":100,
+ * "min":1
+ * }
+ * },
+ * {
+ * "name" : "start",
+ * "default_value" : 0,
+ * "rules" : {
+ * "integer":true
+ * }
+ * }
+ * ]
+ * </pre>
  * Created by edgar on 16-10-22.
  */
 public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {

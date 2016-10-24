@@ -3,9 +3,10 @@
   "method": "PUT",
   "path": "/devices",
   "scope" : "device:write",
-  "filters" : ["timeout", "app_key", "jwt", "ip_restriction"],
-  "whitelist" : ["192.168.0.1", "10.4.7.*"],
-  "blacklist" : ["192.168.0.100"],
+  "ip_restriction" : {
+    "whitelist" : ["192.168.0.1", "10.4.7.*"],
+    "blacklist" : ["192.168.0.100"]
+  },
   "rate_limit" : [
     {
       "limit" : 1000,
@@ -19,7 +20,7 @@
     }
   ],
   "strict_arg" : true,
-  "url_args" : [
+  "url_arg" : [
     {
       "name" : "limit",
       "default_value" : 10,
@@ -37,34 +38,18 @@
       }
     }
   ],
-  "body_args" : [
+  "request_transformer" : [
     {
-      "name" : "encryptKey",
-      "rules" : {
-        "required" : true,
-        "regex" : "[0-9A-F]{16}"
-      }
-    },
-    {
-      "name" : "type",
-      "default_value" : 1,
-      "rules" : {
-        "required" : true,
-        "optional" : [1, 2, 3]
-      }
-    },
-    {
-      "name" : "barcode",
-      "rules" : {
-        "required" : true,
-        "regex" : "[0-9a-zA-Z]{16}"
-      }
-    },
-    {
-      "name": "deviceCode",
-      "rules": {
-        "prohibited": true
-      }
+      "name" : "add_device",
+      "header.remove" : ["h3", "h4"],
+      "query.remove" : ["q3", "q4"],
+      "body.remove" : ["p3", "p4"],
+      "header.replace" : ["h5:v2", "h6:v1"],
+      "query.replace" : ["q5:v2", "q6:v1"],
+      "body.replace" : ["p5:v2", "p6:v1"],
+      "header.add" : ["h1:v2", "h2:v1"],
+      "query.add" : ["q1:v2", "q2:v1"],
+      "body.add" : ["p1:v2", "p2:v1"]
     }
   ],
   "endpoints": [
@@ -73,16 +58,14 @@
       "name" : "add_device",
       "service": "device",
       "method": "POST",
-      "path": "/devices",
-      "request.header.remove" : ["h3", "h4"],
-      "request.query.remove" : ["q3", "q4"],
-      "request.body.remove" : ["p3", "p4"],
-      "request.header.replace" : ["h5:v2", "h6:v1"],
-      "request.query.replace" : ["q5:v2", "q6:v1"],
-      "request.body.replace" : ["p5:v2", "p6:v1"],
-      "request.header.add" : ["h1:v2", "h2:v1"],
-      "request.query.add" : ["q1:v2", "q2:v1"],
-      "request.body.add" : ["p1:v2", "p2:v1"]
+      "path": "/devices"
+    },
+    {
+      "type" : "http",
+      "name" : "update_device",
+      "service": "device",
+      "method": "PUT",
+      "path": "/devices"
     }
   ]
 }

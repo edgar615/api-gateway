@@ -10,6 +10,9 @@ import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by Edgar on 2016/10/21.
  *
@@ -76,4 +79,29 @@ public class RateLimitPluginTest {
     rateLimitPlugin.removeRateLimit(null, null);
     Assert.assertEquals(0, rateLimitPlugin.rateLimits().size());
   }
+
+
+  @Test
+  public void testUniqueRateLimit() {
+    ApiPlugin plugin = ApiPlugin.create("rate_limit");
+    RateLimitPlugin rateLimitPlugin = (RateLimitPlugin) plugin;
+
+    rateLimitPlugin.addRateLimit(RateLimit.create("token", "second", 100));
+    rateLimitPlugin.addRateLimit(RateLimit.create("token", "day", 100));
+    rateLimitPlugin.addRateLimit(RateLimit.create("user", "second", 100));
+    Assert.assertEquals(3, rateLimitPlugin.rateLimits().size());
+
+    rateLimitPlugin.addRateLimit(RateLimit.create("token", "second", 1000));
+    rateLimitPlugin.addRateLimit(RateLimit.create("token", "day", 1000));
+    rateLimitPlugin.addRateLimit(RateLimit.create("user", "second", 1000));
+    Assert.assertEquals(3, rateLimitPlugin.rateLimits().size());
+
+    List<RateLimit> filterDefintions = rateLimitPlugin.rateLimits().stream()
+        .filter(d -> "token".equalsIgnoreCase(d.limitBy())
+            && "day".equalsIgnoreCase(d.type()))
+        .collect(Collectors.toList());
+    RateLimit rateLimit = filterDefintions.get(0);
+    Assert.assertEquals(1000, rateLimit.limit());
+  }
+
 }

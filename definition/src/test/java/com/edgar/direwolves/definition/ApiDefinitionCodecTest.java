@@ -3,6 +3,7 @@ package com.edgar.direwolves.definition;
 import static org.awaitility.Awaitility.await;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
+import com.edgar.direwolves.eb.ApiDefinitionCodec;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;

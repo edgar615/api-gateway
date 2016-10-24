@@ -1,8 +1,8 @@
-package com.edgar.direwolves.definition.verticle;
+package com.edgar.direwolves.verticle;
 
-import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
-import com.edgar.direwolves.definition.ApiDefinitionCodec;
-import com.edgar.direwolves.definition.ApiDefinitionListCodec;
+import com.edgar.direwolves.eb.ApiDefinitionCodec;
+import com.edgar.direwolves.eb.ApiDefinitionListCodec;
+import com.edgar.direwolves.eb.ApiMessageConsumer;
 import com.google.common.collect.Lists;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
@@ -23,19 +23,14 @@ import java.util.ServiceLoader;
  */
 public class ApiDefinitionVerticle extends AbstractVerticle {
 
-  public static final String API_DELETE_RATE_LIMIT = "api.ratelimit.delete";
-
-  public final JsonObject RESULT_OK = new JsonObject().put("result", "OK");
-
   @Override
   public void start() throws Exception {
-
     //eventbus consumer
-    Lists.newArrayList(ServiceLoader.load(EventbusMessageConsumer.class))
-            .forEach(filter -> filter.config(vertx, new JsonObject()));
+    Lists.newArrayList(ServiceLoader.load(ApiMessageConsumer.class)).forEach(filter -> filter.config(vertx, new JsonObject()));
 
     EventBus eb = vertx.eventBus();
     eb.registerCodec(new ApiDefinitionCodec())
-            .registerCodec(new ApiDefinitionListCodec());
+        .registerCodec(new ApiDefinitionListCodec());
   }
+
 }

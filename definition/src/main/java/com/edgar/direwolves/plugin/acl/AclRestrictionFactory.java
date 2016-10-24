@@ -9,7 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Edgar on 2016/10/21.
+ * ACL控制策略的工厂类.
+ * json配置:
+ * <pre>
+ * "acl_restriction" : {
+ *    "whitelist" : ["group1", "group2"],
+ *    "blacklist" : ["guest"]
+ * }
+ * </pre>
  *
  * @author Edgar  Date 2016/10/21
  */

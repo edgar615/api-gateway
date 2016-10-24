@@ -6,7 +6,22 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
- * Created by Edgar on 2016/10/21.
+ * 流量控制的工厂类.
+ * json配置
+ * <pre>
+ *    "rate_limit" : [
+ * {
+ * "limit" : 1000,
+ * "limit_by" : "token",
+ * "type" : "hour"
+ * },
+ * {
+ * "limit" : 100,
+ * "limit_by" : "app_key",
+ * "type" : "second"
+ * }
+ * ]
+ * </pre>
  *
  * @author Edgar  Date 2016/10/21
  */

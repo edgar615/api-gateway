@@ -1,5 +1,6 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.eb;
 
+import com.edgar.direwolves.definition.ApiDefinition;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.JsonArray;

@@ -10,6 +10,25 @@ import io.vertx.core.json.JsonObject;
 import java.util.stream.Collectors;
 
 /**
+ * Request Transformer的工厂类.
+ * json配置
+ * <pre>
+ *     "request_transformer" : [
+ * {
+ * "name" : "add_device",
+ * "header.remove" : ["h3", "h4"],
+ * "query.remove" : ["q3", "q4"],
+ * "body.remove" : ["p3", "p4"],
+ * "header.replace" : ["h5:v2", "h6:v1"],
+ * "query.replace" : ["q5:v2", "q6:v1"],
+ * "body.replace" : ["p5:v2", "p6:v1"],
+ * "header.add" : ["h1:v2", "h2:v1"],
+ * "query.add" : ["q1:v2", "q2:v1"],
+ * "body.add" : ["p1:v2", "p2:v1"]
+ * }
+ * ]
+ * </pre>
+ * <p/>
  * Created by edgar on 16-10-23.
  */
 public class RequestTransformerPluginFactory implements ApiPluginFactory<RequestTransformerPlugin> {

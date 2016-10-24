@@ -1,15 +1,18 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.eb;
 
 import static org.awaitility.Awaitility.await;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.definition.eb.AddApiHandler;
-import com.edgar.direwolves.definition.eb.ApiMatchHandler;
-import com.edgar.direwolves.definition.eb.DeleteApiHandler;
-import com.edgar.direwolves.definition.eb.GetApiHandler;
-import com.edgar.direwolves.definition.eb.ListApiHandler;
-import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
-import com.edgar.direwolves.definition.verticle.ApiDefinitionVerticle;
+import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.plugin.acl.AclRestriction;
+import com.edgar.direwolves.plugin.arg.BodyArgPlugin;
+import com.edgar.direwolves.plugin.arg.UrlArgPlugin;
+import com.edgar.direwolves.plugin.ip.IpRestriction;
+import com.edgar.direwolves.plugin.ratelimit.RateLimitPlugin;
+import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;
+import com.edgar.direwolves.plugin.transformer.ResponseTransformerPlugin;
+import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -19,6 +22,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +42,8 @@ public class ApiDefinitionEventbusTest {
 
   EventBus eb;
 
+  private String deployId;
+
   @Before
   public void setUp(TestContext context) {
     vertx = Vertx.vertx();
@@ -47,71 +53,53 @@ public class ApiDefinitionEventbusTest {
 
   @After
   public void clear(TestContext context) {
-    vertx.close(context.asyncAssertSuccess());
+//    vertx.close(context.asyncAssertSuccess());
     ApiDefinitionRegistry.create().remove(null);
   }
 
   @Test
   public void testAddSuccess(TestContext context) {
     add(context);
-
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
-  }
+    Assert.assertEquals(1, ApiDefinitionRegistry.create().filter("add_device").size());
 
-  @Test
-  public void testAddSuccess2(TestContext context) {
-    JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
+    ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
+    Assert.assertEquals("/devices", apiDefinition.path());
+    Assert.assertEquals("device:write", apiDefinition.scope());
 
-//        Async async = context.async();
-    eb.<JsonObject>send(AddApiHandler.ADDRESS, addDeviceJson, ar -> {
-      if (ar.succeeded()) {
-        JsonObject jsonObject = ar.result().body();
-        System.out.println(jsonObject);
-        context.assertEquals("OK", jsonObject.getString("result"));
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-//            async.complete();
-    });
+    Assert.assertEquals(6, apiDefinition.plugins().size());
+    Assert.assertNull(apiDefinition.plugin(AclRestriction.NAME));
+    Assert.assertNotNull(apiDefinition.plugin(IpRestriction.NAME));
+    Assert.assertNotNull(apiDefinition.plugin(UrlArgPlugin.NAME));
+    Assert.assertNotNull(apiDefinition.plugin(BodyArgPlugin.NAME));
+    Assert.assertNotNull(apiDefinition.plugin(RateLimitPlugin.NAME));
+    Assert.assertNotNull(apiDefinition.plugin(RequestTransformerPlugin.NAME));
+    Assert.assertNotNull(apiDefinition.plugin(ResponseTransformerPlugin.NAME));
 
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
   }
 
   @Test
   public void testAddSameName(TestContext context) {
-    JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
-
-    eb.<JsonObject>send(AddApiHandler.ADDRESS, addDeviceJson, ar -> {
-      if (ar.succeeded()) {
-        JsonObject jsonObject = ar.result().body();
-        System.out.println(jsonObject);
-        context.assertEquals("OK", jsonObject.getString("result"));
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-    });
+    add("src/test/resources/device_add.json", context);
 
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
     await().until(() -> ApiDefinitionRegistry.create().filter("add_device").get(0)
             .method().equals(HttpMethod.POST));
 
-    addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add2.json");
+    Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
+    ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
+    Assert.assertEquals(6, apiDefinition.plugins().size());
+    Assert.assertEquals(1, apiDefinition.endpoints().size());
 
-    eb.<JsonObject>send(AddApiHandler.ADDRESS, addDeviceJson, ar -> {
-      if (ar.succeeded()) {
-        JsonObject jsonObject = ar.result().body();
-        System.out.println(jsonObject);
-        context.assertEquals("OK", jsonObject.getString("result"));
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-    });
+    add("src/test/resources/device_add2.json", context);
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
     await().until(() -> ApiDefinitionRegistry.create().filter("add_device").get(0)
             .method().equals(HttpMethod.PUT));
+
+    Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
+    apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
+    Assert.assertEquals(4, apiDefinition.plugins().size());
+    Assert.assertEquals(2, apiDefinition.endpoints().size());
   }
 
   @Test
@@ -122,7 +110,7 @@ public class ApiDefinitionEventbusTest {
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 2);
 
     JsonObject queryJson = new JsonObject();
-    eb.<List<ApiDefinition>>send(ListApiHandler.ADDRESS, queryJson, ar -> {
+    eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         System.out.println(definitions);
@@ -145,7 +133,7 @@ public class ApiDefinitionEventbusTest {
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 2);
 
     JsonObject queryJson = new JsonObject().put("name", "*");
-    eb.<List<ApiDefinition>>send(ListApiHandler.ADDRESS, queryJson, ar -> {
+    eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         System.out.println(definitions);
@@ -169,7 +157,7 @@ public class ApiDefinitionEventbusTest {
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 2);
 
     JsonObject queryJson = new JsonObject().put("name", Randoms.randomAlphabet(10));
-    eb.<List<ApiDefinition>>send(ListApiHandler.ADDRESS, queryJson, ar -> {
+    eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         System.out.println(definitions);
@@ -192,7 +180,7 @@ public class ApiDefinitionEventbusTest {
 
     JsonObject queryJson = new JsonObject().put("name", "*")
             .put("start", 1);
-    eb.<List<ApiDefinition>>send(ListApiHandler.ADDRESS, queryJson, ar -> {
+    eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         System.out.println(definitions);
@@ -217,7 +205,7 @@ public class ApiDefinitionEventbusTest {
 
     JsonObject queryJson = new JsonObject().put("name", "*")
             .put("limit", 1);
-    eb.<List<ApiDefinition>>send(ListApiHandler.ADDRESS, queryJson, ar -> {
+    eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         System.out.println(definitions);
@@ -241,7 +229,7 @@ public class ApiDefinitionEventbusTest {
 
     Async async = context.async();
 
-    eb.<ApiDefinition>send(GetApiHandler.ADDRESS, "add_device", ar -> {
+    eb.<ApiDefinition>send(ApiGetHandler.ADDRESS, "add_device", ar -> {
       if (ar.succeeded()) {
         ApiDefinition apiDefinition = ar.result().body();
         context.assertEquals("add_device", apiDefinition.name());
@@ -255,7 +243,7 @@ public class ApiDefinitionEventbusTest {
 
     Async async2 = context.async();
 
-    eb.<ApiDefinition>send(GetApiHandler.ADDRESS, "*device", ar -> {
+    eb.<ApiDefinition>send(ApiGetHandler.ADDRESS, "*device", ar -> {
       if (ar.succeeded()) {
         ApiDefinition apiDefinition = ar.result().body();
         context.assertEquals("add_device", apiDefinition.name());
@@ -275,7 +263,7 @@ public class ApiDefinitionEventbusTest {
 
     Async async = context.async();
 
-    eb.<JsonObject>send(GetApiHandler.ADDRESS, Randoms.randomAlphabet(10), ar -> {
+    eb.<JsonObject>send(ApiGetHandler.ADDRESS, Randoms.randomAlphabet(10), ar -> {
       if (ar.succeeded()) {
         context.fail();
       } else {
@@ -288,7 +276,7 @@ public class ApiDefinitionEventbusTest {
   @Test
   public void testDelete(TestContext context) {
     add(context);
-    eb.<JsonObject>send(DeleteApiHandler.ADDRESS, "*device", ar -> {
+    eb.<JsonObject>send(ApiDeleteHandler.ADDRESS, "*device", ar -> {
       if (ar.succeeded()) {
         JsonObject jsonObject = ar.result().body();
         context.assertEquals("OK", jsonObject.getString("result"));
@@ -305,7 +293,7 @@ public class ApiDefinitionEventbusTest {
   @Test
   public void testDeleteAll(TestContext context) {
     add(context);
-    eb.<JsonObject>send(DeleteApiHandler.ADDRESS, "*", ar -> {
+    eb.<JsonObject>send(ApiDeleteHandler.ADDRESS, "*", ar -> {
       if (ar.succeeded()) {
         JsonObject jsonObject = ar.result().body();
         context.assertEquals("OK", jsonObject.getString("result"));
@@ -371,7 +359,7 @@ public class ApiDefinitionEventbusTest {
   private void add(String file, TestContext context) {
     JsonObject
             addDeviceJson = JsonUtils.getJsonFromFile(file);
-    eb.<JsonObject>send(AddApiHandler.ADDRESS, addDeviceJson, ar -> {
+    eb.<JsonObject>send(ApiAddHandler.ADDRESS, addDeviceJson, ar -> {
       if (ar.succeeded()) {
         JsonObject jsonObject = ar.result().body();
         System.out.println(jsonObject);

@@ -2,7 +2,7 @@
 //
 //import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
 //import com.edgar.direwolves.definition.ApiDefinition;
-//import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
+//import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 //import io.vertx.core.Vertx;
 //import io.vertx.core.eventbus.EventBus;
 //import io.vertx.core.eventbus.Message;
@@ -15,8 +15,8 @@
 // *
 // * @author Edgar  Date 2016/10/8
 // */
-//public class DeleteBlacklistHandler implements EventbusMessageConsumer<JsonObject> {
-//  public static final String ADDRESS = "api.blacklist.delete";
+//public class DeleteWhitelistHandler implements EventbusMessageConsumer<JsonObject> {
+//  public static final String ADDRESS = "api.whitelist.delete";
 //
 //  @Override
 //  public void config(Vertx vertx, JsonObject config) {
@@ -32,9 +32,9 @@
 //      String ip = jsonObject.getString("ip");
 //      List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
 //      if (ip == null) {
-//        definitions.forEach(definition -> definition.removeAllBlacklist());
+//        definitions.forEach(definition -> definition.removeAllWhitelist());
 //      } else {
-//        definitions.forEach(definition -> definition.removeBlacklist(ip));
+//        definitions.forEach(definition -> definition.removeWhitelist(ip));
 //      }
 //      msg.reply(new JsonObject().put("result", "OK"));
 //    } catch (Exception e) {

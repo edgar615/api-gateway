@@ -1,15 +1,15 @@
-package com.edgar.direwolves.definition.eb;
+package com.edgar.direwolves.eb;
 
-import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
 import com.edgar.direwolves.definition.ApiDefinition;
-import com.edgar.direwolves.definition.ApiDefinitionListCodec;
-import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
+import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -18,7 +18,8 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/8
  */
-public class ListApiHandler implements EventbusMessageConsumer<JsonObject> {
+public class ApiListHandler implements ApiMessageConsumer<JsonObject> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiListHandler.class);
   public static final String ADDRESS = "api.list";
 
   @Override
@@ -39,9 +40,11 @@ public class ListApiHandler implements EventbusMessageConsumer<JsonObject> {
       if (toIndex > definitions.size()) {
         toIndex = definitions.size();
       }
+      LOGGER.error("list api, params->{}", jsonObject);
       msg.reply(Lists.newArrayList(definitions.subList(start, toIndex)), new DeliveryOptions().setCodecName
-              (ApiDefinitionListCodec.class.getSimpleName()));
+          (ApiDefinitionListCodec.class.getSimpleName()));
     } catch (Exception e) {
+      LOGGER.error("failed list api, error->{}", e.getMessage(), e);
       msg.fail(-1, e.getMessage());
     }
   }

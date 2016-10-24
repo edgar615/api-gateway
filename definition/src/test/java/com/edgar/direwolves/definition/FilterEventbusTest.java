@@ -4,8 +4,8 @@
 //
 //import com.edgar.direwolves.core.utils.JsonUtils;
 //import com.edgar.direwolves.definition.eb.*;
-//import com.edgar.direwolves.definition.verticle.ApiDefinitionRegistry;
-//import com.edgar.direwolves.definition.verticle.ApiDefinitionVerticle;
+//import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+//import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 //import com.edgar.util.base.Randoms;
 //import io.vertx.core.Vertx;
 //import io.vertx.core.eventbus.EventBus;

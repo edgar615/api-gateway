@@ -10,6 +10,41 @@ import io.vertx.core.json.JsonObject;
 import java.util.List;
 
 /**
+ * body参数控制的工厂类.
+ * <p/>
+ * Json配置
+ * <Pre>
+ * "body_arg" : [
+ * {
+ * "name" : "encryptKey",
+ * "rules" : {
+ * "required" : true,
+ * "regex" : "[0-9A-F]{16}"
+ * }
+ * },
+ * {
+ * "name" : "type",
+ * "default_value" : 1,
+ * "rules" : {
+ * "required" : true,
+ * "optional" : [1, 2, 3]
+ * }
+ * },
+ * {
+ * "name" : "barcode",
+ * "rules" : {
+ * "required" : true,
+ * "regex" : "[0-9a-zA-Z]{16}"
+ * }
+ * },
+ * {
+ * "name": "deviceCode",
+ * "rules": {
+ * "prohibited": true
+ * }
+ * }
+ * ]
+ * </Pre>
  * Created by edgar on 16-10-22.
  */
 public class BodyArgPluginFactory implements ApiPluginFactory<BodyArgPlugin> {

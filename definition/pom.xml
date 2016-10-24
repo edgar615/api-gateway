@@ -12,7 +12,7 @@
     <artifactId>direwolves-definition</artifactId>
 
     <properties>
-        <main.verticle>com.edgar.direwolves.definition.verticle.ApiDefinitionVerticle</main.verticle>
+        <main.verticle>com.edgar.direwolves.verticle.ApiDefinitionVerticle</main.verticle>
     </properties>
 
     <dependencies>
