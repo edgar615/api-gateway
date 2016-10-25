@@ -3,6 +3,7 @@ package com.edgar.direwolves.filter;
 import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.dispatch.ApiContext;
+import com.edgar.direwolves.dispatch.filter.Filter;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

@@ -12,6 +12,7 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2016/8/24
  */
+@Deprecated
 public class MultiMapToJsonObject implements Function<MultiMap, JsonObject> {
 
   private static final MultiMapToJsonObject INSTANCE = new MultiMapToJsonObject();

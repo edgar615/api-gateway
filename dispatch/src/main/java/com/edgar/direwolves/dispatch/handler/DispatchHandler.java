@@ -1,8 +1,9 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.dispatch.handler;
 
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.definition.Endpoint;
 import com.edgar.direwolves.definition.HttpEndpoint;
+import com.edgar.direwolves.dispatch.ApiContext;
 import com.edgar.direwolves.eb.ApiMatchHandler;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.vertx.task.Task;
@@ -64,7 +65,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
             });
 //    apiDefinitionFuture.setHandler(ar -> {
 //      if (ar.succeeded()) {
-//        ApiDefinition apiDefinition = ar.result();
+//        ApiDefinition apiDefinition = ar.response();
 //        apiContext.setApiDefinition(apiDefinition);
 //        //设置变量
 //        matches(apiContext, apiDefinition);

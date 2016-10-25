@@ -1,11 +1,9 @@
-package com.edgar.direwolves.filter;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+package com.edgar.direwolves.dispatch.filter;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.definition.ApiDefinition;
 import com.edgar.direwolves.dispatch.ApiContext;
+import com.edgar.direwolves.dispatch.filter.ServiceDiscoveryFilter;
 import com.edgar.direwolves.service.ServiceDiscoveryVerticle;
 import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -16,6 +14,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
@@ -24,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -53,13 +53,7 @@ public class ServiceDescoveryFilterTest {
 
   @After
   public void tearDown(TestContext testContext) {
-    vertx.close();
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-//    vertx.close(testContext.asyncAssertSuccess());
+    vertx.close(testContext.asyncAssertSuccess());
   }
 
   private void add2Servers() {
@@ -115,13 +109,16 @@ public class ServiceDescoveryFilterTest {
 
     Future<ApiContext> future = Future.future();
     filter.doFilter(apiContext, future);
+    Async async = testContext.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        JsonObject jsonObject = apiContext1.request().getJsonObject(0);
-        testContext.assertEquals(1, apiContext1.result().size());
+        testContext.assertEquals(1, apiContext1.records().size());
+        System.out.println(apiContext1.records().get(0).toJson());
+        async.complete();
       } else {
         testContext.fail();
+        async.complete();
       }
     });
   }

@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.dispatch.handler;
 
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;

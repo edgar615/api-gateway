@@ -138,27 +138,30 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public JsonArray result() {
+  public JsonArray response() {
     return result;
   }
 
   @Override
-  public void addResult(JsonObject jsonObject) {
+  public void addResponse(JsonObject jsonObject) {
     this.result.add(jsonObject);
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper("ApiContext")
+    MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
             .add("method", method)
             .add("path", path)
             .add("params", params)
             .add("headers", headers)
             .add("body", body)
-            .add("principal", principal.encode())
             .add("variables", variables)
-            .add("apiDefinition", apiDefinition)
-            .toString();
+            .add("apiDefinition", apiDefinition);
+    if (principal != null) {
+      helper.add("principal", principal.encode());
+    }
+
+    return helper.toString();
   }
 
 }

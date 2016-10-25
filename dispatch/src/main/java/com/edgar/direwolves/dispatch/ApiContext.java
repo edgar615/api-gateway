@@ -118,12 +118,12 @@ public interface ApiContext {
   /**
    * @return 经过requestTransformer后的请求.
    */
-  JsonArray result();
+  JsonArray response();
 
   /**
-   * @param jsonObject 添加一个经过requestTransformer后的请求
+   * @param jsonObject 添加一个经过responseTransformer后的请求
    */
-  void addResult(JsonObject jsonObject);
+  void addResponse(JsonObject jsonObject);
 
   static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
                            Multimap<String, String> params, JsonObject body) {
@@ -179,8 +179,8 @@ public interface ApiContext {
     for (int i = 0; i < request().size(); i++) {
       finalApiContext.addRequest(request().getJsonObject(i).copy());
     }
-    for (int i = 0; i < result().size(); i++) {
-      finalApiContext.addResult(result().getJsonObject(i).copy());
+    for (int i = 0; i < response().size(); i++) {
+      finalApiContext.addResponse(response().getJsonObject(i).copy());
     }
     return finalApiContext;
   }

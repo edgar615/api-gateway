@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class ApiMatchHandler implements ApiMessageConsumer<JsonObject> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiMatchHandler.class);
-  public static final String ADDRESS = "api.match";
+  public static final String ADDRESS = "eb.api.match";
 
   @Override
   public void config(Vertx vertx, JsonObject config) {

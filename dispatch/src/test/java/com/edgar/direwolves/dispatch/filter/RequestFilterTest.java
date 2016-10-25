@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter;
+package com.edgar.direwolves.dispatch.filter;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -13,6 +13,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.servicediscovery.Record;
@@ -32,8 +33,6 @@ public class RequestFilterTest {
 
   Vertx vertx;
 
-  MockConsulHttpVerticle mockConsulHttpVerticle;
-
   @Before
   public void testSetUp(TestContext testContext) {
     vertx = Vertx.vertx();
@@ -51,9 +50,10 @@ public class RequestFilterTest {
     params.put("q3", "v3");
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("h3", "v3");
+    headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params,null);
     ApiDefinition definition =
             ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
@@ -66,10 +66,20 @@ public class RequestFilterTest {
 
     Future<ApiContext> future = Future.future();
     filter.doFilter(apiContext, future);
+    Async async = testContext.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
         testContext.assertEquals(1, apiContext1.request().size());
+        JsonObject request = apiContext1.request().getJsonObject(0);
+        testContext.assertEquals("localhost", request.getString("host"));
+        testContext.assertEquals(8080, request.getInteger("port"));
+        testContext.assertEquals(1, request.getJsonObject("params").size());
+        testContext.assertEquals(1, request.getJsonObject("headers").size());
+        testContext.assertEquals(1, request.getJsonObject("params").getJsonArray("q3").size());
+        testContext.assertEquals(2, request.getJsonObject("headers").getJsonArray("h3").size());
+        System.out.println(request.encodePrettily());
+        async.complete();
       } else {
         testContext.fail();
       }
@@ -98,10 +108,12 @@ public class RequestFilterTest {
 
     Future<ApiContext> future = Future.future();
     filter.doFilter(apiContext, future);
+    Async async = testContext.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
         testContext.assertEquals(2, apiContext1.request().size());
+        async.complete();
       } else {
         testContext.fail();
       }
@@ -128,6 +140,7 @@ public class RequestFilterTest {
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
 
+    Async async = testContext.async();
     Future<ApiContext> future = null;
     try {
       future = Future.future();
@@ -137,6 +150,7 @@ public class RequestFilterTest {
       testContext.assertTrue(e instanceof SystemException);
       SystemException ex = (SystemException) e;
       testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE, ex.getErrorCode());
+      async.complete();
     }
   }
 

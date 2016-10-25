@@ -1,7 +1,8 @@
-package com.edgar.direwolves.filter;
+package com.edgar.direwolves.dispatch.filter;
 
 import com.edgar.direwolves.definition.HttpEndpoint;
 import com.edgar.direwolves.dispatch.ApiContext;
+import com.edgar.direwolves.service.ServiceDiscoveryVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -60,14 +61,15 @@ public class ServiceDiscoveryFilter implements Filter {
             .forEach(s -> futures.add(serviceFuture(s)));
     Task.par(futures)
             .andThen(records -> records.forEach(r -> apiContext.addRecord(r)))
+            .andThen(records -> completeFuture.complete(apiContext))
             .onFailure(throwable -> completeFuture.fail(SystemException.create(
                     DefaultErrorCode.UNKOWN_REMOTE)));
   }
 
-  Future<Record> serviceFuture(String service) {
+  private Future<Record> serviceFuture(String service) {
     //服务发现
     Future<Record> serviceFuture = Future.future();
-    vertx.eventBus().<JsonObject>send("service.discovery.select", service, ar -> {
+    vertx.eventBus().<JsonObject>send(ServiceDiscoveryVerticle.ADDRESS, service, ar -> {
       if (ar.succeeded()) {
         JsonObject serviceJson = ar.result().body();
         Record record = new Record(serviceJson);

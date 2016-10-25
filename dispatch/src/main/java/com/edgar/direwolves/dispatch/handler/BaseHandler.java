@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.dispatch.handler;
 
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;

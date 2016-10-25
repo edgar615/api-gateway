@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter;
+package com.edgar.direwolves.dispatch.filter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;

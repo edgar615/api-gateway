@@ -1,5 +1,8 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.dispatch.verticle;
 
+import com.edgar.direwolves.dispatch.handler.FailureHandler;
+import com.edgar.direwolves.dispatch.handler.BaseHandler;
+import com.edgar.direwolves.dispatch.handler.DispatchHandler;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.direwolves.service.RecordSelect;
 import io.vertx.core.AbstractVerticle;
@@ -13,7 +16,7 @@ import io.vertx.ext.web.handler.BodyHandler;
  *
  * @author Edgar  Date 2016/9/12
  */
-public class DispatchVerticle extends AbstractVerticle {
+public class ApiDispatchVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {

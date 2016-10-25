@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter;
+package com.edgar.direwolves.dispatch.filter;
 
 import com.edgar.direwolves.definition.HttpEndpoint;
 import com.edgar.direwolves.dispatch.ApiContext;
@@ -14,15 +14,34 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * 转换为rpc调用的过滤器.
+ * 将endpoint转换为json对象.
+ * params和header的json均为{"k1", ["v1"]}，{"k1", ["v1", "v2]}格式的json对象.
  * <p>
+ * <pre>
+ *   {
+ * "id" : "5bbbe06b-df08-4728-b5e2-166faf912621",
+ * "type" : "http",
+ * "path" : "/devices",
+ * "method" : "POST",
+ * "params" : {
+ * "q3" : [ "v3" ]
+ * },
+ * "headers" : {
+ * "h3" : [ "v3", "v3.2" ]
+ * },
+ * "body" : {
+ * "foo" : "bar"
+ * },
+ * "host" : "localhost",
+ * "port" : 8080
+ * }
  * </pre>
  * <p>
  * Created by edgar on 16-9-20.
  */
 public class RequestFilter implements Filter {
 
-  private static final String NAME = "request_transfomer";
+  private static final String NAME = "request";
 
   private Vertx vertx;
 
@@ -46,8 +65,9 @@ public class RequestFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    List<String> filters = apiContext.apiDefinition().filters();
-    return filters.contains(NAME);
+    return true;
+//    List<String> filters = apiContext.apiDefinition().filters();
+//    return filters.contains(NAME);
   }
 
   @Override
@@ -63,12 +83,11 @@ public class RequestFilter implements Filter {
     JsonObject request = new JsonObject();
     request.put("id", UUID.randomUUID().toString());
     request.put("type", "http");
-    String newPath = Uitls.replaceUrl(endpoint.path(), apiContext);
-    request.put("path", newPath);
+    request.put("path", endpoint.path());
     request.put("method", endpoint.method().name());
-    JsonObject params = Uitls.mutliMapToJson(apiContext.params());
+    JsonObject params = Utils.mutliMapToJson(apiContext.params());
     request.put("params", params);
-    JsonObject headers = Uitls.mutliMapToJson(apiContext.headers());
+    JsonObject headers = Utils.mutliMapToJson(apiContext.headers());
     request.put("headers", headers);
     if (apiContext.body() != null) {
       JsonObject body = apiContext.body().copy();

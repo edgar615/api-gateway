@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class ApiGetHandler implements ApiMessageConsumer<String> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiGetHandler.class);
-  public static final String ADDRESS = "api.get";
+  public static final String ADDRESS = "eb.api.get";
 
   @Override
   public void config(Vertx vertx, JsonObject config) {

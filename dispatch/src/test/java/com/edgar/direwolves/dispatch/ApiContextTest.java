@@ -1,5 +1,6 @@
 package com.edgar.direwolves.dispatch;
 
+import com.edgar.direwolves.dispatch.handler.FailureHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApiDeleteHandler implements ApiMessageConsumer<String> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDeleteHandler.class);
-  public static final String ADDRESS = "api.delete";
+  public static final String ADDRESS = "eb.api.delete";
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
