@@ -1,6 +1,6 @@
 //package com.edgar.direwolves.filter;
 //
-//import com.edgar.direwolves.dispatch.ApiContext;
+//import com.edgar.direwolves.core.spi.ApiContext;
 //import com.edgar.direwolves.dispatch.Http;
 //import com.edgar.direwolves.dispatch.HttpResult;
 //import com.edgar.direwolves.dispatch.filter.Filter;

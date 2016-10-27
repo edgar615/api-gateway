@@ -1,7 +1,7 @@
 //package com.edgar.direwolves.definition.eb;
 //
 //import com.edgar.direwolves.core.spi.EventbusMessageConsumer;
-//import com.edgar.direwolves.definition.ApiDefinition;
+//import com.edgar.direwolves.core.spi.ApiDefinition;
 //import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 //import io.vertx.core.Vertx;
 //import io.vertx.core.eventbus.EventBus;

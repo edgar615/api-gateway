@@ -14,6 +14,7 @@
         <module>dispatch</module>
         <module>cli</module>
         <module>core</module>
+        <module>plugin</module>
     </modules>
 
     <properties>

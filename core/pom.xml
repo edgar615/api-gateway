@@ -46,6 +46,11 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

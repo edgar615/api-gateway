@@ -1,9 +1,10 @@
 package com.edgar.direwolves.dispatch.handler;
 
-import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiDefinition;
 import com.edgar.direwolves.definition.Endpoint;
 import com.edgar.direwolves.definition.HttpEndpoint;
-import com.edgar.direwolves.dispatch.ApiContext;
+import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.direwolves.eb.ApiMatchHandler;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.vertx.task.Task;
@@ -40,7 +41,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
     getApiDefintion(rc, apiDefinitionFuture);
     Task.create(apiDefinitionFuture)
             .map(apiDefinition -> {
-              ApiContext apiContext = ApiContext.create(rc);
+              ApiContext apiContext = Utils.apiContext(rc);
               apiContext.setApiDefinition(apiDefinition);
               //设置变量
               matches(apiContext, apiDefinition);

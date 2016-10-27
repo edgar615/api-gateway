@@ -4,7 +4,8 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.spi.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -162,6 +163,28 @@ class ApiContextImpl implements ApiContext {
     }
 
     return helper.toString();
+  }
+
+  public ApiContext copy() {
+    ApiContext apiContext = null;
+    if (body() == null) {
+      apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
+                          ArrayListMultimap.create(params()), null);
+    } else {
+      apiContext =  new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
+                          ArrayListMultimap.create(params()), body().copy());
+    }
+
+    final ApiContext finalApiContext = apiContext;
+    variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
+    records().forEach(r -> finalApiContext.addRecord(new Record(r.toJson())));
+    for (int i = 0; i < request().size(); i++) {
+      finalApiContext.addRequest(request().getJsonObject(i).copy());
+    }
+    for (int i = 0; i < response().size(); i++) {
+      finalApiContext.addResponse(response().getJsonObject(i).copy());
+    }
+    return finalApiContext;
   }
 
 }

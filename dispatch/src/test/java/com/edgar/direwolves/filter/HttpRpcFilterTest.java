@@ -1,6 +1,6 @@
 //package com.edgar.direwolves.filter;
 //
-//import com.edgar.direwolves.dispatch.ApiContext;
+//import com.edgar.direwolves.core.spi.ApiContext;
 //import io.vertx.core.Future;
 //import io.vertx.core.Vertx;
 //import io.vertx.core.http.HttpClient;

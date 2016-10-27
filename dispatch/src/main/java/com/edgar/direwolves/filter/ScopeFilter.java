@@ -2,8 +2,8 @@
 //
 //import com.google.common.base.Splitter;
 //
-//import com.edgar.direwolves.definition.ApiDefinition;
-//import com.edgar.direwolves.dispatch.ApiContext;
+//import com.edgar.direwolves.core.spi.ApiDefinition;
+//import com.edgar.direwolves.core.spi.ApiContext;
 //import com.edgar.direwolves.dispatch.filter.Filter;
 //import com.edgar.util.exception.DefaultErrorCode;
 //import com.edgar.util.exception.SystemException;

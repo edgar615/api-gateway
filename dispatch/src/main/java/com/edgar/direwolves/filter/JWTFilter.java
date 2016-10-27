@@ -2,7 +2,7 @@
 //
 //import com.google.common.base.Strings;
 //
-//import com.edgar.direwolves.dispatch.ApiContext;
+//import com.edgar.direwolves.core.spi.ApiContext;
 //import com.edgar.direwolves.dispatch.filter.Filter;
 //import com.edgar.util.exception.DefaultErrorCode;
 //import com.edgar.util.exception.SystemException;

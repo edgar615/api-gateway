@@ -3,6 +3,7 @@ package com.edgar.direwolves.dispatch;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.edgar.direwolves.core.spi.ApiContext;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -32,7 +33,7 @@ public class FiltersTest {
 
   @Test
   public void tsetNoJwtHeader(TestContext testContext) {
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap
+    ApiContext apiContext = Utils.apiContext(HttpMethod.GET, "/devices", ArrayListMultimap
             .create(), null, null);
 
     Filters filters = Filters.instance();
@@ -52,7 +53,7 @@ public class FiltersTest {
   public void testJwtHeader(TestContext testContext) {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer " + "abc");
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
+    ApiContext apiContext = Utils.apiContext(HttpMethod.GET, "/devices", headers, null, null);
 
     Filters filters = Filters.instance();
     filters.init(vertx);

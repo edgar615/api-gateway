@@ -4,9 +4,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.definition.ApiDefinition;
-import com.edgar.direwolves.dispatch.ApiContext;
-import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
+import com.edgar.direwolves.core.spi.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -53,7 +53,7 @@ public class RequestFilterTest {
     headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params,null);
+            Utils.apiContext(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
             ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
@@ -95,7 +95,7 @@ public class RequestFilterTest {
     headers.put("h3", "v3");
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            Utils.apiContext(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition = ApiDefinition
             .fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
@@ -129,7 +129,7 @@ public class RequestFilterTest {
     headers.put("h3", "v3");
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            Utils.apiContext(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition =
             ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);

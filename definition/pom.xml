@@ -52,11 +52,6 @@
 
         <dependency>
             <groupId>com.edgar</groupId>
-            <artifactId>util</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.edgar</groupId>
             <artifactId>direwolves-core</artifactId>
             <version>${project.version}</version>
         </dependency>

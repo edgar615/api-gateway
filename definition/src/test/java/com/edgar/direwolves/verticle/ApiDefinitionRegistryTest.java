@@ -1,6 +1,6 @@
 package com.edgar.direwolves.verticle;
 
-import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiDefinition;
 import com.edgar.direwolves.definition.Endpoint;
 import com.edgar.direwolves.definition.HttpEndpoint;
 import com.google.common.collect.Lists;

@@ -1,9 +1,9 @@
 package com.edgar.direwolves.dispatch.filter;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.definition.ApiDefinition;
-import com.edgar.direwolves.dispatch.ApiContext;
-import com.edgar.direwolves.dispatch.filter.ServiceDiscoveryFilter;
+import com.edgar.direwolves.core.spi.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.direwolves.service.ServiceDiscoveryVerticle;
 import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -100,7 +99,7 @@ public class ServiceDescoveryFilterTest {
       e.printStackTrace();
     }
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
+    ApiContext apiContext = Utils.apiContext(HttpMethod.GET, "/devices", null, null, null);
     ApiDefinition definition = ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
 
@@ -133,7 +132,7 @@ public class ServiceDescoveryFilterTest {
       e.printStackTrace();
     }
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
+    ApiContext apiContext = Utils.apiContext(HttpMethod.GET, "/devices", null, null, null);
     ApiDefinition definition = ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
 

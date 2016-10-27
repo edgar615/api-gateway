@@ -1,6 +1,7 @@
 package com.edgar.direwolves.definition;
 
-import com.edgar.direwolves.plugin.ApiPlugin;
+import com.edgar.direwolves.core.spi.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiPlugin;
 import com.edgar.util.base.MorePreconditions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;

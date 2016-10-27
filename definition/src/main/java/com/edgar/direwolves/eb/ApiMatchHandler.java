@@ -1,6 +1,6 @@
 package com.edgar.direwolves.eb;
 
-import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.core.spi.ApiDefinition;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;

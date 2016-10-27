@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.spi.Configurable;
-import com.edgar.direwolves.dispatch.ApiContext;
+import com.edgar.direwolves.core.spi.ApiContext;
 import io.vertx.core.Future;
 
 import java.util.List;

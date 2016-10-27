@@ -6,7 +6,7 @@
 //import com.google.common.collect.Lists;
 //import com.google.common.collect.Multimap;
 //
-//import com.edgar.direwolves.dispatch.ApiContext;
+//import com.edgar.direwolves.core.spi.ApiContext;
 //import com.edgar.util.base.EncryptUtils;
 //import com.edgar.util.base.Randoms;
 //import com.edgar.util.exception.DefaultErrorCode;

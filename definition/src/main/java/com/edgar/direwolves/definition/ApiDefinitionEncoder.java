@@ -1,5 +1,6 @@
 package com.edgar.direwolves.definition;
 
+import com.edgar.direwolves.core.spi.ApiDefinition;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 

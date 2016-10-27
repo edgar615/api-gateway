@@ -1,6 +1,8 @@
 package com.edgar.direwolves.definition;
 
 import com.google.common.collect.Lists;
+
+import com.edgar.direwolves.core.spi.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Assert;
 import org.junit.Test;
