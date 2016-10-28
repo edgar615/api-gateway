@@ -1,4 +1,4 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.core.definition;
 
 import io.vertx.core.http.HttpMethod;
 

@@ -2,8 +2,8 @@ package com.edgar.direwolves.plugin;
 
 import com.edgar.direwolves.plugin.acl.AclRestriction;
 import com.edgar.direwolves.plugin.acl.AclRestrictionFactory;
-import com.edgar.direwolves.core.spi.ApiPlugin;
-import com.edgar.direwolves.core.spi.ApiPluginFactory;
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

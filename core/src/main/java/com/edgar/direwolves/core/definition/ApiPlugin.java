@@ -1,7 +1,8 @@
-package com.edgar.direwolves.core.spi;
+package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;

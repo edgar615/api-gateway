@@ -1,13 +1,11 @@
-package com.edgar.direwolves.core.spi;
+package com.edgar.direwolves.core.dispatch;
 
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.servicediscovery.Record;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +16,12 @@ import java.util.Map;
  * @author Edgar  Date 2016/10/10
  */
 public interface ApiContext {
+
+  static ApiContext apiContext(HttpMethod method, String path, Multimap<String, String> headers,
+                                      Multimap<String, String> params, JsonObject body) {
+    return new ApiContextImpl(method, path, headers, params, body);
+  }
+
 
   /**
    * @return ID，全局唯一.
@@ -77,14 +81,14 @@ public interface ApiContext {
   /**
    * @return 服务地址
    */
-  List<Record> records();
+  List<JsonObject> services();
 
   /**
    * 增加record
    *
    * @param record
    */
-  void addRecord(Record record);
+  void addService(JsonObject record);
 
   /**
    * @return api定义
@@ -120,7 +124,6 @@ public interface ApiContext {
   void addResponse(JsonObject jsonObject);
 
   /**
-   *
    * @return ApiContext
    */
   ApiContext copy();

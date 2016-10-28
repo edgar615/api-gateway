@@ -3,7 +3,7 @@ package com.edgar.direwolves.dispatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.http.HttpMethod;
@@ -24,11 +24,6 @@ import java.util.Set;
  */
 public class Utils {
 
-  public static ApiContext apiContext(HttpMethod method, String path, Multimap<String, String> headers,
-                           Multimap<String, String> params, JsonObject body) {
-    return new ApiContextImpl(method, path, headers, params, body);
-  }
-
   public static ApiContext apiContext(RoutingContext rc) {
     String path = rc.normalisedPath();
     HttpMethod method = rc.request().method();
@@ -44,7 +39,7 @@ public class Utils {
         throw SystemException.create(DefaultErrorCode.INVALID_JSON);
       }
     }
-    ApiContext apiContext =  new ApiContextImpl(method, path, headers, params, body);
+    ApiContext apiContext = ApiContext.apiContext(method, path, headers, params, body);
     Map<String, String> variables = getVariables(rc);
     variables.forEach((key, value) -> apiContext.addVariable(key, value));
     return apiContext;

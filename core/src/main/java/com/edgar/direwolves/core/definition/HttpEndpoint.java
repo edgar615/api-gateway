@@ -1,7 +1,6 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.core.definition;
 
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonObject;
 
 /**
  * Created by Edgar on 2016/9/14.

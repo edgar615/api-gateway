@@ -1,6 +1,6 @@
 package com.edgar.direwolves.plugin;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.plugin.arg.Parameter;
 import com.edgar.direwolves.plugin.arg.UrlArgPlugin;
 import com.edgar.direwolves.plugin.arg.UrlArgPluginFactory;

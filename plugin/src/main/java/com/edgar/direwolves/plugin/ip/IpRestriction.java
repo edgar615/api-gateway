@@ -1,6 +1,6 @@
 package com.edgar.direwolves.plugin.ip;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPlugin;
 
 import java.util.List;
 

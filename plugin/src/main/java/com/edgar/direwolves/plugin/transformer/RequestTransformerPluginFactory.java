@@ -1,7 +1,7 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
-import com.edgar.direwolves.core.spi.ApiPluginFactory;
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import io.vertx.core.json.JsonArray;

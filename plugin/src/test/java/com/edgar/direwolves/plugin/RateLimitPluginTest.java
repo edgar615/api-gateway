@@ -1,7 +1,7 @@
 package com.edgar.direwolves.plugin;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
-import com.edgar.direwolves.core.spi.ApiPluginFactory;
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.edgar.direwolves.plugin.ratelimit.RateLimit;
 import com.edgar.direwolves.plugin.ratelimit.RateLimitPlugin;
 import com.edgar.direwolves.plugin.ratelimit.RateLimitPluginFactory;

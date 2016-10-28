@@ -1,11 +1,10 @@
-package com.edgar.direwolves.definition;
+package com.edgar.direwolves.core.definition;
 
-import com.edgar.direwolves.core.spi.ApiDefinition;
-import com.edgar.direwolves.core.spi.ApiPlugin;
-import com.edgar.util.base.MorePreconditions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import com.edgar.util.base.MorePreconditions;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;

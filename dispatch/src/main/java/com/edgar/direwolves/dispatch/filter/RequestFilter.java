@@ -1,7 +1,8 @@
 package com.edgar.direwolves.dispatch.filter;
 
-import com.edgar.direwolves.definition.HttpEndpoint;
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -94,7 +95,7 @@ public class RequestFilter implements Filter {
       JsonObject body = apiContext.body().copy();
       request.put("body", body);
     }
-    List<Record> records = apiContext.records().stream()
+    List<Record> records = apiContext.services().stream()
             .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
             .collect(Collectors.toList());
     if (records.isEmpty()) {

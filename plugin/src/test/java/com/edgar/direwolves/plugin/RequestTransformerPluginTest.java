@@ -1,6 +1,6 @@
 package com.edgar.direwolves.plugin;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.plugin.transformer.RequestTransformer;
 import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;
 import com.edgar.direwolves.plugin.transformer.RequestTransformerPluginFactory;

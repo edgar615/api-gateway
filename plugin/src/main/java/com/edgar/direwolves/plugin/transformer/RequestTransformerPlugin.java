@@ -1,6 +1,6 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPlugin;
 
 import java.util.List;
 

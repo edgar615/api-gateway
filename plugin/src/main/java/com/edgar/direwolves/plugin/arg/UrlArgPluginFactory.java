@@ -1,7 +1,7 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
-import com.edgar.direwolves.core.spi.ApiPluginFactory;
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.edgar.util.validation.Rule;
 import com.google.common.base.Preconditions;
 import io.vertx.core.json.JsonArray;

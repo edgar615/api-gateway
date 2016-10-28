@@ -1,6 +1,6 @@
 package com.edgar.direwolves.verticle;
 
-import com.edgar.direwolves.core.spi.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;

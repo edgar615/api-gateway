@@ -1,8 +1,8 @@
 package com.edgar.direwolves.dispatch.filter;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.core.spi.ApiDefinition;
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.direwolves.service.ServiceDiscoveryVerticle;
 import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
@@ -112,8 +112,8 @@ public class ServiceDescoveryFilterTest {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        testContext.assertEquals(1, apiContext1.records().size());
-        System.out.println(apiContext1.records().get(0).toJson());
+        testContext.assertEquals(1, apiContext1.services().size());
+        System.out.println(apiContext1.services().get(0).toJson());
         async.complete();
       } else {
         testContext.fail();

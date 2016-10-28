@@ -1,6 +1,6 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.edgar.direwolves.core.spi.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPlugin;
 
 /**
  * Created by edgar on 16-10-22.

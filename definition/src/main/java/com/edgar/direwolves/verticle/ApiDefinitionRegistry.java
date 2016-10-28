@@ -1,6 +1,6 @@
 package com.edgar.direwolves.verticle;
 
-import com.edgar.direwolves.core.spi.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.List;

@@ -1,7 +1,8 @@
 package com.edgar.direwolves.dispatch.filter;
 
-import com.edgar.direwolves.definition.HttpEndpoint;
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.service.ServiceDiscoveryVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -60,7 +61,7 @@ public class ServiceDiscoveryFilter implements Filter {
             .collect(Collectors.toSet())
             .forEach(s -> futures.add(serviceFuture(s)));
     Task.par(futures)
-            .andThen(records -> records.forEach(r -> apiContext.addRecord(r)))
+            .andThen(records -> records.forEach(r -> apiContext.addService(r)))
             .andThen(records -> completeFuture.complete(apiContext))
             .onFailure(throwable -> completeFuture.fail(SystemException.create(
                     DefaultErrorCode.UNKOWN_REMOTE)));

@@ -1,8 +1,8 @@
 package com.edgar.direwolves.verticle;
 
-import com.edgar.direwolves.core.spi.ApiDefinition;
-import com.edgar.direwolves.definition.Endpoint;
-import com.edgar.direwolves.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.google.common.collect.Lists;
 import io.vertx.core.http.HttpMethod;
 import org.junit.After;

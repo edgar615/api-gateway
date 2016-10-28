@@ -1,6 +1,6 @@
 package com.edgar.direwolves.dispatch;
 
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;

@@ -3,7 +3,7 @@ package com.edgar.direwolves.eb;
 import static org.awaitility.Awaitility.await;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.core.spi.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 import com.edgar.util.base.Randoms;
@@ -60,7 +60,7 @@ public class ApiDefinitionEventbusTest {
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals("device:write", apiDefinition.scope());
 
-    Assert.assertEquals(6, apiDefinition.plugins().size());
+    Assert.assertEquals(0, apiDefinition.plugins().size());
 //    Assert.assertNull(apiDefinition.plugin(AclRestriction.NAME));
 //    Assert.assertNotNull(apiDefinition.plugin(IpRestriction.NAME));
 //    Assert.assertNotNull(apiDefinition.plugin(UrlArgPlugin.NAME));
@@ -81,7 +81,7 @@ public class ApiDefinitionEventbusTest {
 
     Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
     ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
-    Assert.assertEquals(6, apiDefinition.plugins().size());
+    Assert.assertEquals(0, apiDefinition.plugins().size());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
 
     add("src/test/resources/device_add2.json", context);
@@ -91,7 +91,7 @@ public class ApiDefinitionEventbusTest {
 
     Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
     apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
-    Assert.assertEquals(4, apiDefinition.plugins().size());
+    Assert.assertEquals(0, apiDefinition.plugins().size());
     Assert.assertEquals(2, apiDefinition.endpoints().size());
   }
 

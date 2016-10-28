@@ -1,8 +1,7 @@
-package com.edgar.direwolves.core.spi;
+package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.Preconditions;
 
-import io.vertx.core.ServiceHelper;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -17,8 +16,6 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2016/9/13
  */
 public interface ApiDefinition {
-
-  ApiDefinitionFactory factory = ServiceHelper.loadFactory(ApiDefinitionFactory.class);
 
   /**
    * @return 名称，必填项，全局唯一.
@@ -78,11 +75,11 @@ public interface ApiDefinition {
 
   static ApiDefinition create(String name, HttpMethod method, String path, String scope,
                               List<Endpoint> endpoints) {
-    return factory.create(name, method, path, scope, endpoints);
+    return  new ApiDefinitionImpl(name, method, path, scope, endpoints);
   }
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
-    return factory.decode(jsonObject);
+    return ApiDefinitionDecoder.instance().apply(jsonObject);
   }
 
   /**
@@ -119,7 +116,7 @@ public interface ApiDefinition {
   }
 
   default JsonObject toJson() {
-    return factory.encode(this);
+    return ApiDefinitionEncoder.instance().apply(this);
   }
 
   default ApiDefinition copy() {

@@ -1,9 +1,9 @@
 package com.edgar.direwolves.dispatch.handler;
 
-import com.edgar.direwolves.core.spi.ApiDefinition;
-import com.edgar.direwolves.definition.Endpoint;
-import com.edgar.direwolves.definition.HttpEndpoint;
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.direwolves.eb.ApiMatchHandler;
 import com.edgar.direwolves.filter.Filters;

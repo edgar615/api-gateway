@@ -4,8 +4,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.core.spi.ApiDefinition;
-import com.edgar.direwolves.core.spi.ApiContext;
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -59,7 +59,7 @@ public class RequestFilterTest {
     apiContext.setApiDefinition(definition);
 
     Record httpRecord = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-    apiContext.addRecord(httpRecord);
+    apiContext.addService(httpRecord);
 
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
@@ -101,7 +101,7 @@ public class RequestFilterTest {
     apiContext.setApiDefinition(definition);
 
     Record httpRecord = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-    apiContext.addRecord(httpRecord);
+    apiContext.addService(httpRecord);
 
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
@@ -135,7 +135,7 @@ public class RequestFilterTest {
     apiContext.setApiDefinition(definition);
 
     Record httpRecord = HttpEndpoint.createRecord("user", "localhost", 8080, "/");
-    apiContext.addRecord(httpRecord);
+    apiContext.addService(httpRecord);
 
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
