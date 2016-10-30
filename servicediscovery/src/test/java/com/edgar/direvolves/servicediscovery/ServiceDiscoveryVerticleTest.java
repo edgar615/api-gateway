@@ -1,15 +1,13 @@
-package com.edgar.direwolves.service;
+package com.edgar.direvolves.servicediscovery;
 
-import static org.awaitility.Awaitility.await;
-
+import com.edgar.direwolves.servicediscovery.ServiceDiscoveryVerticle;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.servicediscovery.Record;
@@ -21,6 +19,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Created by Edgar on 2016/10/13.
@@ -64,17 +64,20 @@ public class ServiceDiscoveryVerticleTest {
     }
     Multimap<Integer, Record> group = ArrayListMultimap.create();
     for (int i = 0; i < 100; i ++) {
+      Async async = context.async();
       vertx.eventBus().<JsonObject>send(ServiceDiscoveryVerticle.ADDRESS, "device", ar -> {
         if (ar.succeeded()) {
           JsonObject jsonObject = ar.result().body();
           Record record = new Record(jsonObject);
 //        context.assertEquals("OK", jsonObject.getString("response"));
           int port = record.getLocation().getInteger("port");
+          async.complete();
           System.out.println(record.getName());
           group.put(port, record);
         } else {
           System.out.println(ar.cause());
           context.fail();
+          async.complete();
         }
       });
     }
@@ -94,12 +97,16 @@ public class ServiceDiscoveryVerticleTest {
       e.printStackTrace();
     }
 
+    Async async = context.async();
+
     AtomicBoolean failed = new AtomicBoolean(false);
     vertx.eventBus().<JsonObject>send(ServiceDiscoveryVerticle.ADDRESS, "user", ar -> {
       if (ar.succeeded()) {
         context.fail();
+        async.complete();
       } else {
         System.out.println(ar.cause());
+        async.complete();
         failed.set(true);
       }
     });

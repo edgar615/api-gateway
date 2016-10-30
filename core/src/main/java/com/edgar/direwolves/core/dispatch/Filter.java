@@ -15,9 +15,9 @@ import java.util.List;
  */
 public interface Filter extends Configurable {
 
-  String PRE = "pre";
+  String PRE = "PRE";
 
-  String POST = "post";
+  String POST = "POST";
 
   /**
    * @return filter的名称

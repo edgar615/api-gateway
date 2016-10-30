@@ -55,8 +55,8 @@
 //            .put("name", "add_device")
 //            .put("host", "localhost")
 //            .put("port", 8080)
-//            .put("params", Utils.mutliMapToJson(params))
-//            .put("headers", Utils.mutliMapToJson(headers))
+//            .put("params", Utils.mutlimapToJson(params))
+//            .put("headers", Utils.mutlimapToJson(headers))
 //            .put("method", "POST")
 //            .put("path", "/devices");
 //    apiContext.addRequest(request);
@@ -95,8 +95,8 @@
 //            .put("name", "add_device")
 //            .put("host", "localhost")
 //            .put("port", 8080)
-//            .put("params", Utils.mutliMapToJson(params))
-//            .put("headers", Utils.mutliMapToJson(headers))
+//            .put("params", Utils.mutlimapToJson(params))
+//            .put("headers", Utils.mutlimapToJson(headers))
 //            .put("method", "POST")
 //            .put("path", "/devices")
 //            .put("body", new JsonObject());

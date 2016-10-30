@@ -1,8 +1,8 @@
-package com.edgar.direwolves.service;
+package com.edgar.direvolves.servicediscovery;
 
+import com.edgar.direwolves.servicediscovery.SelectStrategy;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.After;

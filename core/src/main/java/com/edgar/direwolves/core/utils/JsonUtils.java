@@ -1,11 +1,16 @@
 package com.edgar.direwolves.core.utils;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import io.vertx.core.MultiMap;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Created by Edgar on 2016/9/13.
@@ -13,6 +18,29 @@ import java.util.Scanner;
  * @author Edgar  Date 2016/9/13
  */
 public class JsonUtils {
+
+  /**
+   * 将Multimap转换为JsonObject参数.
+   *
+   * JsonObject的值均为JsonArray
+   *
+   * @param map Multimap
+   * @return JsonObject
+   */
+  public static JsonObject mutlimapToJson(Multimap<String, String> map) {
+    JsonObject jsonObject = new JsonObject();
+    map.asMap().forEach((key, values) -> {
+      if (values != null) {
+        jsonObject.put(key, Lists.newArrayList(values));
+//        if (values.size() > 1) {
+//          jsonObject.put(key, Lists.newArrayList(values));
+//        } else {
+//          jsonObject.put(key, Iterables.get(values, 0));
+//        }
+      }
+    });
+    return jsonObject;
+  }
 
     public static JsonObject getJsonFromFile(String jsonFile) {
         JsonObject conf;

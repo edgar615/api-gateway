@@ -1,14 +1,12 @@
-package com.edgar.direwolves.dispatch.filter;
+package com.edgar.direwolves.plugin;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.dispatch.Utils;
+import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -53,13 +51,13 @@ public class RequestFilterTest {
     headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-            Utils.apiContext(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
             ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
     Record httpRecord = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-    apiContext.addService(httpRecord);
+    apiContext.addService(httpRecord.toJson());
 
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
@@ -95,13 +93,13 @@ public class RequestFilterTest {
     headers.put("h3", "v3");
 
     ApiContext apiContext =
-            Utils.apiContext(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition = ApiDefinition
             .fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
 
     Record httpRecord = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-    apiContext.addService(httpRecord);
+    apiContext.addService(httpRecord.toJson());
 
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());
@@ -129,13 +127,13 @@ public class RequestFilterTest {
     headers.put("h3", "v3");
 
     ApiContext apiContext =
-            Utils.apiContext(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition =
             ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
     Record httpRecord = HttpEndpoint.createRecord("user", "localhost", 8080, "/");
-    apiContext.addService(httpRecord);
+    apiContext.addService(httpRecord.toJson());
 
     RequestFilter filter = new RequestFilter();
     filter.config(vertx, new JsonObject());

@@ -1,5 +1,6 @@
 package com.edgar.direwolves.dispatch;
 
+import com.edgar.direwolves.core.utils.MultiMapToMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
@@ -39,7 +40,7 @@ public class Utils {
         throw SystemException.create(DefaultErrorCode.INVALID_JSON);
       }
     }
-    ApiContext apiContext = ApiContext.apiContext(method, path, headers, params, body);
+    ApiContext apiContext = ApiContext.create(method, path, headers, params, body);
     Map<String, String> variables = getVariables(rc);
     variables.forEach((key, value) -> apiContext.addVariable(key, value));
     return apiContext;
@@ -142,26 +143,4 @@ public class Utils {
     return values.get(0);
   }
 
-  /**
-   * 将Multimap转换为JsonObject参数.
-   * 如果value集合中只有一个值，使用jsonobject.put(key, value.get(0))添加
-   * 如果value集合中有多个值,使用jsonobject.put(key,value)添加
-   *
-   * @param map Multimap
-   * @return JsonObject
-   */
-  public static JsonObject mutliMapToJson(Multimap<String, String> map) {
-    JsonObject jsonObject = new JsonObject();
-    map.asMap().forEach((key, values) -> {
-      if (values != null) {
-        jsonObject.put(key, Lists.newArrayList(values));
-//        if (values.size() > 1) {
-//          jsonObject.put(key, Lists.newArrayList(values));
-//        } else {
-//          jsonObject.put(key, Iterables.get(values, 0));
-//        }
-      }
-    });
-    return jsonObject;
-  }
 }

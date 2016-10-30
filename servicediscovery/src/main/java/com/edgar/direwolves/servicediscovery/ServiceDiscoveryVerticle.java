@@ -1,4 +1,4 @@
-package com.edgar.direwolves.service;
+package com.edgar.direwolves.servicediscovery;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;

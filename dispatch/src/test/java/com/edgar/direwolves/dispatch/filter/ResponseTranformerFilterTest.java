@@ -53,7 +53,7 @@
 //    apiContext.setApiDefinition(definition);
 //    JsonObject response = new JsonObject()
 //            .put("name", "add_device")
-//            .put("headers", Utils.mutliMapToJson(headers))
+//            .put("headers", Utils.mutlimapToJson(headers))
 //            .put("body", new JsonObject());
 //    apiContext.addResponse(response);
 //

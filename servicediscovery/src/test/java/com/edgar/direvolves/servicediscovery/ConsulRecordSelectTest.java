@@ -1,15 +1,13 @@
-package com.edgar.direwolves.service;
+package com.edgar.direvolves.servicediscovery;
 
-import static org.awaitility.Awaitility.await;
-
+import com.edgar.direwolves.servicediscovery.RecordSelect;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.verticle.MockConsulHttpVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.servicediscovery.Record;
@@ -20,6 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Created by Edgar on 2016/10/12.
@@ -70,7 +70,7 @@ public class ConsulRecordSelectTest {
   }
 
   @Test
-  public void testDefaultStrategy() {
+  public void testDefaultStrategy(TestContext testContext) {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
@@ -84,7 +84,7 @@ public class ConsulRecordSelectTest {
   }
 
   @Test
-  public void testRoundRobin() {
+  public void testRoundRobin(TestContext testContext) {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
@@ -101,7 +101,7 @@ public class ConsulRecordSelectTest {
   }
 
   @Test
-  public void testRandom() {
+  public void testRandom(TestContext testContext) {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
@@ -118,7 +118,7 @@ public class ConsulRecordSelectTest {
     Assert.assertFalse(group.get(32769).size() == group.get(32770).size());
   }
 
-  private Multimap<Integer, Record> select100(RecordSelect recordSelect) {
+  private Multimap<Integer, Record> select100( RecordSelect recordSelect) {
     try {
       TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException e) {
@@ -131,7 +131,11 @@ public class ConsulRecordSelectTest {
         if (ar.succeeded()) {
           Record record = ar.result();
           int port = record.getLocation().getInteger("port");
-          group.put(port, record);
+          synchronized (ConsulRecordSelectTest.class) {
+            group.put(port, record);
+          }
+        } else {
+          ar.cause().printStackTrace();
         }
       });
     }

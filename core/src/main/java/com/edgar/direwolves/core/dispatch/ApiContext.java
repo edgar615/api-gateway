@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public interface ApiContext {
 
-  static ApiContext apiContext(HttpMethod method, String path, Multimap<String, String> headers,
+  static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
                                       Multimap<String, String> params, JsonObject body) {
     return new ApiContextImpl(method, path, headers, params, body);
   }

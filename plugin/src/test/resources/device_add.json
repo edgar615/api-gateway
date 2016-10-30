@@ -25,7 +25,6 @@
       "name" : "limit",
       "default_value" : 10,
       "rules" : {
-        "required" : true,
         "integer":true,
         "max":100,
         "min":1
