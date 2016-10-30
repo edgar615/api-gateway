@@ -31,11 +31,9 @@ class ApiContextImpl implements ApiContext {
 
   private final Map<String, Object> variables = new HashMap<>();
 
-  private final List<JsonObject> records = new ArrayList<>();
-
   private final JsonArray request = new JsonArray();
 
-  private final JsonArray result = new JsonArray();
+  private final JsonArray response = new JsonArray();
 
   private JsonObject principal;
 
@@ -107,16 +105,6 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public List<JsonObject> services() {
-    return records;
-  }
-
-  @Override
-  public void addService(JsonObject service) {
-    records.add(service);
-  }
-
-  @Override
   public ApiDefinition apiDefinition() {
     return apiDefinition;
   }
@@ -138,12 +126,12 @@ class ApiContextImpl implements ApiContext {
 
   @Override
   public JsonArray response() {
-    return result;
+    return response;
   }
 
   @Override
   public void addResponse(JsonObject jsonObject) {
-    this.result.add(jsonObject);
+    this.response.add(jsonObject);
   }
 
   @Override
@@ -159,6 +147,8 @@ class ApiContextImpl implements ApiContext {
     if (principal != null) {
       helper.add("principal", principal.encode());
     }
+    helper.add("request", request.encode());
+    helper.add("response", response);
 
     return helper.toString();
   }
@@ -175,7 +165,6 @@ class ApiContextImpl implements ApiContext {
 
     final ApiContext finalApiContext = apiContext;
     variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
-    services().forEach(r -> finalApiContext.addService(r));
     for (int i = 0; i < request().size(); i++) {
       finalApiContext.addRequest(request().getJsonObject(i).copy());
     }

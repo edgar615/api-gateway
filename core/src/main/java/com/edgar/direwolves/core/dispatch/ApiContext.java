@@ -79,18 +79,6 @@ public interface ApiContext {
   void addVariable(String name, Object value);
 
   /**
-   * @return 服务地址
-   */
-  List<JsonObject> services();
-
-  /**
-   * 增加record
-   *
-   * @param record
-   */
-  void addService(JsonObject record);
-
-  /**
    * @return api定义
    */
   ApiDefinition apiDefinition();

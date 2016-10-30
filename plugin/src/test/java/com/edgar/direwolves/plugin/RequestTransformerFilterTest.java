@@ -3,6 +3,7 @@ package com.edgar.direwolves.plugin;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.JsonUtils;
+import com.edgar.direwolves.plugin.transformer.RequestTransformerFilter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.collect.ArrayListMultimap;
@@ -27,13 +28,23 @@ import org.junit.runner.RunWith;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class RequestFilterTest {
+public class RequestTransformerFilterTest {
 
   Vertx vertx;
 
   @Before
   public void testSetUp(TestContext testContext) {
     vertx = Vertx.vertx();
+
+    vertx.eventBus().<String>consumer("service.discovery.select", msg -> {
+      String service = msg.body();
+      if ("device".equals(service)) {
+        Record record =HttpEndpoint.createRecord("device", "localhost", 8080, "/");
+        msg.reply(record.toJson());
+      } else {
+        msg.fail(404, "no " + service + " instance found");
+      }
+    });
   }
 
   @After
@@ -56,10 +67,7 @@ public class RequestFilterTest {
             ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    Record httpRecord = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-    apiContext.addService(httpRecord.toJson());
-
-    RequestFilter filter = new RequestFilter();
+    RequestTransformerFilter filter = new RequestTransformerFilter();
     filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();
@@ -72,13 +80,15 @@ public class RequestFilterTest {
         JsonObject request = apiContext1.request().getJsonObject(0);
         testContext.assertEquals("localhost", request.getString("host"));
         testContext.assertEquals(8080, request.getInteger("port"));
-        testContext.assertEquals(1, request.getJsonObject("params").size());
-        testContext.assertEquals(1, request.getJsonObject("headers").size());
-        testContext.assertEquals(1, request.getJsonObject("params").getJsonArray("q3").size());
-        testContext.assertEquals(2, request.getJsonObject("headers").getJsonArray("h3").size());
+        testContext.assertEquals(4, request.getJsonObject("params").size());
+        testContext.assertEquals(4, request.getJsonObject("headers").size());
+        testContext.assertFalse(request.getJsonObject("params").containsKey("q3"));
+        testContext.assertFalse(request.getJsonObject("headers").containsKey("h3"));
+        testContext.assertNull(request.getJsonObject("body"));
         System.out.println(request.encodePrettily());
         async.complete();
       } else {
+        ar.cause().printStackTrace();
         testContext.fail();
       }
     });
@@ -98,10 +108,7 @@ public class RequestFilterTest {
             .fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
 
-    Record httpRecord = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-    apiContext.addService(httpRecord.toJson());
-
-    RequestFilter filter = new RequestFilter();
+    RequestTransformerFilter filter = new RequestTransformerFilter();
     filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();
@@ -111,6 +118,21 @@ public class RequestFilterTest {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
         testContext.assertEquals(2, apiContext1.request().size());
+        JsonObject request = apiContext1.request().getJsonObject(0);
+        testContext.assertEquals("localhost", request.getString("host"));
+        testContext.assertEquals(8080, request.getInteger("port"));
+        testContext.assertEquals(4, request.getJsonObject("params").size());
+        testContext.assertEquals(4, request.getJsonObject("headers").size());
+        testContext.assertFalse(request.getJsonObject("params").containsKey("q3"));
+        testContext.assertFalse(request.getJsonObject("headers").containsKey("h3"));
+
+        request = apiContext1.request().getJsonObject(1);
+        testContext.assertEquals("localhost", request.getString("host"));
+        testContext.assertEquals(8080, request.getInteger("port"));
+        testContext.assertEquals(1, request.getJsonObject("params").size());
+        testContext.assertEquals(1, request.getJsonObject("headers").size());
+        testContext.assertTrue(request.getJsonObject("params").containsKey("q3"));
+        testContext.assertTrue(request.getJsonObject("headers").containsKey("h3"));
         async.complete();
       } else {
         testContext.fail();
@@ -129,27 +151,27 @@ public class RequestFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition =
-            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_user_add.json"));
     apiContext.setApiDefinition(definition);
 
-    Record httpRecord = HttpEndpoint.createRecord("user", "localhost", 8080, "/");
-    apiContext.addService(httpRecord.toJson());
-
-    RequestFilter filter = new RequestFilter();
+    RequestTransformerFilter filter = new RequestTransformerFilter();
     filter.config(vertx, new JsonObject());
 
-    Async async = testContext.async();
-    Future<ApiContext> future = null;
-    try {
-      future = Future.future();
+      Future<ApiContext>  future = Future.future();
       filter.doFilter(apiContext, future);
-      testContext.fail();
-    } catch (Exception e) {
-      testContext.assertTrue(e instanceof SystemException);
-      SystemException ex = (SystemException) e;
-      testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE, ex.getErrorCode());
-      async.complete();
-    }
+      Async async = testContext.async();
+      future.setHandler(ar -> {
+        if (ar.succeeded()) {
+          ApiContext apiContext1 = ar.result();
+          testContext.assertEquals(2, apiContext1.request().size());
+          testContext.fail();
+        } else {
+          testContext.assertTrue(ar.cause() instanceof SystemException);
+          SystemException ex = (SystemException) ar.cause();
+          testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE, ex.getErrorCode());
+          async.complete();
+        }
+      });
   }
 
 }

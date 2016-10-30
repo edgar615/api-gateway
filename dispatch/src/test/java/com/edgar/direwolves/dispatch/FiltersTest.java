@@ -33,7 +33,7 @@ public class FiltersTest {
 
   @Test
   public void tsetNoJwtHeader(TestContext testContext) {
-    ApiContext apiContext = Utils.apiContext(HttpMethod.GET, "/devices", ArrayListMultimap
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap
             .create(), null, null);
 
     Filters filters = Filters.instance();
@@ -53,7 +53,7 @@ public class FiltersTest {
   public void testJwtHeader(TestContext testContext) {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "Bearer " + "abc");
-    ApiContext apiContext = Utils.apiContext(HttpMethod.GET, "/devices", headers, null, null);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
     Filters filters = Filters.instance();
     filters.init(vertx);

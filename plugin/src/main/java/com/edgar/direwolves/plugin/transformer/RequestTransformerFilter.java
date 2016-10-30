@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.transformer;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * <p/>
  * Created by edgar on 16-9-20.
  */
-public class RequestFilter implements Filter {
+public class RequestTransformerFilter implements Filter {
 
   private static final String NAME = "request";
 
@@ -104,7 +104,10 @@ public class RequestFilter implements Filter {
           apiContext.apiDefinition().endpoints().stream()
               .filter(e -> e instanceof HttpEndpoint)
               .map(e -> toJson(apiContext, (HttpEndpoint) e, records))
-              .forEach(json -> apiContext.addRequest(json));
+              .forEach(json -> {
+                transformer(apiContext, json);
+                apiContext.addRequest(json);
+              });
         })
         .andThen(records -> completeFuture.complete(apiContext))
         .onFailure(throwable -> completeFuture.fail(SystemException.create(
@@ -114,6 +117,7 @@ public class RequestFilter implements Filter {
   private JsonObject toJson(ApiContext apiContext, HttpEndpoint endpoint, List<Record> records) {
     JsonObject request = new JsonObject();
     request.put("id", UUID.randomUUID().toString());
+    request.put("name", endpoint.name());
     request.put("type", "http");
     request.put("path", endpoint.path());
     request.put("method", endpoint.method().name());
@@ -131,12 +135,58 @@ public class RequestFilter implements Filter {
     if (records.isEmpty()) {
       throw SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
     }
-    Record record = records.get(0);
+    Record record = recordList.get(0);
     request.put("host",
         record.getLocation().getString("host"));
     request.put("port",
         record.getLocation().getInteger("port"));
     return request;
+  }
+
+  private void transformer(ApiContext apiContext, JsonObject request) {
+    String name = request.getString("name");
+    RequestTransformerPlugin plugin =
+        (RequestTransformerPlugin) apiContext.apiDefinition()
+            .plugin(RequestTransformerPlugin.NAME);
+
+    RequestTransformer transformer = plugin.transformer(name);
+    if (transformer != null) {
+      tranformerParams(request.getJsonObject("params"), transformer);
+      tranformerHeaders(request.getJsonObject("headers"), transformer);
+      if (request.containsKey("body")) {
+        tranformerBody(request.getJsonObject("body"), transformer);
+      }
+    }
+  }
+
+  private void tranformerParams(JsonObject params,
+                                RequestTransformer transformer) {
+    transformer.paramRemoved().forEach(p -> params.remove(p));
+    transformer.paramReplaced().forEach(entry -> params.put(entry.getKey(), entry.getValue()));
+    transformer.paramAdded().forEach(entry -> params.put(entry.getKey(), entry.getValue()));
+  }
+
+  private void tranformerHeaders(JsonObject headers,
+                                 RequestTransformer transformer) {
+    transformer.headerRemoved().forEach(h -> headers.remove(h));
+    transformer.headerReplaced().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
+    transformer.headerAdded().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
+  }
+
+  private void tranformerBody(final JsonObject body,
+                              RequestTransformer transformer) {
+    if (body != null) {
+      transformer.bodyRemoved().forEach(b -> body.remove(b));
+    }
+    //replace
+    if (body != null) {
+      transformer.bodyReplaced().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
+    }
+
+    //add
+    if (body != null) {
+      transformer.bodyAdded().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
+    }
   }
 
 }
