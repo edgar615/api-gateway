@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.auth;
+package com.edgar.direwolves.plugin.authentication;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 

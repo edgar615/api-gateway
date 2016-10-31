@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.auth;
+package com.edgar.direwolves.plugin.authentication;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;

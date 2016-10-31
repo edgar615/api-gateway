@@ -4,7 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.plugin.auth.JwtStrategy;
+import com.edgar.direwolves.plugin.authentication.JwtStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
