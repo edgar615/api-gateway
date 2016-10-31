@@ -92,9 +92,9 @@ import java.util.List;
  * <p/>
  * Created by edgar on 16-9-20.
  */
-public class AppKeyFilter implements Filter {
+public class AppKeyCheckerFilter implements Filter {
 
-  private static final String NAME = "app_key";
+  private static final String NAME = "app_key_checker";
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
@@ -102,7 +102,7 @@ public class AppKeyFilter implements Filter {
 
   private JsonArray secrets = new JsonArray();
 
-  public AppKeyFilter() {
+  public AppKeyCheckerFilter() {
     commonParamRule.put("appKey", Rule.required());
     commonParamRule.put("nonce", Rule.required());
     commonParamRule.put("v", Rule.required());
