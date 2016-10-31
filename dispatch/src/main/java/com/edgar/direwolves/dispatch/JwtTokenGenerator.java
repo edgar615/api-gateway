@@ -3,8 +3,6 @@ package com.edgar.direwolves.dispatch;
 import com.edgar.direwolves.core.spi.Configurable;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.jwt.JWTAuth;
-import io.vertx.ext.auth.jwt.JWTOptions;
 
 /**
  * Created by edgar on 16-9-20.

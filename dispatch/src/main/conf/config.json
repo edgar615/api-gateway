@@ -17,6 +17,7 @@
   "jwt.subject": "",
   "jwt.expires": 1800,
   "jwt.principal.storage": false,
+  "jwt.unique" : false,
   "timeout.expires": 300,
   "app_key.secret.import": {
     "url": "/secrets",

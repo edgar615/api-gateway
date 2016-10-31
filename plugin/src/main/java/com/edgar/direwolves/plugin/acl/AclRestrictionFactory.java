@@ -53,7 +53,7 @@ public class AclRestrictionFactory implements ApiPluginFactory<AclRestriction> {
 
   @Override
   public String name() {
-    return "ACL_RESTRICTION";
+    return AclRestriction.NAME;
   }
 
   @Override

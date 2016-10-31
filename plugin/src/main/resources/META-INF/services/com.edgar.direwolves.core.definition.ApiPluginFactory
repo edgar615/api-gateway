@@ -5,3 +5,4 @@ com.edgar.direwolves.plugin.arg.UrlArgPluginFactory
 com.edgar.direwolves.plugin.arg.BodyArgPluginFactory
 com.edgar.direwolves.plugin.transformer.RequestTransformerPluginFactory
 com.edgar.direwolves.plugin.transformer.ResponseTransformerPluginFactory
+com.edgar.direwolves.plugin.auth.AuthenticationPluginFactory

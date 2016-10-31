@@ -1,0 +1,2 @@
+com.edgar.direwolves.plugin.auth.JwtStrategy
+com.edgar.direwolves.plugin.auth.BasicStrategy
