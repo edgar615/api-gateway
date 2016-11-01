@@ -10,7 +10,7 @@
     <version>1.0.0</version>
     <modules>
         <module>definition</module>
-        <module>http</module>
+        <module>http-rpc</module>
         <module>dispatch</module>
         <module>cli</module>
         <module>core</module>

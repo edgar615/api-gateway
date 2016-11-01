@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.rpc.http;
 
 import com.google.common.base.MoreObjects;
 

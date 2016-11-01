@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.rpc.http;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -33,39 +33,7 @@ public class HttpTest {
   public void before(TestContext context) {
     vertx = Vertx.vertx();
     httpClient = vertx.createHttpClient();
-    server = vertx.createHttpServer().requestHandler(req -> {
-      String url = req.path();
-      if (url.equals("/foo") && req.method() == HttpMethod.GET) {
-        System.out.println(req.path());
-        System.out.println(req.absoluteURI());
-        req.response().putHeader("Content-Type", "application/json")
-                .end(new JsonObject()
-                             .put("foo", "bar")
-                             .put("query", req.query())
-                             .encode());
-      }
-      if (url.equals("/foo/array") && req.method() == HttpMethod.GET) {
-        req.response().putHeader("Content-Type", "application/json")
-                .end(new JsonArray()
-                             .add(new JsonObject()
-                                          .put("foo", "bar")
-                                          .encode()).encode());
-      }
-      if (url.equals("/foo") && req.method() == HttpMethod.DELETE) {
-        req.response().putHeader("Content-Type", "application/json")
-                .end(new JsonObject()
-                             .put("foo", "bar")
-                             .encode());
-      }
-      if (url.equals("/foo") && req.method() == HttpMethod.POST) {
-        req.response().putHeader("Content-Type", "application/json");
-        req.bodyHandler(body -> req.response().end(body));
-      }
-      if (url.equals("/foo") && req.method() == HttpMethod.PUT) {
-        req.response().putHeader("Content-Type", "application/json");
-        req.bodyHandler(body -> req.response().end(body));
-      }
-    }).listen(8080, context.asyncAssertSuccess());
+    vertx.deployVerticle(DeviceHttpVerticle.class.getName(), context.asyncAssertSuccess());
   }
 
   @After
@@ -77,20 +45,22 @@ public class HttpTest {
   @Test
   public void postMethodMustHasBody(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "foo")
+            .put("path", "devices")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
             .put("id", "abc")
             .put("method", "POST");
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
     Async async = context.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
-        async.complete();
-      } else {
         context.fail();
+      } else {
+        Throwable t = ar.cause();
+        context.assertTrue(t instanceof  UnsupportedOperationException);
+        async.complete();
       }
     });
   }
@@ -98,20 +68,22 @@ public class HttpTest {
   @Test
   public void putMethodMustHasBody(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "foo")
+            .put("path", "devices")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
             .put("id", "abc")
             .put("method", "PUT");
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
     Async async = context.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
-        async.complete();
-      } else {
         context.fail();
+      } else {
+        Throwable t = ar.cause();
+        context.assertTrue(t instanceof  UnsupportedOperationException);
+        async.complete();
       }
     });
   }
@@ -119,7 +91,7 @@ public class HttpTest {
   @Test
   public void testGet(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "foo?type=2")
+            .put("path", "devices/1?type=2")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
@@ -127,43 +99,13 @@ public class HttpTest {
             .put("method", "GET")
             .put("params", new JsonObject().put("userId", 1));
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
     Async async = context.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         HttpResult httpResult = ar.result();
         context.assertFalse(httpResult.isArray());
-        context.assertEquals("bar", httpResult.responseObject().getString("foo"));
-        context.assertEquals("type=2&userId=1", httpResult.responseObject().getString("query"));
-        context.assertEquals("abc", httpResult.id());
-        async.complete();
-      } else {
-        context.fail();
-      }
-    });
-  }
-
-  @Test
-  public void testGet2Param(TestContext context) {
-    JsonObject config = new JsonObject()
-            .put("path", "foo?type=2")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "GET")
-            .put("params", new JsonObject().put("userId", new JsonArray().add(1).add(2)));
-
-    Future<HttpResult> future = Http.request(httpClient, config);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        HttpResult httpResult = ar.result();
-        context.assertFalse(httpResult.isArray());
-        context.assertEquals("bar", httpResult.responseObject().getString("foo"));
-        context.assertEquals("type=2&userId=1&userId=2", httpResult.responseObject().getString
-                ("query"));
-        context.assertEquals("abc", httpResult.id());
+        context.assertEquals("1", httpResult.responseObject().getString("id"));
         async.complete();
       } else {
         context.fail();
@@ -174,21 +116,20 @@ public class HttpTest {
   @Test
   public void testGetArray(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "/foo/array")
+            .put("path", "/devices")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
             .put("id", "abc")
             .put("method", "GET");
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
     Async async = context.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         HttpResult httpResult = ar.result();
         context.assertTrue(httpResult.isArray());
-        context.assertEquals(1, httpResult.responseArray().size());
-        context.assertEquals("abc", httpResult.id());
+        context.assertEquals(2, httpResult.responseArray().size());
         async.complete();
       } else {
         context.fail();
@@ -199,22 +140,21 @@ public class HttpTest {
   @Test
   public void testDelete(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "foo?type=2")
+            .put("path", "devices?type=2")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
             .put("id", "abc")
-            .put("method", "GET")
+            .put("method", "DELETE")
             .put("params", new JsonObject().put("userId", 2));
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
     Async async = context.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         HttpResult httpResult = ar.result();
         context.assertFalse(httpResult.isArray());
-        context.assertEquals("bar", httpResult.responseObject().getString("foo"));
-        context.assertEquals("abc", httpResult.id());
+        context.assertEquals("1", httpResult.responseObject().getString("result"));
         async.complete();
       } else {
         context.fail();
@@ -225,7 +165,7 @@ public class HttpTest {
   @Test
   public void testPost(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "foo?type=2")
+            .put("path", "devices?type=2")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
@@ -234,7 +174,7 @@ public class HttpTest {
             .put("body",new JsonObject().put("foo", "bar"))
             .put("params", new JsonObject().put("userId", 2));
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
 
     Async async = context.async();
     future.setHandler(ar -> {
@@ -253,7 +193,7 @@ public class HttpTest {
   @Test
   public void testPut(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "foo?type=2")
+            .put("path", "devices?type=2")
             .put("port", 8080)
             .put("host", "localhost")
             .put("name", "user")
@@ -262,7 +202,7 @@ public class HttpTest {
             .put("body",new JsonObject().put("foo", "bar"))
             .put("params", new JsonObject().put("userId", 2));
 
-    Future<HttpResult> future = Http.request(httpClient, config);
+    Future<HttpResult> future = Http.request(httpClient, new HttpRequestOptions(config));
     Async async = context.async();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
