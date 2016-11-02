@@ -1,5 +1,6 @@
 package com.edgar.direwolves.rpc.http;
 
+import com.edgar.direwolves.core.rpc.HttpResult;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;

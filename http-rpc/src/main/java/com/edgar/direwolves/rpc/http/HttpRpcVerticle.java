@@ -1,5 +1,7 @@
 package com.edgar.direwolves.rpc.http;
 
+import com.edgar.direwolves.core.rpc.HttpResult;
+import com.edgar.direwolves.core.utils.EventbusUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpClient;
@@ -24,11 +26,11 @@ public class HttpRpcVerticle extends AbstractVerticle {
           if (ar.succeeded()) {
             msg.reply(ar.result().toJson());
           } else {
-            msg.fail(-1, ar.cause().getMessage());
+            EventbusUtils.fail(msg, ar.cause());
           }
         });
       } catch (Exception e) {
-        msg.fail(-1, e.getMessage());
+        EventbusUtils.fail(msg, e);
       }
 
     });

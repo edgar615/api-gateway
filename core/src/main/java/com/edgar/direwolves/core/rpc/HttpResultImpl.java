@@ -1,4 +1,4 @@
-package com.edgar.direwolves.rpc.http;
+package com.edgar.direwolves.core.rpc;
 
 import com.google.common.base.MoreObjects;
 

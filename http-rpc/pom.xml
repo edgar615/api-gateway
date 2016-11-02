@@ -44,7 +44,11 @@
             <artifactId>vertx-unit</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>util</artifactId>

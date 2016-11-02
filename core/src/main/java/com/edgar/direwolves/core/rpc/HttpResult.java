@@ -1,4 +1,4 @@
-package com.edgar.direwolves.rpc.http;
+package com.edgar.direwolves.core.rpc;
 
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -77,25 +77,40 @@ public interface HttpResult {
    * 将buffer转换为AsyncResult，如果转换为JSON数组失败，尝试转换为JSON对象，
    * 同理，如果转换为JSON对象失败，尝试转换为JSON数组.
    *
-   * @param id         id
-   * @param statusCode 响应码
-   * @param data       响应数据
+   * @param id          id
+   * @param statusCode  响应码
+   * @param data        响应数据
+   * @param elapsedTime 耗时
    * @return HttpResult
    */
   static HttpResult create(String id, int statusCode, Buffer data, long elapsedTime) {
     String str = data.toString().trim();
-    if (str.startsWith("{") && str.endsWith("}")) {
+    return create(id, statusCode, str, elapsedTime);
+  }
+
+  /**
+   * 将buffer转换为AsyncResult，如果转换为JSON数组失败，尝试转换为JSON对象，
+   * 同理，如果转换为JSON对象失败，尝试转换为JSON数组.
+   *
+   * @param id          id
+   * @param statusCode  响应码
+   * @param data        响应数据
+   * @param elapsedTime 耗时
+   * @return HttpResult
+   */
+  static HttpResult create(String id, int statusCode, String data, long elapsedTime) {
+    if (data.startsWith("{") && data.endsWith("}")) {
       try {
         return createJsonObject(id, statusCode,
-                                Buffer.buffer(str).toJsonObject(), elapsedTime);
+                                Buffer.buffer(data).toJsonObject(), elapsedTime);
       } catch (Exception e) {
         throw SystemException.wrap(DefaultErrorCode.INVALID_JSON, e);
       }
     }
-    if (str.startsWith("[") && str.endsWith("]")) {
+    if (data.startsWith("[") && data.endsWith("]")) {
       try {
         return createJsonArray(id, statusCode,
-                               Buffer.buffer(str).toJsonArray(), elapsedTime);
+                               Buffer.buffer(data).toJsonArray(), elapsedTime);
       } catch (Exception e) {
         throw SystemException.wrap(DefaultErrorCode.INVALID_JSON, e);
       }
@@ -110,9 +125,9 @@ public interface HttpResult {
             .put("isArray", isArray())
             .put("elapsedTime", elapsedTime());
     if (isArray()) {
-      result.put("responseBody", responseObject());
-    } else {
       result.put("responseArray", responseArray());
+    } else {
+      result.put("responseBody", responseObject());
     }
     return result;
   }

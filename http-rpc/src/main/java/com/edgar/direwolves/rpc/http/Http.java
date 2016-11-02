@@ -2,6 +2,9 @@ package com.edgar.direwolves.rpc.http;
 
 import com.google.common.base.Joiner;
 
+import com.edgar.direwolves.core.rpc.HttpResult;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
@@ -21,11 +24,13 @@ public class Http {
   public static Future<HttpResult> request(HttpClient httpClient, HttpRequestOptions options) {
     if (checkMethod(options)) {
       return Future.failedFuture(
-              new UnsupportedOperationException("method is " + options.getHttpMethod()));
+              SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "method")
+      );
     }
     if (checkBody(options)) {
       return Future.failedFuture(
-              new UnsupportedOperationException("body is null," + options.getHttpMethod()));
+              SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
+      );
     }
     Future<HttpResult> future = Future.future();
     String path = requestPath(options);
