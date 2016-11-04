@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/4/8
  */
-class HttpResultImpl implements HttpResult {
+class ResultImpl implements Result {
 
   /**
    * 请求的唯一id，用来区分多个请求的结果.
@@ -53,7 +53,7 @@ class HttpResultImpl implements HttpResult {
    */
   private final long elapsedTime;
 
-  HttpResultImpl(String id, int statusCode, JsonObject responseObject, long elapsedTime) {
+  ResultImpl(String id, int statusCode, JsonObject responseObject, long elapsedTime) {
     this.id = id;
     this.statusCode = statusCode;
     this.responseObject = responseObject;
@@ -62,7 +62,7 @@ class HttpResultImpl implements HttpResult {
     this.elapsedTime = elapsedTime;
   }
 
-  HttpResultImpl(String id, int statusCode, JsonArray responseArray,long elapsedTime) {
+  ResultImpl(String id, int statusCode, JsonArray responseArray, long elapsedTime) {
     this.id = id;
     this.statusCode = statusCode;
     this.responseArray = responseArray;
@@ -114,7 +114,7 @@ class HttpResultImpl implements HttpResult {
 
   @Override
   public String toString() {
-    MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("HttpResult");
+    MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("Result");
     helper.add("id", id)
             .add("statusCode", statusCode);
     if (isArray) {

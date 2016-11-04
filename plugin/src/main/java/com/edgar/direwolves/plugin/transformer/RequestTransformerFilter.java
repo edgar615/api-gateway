@@ -1,5 +1,7 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.collect.Lists;
+
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -9,6 +11,7 @@ import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * 将endpoint转换为json对象.
  * params和header的json均为{"k1", ["v1"]}，{"k1", ["v1", "v2]}格式的json对象.
- * <p/>
+ * <p>
  * <pre>
  *   {
  * "id" : "5bbbe06b-df08-4728-b5e2-166faf912621",
@@ -40,7 +43,7 @@ import java.util.stream.Collectors;
  * "port" : 8080
  * }
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class RequestTransformerFilter implements Filter {
@@ -74,6 +77,31 @@ public class RequestTransformerFilter implements Filter {
 //    return filters.contains(NAME);
   }
 
+  @Override
+  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+
+    List<Future<Record>> futures = new ArrayList<>();
+    apiContext.apiDefinition().endpoints().stream()
+            .filter(e -> e instanceof HttpEndpoint)
+            .map(e -> ((HttpEndpoint) e).service())
+            .collect(Collectors.toSet())
+            .forEach(s -> futures.add(serviceFuture(s)));
+
+    Task.par(futures)
+            .andThen(records -> {
+              apiContext.apiDefinition().endpoints().stream()
+                      .filter(e -> e instanceof HttpEndpoint)
+                      .map(e -> toJson(apiContext, (HttpEndpoint) e, records))
+                      .forEach(json -> {
+                        transformer(apiContext, json);
+                        apiContext.addRequest(json);
+                      });
+            })
+            .andThen(records -> completeFuture.complete(apiContext))
+            .onFailure(throwable -> completeFuture.fail(SystemException.create(
+                    DefaultErrorCode.UNKOWN_REMOTE)));
+  }
+
   private Future<Record> serviceFuture(String service) {
     //服务发现
     Future<Record> serviceFuture = Future.future();
@@ -87,31 +115,6 @@ public class RequestTransformerFilter implements Filter {
       }
     });
     return serviceFuture;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-
-    List<Future<Record>> futures = new ArrayList<>();
-    apiContext.apiDefinition().endpoints().stream()
-        .filter(e -> e instanceof HttpEndpoint)
-        .map(e -> ((HttpEndpoint) e).service())
-        .collect(Collectors.toSet())
-        .forEach(s -> futures.add(serviceFuture(s)));
-
-    Task.par(futures)
-        .andThen(records -> {
-          apiContext.apiDefinition().endpoints().stream()
-              .filter(e -> e instanceof HttpEndpoint)
-              .map(e -> toJson(apiContext, (HttpEndpoint) e, records))
-              .forEach(json -> {
-                transformer(apiContext, json);
-                apiContext.addRequest(json);
-              });
-        })
-        .andThen(records -> completeFuture.complete(apiContext))
-        .onFailure(throwable -> completeFuture.fail(SystemException.create(
-            DefaultErrorCode.UNKOWN_REMOTE)));
   }
 
   private JsonObject toJson(ApiContext apiContext, HttpEndpoint endpoint, List<Record> records) {
@@ -130,24 +133,24 @@ public class RequestTransformerFilter implements Filter {
       request.put("body", body);
     }
     List<Record> recordList = records.stream()
-        .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
-        .collect(Collectors.toList());
+            .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
+            .collect(Collectors.toList());
     if (records.isEmpty()) {
       throw SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
     }
     Record record = recordList.get(0);
     request.put("host",
-        record.getLocation().getString("host"));
+                record.getLocation().getString("host"));
     request.put("port",
-        record.getLocation().getInteger("port"));
+                record.getLocation().getInteger("port"));
     return request;
   }
 
   private void transformer(ApiContext apiContext, JsonObject request) {
     String name = request.getString("name");
     RequestTransformerPlugin plugin =
-        (RequestTransformerPlugin) apiContext.apiDefinition()
-            .plugin(RequestTransformerPlugin.NAME);
+            (RequestTransformerPlugin) apiContext.apiDefinition()
+                    .plugin(RequestTransformerPlugin.NAME);
 
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
@@ -155,6 +158,79 @@ public class RequestTransformerFilter implements Filter {
       tranformerHeaders(request.getJsonObject("headers"), transformer);
       if (request.containsKey("body")) {
         tranformerBody(request.getJsonObject("body"), transformer);
+      }
+    }
+  }
+
+  private Object replaceVariable(ApiContext context, Object value) {
+    if (value instanceof String) {
+      String val = (String) value;
+      //路径参数
+      if (val.startsWith("$header.")) {
+        List<String> list =
+                Lists.newArrayList(context.headers().get(val.substring("$header.".length())));
+        if (list.size() == 1) {
+          return list.get(0);
+        } else {
+          return list;
+        }
+      } else if (val.startsWith("$params.")) {
+        List<String> list =
+                Lists.newArrayList(context.params().get(val.substring("$param.".length())));
+        if (list.size() == 1) {
+          return list.get(0);
+        } else {
+          return list;
+        }
+      } else if (val.startsWith("$body.")) {
+        return context.body().getValue(val.substring("$body.".length()));
+      } else if (val.startsWith("$user.")) {
+        return context.principal().getValue(val.substring("$user.".length()));
+      } else if (val.startsWith("$var.")) {
+        return context.variables().get(val.substring("$var.".length()));
+      } else {
+        return val;
+      }
+    } else if (value instanceof JsonArray) {
+      JsonArray val = (JsonArray) value;
+
+    }
+  }
+
+  private void replaceVariable(ApiContext context, JsonObject jsonObject) {
+    for (String key : jsonObject.fieldNames()) {
+      Object value = jsonObject.getValue(key);
+      if (value instanceof String) {
+        String val = (String) value;
+        //路径参数
+        if (val.startsWith("$header.")) {
+          List<String> list =
+                  Lists.newArrayList(context.headers().get(val.substring("$header.".length())));
+          if (list.size() == 1) {
+            jsonObject.put(key, list.get(0));
+          } else {
+            jsonObject.put(key, list);
+          }
+        } else if (val.startsWith("$params.")) {
+          List<String> list =
+                  Lists.newArrayList(context.params().get(val.substring("$param.".length())));
+          if (list.size() == 1) {
+            jsonObject.put(key, list.get(0));
+          } else {
+            jsonObject.put(key, list);
+          }
+        } else if (val.startsWith("$body.")) {
+          jsonObject.put(key, context.body().getValue(val.substring("$body.".length())));
+        } else if (val.startsWith("$user.")) {
+          jsonObject.put(key, context.principal().getValue(val.substring("$user.".length())));
+        } else if (val.startsWith("$var.")) {
+          jsonObject.put(key, context.variables().get(val.substring("$var.".length())));
+        } else {
+          jsonObject.put(key, val);
+        }
+      } else if (value instanceof JsonArray) {
+        JsonArray val = (JsonArray) value;
+
       }
     }
   }

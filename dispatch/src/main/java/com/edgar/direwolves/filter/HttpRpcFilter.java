@@ -2,7 +2,7 @@
 //
 //import com.edgar.direwolves.core.spi.ApiContext;
 //import com.edgar.direwolves.dispatch.Http;
-//import com.edgar.direwolves.dispatch.HttpResult;
+//import com.edgar.direwolves.dispatch.Result;
 //import com.edgar.direwolves.dispatch.filter.Filter;
 //import com.edgar.util.vertx.task.Task;
 //import io.vertx.core.Future;
@@ -38,10 +38,10 @@
 //
 //  @Override
 //  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-//    List<Future<HttpResult>> futures = new ArrayList<>();
+//    List<Future<Result>> futures = new ArrayList<>();
 //    HttpClient httpClient = vertx.createHttpClient();
 //    for (int i = 0; i < apiContext.request().size(); i++) {
-//      Future<HttpResult> future = Http.request(httpClient, apiContext.request().getJsonObject(i));
+//      Future<Result> future = Http.request(httpClient, apiContext.request().getJsonObject(i));
 //      futures.add(future);
 //    }
 //    Task.par(futures)

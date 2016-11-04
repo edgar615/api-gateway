@@ -11,7 +11,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/9/21
  */
-public interface HttpResult {
+public interface Result {
 
   /**
    * @return 响应码.
@@ -53,11 +53,11 @@ public interface HttpResult {
    * @param id           id
    * @param statusCode   响应码
    * @param responseBody 响应
-   * @return HttpResult
+   * @return Result
    */
-  static HttpResult createJsonObject(String id, int statusCode,
-                                     JsonObject responseBody, long elapsedTime) {
-    return new HttpResultImpl(id, statusCode, responseBody, elapsedTime);
+  static Result createJsonObject(String id, int statusCode,
+                                 JsonObject responseBody, long elapsedTime) {
+    return new ResultImpl(id, statusCode, responseBody, elapsedTime);
   }
 
   /**
@@ -66,11 +66,11 @@ public interface HttpResult {
    * @param id            id
    * @param statusCode    响应码
    * @param responseArray 响应
-   * @return HttpResult
+   * @return Result
    */
-  static HttpResult createJsonArray(String id, int statusCode,
-                                    JsonArray responseArray, long elapsedTime) {
-    return new HttpResultImpl(id, statusCode, responseArray, elapsedTime);
+  static Result createJsonArray(String id, int statusCode,
+                                JsonArray responseArray, long elapsedTime) {
+    return new ResultImpl(id, statusCode, responseArray, elapsedTime);
   }
 
   /**
@@ -81,9 +81,9 @@ public interface HttpResult {
    * @param statusCode  响应码
    * @param data        响应数据
    * @param elapsedTime 耗时
-   * @return HttpResult
+   * @return Result
    */
-  static HttpResult create(String id, int statusCode, Buffer data, long elapsedTime) {
+  static Result create(String id, int statusCode, Buffer data, long elapsedTime) {
     String str = data.toString().trim();
     return create(id, statusCode, str, elapsedTime);
   }
@@ -96,9 +96,9 @@ public interface HttpResult {
    * @param statusCode  响应码
    * @param data        响应数据
    * @param elapsedTime 耗时
-   * @return HttpResult
+   * @return Result
    */
-  static HttpResult create(String id, int statusCode, String data, long elapsedTime) {
+  static Result create(String id, int statusCode, String data, long elapsedTime) {
     if (data.startsWith("{") && data.endsWith("}")) {
       try {
         return createJsonObject(id, statusCode,
