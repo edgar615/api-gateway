@@ -1,5 +1,8 @@
 package com.edgar.direwolves.servicediscovery;
 
+import com.edgar.direwolves.core.utils.EventbusUtils;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.servicediscovery.Record;
@@ -24,12 +27,12 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
         if (ar.succeeded()) {
           Record record = ar.result();
           if (record == null) {
-            msg.fail(404, "no " + service + " instance found");
+            EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.UNKOWN_REMOTE));
           } else {
             msg.reply(ar.result().toJson());
           }
         } else {
-          msg.fail(-1, ar.cause().getMessage());
+          EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.UNKOWN_REMOTE));
         }
       });
     });

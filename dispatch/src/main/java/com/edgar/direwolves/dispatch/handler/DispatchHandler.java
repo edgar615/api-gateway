@@ -40,30 +40,30 @@ public class DispatchHandler implements Handler<RoutingContext> {
     Future<ApiDefinition> apiDefinitionFuture = Future.future();
     getApiDefintion(rc, apiDefinitionFuture);
     Task.create(apiDefinitionFuture)
-            .map(apiDefinition -> {
-              ApiContext apiContext = Utils.apiContext(rc);
-              apiContext.setApiDefinition(apiDefinition);
-              //设置变量
-              matches(apiContext, apiDefinition);
-              return apiContext;
-            }).flatMapTask("do filters", apiContext -> Filters.instance().doFilter(apiContext))
-            .andThen(apiContext ->{
-              ApiDefinition apiDefinition = apiContext.apiDefinition();
-              List<Endpoint> endpoints = apiDefinition.endpoints();
-              endpoints.forEach(endpoint -> {
-                if (endpoint instanceof HttpEndpoint) {
-                  HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+        .map(apiDefinition -> {
+          ApiContext apiContext = Utils.apiContext(rc);
+          apiContext.setApiDefinition(apiDefinition);
+          //设置变量
+          matches(apiContext, apiDefinition);
+          return apiContext;
+        }).flatMapTask("do filters", apiContext -> Filters.instance().doFilter(apiContext))
+        .andThen(apiContext -> {
+          ApiDefinition apiDefinition = apiContext.apiDefinition();
+          List<Endpoint> endpoints = apiDefinition.endpoints();
+          endpoints.forEach(endpoint -> {
+            if (endpoint instanceof HttpEndpoint) {
+              HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
 
 
-                }
-              });
-            } )
-            .onFailure(throwable -> {
-              rc.response().setStatusCode(404).setChunked(true)
-                      .end(new JsonObject()
-                                   .put("error", throwable.getMessage())
-                                   .encode());
-            });
+            }
+          });
+        })
+        .onFailure(throwable -> {
+          rc.response().setStatusCode(404).setChunked(true)
+              .end(new JsonObject()
+                  .put("error", throwable.getMessage())
+                  .encode());
+        });
 //    apiDefinitionFuture.setHandler(ar -> {
 //      if (ar.succeeded()) {
 //        ApiDefinition apiDefinition = ar.response();
@@ -114,8 +114,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
   private void getApiDefintion(RoutingContext rc, Future<ApiDefinition> completeFuture) {
     JsonObject matcher = new JsonObject()
-            .put("method", rc.request().method().name())
-            .put("path", rc.normalisedPath());
+        .put("method", rc.request().method().name())
+        .put("path", rc.normalisedPath());
     rc.vertx().eventBus().<List<ApiDefinition>>send(ApiMatchHandler.ADDRESS, matcher, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> apiDefinitions = ar.result().body();

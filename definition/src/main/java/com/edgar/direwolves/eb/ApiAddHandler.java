@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
  * @author Edgar  Date 2016/10/8
  */
 public class ApiAddHandler implements ApiMessageConsumer<JsonObject> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiAddHandler.class);
   public static final String ADDRESS = "eb.api.add";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiAddHandler.class);
 
   @Override
   public void config(Vertx vertx, JsonObject config) {

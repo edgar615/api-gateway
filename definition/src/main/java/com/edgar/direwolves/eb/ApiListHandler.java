@@ -19,8 +19,8 @@ import java.util.List;
  * @author Edgar  Date 2016/10/8
  */
 public class ApiListHandler implements ApiMessageConsumer<JsonObject> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiListHandler.class);
   public static final String ADDRESS = "eb.api.list";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiListHandler.class);
 
   @Override
   public void config(Vertx vertx, JsonObject config) {

@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface RateLimitPlugin extends ApiPlugin {
 
+  String NAME = "RATE_LIMIT";
+
   /**
    * 获取API限流的映射关系的列表.
    *
@@ -37,6 +39,4 @@ public interface RateLimitPlugin extends ApiPlugin {
   default String name() {
     return NAME;
   }
-
-  String NAME = "RATE_LIMIT";
 }

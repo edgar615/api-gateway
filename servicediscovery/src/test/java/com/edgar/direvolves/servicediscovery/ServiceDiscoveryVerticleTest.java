@@ -40,12 +40,12 @@ public class ServiceDiscoveryVerticleTest {
     mockConsulHttpVerticle = new MockConsulHttpVerticle();
     vertx.deployVerticle(mockConsulHttpVerticle, testContext.asyncAssertSuccess());
     JsonObject config = new JsonObject()
-            .put("service.discovery", "consul://localhost:5601");
+        .put("service.discovery", "consul://localhost:5601");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
     vertx.deployVerticle(ServiceDiscoveryVerticle.class.getName(),
-                         new DeploymentOptions().setConfig(config),
-                         testContext.asyncAssertSuccess());
+        new DeploymentOptions().setConfig(config),
+        testContext.asyncAssertSuccess());
   }
 
   @After
@@ -63,7 +63,7 @@ public class ServiceDiscoveryVerticleTest {
       e.printStackTrace();
     }
     Multimap<Integer, Record> group = ArrayListMultimap.create();
-    for (int i = 0; i < 100; i ++) {
+    for (int i = 0; i < 100; i++) {
       Async async = context.async();
       vertx.eventBus().<JsonObject>send(ServiceDiscoveryVerticle.ADDRESS, "device", ar -> {
         if (ar.succeeded()) {
@@ -117,18 +117,18 @@ public class ServiceDiscoveryVerticleTest {
 
   private void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
-                                              .put("Node", "u221")
-                                              .put("Address", "10.4.7.221")
-                                              .put("ServiceID", "u221:device:8080")
-                                              .put("ServiceName", "device")
-                                              .put("ServiceTags", new JsonArray())
-                                              .put("ServicePort", 32769));
+        .put("Node", "u221")
+        .put("Address", "10.4.7.221")
+        .put("ServiceID", "u221:device:8080")
+        .put("ServiceName", "device")
+        .put("ServiceTags", new JsonArray())
+        .put("ServicePort", 32769));
     mockConsulHttpVerticle.addService((new JsonObject()
-            .put("Node", "u222")
-            .put("Address", "10.4.7.222")
-            .put("ServiceID", "u222:device:8080")
-            .put("ServiceName", "device")
-            .put("ServiceTags", new JsonArray())
-            .put("ServicePort", 32770)));
+        .put("Node", "u222")
+        .put("Address", "10.4.7.222")
+        .put("ServiceID", "u222:device:8080")
+        .put("ServiceName", "device")
+        .put("ServiceTags", new JsonArray())
+        .put("ServicePort", 32770)));
   }
 }

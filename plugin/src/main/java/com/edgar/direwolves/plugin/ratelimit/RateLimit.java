@@ -15,29 +15,29 @@ package com.edgar.direwolves.plugin.ratelimit;
  */
 public interface RateLimit {
 
-    static RateLimit create(String limitBy, String type, long limit) {
-        return new RateLimitImpl(limitBy, type, limit);
-    }
+  static RateLimit create(String limitBy, String type, long limit) {
+    return new RateLimitImpl(limitBy, type, limit);
+  }
 
-    /**
-     * 限制条件,user_rate | token_rate | app_key_rate
-     *
-     * @return 限制条件
-     */
-    String limitBy();
+  /**
+   * 限制条件,user_rate | token_rate | app_key_rate
+   *
+   * @return 限制条件
+   */
+  String limitBy();
 
-    /**
-     * 限制类型  second | minute | hour | day | month | year
-     *
-     * @return 限制类型
-     */
-    String type();
+  /**
+   * 限制类型  second | minute | hour | day | month | year
+   *
+   * @return 限制类型
+   */
+  String type();
 
-    /**
-     * 限制数量
-     *
-     * @return
-     */
-    long limit();
+  /**
+   * 限制数量
+   *
+   * @return
+   */
+  long limit();
 
 }

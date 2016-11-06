@@ -1,13 +1,12 @@
 package com.edgar.direwolves.dispatch;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.TestContext;
@@ -34,7 +33,7 @@ public class FiltersTest {
   @Test
   public void tsetNoJwtHeader(TestContext testContext) {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap
-            .create(), null, null);
+        .create(), null, null);
 
     Filters filters = Filters.instance();
     filters.init(vertx);
@@ -65,7 +64,7 @@ public class FiltersTest {
       testContext.assertTrue(throwable instanceof SystemException);
       SystemException ex = (SystemException) throwable;
       testContext.assertEquals(DefaultErrorCode.NO_AUTHORITY.getNumber(),
-                               ex.getErrorCode().getNumber());
+          ex.getErrorCode().getNumber());
     });
   }
 }

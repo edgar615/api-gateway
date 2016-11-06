@@ -1,8 +1,8 @@
 package com.edgar.direwolves.dispatch.verticle;
 
-import com.edgar.direwolves.dispatch.handler.FailureHandler;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
+import com.edgar.direwolves.dispatch.handler.FailureHandler;
 import com.edgar.direwolves.filter.Filters;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -34,16 +34,16 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
     //API拦截
     route.handler(new DispatchHandler())
-            .failureHandler(FailureHandler.create());
+        .failureHandler(FailureHandler.create());
 
     vertx.createHttpServer()
-            .requestHandler(router::accept)
-            .listen(port, ar -> {
-              if (ar.succeeded()) {
-                startFuture.complete();
-              } else {
-                startFuture.fail(ar.cause());
-              }
-            });
+        .requestHandler(router::accept)
+        .listen(port, ar -> {
+          if (ar.succeeded()) {
+            startFuture.complete();
+          } else {
+            startFuture.fail(ar.cause());
+          }
+        });
   }
 }

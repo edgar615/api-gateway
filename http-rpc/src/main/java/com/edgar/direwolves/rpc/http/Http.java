@@ -1,10 +1,9 @@
 package com.edgar.direwolves.rpc.http;
 
-import com.google.common.base.Joiner;
-
 import com.edgar.direwolves.core.rpc.Result;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.google.common.base.Joiner;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
@@ -24,27 +23,27 @@ public class Http {
   public static Future<Result> request(HttpClient httpClient, HttpRequestOptions options) {
     if (checkMethod(options)) {
       return Future.failedFuture(
-              SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "method")
+          SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "method")
       );
     }
     if (checkBody(options)) {
       return Future.failedFuture(
-              SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
+          SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
       );
     }
     Future<Result> future = Future.future();
     String path = requestPath(options);
     final long startTime = System.currentTimeMillis();
     HttpClientRequest request =
-            httpClient.request(options.getHttpMethod(), options.getPort(), options.getHost(), path)
-                    .putHeader("content-type", "application/json");
+        httpClient.request(options.getHttpMethod(), options.getPort(), options.getHost(), path)
+            .putHeader("content-type", "application/json");
     request.handler(response -> {
       response.bodyHandler(body -> {
         Result result =
-                Result.create(options.getId(),
-                              response.statusCode(),
-                              body,
-                                  System.currentTimeMillis() - startTime);
+            Result.create(options.getId(),
+                response.statusCode(),
+                body,
+                System.currentTimeMillis() - startTime);
         future.complete(result);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
@@ -62,8 +61,8 @@ public class Http {
 
   private static boolean checkBody(HttpRequestOptions options) {
     return (options.getHttpMethod() == HttpMethod.POST
-            || options.getHttpMethod() == HttpMethod.PUT)
-           && options.getBody() == null;
+        || options.getHttpMethod() == HttpMethod.PUT)
+        && options.getBody() == null;
   }
 
   private static void header(HttpRequestOptions options, HttpClientRequest request) {
@@ -93,18 +92,18 @@ public class Http {
       request.end();
     } else if (options.getHttpMethod() == HttpMethod.POST) {
       request.setChunked(true)
-              .end(options.getBody().encode());
+          .end(options.getBody().encode());
     } else if (options.getHttpMethod() == HttpMethod.PUT) {
       request.setChunked(true)
-              .end(options.getBody().encode());
+          .end(options.getBody().encode());
     }
   }
 
   private static boolean checkMethod(HttpRequestOptions options) {
     return options.getHttpMethod() != HttpMethod.GET
-           && options.getHttpMethod() != HttpMethod.DELETE
-           && options.getHttpMethod() != HttpMethod.POST
-           && options.getHttpMethod() != HttpMethod.PUT;
+        && options.getHttpMethod() != HttpMethod.DELETE
+        && options.getHttpMethod() != HttpMethod.POST
+        && options.getHttpMethod() != HttpMethod.PUT;
   }
 
   private static String requestPath(HttpRequestOptions options) {

@@ -53,7 +53,7 @@ public class ResultTest {
   @Test
   public void testJsonArray() {
     JsonArray jsonArray = new JsonArray()
-            .add(new JsonObject().put("foo", "bar"));
+        .add(new JsonObject().put("foo", "bar"));
     Buffer buffer = Buffer.buffer();
     jsonArray.writeToBuffer(buffer);
     Result result = Result.create("test", 200, buffer, 0);

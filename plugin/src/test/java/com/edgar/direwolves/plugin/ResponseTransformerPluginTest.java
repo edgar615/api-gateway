@@ -39,7 +39,7 @@ public class ResponseTransformerPluginTest {
   @Test
   public void testEncode() {
     ResponseTransformerPlugin plugin = (ResponseTransformerPlugin) ApiPlugin
-            .create("response_transformer");
+        .create("response_transformer");
     ResponseTransformer transformer = ResponseTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");

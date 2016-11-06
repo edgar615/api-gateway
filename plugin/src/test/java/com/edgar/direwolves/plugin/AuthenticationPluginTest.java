@@ -18,7 +18,7 @@ public class AuthenticationPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-            .put("authentication", new JsonArray().add("jwt").add("oauth2").add("jwt"));
+        .put("authentication", new JsonArray().add("jwt").add("oauth2").add("jwt"));
     ApiPluginFactory<AuthenticationPlugin> factory = new AuthenticationPluginFactory();
     AuthenticationPlugin plugin = factory.decode(config);
     Assert.assertEquals(2, plugin.authentications().size());
@@ -28,8 +28,8 @@ public class AuthenticationPluginTest {
   public void testEncode() {
     AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
     plugin.add("jwt")
-            .add("oauth2")
-            .add("jwt");
+        .add("oauth2")
+        .add("jwt");
     Assert.assertEquals(2, plugin.authentications().size());
 
     JsonObject jsonObject = plugin.encode();
@@ -43,12 +43,12 @@ public class AuthenticationPluginTest {
   public void testRemove() {
     AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
     plugin.add("jwt")
-            .add("oauth2")
-            .add("jwt");
+        .add("oauth2")
+        .add("jwt");
     Assert.assertEquals(2, plugin.authentications().size());
 
     plugin.remove("user")
-            .remove("jwt");
+        .remove("jwt");
     Assert.assertEquals(1, plugin.authentications().size());
   }
 
@@ -56,8 +56,8 @@ public class AuthenticationPluginTest {
   public void testRemoveAll() {
     AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
     plugin.add("jwt")
-            .add("oauth2")
-            .add("jwt");
+        .add("oauth2")
+        .add("jwt");
     Assert.assertEquals(2, plugin.authentications().size());
 
     plugin.clear();

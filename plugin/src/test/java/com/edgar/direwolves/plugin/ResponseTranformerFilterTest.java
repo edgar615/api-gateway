@@ -2,11 +2,10 @@ package com.edgar.direwolves.plugin;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.plugin.transformer.ResponseTransformerFilter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.utils.JsonUtils;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -56,6 +55,7 @@ public class ResponseTranformerFilterTest {
         .put("headers", JsonUtils.mutlimapToJson(headers))
         .put("body", new JsonObject());
     apiContext.addResponse(response);
+    apiContext.setPrincipal(new JsonObject().put("userId", "1"));
 
     ResponseTransformerFilter filter = new ResponseTransformerFilter();
     filter.config(vertx, new JsonObject());
@@ -66,8 +66,8 @@ public class ResponseTranformerFilterTest {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
         JsonObject jsonObject = apiContext1.response().getJsonObject(0);
-        testContext.assertEquals(4, jsonObject.getJsonObject("headers").size());
-        testContext.assertEquals(4, jsonObject.getJsonObject("body").size());
+        testContext.assertEquals(5, jsonObject.getJsonObject("headers").size());
+        testContext.assertEquals(5, jsonObject.getJsonObject("body").size());
       } else {
         testContext.fail();
       }

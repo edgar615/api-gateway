@@ -1,7 +1,5 @@
 package com.edgar.direwolves.definition;
 
-import static org.awaitility.Awaitility.await;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.eb.ApiDefinitionCodec;

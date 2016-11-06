@@ -1,10 +1,8 @@
 package com.edgar.direwolves.core.dispatch;
 
+import com.edgar.direwolves.core.spi.Configurable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.spi.Configurable;
-import com.edgar.direwolves.core.dispatch.ApiContext;
 import io.vertx.core.Future;
 
 import java.util.List;

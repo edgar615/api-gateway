@@ -85,7 +85,7 @@ class RulesDecoder implements Function<JsonObject, List<Rule>> {
           rules.add(Rule.optional(ImmutableList.copyOf((Collection) value)));
         } else {
           Iterable<String> iterable =
-                  Splitter.on(",").trimResults().omitEmptyStrings().split(value.toString());
+              Splitter.on(",").trimResults().omitEmptyStrings().split(value.toString());
           rules.add(Rule.optional(ImmutableList.copyOf(iterable)));
         }
       }

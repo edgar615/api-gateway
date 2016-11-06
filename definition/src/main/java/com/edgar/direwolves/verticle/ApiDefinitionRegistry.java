@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
  */
 public interface ApiDefinitionRegistry {
 
+  static ApiDefinitionRegistry create() {
+    return ApiDefinitionRegistryImpl.instance();
+  }
+
   /**
    * 获取路由映射的列表.
    *
@@ -51,10 +55,6 @@ public interface ApiDefinitionRegistry {
    */
   List<ApiDefinition> filter(String name);
 
-  static ApiDefinitionRegistry create() {
-    return ApiDefinitionRegistryImpl.instance();
-  }
-
   /**
    * 根据请求方法和请求地址查找API定义.
    * 只有当method相同，且path符合ApiDefinition的正则表达式才认为二者匹配.
@@ -65,8 +65,8 @@ public interface ApiDefinitionRegistry {
    */
   default List<ApiDefinition> match(HttpMethod method, String path) {
     return filter(null)
-            .stream()
-            .filter(definition -> definition.match(method, path))
-            .collect(Collectors.toList());
+        .stream()
+        .filter(definition -> definition.match(method, path))
+        .collect(Collectors.toList());
   }
 }

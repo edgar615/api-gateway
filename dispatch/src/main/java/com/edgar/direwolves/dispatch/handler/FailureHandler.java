@@ -18,41 +18,41 @@ import org.slf4j.LoggerFactory;
  */
 public class FailureHandler implements Handler<RoutingContext> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FailureHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FailureHandler.class);
 
-    public static Handler<RoutingContext> create() {
-        return new FailureHandler();
+  public static Handler<RoutingContext> create() {
+    return new FailureHandler();
+  }
+
+  public static void handler(RoutingContext rc, Throwable throwable) {
+
+    int statusCode = rc.statusCode();
+    HttpServerResponse response = rc.response();
+    if (throwable == null) {
+      response.setStatusCode(statusCode).end(Buffer.buffer());
+    } else if (throwable instanceof SystemException) {
+      SystemException ex = (SystemException) throwable;
+      JsonObject jsonObject = new JsonObject(ex.asMap());
+      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+    } else if (throwable instanceof ValidationException) {
+      SystemException ex = SystemException.create(DefaultErrorCode.INVALID_ARGS);
+      ValidationException vex = (ValidationException) throwable;
+      ex.set("details", vex.getErrorDetail().asMap());
+      JsonObject jsonObject = new JsonObject(ex.asMap());
+      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+    } else {
+      SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
+          .set("exception", throwable.getMessage());
+      JsonObject jsonObject = new JsonObject(ex.asMap());
+      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     }
+  }
 
-    @Override
-    public void handle(RoutingContext rc) {
-        Throwable throwable = rc.failure();
-        LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
-        handler(rc, throwable);
-    }
-
-    public static void handler(RoutingContext rc, Throwable throwable) {
-
-        int statusCode = rc.statusCode();
-        HttpServerResponse response = rc.response();
-        if (throwable == null) {
-            response.setStatusCode(statusCode).end(Buffer.buffer());
-        } else if (throwable instanceof SystemException) {
-            SystemException ex = (SystemException) throwable;
-            JsonObject jsonObject = new JsonObject(ex.asMap());
-            response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
-        } else if (throwable instanceof ValidationException) {
-            SystemException ex = SystemException.create(DefaultErrorCode.INVALID_ARGS);
-            ValidationException vex = (ValidationException) throwable;
-            ex.set("details", vex.getErrorDetail().asMap());
-            JsonObject jsonObject = new JsonObject(ex.asMap());
-            response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
-        } else {
-            SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
-                    .set("exception", throwable.getMessage());
-            JsonObject jsonObject = new JsonObject(ex.asMap());
-            response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
-        }
-    }
+  @Override
+  public void handle(RoutingContext rc) {
+    Throwable throwable = rc.failure();
+    LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
+    handler(rc, throwable);
+  }
 
 }

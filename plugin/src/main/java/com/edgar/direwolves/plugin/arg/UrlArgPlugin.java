@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
  */
 public interface UrlArgPlugin extends ApiPlugin, ArgPlugin {
   String NAME = "URL_ARG";
+
   default String name() {
     return NAME;
   }

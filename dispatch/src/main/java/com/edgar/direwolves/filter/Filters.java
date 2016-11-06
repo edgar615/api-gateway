@@ -1,10 +1,9 @@
 package com.edgar.direwolves.filter;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.Lists;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

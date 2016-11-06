@@ -11,15 +11,15 @@ import io.vertx.ext.web.RoutingContext;
  */
 public class BaseHandler implements Handler<RoutingContext> {
 
-    public static Handler<RoutingContext> create() {
-        return new BaseHandler();
-    }
+  public static Handler<RoutingContext> create() {
+    return new BaseHandler();
+  }
 
-    @Override
-    public void handle(RoutingContext rc) {
-        rc.response().setChunked(true)
-                .putHeader("content-type", "application/json;charset=utf-8");
-        rc.next();
-    }
+  @Override
+  public void handle(RoutingContext rc) {
+    rc.response().setChunked(true)
+        .putHeader("content-type", "application/json;charset=utf-8");
+    rc.next();
+  }
 
 }

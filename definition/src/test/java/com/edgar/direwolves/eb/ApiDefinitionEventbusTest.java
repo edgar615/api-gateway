@@ -1,9 +1,7 @@
 package com.edgar.direwolves.eb;
 
-import static org.awaitility.Awaitility.await;
-
-import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 import com.edgar.util.base.Randoms;
@@ -22,6 +20,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Created by Edgar on 2016/9/13.
@@ -77,7 +77,7 @@ public class ApiDefinitionEventbusTest {
 
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
     await().until(() -> ApiDefinitionRegistry.create().filter("add_device").get(0)
-            .method().equals(HttpMethod.POST));
+        .method().equals(HttpMethod.POST));
 
     Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
     ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
@@ -87,7 +87,7 @@ public class ApiDefinitionEventbusTest {
     add("src/test/resources/device_add2.json", context);
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
     await().until(() -> ApiDefinitionRegistry.create().filter("add_device").get(0)
-            .method().equals(HttpMethod.PUT));
+        .method().equals(HttpMethod.PUT));
 
     Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
     apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
@@ -172,7 +172,7 @@ public class ApiDefinitionEventbusTest {
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 2);
 
     JsonObject queryJson = new JsonObject().put("name", "*")
-            .put("start", 1);
+        .put("start", 1);
     eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
@@ -197,7 +197,7 @@ public class ApiDefinitionEventbusTest {
     await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 2);
 
     JsonObject queryJson = new JsonObject().put("name", "*")
-            .put("limit", 1);
+        .put("limit", 1);
     eb.<List<ApiDefinition>>send(ApiListHandler.ADDRESS, queryJson, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
@@ -274,7 +274,7 @@ public class ApiDefinitionEventbusTest {
         JsonObject jsonObject = ar.result().body();
         context.assertEquals("OK", jsonObject.getString("result"));
         context.assertEquals(0, ApiDefinitionRegistry.create().getDefinitions()
-                .size());
+            .size());
       } else {
         System.out.println(ar.cause());
         context.fail();
@@ -291,7 +291,7 @@ public class ApiDefinitionEventbusTest {
         JsonObject jsonObject = ar.result().body();
         context.assertEquals("OK", jsonObject.getString("result"));
         context.assertEquals(0, ApiDefinitionRegistry.create().getDefinitions()
-                .size());
+            .size());
       } else {
         System.out.println(ar.cause());
         context.fail();
@@ -305,8 +305,8 @@ public class ApiDefinitionEventbusTest {
     add(context);
     List<ApiDefinition> copyApiDefinition = new ArrayList<>();
     eb.<List<ApiDefinition>>send(ApiMatchHandler.ADDRESS, new JsonObject()
-            .put("method", "POST")
-            .put("path", "/devices"), ar -> {
+        .put("method", "POST")
+        .put("path", "/devices"), ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         context.assertEquals(1, definitions.size());
@@ -320,8 +320,8 @@ public class ApiDefinitionEventbusTest {
 
     copyApiDefinition.clear();
     eb.<List<ApiDefinition>>send(ApiMatchHandler.ADDRESS, new JsonObject()
-            .put("method", "GET")
-            .put("path", "/devices"), ar -> {
+        .put("method", "GET")
+        .put("path", "/devices"), ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         context.assertEquals(0, definitions.size());
@@ -335,8 +335,8 @@ public class ApiDefinitionEventbusTest {
 
     copyApiDefinition.clear();
     eb.<List<ApiDefinition>>send(ApiMatchHandler.ADDRESS, new JsonObject()
-            .put("method", "POST")
-            .put("path", "/devices/1"), ar -> {
+        .put("method", "POST")
+        .put("path", "/devices/1"), ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> definitions = ar.result().body();
         context.assertEquals(0, definitions.size());
@@ -351,7 +351,7 @@ public class ApiDefinitionEventbusTest {
 
   private void add(String file, TestContext context) {
     JsonObject
-            addDeviceJson = JsonUtils.getJsonFromFile(file);
+        addDeviceJson = JsonUtils.getJsonFromFile(file);
     eb.<JsonObject>send(ApiAddHandler.ADDRESS, addDeviceJson, ar -> {
       if (ar.succeeded()) {
         JsonObject jsonObject = ar.result().body();

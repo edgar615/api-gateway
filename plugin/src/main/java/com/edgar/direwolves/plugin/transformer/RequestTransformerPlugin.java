@@ -9,6 +9,7 @@ import java.util.List;
  */
 public interface RequestTransformerPlugin extends ApiPlugin {
   String NAME = "REQUEST_TRANSFORMER";
+
   default String name() {
     return NAME;
   }

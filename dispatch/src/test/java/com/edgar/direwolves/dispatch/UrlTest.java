@@ -23,7 +23,7 @@ public class UrlTest {
       if (matcher.groupCount() > 0) {
         for (int i = 0; i < matcher.groupCount(); i++) {
           String group = matcher.group(i + 1);
-          if(group != null) {
+          if (group != null) {
             final String value = QueryStringDecoder.decodeComponent(group.replace("+", "%2b"));
             matchValues.add(value);
           }
@@ -36,7 +36,7 @@ public class UrlTest {
   @Test
   public void test() {
     System.out.println(matchValue("devices/new/$param.param0/test/$param.param1", "[\\w./$]*([\\w$"
-                                                                                + ".]+)"));
+        + ".]+)"));
     String url = "devices/new/$param.param0/test/$param.param0";
     Pattern pattern = Pattern.compile("[\\w./]+([\\w$.]+)[\\w./]*");
     Matcher matcher = pattern.matcher(url);
@@ -45,7 +45,7 @@ public class UrlTest {
       if (matcher.groupCount() > 0) {
         for (int i = 0; i < matcher.groupCount(); i++) {
           String group = matcher.group(i + 1);
-          if(group != null) {
+          if (group != null) {
             final String k = "param" + i;
             final String value = QueryStringDecoder.decodeComponent(group.replace("+", "%2b"));
             System.out.println(value);

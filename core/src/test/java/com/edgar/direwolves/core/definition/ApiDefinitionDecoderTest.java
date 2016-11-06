@@ -17,14 +17,14 @@ public class ApiDefinitionDecoderTest {
   public void testMinimizeConfig() {
 //    JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
     JsonObject jsonObject = new JsonObject()
-            .put("name", "device.add.1.0.0")
-            .put("path", "/devices");
+        .put("name", "device.add.1.0.0")
+        .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
-                          .put("name", "device.add.1.2.0")
-                          .put("service", "device")
-                          .put("path", "/devices/add"));
+        .put("type", "http")
+        .put("name", "device.add.1.2.0")
+        .put("service", "device")
+        .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
     Assert.assertEquals(HttpMethod.GET, apiDefinition.method());
@@ -45,22 +45,22 @@ public class ApiDefinitionDecoderTest {
   public void testTwoEndpoints() {
 //    JsonObject addDeviceJson = JsonUtils.getJsonFromFile("src/test/resources/device_add.json");
     JsonObject jsonObject = new JsonObject()
-            .put("name", "device.add.1.0.0")
-            .put("method", "post")
-            .put("path", "/devices");
+        .put("name", "device.add.1.0.0")
+        .put("method", "post")
+        .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
-                          .put("name", "device.add.1.2.0")
-                          .put("service", "device")
-                          .put("method", "undefined")
-                          .put("path", "/devices/add"))
-            .add(new JsonObject()
-                         .put("type", "http")
-                         .put("name", "device.delete.1.2.0")
-                         .put("service", "device")
-                         .put("method", "delete")
-                         .put("path", "/devices"));
+        .put("type", "http")
+        .put("name", "device.add.1.2.0")
+        .put("service", "device")
+        .put("method", "undefined")
+        .put("path", "/devices/add"))
+        .add(new JsonObject()
+            .put("type", "http")
+            .put("name", "device.delete.1.2.0")
+            .put("service", "device")
+            .put("method", "delete")
+            .put("path", "/devices"));
     jsonObject.put("endpoints", endpoints);
 
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);

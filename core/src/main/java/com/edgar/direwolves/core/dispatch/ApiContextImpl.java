@@ -1,17 +1,14 @@
 package com.edgar.direwolves.core.dispatch;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -137,13 +134,13 @@ class ApiContextImpl implements ApiContext {
   @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
-            .add("method", method)
-            .add("path", path)
-            .add("params", params)
-            .add("headers", headers)
-            .add("body", body)
-            .add("variables", variables)
-            .add("apiDefinition", apiDefinition);
+        .add("method", method)
+        .add("path", path)
+        .add("params", params)
+        .add("headers", headers)
+        .add("body", body)
+        .add("variables", variables)
+        .add("apiDefinition", apiDefinition);
     if (principal != null) {
       helper.add("principal", principal.encode());
     }
@@ -157,10 +154,10 @@ class ApiContextImpl implements ApiContext {
     ApiContext apiContext = null;
     if (body() == null) {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), null);
+          ArrayListMultimap.create(params()), null);
     } else {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), body().copy());
+          ArrayListMultimap.create(params()), body().copy());
     }
 
     final ApiContext finalApiContext = apiContext;

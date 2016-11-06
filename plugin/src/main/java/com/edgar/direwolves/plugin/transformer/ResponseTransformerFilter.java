@@ -2,9 +2,6 @@ package com.edgar.direwolves.plugin.transformer;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;
-import com.edgar.direwolves.plugin.transformer.ResponseTransformer;
-import com.edgar.direwolves.plugin.transformer.ResponseTransformerPlugin;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -51,10 +48,34 @@ public class ResponseTransformerFilter implements Filter {
     for (int i = 0; i < apiContext.response().size(); i++) {
       JsonObject response = apiContext.response().getJsonObject(i);
       transformer(apiContext, response);
+
+      replace(apiContext, response);
     }
     completeFuture.complete(apiContext);
   }
 
+  private void replace(ApiContext apiContext, JsonObject response) {
+
+    JsonObject newHeaders = new JsonObject();
+    JsonObject headers = response.getJsonObject("headers", new JsonObject());
+    for (String key : headers.fieldNames()) {
+      Object newVal = apiContext.getValueByKeyword(headers.getValue(key));
+      if (newVal != null) {
+        newHeaders.put(key, newVal);
+      }
+    }
+    response.put("headers", newHeaders);
+    JsonObject newBody = new JsonObject();
+    JsonObject body = response.getJsonObject("body");
+    for (String key : body.fieldNames()) {
+      Object newVal = apiContext.getValueByKeyword(body.getValue(key));
+      if (newVal != null) {
+        newBody.put(key, newVal);
+      }
+    }
+    response.put("body", newBody);
+
+  }
 
   private void transformer(ApiContext apiContext, JsonObject response) {
     String name = response.getString("name");

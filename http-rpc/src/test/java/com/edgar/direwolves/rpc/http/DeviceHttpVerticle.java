@@ -20,20 +20,20 @@ public class DeviceHttpVerticle extends AbstractVerticle {
       if (url.equals("/devices") && req.method() == HttpMethod.GET) {
         JsonArray devices = new JsonArray();
         devices.add(new JsonObject().put("id", 1))
-                .add(new JsonObject().put("id", 2));
+            .add(new JsonObject().put("id", 2));
         req.response().putHeader("Content-Type", "application/json")
-                .end(devices.encode());
+            .end(devices.encode());
       }
       if (url.startsWith("/devices/") && req.method() == HttpMethod.GET) {
         String id = url.substring("/devices/".length());
         req.response().putHeader("Content-Type", "application/json")
-                .end(new JsonObject().put("id", id).encode());
+            .end(new JsonObject().put("id", id).encode());
       }
       if (url.equals("/devices") && req.method() == HttpMethod.DELETE) {
         req.response().putHeader("Content-Type", "application/json")
-                .end(new JsonObject()
-                             .put("result", "1")
-                             .encode());
+            .end(new JsonObject()
+                .put("result", "1")
+                .encode());
       }
       if (url.equals("/devices") && req.method() == HttpMethod.POST) {
         req.response().putHeader("Content-Type", "application/json");

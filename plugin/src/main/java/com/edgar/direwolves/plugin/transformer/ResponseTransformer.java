@@ -7,13 +7,13 @@ package com.edgar.direwolves.plugin.transformer;
  */
 public interface ResponseTransformer extends BodyTransfomer, HeaderTransfomer {
 
+  static ResponseTransformer create(String name) {
+    return new ResponseTransformerImpl(name);
+  }
+
   /**
    * @return endpoint的名称
    */
   String name();
-
-  static ResponseTransformer create(String name) {
-    return new ResponseTransformerImpl(name);
-  }
 
 }

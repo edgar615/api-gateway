@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  body的转换规则.
+ * body的转换规则.
  *
  * @author Edgar  Date 2016/10/18
  */

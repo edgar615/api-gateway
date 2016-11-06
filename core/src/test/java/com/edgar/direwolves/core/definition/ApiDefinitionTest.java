@@ -1,10 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.collect.Lists;
-
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Assert;
 import org.junit.Test;

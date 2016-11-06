@@ -1,6 +1,5 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.validation.Rule;

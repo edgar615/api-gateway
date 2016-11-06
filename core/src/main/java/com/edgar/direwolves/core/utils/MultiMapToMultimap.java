@@ -2,7 +2,6 @@ package com.edgar.direwolves.core.utils;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
 import io.vertx.core.MultiMap;
 
 import java.util.Set;

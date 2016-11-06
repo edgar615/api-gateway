@@ -44,8 +44,8 @@ public class RequestTransformerPluginTest {
 
   @Test
   public void testEncode() {
-    RequestTransformerPlugin plugin  = (RequestTransformerPlugin) ApiPlugin
-            .create("request_transformer");
+    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
+        .create("request_transformer");
     RequestTransformer transformer = RequestTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");
@@ -76,7 +76,7 @@ public class RequestTransformerPluginTest {
 
   @Test
   public void testRemove() {
-    RequestTransformerPlugin plugin  = (RequestTransformerPlugin) ApiPlugin.create("request_transformer");
+    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin.create("request_transformer");
     RequestTransformer transformer = RequestTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");
@@ -133,7 +133,7 @@ public class RequestTransformerPluginTest {
 
   @Test
   public void testClear() {
-    RequestTransformerPlugin plugin  = (RequestTransformerPlugin) ApiPlugin.create("request_transformer");
+    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin.create("request_transformer");
     RequestTransformer transformer = RequestTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");

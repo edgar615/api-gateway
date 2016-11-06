@@ -14,40 +14,6 @@ import io.vertx.core.json.JsonObject;
 public interface Result {
 
   /**
-   * @return 响应码.
-   */
-  int statusCode();
-
-  /**
-   * @return true:返回的结果是json数组, false:返回的结果是json对象.
-   */
-  boolean isArray();
-
-  /**
-   * @return json对象
-   */
-  JsonObject responseObject();
-
-  /**
-   * @return json数组
-   */
-  JsonArray responseArray();
-
-  /**
-   * 耗时时间=endTime - startTime .
-   *
-   * @return
-   */
-  long elapsedTime();
-
-  /**
-   * 返回result的id.
-   *
-   * @return
-   */
-  String id();
-
-  /**
    * 创建一个JsonObject的响应.
    *
    * @param id           id
@@ -102,7 +68,7 @@ public interface Result {
     if (data.startsWith("{") && data.endsWith("}")) {
       try {
         return createJsonObject(id, statusCode,
-                                Buffer.buffer(data).toJsonObject(), elapsedTime);
+            Buffer.buffer(data).toJsonObject(), elapsedTime);
       } catch (Exception e) {
         throw SystemException.wrap(DefaultErrorCode.INVALID_JSON, e);
       }
@@ -110,7 +76,7 @@ public interface Result {
     if (data.startsWith("[") && data.endsWith("]")) {
       try {
         return createJsonArray(id, statusCode,
-                               Buffer.buffer(data).toJsonArray(), elapsedTime);
+            Buffer.buffer(data).toJsonArray(), elapsedTime);
       } catch (Exception e) {
         throw SystemException.wrap(DefaultErrorCode.INVALID_JSON, e);
       }
@@ -118,12 +84,46 @@ public interface Result {
     throw SystemException.create(DefaultErrorCode.INVALID_JSON);
   }
 
+  /**
+   * @return 响应码.
+   */
+  int statusCode();
+
+  /**
+   * @return true:返回的结果是json数组, false:返回的结果是json对象.
+   */
+  boolean isArray();
+
+  /**
+   * @return json对象
+   */
+  JsonObject responseObject();
+
+  /**
+   * @return json数组
+   */
+  JsonArray responseArray();
+
+  /**
+   * 耗时时间=endTime - startTime .
+   *
+   * @return
+   */
+  long elapsedTime();
+
+  /**
+   * 返回result的id.
+   *
+   * @return
+   */
+  String id();
+
   default JsonObject toJson() {
     JsonObject result = new JsonObject()
-            .put("id", id())
-            .put("statusCode", statusCode())
-            .put("isArray", isArray())
-            .put("elapsedTime", elapsedTime());
+        .put("id", id())
+        .put("statusCode", statusCode())
+        .put("isArray", isArray())
+        .put("elapsedTime", elapsedTime());
     if (isArray()) {
       result.put("responseArray", responseArray());
     } else {

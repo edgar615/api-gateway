@@ -20,8 +20,8 @@ import java.util.List;
  * @author Edgar  Date 2016/10/8
  */
 public class ApiMatchHandler implements ApiMessageConsumer<JsonObject> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiMatchHandler.class);
   public static final String ADDRESS = "eb.api.match";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiMatchHandler.class);
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
@@ -38,8 +38,8 @@ public class ApiMatchHandler implements ApiMessageConsumer<JsonObject> {
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().match(method, path);
       LOGGER.error("match api, method->{}, path->{}", method, path);
       msg.reply(Lists.newArrayList(definitions),
-                new DeliveryOptions().setCodecName
-                        (ApiDefinitionListCodec.class.getSimpleName()));
+          new DeliveryOptions().setCodecName
+              (ApiDefinitionListCodec.class.getSimpleName()));
     } catch (Exception e) {
       LOGGER.error("failed match api, params->{}", msg.body());
       msg.fail(-1, e.getMessage());

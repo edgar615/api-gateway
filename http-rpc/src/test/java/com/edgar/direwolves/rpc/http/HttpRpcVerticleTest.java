@@ -44,14 +44,14 @@ public class HttpRpcVerticleTest {
   @Test
   public void testPost(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "devices?type=2")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "POST")
-            .put("body", new JsonObject().put("foo", "bar"))
-            .put("params", new JsonObject().put("userId", 2));
+        .put("path", "devices?type=2")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "POST")
+        .put("body", new JsonObject().put("foo", "bar"))
+        .put("params", new JsonObject().put("userId", 2));
 
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
@@ -71,14 +71,14 @@ public class HttpRpcVerticleTest {
   @Test
   public void testPut(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "devices?type=2")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "PUT")
-            .put("body", new JsonObject().put("foo", "bar"))
-            .put("params", new JsonObject().put("userId", 2));
+        .put("path", "devices?type=2")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "PUT")
+        .put("body", new JsonObject().put("foo", "bar"))
+        .put("params", new JsonObject().put("userId", 2));
 
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
@@ -98,13 +98,13 @@ public class HttpRpcVerticleTest {
   @Test
   public void testDelete(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "devices?type=2")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "DELETE")
-            .put("params", new JsonObject().put("userId", 2));
+        .put("path", "devices?type=2")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "DELETE")
+        .put("params", new JsonObject().put("userId", 2));
 
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
@@ -123,12 +123,12 @@ public class HttpRpcVerticleTest {
   @Test
   public void testGetArray(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "/devices")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "GET");
+        .put("path", "/devices")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "GET");
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
       if (ar.succeeded()) {
@@ -145,13 +145,13 @@ public class HttpRpcVerticleTest {
   @Test
   public void testGet(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "devices/1?type=2")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "GET")
-            .put("params", new JsonObject().put("userId", 1));
+        .put("path", "devices/1?type=2")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "GET")
+        .put("params", new JsonObject().put("userId", 1));
 
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
@@ -170,12 +170,12 @@ public class HttpRpcVerticleTest {
   @Test
   public void putMethodMustHasBody(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "devices")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "PUT");
+        .put("path", "devices")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "PUT");
 
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
@@ -193,12 +193,12 @@ public class HttpRpcVerticleTest {
   @Test
   public void postMethodMustHasBody(TestContext context) {
     JsonObject config = new JsonObject()
-            .put("path", "devices")
-            .put("port", 8080)
-            .put("host", "localhost")
-            .put("name", "user")
-            .put("id", "abc")
-            .put("method", "post");
+        .put("path", "devices")
+        .put("port", 8080)
+        .put("host", "localhost")
+        .put("name", "user")
+        .put("id", "abc")
+        .put("method", "post");
 
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {

@@ -37,30 +37,30 @@ public class ApiContextTest {
     router.route().handler(BodyHandler.create());
 
     router.route()
-            .handler(rc -> {
-              ApiContext apiContext = Utils.apiContext(rc);
-              context.assertNotNull(apiContext);
-              assertGetNoParam(context, rc, apiContext);
-              assertGetTwoParam(context, rc, apiContext);
-              assertGetToken(context, rc, apiContext);
-              assertDeleteNoParam(context, rc, apiContext);
-              assertDeleteTwoParam(context, rc, apiContext);
-              assertDeleteToken(context, rc, apiContext);
-              assertPostNoParam(context, rc, apiContext);
-              assertPostTwoParam(context, rc, apiContext);
-              assertPostToken(context, rc, apiContext);
-              assertPutNoParam(context, rc, apiContext);
-              assertPutTwoParam(context, rc, apiContext);
-              assertPutToken(context, rc, apiContext);
-              assertPostInvaidJson(context, rc, apiContext);
-              rc.response().setChunked(true)
-                      .end(new JsonObject()
-                                   .put("foo", "bar").encode());
-            }).failureHandler(FailureHandler.create());
+        .handler(rc -> {
+          ApiContext apiContext = Utils.apiContext(rc);
+          context.assertNotNull(apiContext);
+          assertGetNoParam(context, rc, apiContext);
+          assertGetTwoParam(context, rc, apiContext);
+          assertGetToken(context, rc, apiContext);
+          assertDeleteNoParam(context, rc, apiContext);
+          assertDeleteTwoParam(context, rc, apiContext);
+          assertDeleteToken(context, rc, apiContext);
+          assertPostNoParam(context, rc, apiContext);
+          assertPostTwoParam(context, rc, apiContext);
+          assertPostToken(context, rc, apiContext);
+          assertPutNoParam(context, rc, apiContext);
+          assertPutTwoParam(context, rc, apiContext);
+          assertPutToken(context, rc, apiContext);
+          assertPostInvaidJson(context, rc, apiContext);
+          rc.response().setChunked(true)
+              .end(new JsonObject()
+                  .put("foo", "bar").encode());
+        }).failureHandler(FailureHandler.create());
 
     vertx.createHttpServer()
-            .requestHandler(router::accept)
-            .listen(8080, context.asyncAssertSuccess());
+        .requestHandler(router::accept)
+        .listen(8080, context.asyncAssertSuccess());
   }
 
   @After
@@ -99,7 +99,7 @@ public class ApiContextTest {
         async.complete();
       });
     }).putHeader("Authorization", "Bearer " + "token")
-            .end();
+        .end();
   }
 
   @Test
@@ -133,7 +133,7 @@ public class ApiContextTest {
         async.complete();
       });
     }).putHeader("Authorization", "Bearer " + "token")
-            .end();
+        .end();
   }
 
   @Test
@@ -167,7 +167,7 @@ public class ApiContextTest {
         async.complete();
       });
     }).putHeader("Authorization", "Bearer " + "token")
-            .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+        .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ApiContextTest {
         async.complete();
       });
     }).putHeader("Authorization", "Bearer " + "token")
-            .setChunked(true).end("username=edgar");
+        .setChunked(true).end("username=edgar");
   }
 
   @Test
@@ -213,7 +213,7 @@ public class ApiContextTest {
         async.complete();
       });
     }).putHeader("Authorization", "Bearer " + "token")
-            .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
+        .setChunked(true).end(new JsonObject().put("username", "edgar").encode());
   }
 
   private void assertGetNoParam(TestContext context, RoutingContext rc, ApiContext apiContext) {

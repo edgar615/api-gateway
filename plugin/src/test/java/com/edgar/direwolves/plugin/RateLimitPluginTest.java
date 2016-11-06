@@ -24,10 +24,10 @@ public class RateLimitPluginTest {
   public void testDecode() {
     JsonArray jsonArray = new JsonArray();
     JsonObject jsonObject = new JsonObject()
-            .put("rate_limit", jsonArray);
+        .put("rate_limit", jsonArray);
     jsonArray.add(new JsonObject().put("type", "second")
-                          .put("limit", 100)
-                          .put("limit_by", "token"));
+        .put("limit", 100)
+        .put("limit_by", "token"));
     ApiPluginFactory<RateLimitPlugin> factory = new RateLimitPluginFactory();
     RateLimitPlugin plugin = factory.decode(jsonObject);
     Assert.assertEquals(1, plugin.rateLimits().size());
@@ -60,8 +60,8 @@ public class RateLimitPluginTest {
     Assert.assertEquals(2, rateLimitPlugin.rateLimits().size());
 
     RateLimit rateLimit = rateLimitPlugin.rateLimits().stream()
-            .filter(r -> "token".equalsIgnoreCase(r.limitBy()))
-            .findAny().get();
+        .filter(r -> "token".equalsIgnoreCase(r.limitBy()))
+        .findAny().get();
     Assert.assertEquals(1000, rateLimit.limit());
 
     rateLimitPlugin.removeRateLimit("user", null);

@@ -1,7 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.Preconditions;
-
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

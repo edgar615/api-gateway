@@ -7,10 +7,10 @@ import io.vertx.core.json.JsonObject;
  */
 public interface TokenGenerator {
 
-    /**
-     * 创建token
-     *
-     * @return
-     */
-    String createToken(JsonObject claims);
+  /**
+   * 创建token
+   *
+   * @return
+   */
+  String createToken(JsonObject claims);
 }

@@ -14,7 +14,7 @@ import java.util.List;
  * @author Edgar  Date 2016/10/8
  */
 public class ApiDefinitionListCodec implements MessageCodec<List<ApiDefinition>,
-        List<ApiDefinition>> {
+    List<ApiDefinition>> {
 
   @Override
   public void encodeToWire(Buffer buffer, List<ApiDefinition> apiDefinitions) {

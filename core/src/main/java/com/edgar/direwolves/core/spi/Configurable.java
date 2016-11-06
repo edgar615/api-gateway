@@ -9,11 +9,11 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-9-20.
  */
 public interface Configurable {
-    /**
-     * 配置方法.
-     *
-     * @param vertx  Vertx
-     * @param config 配置
-     */
-    void config(Vertx vertx, JsonObject config);
+  /**
+   * 配置方法.
+   *
+   * @param vertx  Vertx
+   * @param config 配置
+   */
+  void config(Vertx vertx, JsonObject config);
 }
