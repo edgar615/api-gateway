@@ -10,7 +10,6 @@ import java.util.List;
  * @author Edgar  Date 2016/10/31
  */
 public interface AuthenticationPlugin extends ApiPlugin {
-  String NAME = "AUTHENTICATION";
 
   /**
    * 增加一个权限认证类型.
@@ -35,13 +34,14 @@ public interface AuthenticationPlugin extends ApiPlugin {
    */
   AuthenticationPlugin clear();
 
-
   /**
    * @return 权限认证列表
    */
   List<String> authentications();
 
+  @Override
   default String name() {
-    return NAME;
+    return AuthenticationPlugin.class.getSimpleName();
   }
+
 }

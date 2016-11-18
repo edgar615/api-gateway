@@ -48,16 +48,16 @@ public class RateLimitPluginFactory implements ApiPluginFactory<RateLimitPlugin>
     JsonArray rateLimtArray = new JsonArray();
     for (RateLimit rateLimit : rateLimitPlugin.rateLimits()) {
       rateLimtArray.add(new JsonObject()
-          .put("limit", rateLimit.limit())
-          .put("limit_by", rateLimit.limitBy())
-          .put("type", rateLimit.type()));
+                                .put("limit", rateLimit.limit())
+                                .put("limit_by", rateLimit.limitBy())
+                                .put("type", rateLimit.type()));
     }
     return new JsonObject().put("rate_limit", rateLimtArray);
   }
 
   @Override
   public String name() {
-    return RateLimitPlugin.NAME;
+    return RateLimitPlugin.class.getSimpleName();
   }
 
   @Override

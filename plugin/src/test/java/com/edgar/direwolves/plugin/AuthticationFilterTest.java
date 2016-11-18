@@ -1,5 +1,8 @@
 package com.edgar.direwolves.plugin;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.dispatch.ApiContext;
@@ -8,8 +11,6 @@ import com.edgar.direwolves.plugin.authentication.AuthenticationFilter;
 import com.edgar.direwolves.plugin.authentication.AuthenticationPlugin;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -52,12 +53,14 @@ public class AuthticationFilterTest {
     headers.put("h3", "v3");
     headers.put("h3", "v3.2");
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
+    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
+                                                                                  .class
+                                                                                  .getSimpleName());
     plugin.add("jwt").add("basic");
     apiContext.apiDefinition().addPlugin(plugin);
 
@@ -87,18 +90,20 @@ public class AuthticationFilterTest {
     headers.put("h3", "v3");
 
     JsonObject claims = new JsonObject()
-        .put("userId", 1)
-        .put("companyCode", 1)
-        .put("admin", false)
-        .put("username", "Edgar");
+            .put("userId", 1)
+            .put("companyCode", 1)
+            .put("admin", false)
+            .put("username", "Edgar");
     headers.put("Authorization", "Bearer " + createToken(claims));
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
+    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
+                                                                                  .class
+                                                                                  .getSimpleName());
     plugin.add("jwt").add("basic");
     apiContext.apiDefinition().addPlugin(plugin);
 
@@ -130,12 +135,14 @@ public class AuthticationFilterTest {
     String basic = Base64.getEncoder().encodeToString("edgar:123".getBytes());
     headers.put("Authorization", "Basic " + basic);
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
+    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
+                                                                                  .class
+                                                                                  .getSimpleName());
     plugin.add("jwt").add("basic");
     apiContext.apiDefinition().addPlugin(plugin);
 
@@ -168,12 +175,14 @@ public class AuthticationFilterTest {
     String basic = Base64.getEncoder().encodeToString("edgar".getBytes());
     headers.put("Authorization", "Basic " + basic);
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
+    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
+                                                                                  .class
+                                                                                  .getSimpleName());
     plugin.add("jwt").add("basic");
     apiContext.apiDefinition().addPlugin(plugin);
 
@@ -205,12 +214,14 @@ public class AuthticationFilterTest {
     String basic = Base64.getEncoder().encodeToString("edgar:1".getBytes());
     headers.put("Authorization", "Basic " + basic);
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create("authentication");
+    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
+                                                                                  .class
+                                                                                  .getSimpleName());
     plugin.add("jwt").add("basic");
     apiContext.apiDefinition().addPlugin(plugin);
 
@@ -234,11 +245,11 @@ public class AuthticationFilterTest {
 
   public String createToken(JsonObject claims) {
     JsonObject config = new JsonObject()
-        .put("path", "keystore.jceks")
-        .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-        .put("password", "secret")
-        .put("algorithm", "HS512")
-        .put("expiresInSeconds", 1800);
+            .put("path", "keystore.jceks")
+            .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+            .put("password", "secret")
+            .put("algorithm", "HS512")
+            .put("expiresInSeconds", 1800);
     JsonObject jwtConfig = new JsonObject().put("keyStore", config);
     JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
     return provider.generateToken(claims, new JWTOptions(config));

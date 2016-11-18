@@ -1,0 +1,15 @@
+{
+  "name" : "add_device",
+  "method": "POST",
+  "path": "/devices",
+  "scope" : "device:write",
+  "endpoints": [
+    {
+      "type" : "http",
+      "name" : "add_device",
+      "service": "device",
+      "method": "POST",
+      "path": "/devices"
+    }
+  ]
+}

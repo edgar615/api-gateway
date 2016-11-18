@@ -1,11 +1,12 @@
 package com.edgar.direwolves.plugin;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.plugin.transformer.ResponseTransformerFilter;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -46,15 +47,16 @@ public class ResponseTranformerFilterTest {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("h3", "v3");
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
     JsonObject response = new JsonObject()
-        .put("name", "add_device")
-        .put("headers", JsonUtils.mutlimapToJson(headers))
-        .put("body", new JsonObject());
-    apiContext.addResponse(response);
+            .put("name", "add_device")
+            .put("isArray", false)
+            .put("body", new JsonObject());
+    apiContext.setResponse(response);
     apiContext.setPrincipal(new JsonObject().put("userId", "1"));
 
     ResponseTransformerFilter filter = new ResponseTransformerFilter();
@@ -65,7 +67,7 @@ public class ResponseTranformerFilterTest {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        JsonObject jsonObject = apiContext1.response().getJsonObject(0);
+        JsonObject jsonObject = apiContext1.response();
         testContext.assertEquals(5, jsonObject.getJsonObject("headers").size());
         testContext.assertEquals(5, jsonObject.getJsonObject("body").size());
       } else {

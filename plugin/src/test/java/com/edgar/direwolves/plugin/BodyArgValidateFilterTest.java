@@ -1,12 +1,13 @@
 package com.edgar.direwolves.plugin;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.plugin.arg.BodyArgValidateFilter;
 import com.edgar.util.validation.ValidationException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -41,12 +42,12 @@ public class BodyArgValidateFilterTest {
     headers.put("h3", "v3.2");
 
     JsonObject jsonObject = new JsonObject()
-        .put("encryptKey", "AAAAAAAAAAAAAAAA")
-        .put("barcode", "AAAAAAAAAAAAAAAA");
+            .put("encryptKey", "AAAAAAAAAAAAAAAA")
+            .put("barcode", "AAAAAAAAAAAAAAAA");
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
 
@@ -79,9 +80,9 @@ public class BodyArgValidateFilterTest {
     JsonObject jsonObject = new JsonObject();
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
 

@@ -17,18 +17,19 @@ public class RequestTransformerPluginTest {
   public void testDecode() {
     JsonArray jsonArray = new JsonArray();
     JsonObject request = new JsonObject()
-        .put("name", "add_device")
-        .put("header.remove", new JsonArray().add("h3").add("h4"))
-        .put("query.remove", new JsonArray().add("q3").add("q4"))
-        .put("body.remove", new JsonArray().add("p3").add("p4"))
-        .put("header.replace", new JsonArray().add("h5:v2").add("h6:v1"))
-        .put("query.replace", new JsonArray().add("q5:v2").add("q6:v1"))
-        .put("body.replace", new JsonArray().add("p5:v2").add("p6:v1"))
-        .put("header.add", new JsonArray().add("h1:v2").add("h2:v1"))
-        .put("query.add", new JsonArray().add("q1:v2").add("q2:v1"))
-        .put("body.add", new JsonArray().add("p1:v2").add("p2:v1"));
+            .put("name", "add_device")
+            .put("header.remove", new JsonArray().add("h3").add("h4"))
+            .put("query.remove", new JsonArray().add("q3").add("q4"))
+            .put("body.remove", new JsonArray().add("p3").add("p4"))
+            .put("header.replace", new JsonArray().add("h5:v2").add("h6:v1"))
+            .put("query.replace", new JsonArray().add("q5:v2").add("q6:v1"))
+            .put("body.replace", new JsonArray().add("p5:v2").add("p6:v1"))
+            .put("header.add", new JsonArray().add("h1:v2").add("h2:v1"))
+            .put("query.add", new JsonArray().add("q1:v2").add("q2:v1"))
+            .put("body.add", new JsonArray().add("p1:v2").add("p2:v1"));
     jsonArray.add(request);
-    RequestTransformerPlugin plugin = new RequestTransformerPluginFactory().decode(new JsonObject().put("request_transformer", jsonArray));
+    RequestTransformerPlugin plugin = new RequestTransformerPluginFactory()
+            .decode(new JsonObject().put("request_transformer", jsonArray));
     RequestTransformer transformer = plugin.transformer("add_device");
     Assert.assertEquals("add_device", transformer.name());
     Assert.assertEquals(2, transformer.headerRemoved().size());
@@ -45,7 +46,7 @@ public class RequestTransformerPluginTest {
   @Test
   public void testEncode() {
     RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
-        .create("request_transformer");
+            .create(RequestTransformerPlugin.class.getSimpleName());
     RequestTransformer transformer = RequestTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");
@@ -76,7 +77,8 @@ public class RequestTransformerPluginTest {
 
   @Test
   public void testRemove() {
-    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin.create("request_transformer");
+    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
+            .create(RequestTransformerPlugin.class.getSimpleName());
     RequestTransformer transformer = RequestTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");
@@ -133,7 +135,8 @@ public class RequestTransformerPluginTest {
 
   @Test
   public void testClear() {
-    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin.create("request_transformer");
+    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin.create
+            (RequestTransformerPlugin.class.getSimpleName());
     RequestTransformer transformer = RequestTransformer.create("add_device");
     transformer.addBody("p1", "v1");
     transformer.addBody("p2", "v2");

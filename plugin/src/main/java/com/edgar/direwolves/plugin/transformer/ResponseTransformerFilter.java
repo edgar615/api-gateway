@@ -8,25 +8,23 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * response_transfomer.
- * <p/>
+ * <p>
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class ResponseTransformerFilter implements Filter {
 
-  private static final String NAME = "response_transfomer";
-
   private Vertx vertx;
-
-  @Override
-  public String name() {
-    return NAME;
-  }
 
   @Override
   public String type() {
     return POST;
+  }
+
+  @Override
+  public int order() {
+    return 100;
   }
 
   @Override
@@ -39,18 +37,30 @@ public class ResponseTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.apiDefinition().plugin(RequestTransformerPlugin.NAME) != null;
+    return apiContext.apiDefinition().plugin(RequestTransformerPlugin.class.getSimpleName())
+           != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+    ResponseTransformerPlugin plugin =
+            (ResponseTransformerPlugin) apiContext.apiDefinition()
+                    .plugin(ResponseTransformerPlugin.class.getSimpleName());
 
-    for (int i = 0; i < apiContext.response().size(); i++) {
-      JsonObject response = apiContext.response().getJsonObject(i);
-      transformer(apiContext, response);
-
-      replace(apiContext, response);
+    JsonObject response = apiContext.response();
+    //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改
+    boolean isArray = response.getBoolean("isArray");
+    //body目前仅考虑JsonObject的替换
+    if (!isArray) {
+      tranformerBody(response.getJsonObject("body"), plugin);
     }
+    JsonObject header = response.getJsonObject("headers", new JsonObject());
+    response.put("headers", header);
+    tranformerHeaders(header, plugin);
+
+    //变量替换
+    replace(apiContext, response);
+
     completeFuture.complete(apiContext);
   }
 
@@ -77,29 +87,16 @@ public class ResponseTransformerFilter implements Filter {
 
   }
 
-  private void transformer(ApiContext apiContext, JsonObject response) {
-    String name = response.getString("name");
-    ResponseTransformerPlugin plugin =
-        (ResponseTransformerPlugin) apiContext.apiDefinition()
-            .plugin(ResponseTransformerPlugin.NAME);
-
-    ResponseTransformer transformer = plugin.transformer(name);
-    if (transformer != null) {
-      tranformerHeaders(response.getJsonObject("headers", new JsonObject()), transformer);
-      tranformerBody(response.getJsonObject("body", new JsonObject()), transformer);
-    }
-  }
-
 
   private void tranformerHeaders(JsonObject headers,
-                                 ResponseTransformer transformer) {
+                                 ResponseTransformerPlugin transformer) {
     transformer.headerRemoved().forEach(h -> headers.remove(h));
     transformer.headerReplaced().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
     transformer.headerAdded().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
   }
 
   private void tranformerBody(final JsonObject body,
-                              ResponseTransformer transformer) {
+                              ResponseTransformerPlugin transformer) {
     transformer.bodyRemoved().forEach(b -> body.remove(b));
     transformer.bodyReplaced().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
     transformer.bodyAdded().forEach(entry -> body.put(entry.getKey(), entry.getValue()));

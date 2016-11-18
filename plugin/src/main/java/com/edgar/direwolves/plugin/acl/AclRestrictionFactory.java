@@ -20,9 +20,9 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class AclRestrictionFactory implements ApiPluginFactory<AclRestriction> {
+public class AclRestrictionFactory implements ApiPluginFactory<AclRestrictionPlugin> {
   @Override
-  public AclRestriction decode(JsonObject jsonObject) {
+  public AclRestrictionPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("acl_restriction")) {
       return null;
     }
@@ -38,26 +38,26 @@ public class AclRestrictionFactory implements ApiPluginFactory<AclRestriction> {
       blacklist.add(blackArray.getString(i));
     }
 
-    AclRestriction aclRestriction = new AclRestrictionImpl();
-    whitelist.forEach(w -> aclRestriction.addWhitelist(w));
-    blacklist.forEach(b -> aclRestriction.addBlacklist(b));
-    return aclRestriction;
+    AclRestrictionPlugin plugin = new AclRestrictionPluginImpl();
+    whitelist.forEach(w -> plugin.addWhitelist(w));
+    blacklist.forEach(b -> plugin.addBlacklist(b));
+    return plugin;
   }
 
   @Override
-  public JsonObject encode(AclRestriction aclRestriction) {
+  public JsonObject encode(AclRestrictionPlugin plugin) {
     return new JsonObject().put("acl_restriction", new JsonObject()
-        .put("whitelist", new JsonArray(aclRestriction.whitelist()))
-        .put("blacklist", new JsonArray(aclRestriction.blacklist())));
+            .put("whitelist", new JsonArray(plugin.whitelist()))
+            .put("blacklist", new JsonArray(plugin.blacklist())));
   }
 
   @Override
   public String name() {
-    return AclRestriction.NAME;
+    return AclRestrictionPlugin.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new AclRestrictionImpl();
+    return new AclRestrictionPluginImpl();
   }
 }

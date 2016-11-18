@@ -8,12 +8,6 @@ import java.util.List;
  * Created by edgar on 16-10-22.
  */
 public interface RequestTransformerPlugin extends ApiPlugin {
-  String NAME = "REQUEST_TRANSFORMER";
-
-  default String name() {
-    return NAME;
-  }
-
   /**
    * @return 返回请求的替换规则
    */
@@ -49,4 +43,9 @@ public interface RequestTransformerPlugin extends ApiPlugin {
    * @return
    */
   RequestTransformerPlugin clear();
+
+  @Override
+  default String name() {
+    return RequestTransformerPlugin.class.getSimpleName();
+  }
 }

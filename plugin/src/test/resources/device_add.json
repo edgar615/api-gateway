@@ -1,64 +1,73 @@
 {
-  "name" : "add_device",
+  "name": "add_device",
   "method": "POST",
   "path": "/devices",
-  "scope" : "device:write",
-  "ip_restriction" : {
-    "whitelist" : ["192.168.0.1", "10.4.7.*"],
-    "blacklist" : ["192.168.0.100"]
+  "scope": "device:write",
+  "ip_restriction": {
+    "whitelist": [
+      "192.168.0.1",
+      "10.4.7.*"
+    ],
+    "blacklist": [
+      "192.168.0.100"
+    ]
   },
-  "rate_limit" : [
+  "rate_limit": [
     {
-      "limit" : 1000,
-      "limit_by" : "token",
-      "type" : "hour"
+      "limit": 1000,
+      "limit_by": "token",
+      "type": "hour"
     },
     {
-      "limit" : 100,
-      "limit_by" : "app_key",
-      "type" : "second"
+      "limit": 100,
+      "limit_by": "app_key",
+      "type": "second"
     }
   ],
-  "strict_arg" : true,
-  "url_arg" : [
+  "strict_arg": true,
+  "url_arg": [
     {
-      "name" : "limit",
-      "default_value" : 10,
-      "rules" : {
-        "integer":true,
-        "max":100,
-        "min":1
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
       }
     },
     {
-      "name" : "start",
-      "default_value" : 0,
-      "rules" : {
-        "integer":true
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
       }
     }
   ],
-  "body_arg" : [
+  "body_arg": [
     {
-      "name" : "encryptKey",
-      "rules" : {
-        "required" : true,
-        "regex" : "[0-9A-F]{16}"
+      "name": "encryptKey",
+      "rules": {
+        "required": true,
+        "regex": "[0-9A-F]{16}"
       }
     },
     {
-      "name" : "type",
-      "default_value" : 1,
-      "rules" : {
-        "required" : true,
-        "optional" : [1, 2, 3]
+      "name": "type",
+      "default_value": 1,
+      "rules": {
+        "required": true,
+        "optional": [
+          1,
+          2,
+          3
+        ]
       }
     },
     {
-      "name" : "barcode",
-      "rules" : {
-        "required" : true,
-        "regex" : "[0-9a-zA-Z]{16}"
+      "name": "barcode",
+      "rules": {
+        "required": true,
+        "regex": "[0-9a-zA-Z]{16}"
       }
     },
     {
@@ -68,38 +77,91 @@
       }
     }
   ],
-  "request_transformer" : [
+  "request_transformer": [
     {
-      "name" : "add_device",
-      "header.remove" : ["h3", "h4"],
-      "query.remove" : ["q3", "q4"],
-      "body.remove" : ["p3", "p4"],
-      "header.replace" : ["h5:v2", "h6:v1"],
-      "query.replace" : ["q5:v2", "q6:v1"],
-      "body.replace" : ["p5:v2", "p6:v1"],
-      "header.add" : ["h1:v2", "h2:v1", "h7:$user.userId", "h8:$query.foo", "h9:$var.foo", "h10:$body.type"],
-      "query.add" : ["q1:v2", "q2:v1", "q7:$header.h3", "q8:$var.foo", "q9:$body.type", "q10:$user.userId"],
-      "body.add" : ["p1:v2", "p2:v1",  "p7:$header.h3", "p8:$var.foo", "p9:$query.foo", "p10:$user.userId"]
+      "name": "add_device",
+      "header.remove": [
+        "h3",
+        "h4"
+      ],
+      "query.remove": [
+        "q3",
+        "q4"
+      ],
+      "body.remove": [
+        "p3",
+        "p4"
+      ],
+      "header.replace": [
+        "h5:v2",
+        "h6:v1"
+      ],
+      "query.replace": [
+        "q5:v2",
+        "q6:v1"
+      ],
+      "body.replace": [
+        "p5:v2",
+        "p6:v1"
+      ],
+      "header.add": [
+        "h1:v2",
+        "h2:v1",
+        "h7:$user.userId",
+        "h8:$query.foo",
+        "h9:$var.foo",
+        "h10:$body.type"
+      ],
+      "query.add": [
+        "q1:v2",
+        "q2:v1",
+        "q7:$header.h3",
+        "q8:$var.foo",
+        "q9:$body.type",
+        "q10:$user.userId"
+      ],
+      "body.add": [
+        "p1:v2",
+        "p2:v1",
+        "p7:$header.h3",
+        "p8:$var.foo",
+        "p9:$query.foo",
+        "p10:$user.userId"
+      ]
     }
   ],
-  "response_transformer" : [
-    {
-      "name" : "add_device",
-      "service": "device",
-      "method": "POST",
-      "path": "/devices",
-      "header.remove" : ["h3", "h4"],
-      "body.remove" : ["p3", "p4"],
-      "header.replace" : ["h5:v2", "h6:v1"],
-      "body.replace" : ["p5:v2", "p6:v1"],
-      "header.add" : ["h1:v2", "h2:v1", "h7:$user.userId"],
-      "body.add" : ["p1:v2", "p2:v1", "p7:$user.userId"]
-    }
-  ],
+  "response_transformer": {
+    "header.remove": [
+      "h3",
+      "h4"
+    ],
+    "body.remove": [
+      "p3",
+      "p4"
+    ],
+    "header.replace": [
+      "h5:v2",
+      "h6:v1"
+    ],
+    "body.replace": [
+      "p5:v2",
+      "p6:v1"
+    ],
+    "header.add": [
+      "h1:v2",
+      "h2:v1",
+      "h7:$user.userId"
+    ],
+    "body.add": [
+      "p1:v2",
+      "p2:v1",
+      "p7:$user.userId"
+    ]
+  },
   "endpoints": [
     {
-      "type" : "http",
-      "name" : "add_device",
+      "type": "http",
+      "name": "add_device",
       "service": "device",
       "method": "POST",
       "path": "/devices"

@@ -32,7 +32,7 @@ public class Utils {
     Multimap<String, String> params =
         MultiMapToMultimap.instance().apply(rc.request().params());
     JsonObject body = null;
-    if (rc.getBody().length() > 0) {
+    if (rc.getBody() != null && rc.getBody().length() > 0) {
       try {
         body = rc.getBodyAsJson();
       } catch (DecodeException e) {

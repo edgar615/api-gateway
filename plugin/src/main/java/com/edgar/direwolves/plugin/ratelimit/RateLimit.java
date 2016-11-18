@@ -15,10 +15,6 @@ package com.edgar.direwolves.plugin.ratelimit;
  */
 public interface RateLimit {
 
-  static RateLimit create(String limitBy, String type, long limit) {
-    return new RateLimitImpl(limitBy, type, limit);
-  }
-
   /**
    * 限制条件,user_rate | token_rate | app_key_rate
    *
@@ -39,5 +35,9 @@ public interface RateLimit {
    * @return
    */
   long limit();
+
+  static RateLimit create(String limitBy, String type, long limit) {
+    return new RateLimitImpl(limitBy, type, limit);
+  }
 
 }

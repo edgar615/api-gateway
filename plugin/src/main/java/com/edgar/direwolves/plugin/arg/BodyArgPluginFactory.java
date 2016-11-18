@@ -1,9 +1,10 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.google.common.base.Preconditions;
+
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.edgar.util.validation.Rule;
-import com.google.common.base.Preconditions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 /**
  * body参数控制的工厂类.
- * <p/>
+ * <p>
  * Json配置
  * <Pre>
  * "body_arg" : [
@@ -51,7 +52,7 @@ public class BodyArgPluginFactory implements ApiPluginFactory<BodyArgPlugin> {
 
   @Override
   public String name() {
-    return BodyArgPlugin.NAME;
+    return BodyArgPlugin.class.getSimpleName();
   }
 
   @Override
@@ -73,7 +74,7 @@ public class BodyArgPluginFactory implements ApiPluginFactory<BodyArgPlugin> {
       Object defaultValue = parameterJson.getValue("default_value");
       Parameter parameter = Parameter.create(name, defaultValue);
       List<Rule> rules = RulesDecoder.instance().apply(parameterJson.getJsonObject("rules", new
-          JsonObject()));
+              JsonObject()));
       rules.forEach(rule -> parameter.addRule(rule));
       bodyArgPlugin.add(parameter);
     }
@@ -85,15 +86,15 @@ public class BodyArgPluginFactory implements ApiPluginFactory<BodyArgPlugin> {
   @Override
   public JsonObject encode(BodyArgPlugin plugin) {
     return new JsonObject()
-        .put("body_arg", createParamterArray(plugin.parameters()));
+            .put("body_arg", createParamterArray(plugin.parameters()));
   }
 
   private JsonArray createParamterArray(List<Parameter> parameters) {
     JsonArray jsonArray = new JsonArray();
     parameters.forEach(parameter -> {
       JsonObject jsonObject = new JsonObject()
-          .put("name", parameter.name())
-          .put("default_value", parameter.defaultValue());
+              .put("name", parameter.name())
+              .put("default_value", parameter.defaultValue());
       jsonArray.add(jsonObject);
       JsonObject rules = new JsonObject();
       jsonObject.put("rules", rules);

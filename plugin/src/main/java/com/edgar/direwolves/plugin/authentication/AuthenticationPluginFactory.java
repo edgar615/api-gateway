@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 public class AuthenticationPluginFactory implements ApiPluginFactory<AuthenticationPlugin> {
   @Override
   public String name() {
-    return AuthenticationPlugin.NAME;
+    return AuthenticationPlugin.class.getSimpleName();
   }
 
   @Override

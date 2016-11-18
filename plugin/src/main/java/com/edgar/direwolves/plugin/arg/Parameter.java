@@ -17,10 +17,6 @@ import java.util.List;
  */
 public interface Parameter {
 
-  static Parameter create(String name, Object defaultValue) {
-    return new ParameterImpl(name, defaultValue);
-  }
-
   /**
    * 增加一个校验规则.
    *
@@ -43,4 +39,8 @@ public interface Parameter {
    * @return 校验规则.
    */
   List<Rule> rules();
+
+  static Parameter create(String name, Object defaultValue) {
+    return new ParameterImpl(name, defaultValue);
+  }
 }

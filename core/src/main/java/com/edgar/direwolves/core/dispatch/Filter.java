@@ -18,14 +18,15 @@ public interface Filter extends Configurable {
   String POST = "POST";
 
   /**
-   * @return filter的名称
-   */
-  String name();
-
-  /**
    * @return filter的类型 pre或者post
    */
   String type();
+
+  /**
+   *
+   * @return filter的顺序
+   */
+  int order();
 
   /**
    * 根据上下文判断是否应该执行filter的方法

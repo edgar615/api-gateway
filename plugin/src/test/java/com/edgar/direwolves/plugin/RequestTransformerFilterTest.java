@@ -1,5 +1,8 @@
 package com.edgar.direwolves.plugin;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.EventbusUtils;
@@ -7,8 +10,6 @@ import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.plugin.transformer.RequestTransformerFilter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
@@ -23,8 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -66,9 +65,9 @@ public class RequestTransformerFilterTest {
     headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
     RequestTransformerFilter filter = new RequestTransformerFilter();
@@ -80,8 +79,8 @@ public class RequestTransformerFilterTest {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        testContext.assertEquals(1, apiContext1.request().size());
-        JsonObject request = apiContext1.request().getJsonObject(0);
+        testContext.assertEquals(1, apiContext1.requests().size());
+        JsonObject request = apiContext1.requests().getJsonObject(0);
         testContext.assertEquals("localhost", request.getString("host"));
         testContext.assertEquals(8080, request.getInteger("port"));
         testContext.assertEquals(5, request.getJsonObject("params").size());
@@ -107,9 +106,9 @@ public class RequestTransformerFilterTest {
     headers.put("h3", "v3");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition = ApiDefinition
-        .fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
+            .fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add_2endpoint.json"));
     apiContext.setApiDefinition(definition);
 
     RequestTransformerFilter filter = new RequestTransformerFilter();
@@ -121,8 +120,8 @@ public class RequestTransformerFilterTest {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        testContext.assertEquals(2, apiContext1.request().size());
-        JsonObject request = apiContext1.request().getJsonObject(0);
+        testContext.assertEquals(2, apiContext1.requests().size());
+        JsonObject request = apiContext1.requests().getJsonObject(0);
         testContext.assertEquals("localhost", request.getString("host"));
         testContext.assertEquals(8080, request.getInteger("port"));
         testContext.assertEquals(4, request.getJsonObject("params").size());
@@ -130,7 +129,7 @@ public class RequestTransformerFilterTest {
         testContext.assertFalse(request.getJsonObject("params").containsKey("q3"));
         testContext.assertFalse(request.getJsonObject("headers").containsKey("h3"));
 
-        request = apiContext1.request().getJsonObject(1);
+        request = apiContext1.requests().getJsonObject(1);
         testContext.assertEquals("localhost", request.getString("host"));
         testContext.assertEquals(8080, request.getInteger("port"));
         testContext.assertEquals(1, request.getJsonObject("params").size());
@@ -153,9 +152,10 @@ public class RequestTransformerFilterTest {
     headers.put("h3", "v3");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_user_add.json"));
+            ApiDefinition
+                    .fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_user_add.json"));
     apiContext.setApiDefinition(definition);
 
     RequestTransformerFilter filter = new RequestTransformerFilter();
@@ -167,7 +167,7 @@ public class RequestTransformerFilterTest {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        testContext.assertEquals(2, apiContext1.request().size());
+        testContext.assertEquals(2, apiContext1.requests().size());
         testContext.fail();
       } else {
         testContext.assertTrue(ar.cause() instanceof ReplyException);
@@ -190,9 +190,10 @@ public class RequestTransformerFilterTest {
     headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject().put("type", 2));
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params,
+                              new JsonObject().put("type", 2));
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
     apiContext.setPrincipal(new JsonObject().put("userId", "1"));
     apiContext.addVariable("foo", "var_bar");
@@ -206,8 +207,8 @@ public class RequestTransformerFilterTest {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         ApiContext apiContext1 = ar.result();
-        testContext.assertEquals(1, apiContext1.request().size());
-        JsonObject request = apiContext1.request().getJsonObject(0);
+        testContext.assertEquals(1, apiContext1.requests().size());
+        JsonObject request = apiContext1.requests().getJsonObject(0);
         testContext.assertEquals("localhost", request.getString("host"));
         testContext.assertEquals(8080, request.getInteger("port"));
         testContext.assertEquals(9, request.getJsonObject("params").size());

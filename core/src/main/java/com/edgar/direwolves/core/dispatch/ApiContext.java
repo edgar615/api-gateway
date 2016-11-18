@@ -94,7 +94,7 @@ public interface ApiContext {
   /**
    * @return 经过requestTransformer后的请求.
    */
-  JsonArray request();
+  JsonArray requests();
 
   /**
    * @param jsonObject 添加一个经过requestTransformer后的请求
@@ -102,14 +102,26 @@ public interface ApiContext {
   void addRequest(JsonObject jsonObject);
 
   /**
-   * @return 经过requestTransformer后的请求.
+   * @return RPC请求的结果.
    */
-  JsonArray response();
+  JsonArray results();
 
   /**
-   * @param jsonObject 添加一个经过responseTransformer后的请求
+   * @param jsonObject RPC请求的结果
    */
-  void addResponse(JsonObject jsonObject);
+  void addResult(JsonObject jsonObject);
+
+  /**
+   *
+   * @return 最终聚合的需要返回给调用方的响应
+   */
+  JsonObject response();
+
+  /**
+   *
+   * @param response 设置最终的结果
+   */
+  void setResponse(JsonObject response);
 
   /**
    * @return ApiContext

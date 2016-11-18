@@ -10,7 +10,7 @@ import io.vertx.core.json.JsonObject;
 public class AppKeyCheckerPluginFactory implements ApiPluginFactory<AppKeyCheckerPlugin> {
   @Override
   public String name() {
-    return AppKeyCheckerPlugin.NAME;
+    return AppKeyCheckerPlugin.class.getSimpleName();
   }
 
   @Override

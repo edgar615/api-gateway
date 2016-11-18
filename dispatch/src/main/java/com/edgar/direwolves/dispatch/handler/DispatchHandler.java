@@ -1,95 +1,90 @@
 package com.edgar.direwolves.dispatch.handler;
 
+import com.google.common.collect.ImmutableList;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.dispatch.Utils;
-import com.edgar.direwolves.eb.ApiMatchHandler;
-import com.edgar.direwolves.filter.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by edgar on 16-9-12.
  */
 public class DispatchHandler implements Handler<RoutingContext> {
 
-  private JsonObject httpJson(ApiContext apiContext, HttpEndpoint endpoint) {
-    //host,port
-    //path
-    //query
-    //body
-    //header
-    return null;
-  }
+  private final List<Filter> filters;
+
+  public DispatchHandler(List<Filter> filters) {this.filters = ImmutableList.copyOf(filters);}
+
 
   @Override
   public void handle(RoutingContext rc) {
 
     //创建上下文
-    Future<ApiDefinition> apiDefinitionFuture = Future.future();
+    Task<ApiContext> task = apiContextTask(rc);
+    task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()));
+
+//    task.andThen("RPC")
+
+    task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
+    task.andThen("Response", apiContext -> {
+      JsonObject response = apiContext.response();
+      int statusCode = response.getInteger("statusCode", 200);
+      boolean isArray = response.getBoolean("isArray", false);
+      if (isArray) {
+        rc.response().end(response.getJsonArray("body", new JsonArray()).encode());
+      } else {
+        rc.response().end(response.getJsonObject("body", new JsonObject()).encode());
+      }
+    })
+            .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
+  }
+
+  public Task<ApiContext> apiContextTask(RoutingContext rc) {
+    Future<ApiDefinition>
+            apiDefinitionFuture = Future.future();
     getApiDefintion(rc, apiDefinitionFuture);
-    Task.create(apiDefinitionFuture)
-        .map(apiDefinition -> {
-          ApiContext apiContext = Utils.apiContext(rc);
-          apiContext.setApiDefinition(apiDefinition);
-          //设置变量
-          matches(apiContext, apiDefinition);
-          return apiContext;
-        }).flatMapTask("do filters", apiContext -> Filters.instance().doFilter(apiContext))
-        .andThen(apiContext -> {
-          ApiDefinition apiDefinition = apiContext.apiDefinition();
-          List<Endpoint> endpoints = apiDefinition.endpoints();
-          endpoints.forEach(endpoint -> {
-            if (endpoint instanceof HttpEndpoint) {
-              HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    return Task.create("Find api", apiDefinitionFuture)
+            .map(apiDefinition -> {
+              ApiContext apiContext = Utils.apiContext(rc);
+              apiContext.setApiDefinition(apiDefinition);
+              //设置变量
+              matches(apiContext, apiDefinition);
+              return apiContext;
+            });
+  }
 
-
-            }
-          });
-        })
-        .onFailure(throwable -> {
-          rc.response().setStatusCode(404).setChunked(true)
-              .end(new JsonObject()
-                  .put("error", throwable.getMessage())
-                  .encode());
-        });
-//    apiDefinitionFuture.setHandler(ar -> {
-//      if (ar.succeeded()) {
-//        ApiDefinition apiDefinition = ar.response();
-//        apiContext.setApiDefinition(apiDefinition);
-//        //设置变量
-//        matches(apiContext, apiDefinition);
-//        Filters filters = Filters.instance();
-//        Task<ApiContext> task = filters.doFilter(apiContext);
-//        task.andThen(context -> rc.response()
-//                .end(new JsonObject()
-//                             .put("apiName", apiDefinition.name())
-//                             .encode()))
-//                .onFailure(throwable -> {
-//                  throwable.printStackTrace();
-//                  rc.response().setStatusCode(404)
-//                          .end(new JsonObject()
-//                                       .put("foo", "bar")
-//                                       .encode());
-//                });
-//      } else {
-//        rc.response().setStatusCode(404).setChunked(true)
-//                .end(new JsonObject()
-//                             .put("error", ar.cause().getMessage())
-//                             .encode());
-//      }
-//    });
+  public Task<ApiContext> doFilter(Task<ApiContext> task, Predicate<Filter> filterPredicate) {
+    List<Filter> postFilters = filters.stream()
+            .filter(filterPredicate)
+            .collect(Collectors.toList());
+    for (Filter filter : postFilters) {
+      task = task.flatMap(filter.name(), apiContext -> {
+        if (filter.shouldFilter(apiContext)) {
+          Future<ApiContext> completeFuture = Future.future();
+          filter.doFilter(apiContext.copy(), completeFuture);
+          return completeFuture;
+        } else {
+          return Future.succeededFuture(apiContext);
+        }
+      });
+    }
+    return task;
   }
 
   private void matches(ApiContext apiContext, ApiDefinition definition) {
@@ -112,11 +107,40 @@ public class DispatchHandler implements Handler<RoutingContext> {
     }
   }
 
+  private Task<ApiContext> rpc(RoutingContext rc, ApiContext apiContext) {
+    Task<ApiContext> task = Task.create();
+    JsonArray requests = apiContext.requests();
+    List<Future<JsonObject>> reusltsFuture = new ArrayList<>(requests.size());
+    for (int i = 0; i < requests.size(); i++) {
+      JsonObject req = requests.getJsonObject(i);
+      String type = req.getString("type", "http");
+      if ("http".equalsIgnoreCase(type)) {
+        Future<JsonObject> future = Future.future();
+        reusltsFuture.add(future);
+        rc.vertx().eventBus().<JsonObject>send("direwolves.rpc.http.req",
+                                               requests.getJsonObject(0), ar -> {
+                  if (ar.succeeded()) {
+                    future.complete(ar.result().body());
+                  } else {
+                    future.fail(ar.cause());
+                  }
+                });
+      }
+    }
+    Task.par(reusltsFuture).andThen(results -> {
+      for (JsonObject result : results) {
+        apiContext.addResult(result.copy());
+      }
+      task.complete(apiContext);
+    }).onFailure(throwable -> task.fail(throwable));
+    return task;
+  }
+
   private void getApiDefintion(RoutingContext rc, Future<ApiDefinition> completeFuture) {
     JsonObject matcher = new JsonObject()
-        .put("method", rc.request().method().name())
-        .put("path", rc.normalisedPath());
-    rc.vertx().eventBus().<List<ApiDefinition>>send(ApiMatchHandler.ADDRESS, matcher, ar -> {
+            .put("method", rc.request().method().name())
+            .put("path", rc.normalisedPath());
+    rc.vertx().eventBus().<List<ApiDefinition>>send("eb.api.match", matcher, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> apiDefinitions = ar.result().body();
         if (apiDefinitions.isEmpty()) {

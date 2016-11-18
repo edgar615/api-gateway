@@ -24,13 +24,13 @@ public class MockFilter implements Filter {
   }
 
   @Override
-  public String name() {
-    return NAME;
+  public String type() {
+    return PRE;
   }
 
   @Override
-  public String type() {
-    return PRE;
+  public int order() {
+    return 0;
   }
 
   @Override

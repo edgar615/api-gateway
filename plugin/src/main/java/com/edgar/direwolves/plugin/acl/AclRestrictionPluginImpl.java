@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.ip;
+package com.edgar.direwolves.plugin.acl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -12,7 +12,7 @@ import java.util.Set;
  *
  * @author Edgar  Date 2016/10/21
  */
-class IpRestrictionImpl implements IpRestriction {
+class AclRestrictionPluginImpl implements AclRestrictionPlugin {
   /**
    * 白名单
    */
@@ -23,48 +23,49 @@ class IpRestrictionImpl implements IpRestriction {
    */
   private final Set<String> blacklist = new HashSet<>();
 
-  IpRestrictionImpl() {
+  AclRestrictionPluginImpl() {
   }
 
   @Override
-  public IpRestriction addWhitelist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
+  public AclRestrictionPlugin addWhitelist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
     Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
-    blacklist.remove(ip);
-    whitelist.add(ip);
+    blacklist.remove(group);
+    whitelist.add(group);
     return this;
   }
 
   @Override
-  public IpRestriction addBlacklist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
+  public AclRestrictionPlugin addBlacklist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
     Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
-    whitelist.remove(ip);
-    blacklist.add(ip);
+    whitelist.remove(group);
+    blacklist.add(group);
     return this;
   }
 
   @Override
-  public IpRestriction removeWhitelist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
-    whitelist.remove(ip);
-    return this;
-  }
-
-  public IpRestriction removeBlacklist(String ip) {
-    Preconditions.checkNotNull(ip, "ip cannot be null");
-    blacklist.remove(ip);
+  public AclRestrictionPlugin removeWhitelist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
+    whitelist.remove(group);
     return this;
   }
 
   @Override
-  public IpRestriction clearWhitelist() {
+  public AclRestrictionPlugin removeBlacklist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
+    blacklist.remove(group);
+    return this;
+  }
+
+  @Override
+  public AclRestrictionPlugin clearWhitelist() {
     whitelist.clear();
     return this;
   }
 
   @Override
-  public IpRestriction clearBlacklist() {
+  public AclRestrictionPlugin clearBlacklist() {
     blacklist.clear();
     return this;
   }

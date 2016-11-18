@@ -9,9 +9,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface IpRestriction extends ApiPlugin {
-
-  String NAME = "IP_RESTRICTION";
+public interface IpRestrictionPlugin extends ApiPlugin {
 
   /**
    * 增加白名单.
@@ -19,9 +17,9 @@ public interface IpRestriction extends ApiPlugin {
    * 每个接口最多允许添加100个白名单，超过100个白名单应该采用其他方式。
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
+   * @return IpRestrictionPlugin
    */
-  IpRestriction addWhitelist(String ip);
+  IpRestrictionPlugin addWhitelist(String ip);
 
   /**
    * 增加黑名单.
@@ -29,39 +27,39 @@ public interface IpRestriction extends ApiPlugin {
    * 每个接口最多允许添加100个黑名单，超过100个黑名单应该采用其他方式。
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
+   * @return IpRestrictionPlugin
    */
-  IpRestriction addBlacklist(String ip);
+  IpRestrictionPlugin addBlacklist(String ip);
 
   /**
    * 删除白名单.
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
+   * @return IpRestrictionPlugin
    */
-  IpRestriction removeWhitelist(String ip);
+  IpRestrictionPlugin removeWhitelist(String ip);
 
   /**
    * 删除黑名单.
    *
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
-   * @return IpRestriction
+   * @return IpRestrictionPlugin
    */
-  IpRestriction removeBlacklist(String ip);
+  IpRestrictionPlugin removeBlacklist(String ip);
 
   /**
    * 删除所有白名单.
    *
-   * @return IpRestriction
+   * @return IpRestrictionPlugin
    */
-  IpRestriction clearWhitelist();
+  IpRestrictionPlugin clearWhitelist();
 
   /**
    * 删除所有黑名单.
    *
-   * @return IpRestriction
+   * @return IpRestrictionPlugin
    */
-  IpRestriction clearBlacklist();
+  IpRestrictionPlugin clearBlacklist();
 
   /**
    * @return 白名单列表
@@ -73,7 +71,8 @@ public interface IpRestriction extends ApiPlugin {
    */
   List<String> blacklist();
 
+  @Override
   default String name() {
-    return NAME;
+    return IpRestrictionPlugin.class.getSimpleName();
   }
 }

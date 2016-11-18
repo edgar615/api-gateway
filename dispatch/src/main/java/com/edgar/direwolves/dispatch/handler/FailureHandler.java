@@ -24,8 +24,8 @@ public class FailureHandler implements Handler<RoutingContext> {
     return new FailureHandler();
   }
 
-  public static void handler(RoutingContext rc, Throwable throwable) {
-
+  public static void doHandle(RoutingContext rc, Throwable throwable) {
+    LOGGER.error("ex", throwable);
     int statusCode = rc.statusCode();
     HttpServerResponse response = rc.response();
     if (throwable == null) {
@@ -52,7 +52,7 @@ public class FailureHandler implements Handler<RoutingContext> {
   public void handle(RoutingContext rc) {
     Throwable throwable = rc.failure();
     LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
-    handler(rc, throwable);
+    doHandle(rc, throwable);
   }
 
 }

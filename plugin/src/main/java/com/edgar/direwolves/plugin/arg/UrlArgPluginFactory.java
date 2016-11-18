@@ -1,9 +1,10 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.google.common.base.Preconditions;
+
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.edgar.util.validation.Rule;
-import com.google.common.base.Preconditions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -38,7 +39,7 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
 
   @Override
   public String name() {
-    return UrlArgPlugin.NAME;
+    return UrlArgPlugin.class.getSimpleName();
   }
 
   @Override
@@ -60,7 +61,7 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
       Object defaultValue = parameterJson.getValue("default_value");
       Parameter parameter = Parameter.create(name, defaultValue);
       List<Rule> rules = RulesDecoder.instance().apply(parameterJson.getJsonObject("rules", new
-          JsonObject()));
+              JsonObject()));
       rules.forEach(rule -> parameter.addRule(rule));
       urlArgPlugin.add(parameter);
     }
@@ -72,15 +73,15 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
   @Override
   public JsonObject encode(UrlArgPlugin plugin) {
     return new JsonObject()
-        .put("url_arg", createParamterArray(plugin.parameters()));
+            .put("url_arg", createParamterArray(plugin.parameters()));
   }
 
   private JsonArray createParamterArray(List<Parameter> parameters) {
     JsonArray jsonArray = new JsonArray();
     parameters.forEach(parameter -> {
       JsonObject jsonObject = new JsonObject()
-          .put("name", parameter.name())
-          .put("default_value", parameter.defaultValue());
+              .put("name", parameter.name())
+              .put("default_value", parameter.defaultValue());
       jsonArray.add(jsonObject);
       JsonObject rules = new JsonObject();
       jsonObject.put("rules", rules);

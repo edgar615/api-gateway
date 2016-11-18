@@ -1,5 +1,11 @@
 package com.edgar.direwolves.plugin;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.plugin.client.AppKeyCheckerFilter;
 import com.edgar.util.base.EncryptUtils;
@@ -7,11 +13,6 @@ import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -64,10 +65,10 @@ public class AppKeyCheckerFilterTest {
 
     JsonArray appKeys = new JsonArray();
     appKeys.add(new JsonObject()
-        .put("key", appKey)
-        .put("secret", appSecret)
-        .put("scope", "all")
-        .put("appCode", 0));
+                        .put("key", appKey)
+                        .put("secret", appSecret)
+                        .put("scope", "all")
+                        .put("appCode", 0));
     JsonObject config = new JsonObject().put("app_key.secret", appKeys);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -101,10 +102,10 @@ public class AppKeyCheckerFilterTest {
 
     JsonArray appKeys = new JsonArray();
     appKeys.add(new JsonObject()
-        .put("key", appKey)
-        .put("secret", appSecret)
-        .put("scope", "all")
-        .put("appCode", 0));
+                        .put("key", appKey)
+                        .put("secret", appSecret)
+                        .put("scope", "all")
+                        .put("appCode", 0));
     JsonObject config = new JsonObject().put("app_key.secret", appKeys);
 
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
@@ -126,10 +127,10 @@ public class AppKeyCheckerFilterTest {
 
     JsonArray appKeys = new JsonArray();
     appKeys.add(new JsonObject()
-        .put("key", appKey)
-        .put("secret", appSecret)
-        .put("scope", "all")
-        .put("appCode", 0));
+                        .put("key", appKey)
+                        .put("secret", appSecret)
+                        .put("scope", "all")
+                        .put("appCode", 0));
     JsonObject config = new JsonObject().put("app_key.secret", appKeys);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -156,7 +157,7 @@ public class AppKeyCheckerFilterTest {
         testContext.assertTrue(e instanceof SystemException);
         SystemException ex = (SystemException) e;
         testContext.assertEquals(DefaultErrorCode.INVALID_REQ.getNumber(),
-            ex.getErrorCode().getNumber());
+                                 ex.getErrorCode().getNumber());
 
         async.complete();
       }
@@ -168,10 +169,10 @@ public class AppKeyCheckerFilterTest {
 
     JsonArray appKeys = new JsonArray();
     appKeys.add(new JsonObject()
-        .put("key", appKey)
-        .put("secret", appSecret)
-        .put("scope", "all")
-        .put("appCode", 0));
+                        .put("key", appKey)
+                        .put("secret", appSecret)
+                        .put("scope", "all")
+                        .put("appCode", 0));
     JsonObject config = new JsonObject().put("app_key.secret", appKeys);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -182,8 +183,8 @@ public class AppKeyCheckerFilterTest {
     params.put("deviceId", "1");
 
     JsonObject body = new JsonObject()
-        .put("name", "$#$%$%$%")
-        .put("code", 123434);
+            .put("name", "$#$%$%$%")
+            .put("code", 123434);
 
     params.put("body", body.encode());
     params.put("sign", signTopRequest(params, appSecret, signMethod));

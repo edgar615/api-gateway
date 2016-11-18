@@ -1,8 +1,9 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.edgar.util.validation.Rule;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+
+import com.edgar.util.validation.Rule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,8 @@ import java.util.List;
  * <ul>
  * <li>name 参数的名称，必填项</li>
  * <li>default 默认值，如果参数没有定义默认值，那么默认值用null</li>
- * <li>rule 校验规则，由下列校验规则 required，prohibited，optional，min, max, minLength, maxLength, regex, email, integer, equals</li>
+ * <li>rule 校验规则，由下列校验规则 required，prohibited，optional，min, max, minLength, maxLength, regex,
+ * email, integer, equals</li>
  * </ul>
  *
  * @author Edgar  Date 2016/9/8
@@ -55,9 +57,9 @@ class ParameterImpl implements Parameter {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("Parameter")
-        .add("name", name)
-        .add("defaultValue", defaultValue)
-        .add("rules", rules)
-        .toString();
+            .add("name", name)
+            .add("defaultValue", defaultValue)
+            .add("rules", rules)
+            .toString();
   }
 }

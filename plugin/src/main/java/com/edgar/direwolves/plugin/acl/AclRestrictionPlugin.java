@@ -9,9 +9,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface AclRestriction extends ApiPlugin {
-
-  String NAME = "ACL_RESTRICTION";
+public interface AclRestrictionPlugin extends ApiPlugin {
 
   /**
    * 增加白名单.
@@ -19,9 +17,9 @@ public interface AclRestriction extends ApiPlugin {
    * 每个接口最多允许添加100个白名单，超过100个白名单应该采用其他方式。
    *
    * @param group group.
-   * @return AclRestriction
+   * @return AclRestrictionPlugin
    */
-  AclRestriction addWhitelist(String group);
+  AclRestrictionPlugin addWhitelist(String group);
 
   /**
    * 增加黑名单.
@@ -29,39 +27,39 @@ public interface AclRestriction extends ApiPlugin {
    * 每个接口最多允许添加100个黑名单，超过100个黑名单应该采用其他方式。
    *
    * @param group group.
-   * @return AclRestriction
+   * @return AclRestrictionPlugin
    */
-  AclRestriction addBlacklist(String group);
+  AclRestrictionPlugin addBlacklist(String group);
 
   /**
    * 删除白名单.
    *
    * @param group group地址.
-   * @return AclRestriction
+   * @return AclRestrictionPlugin
    */
-  AclRestriction removeWhitelist(String group);
+  AclRestrictionPlugin removeWhitelist(String group);
 
   /**
    * 删除黑名单.
    *
    * @param group group地址.
-   * @return AclRestriction
+   * @return AclRestrictionPlugin
    */
-  AclRestriction removeBlacklist(String group);
+  AclRestrictionPlugin removeBlacklist(String group);
 
   /**
    * 删除所有白名单.
    *
-   * @return AclRestriction
+   * @return AclRestrictionPlugin
    */
-  AclRestriction clearWhitelist();
+  AclRestrictionPlugin clearWhitelist();
 
   /**
    * 删除所有黑名单.
    *
-   * @return AclRestriction
+   * @return AclRestrictionPlugin
    */
-  AclRestriction clearBlacklist();
+  AclRestrictionPlugin clearBlacklist();
 
   /**
    * @return 白名单列表
@@ -73,7 +71,8 @@ public interface AclRestriction extends ApiPlugin {
    */
   List<String> blacklist();
 
+  @Override
   default String name() {
-    return NAME;
+    return AclRestrictionPlugin.class.getSimpleName();
   }
 }

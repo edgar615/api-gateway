@@ -1,9 +1,10 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -28,13 +29,15 @@ class ApiContextImpl implements ApiContext {
 
   private final Map<String, Object> variables = new HashMap<>();
 
-  private final JsonArray request = new JsonArray();
+  private final JsonArray requests = new JsonArray();
 
-  private final JsonArray response = new JsonArray();
+  private final JsonArray results = new JsonArray();
 
   private JsonObject principal;
 
   private ApiDefinition apiDefinition;
+
+  private JsonObject response = new JsonObject();
 
   ApiContextImpl(HttpMethod method, String path, Multimap<String, String> headers,
                  Multimap<String, String> params, JsonObject body) {
@@ -112,39 +115,50 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public JsonArray request() {
-    return request;
+  public JsonArray requests() {
+    return requests;
   }
 
   @Override
   public void addRequest(JsonObject jsonObject) {
-    this.request.add(jsonObject);
+    this.requests.add(jsonObject);
   }
 
   @Override
-  public JsonArray response() {
+  public JsonArray results() {
+    return results;
+  }
+
+  @Override
+  public void addResult(JsonObject jsonObject) {
+    this.results.add(jsonObject);
+  }
+
+  @Override
+  public JsonObject response() {
     return response;
   }
 
   @Override
-  public void addResponse(JsonObject jsonObject) {
-    this.response.add(jsonObject);
+  public void setResponse(JsonObject response) {
+    this.response.mergeIn(response);
   }
 
   @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
-        .add("method", method)
-        .add("path", path)
-        .add("params", params)
-        .add("headers", headers)
-        .add("body", body)
-        .add("variables", variables)
-        .add("apiDefinition", apiDefinition);
+            .add("method", method)
+            .add("path", path)
+            .add("params", params)
+            .add("headers", headers)
+            .add("body", body)
+            .add("variables", variables)
+            .add("apiDefinition", apiDefinition);
     if (principal != null) {
       helper.add("principal", principal.encode());
     }
-    helper.add("request", request.encode());
+    helper.add("requests", requests.encode());
+    helper.add("results", results);
     helper.add("response", response);
 
     return helper.toString();
@@ -154,19 +168,23 @@ class ApiContextImpl implements ApiContext {
     ApiContext apiContext = null;
     if (body() == null) {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-          ArrayListMultimap.create(params()), null);
+                                      ArrayListMultimap.create(params()), null);
     } else {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-          ArrayListMultimap.create(params()), body().copy());
+                                      ArrayListMultimap.create(params()), body().copy());
     }
 
     final ApiContext finalApiContext = apiContext;
     variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
-    for (int i = 0; i < request().size(); i++) {
-      finalApiContext.addRequest(request().getJsonObject(i).copy());
+    for (int i = 0; i < requests().size(); i++) {
+      finalApiContext.addRequest(requests().getJsonObject(i).copy());
     }
-    for (int i = 0; i < response().size(); i++) {
-      finalApiContext.addResponse(response().getJsonObject(i).copy());
+    for (int i = 0; i < results().size(); i++) {
+      finalApiContext.addResult(results().getJsonObject(i).copy());
+    }
+    finalApiContext.setResponse(response);
+    if (apiDefinition != null) {
+      finalApiContext.setApiDefinition(apiDefinition.copy());
     }
     return finalApiContext;
   }

@@ -1,13 +1,14 @@
 package com.edgar.direwolves.plugin;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.plugin.arg.UrlArgValidateFilter;
 import com.edgar.util.validation.ValidationException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -42,9 +43,9 @@ public class UrlArgValidateFilterTest {
     headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
     apiContext.setApiDefinition(definition);
 
 
@@ -76,9 +77,10 @@ public class UrlArgValidateFilterTest {
     headers.put("h3", "v3.2");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     ApiDefinition definition =
-        ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/app_key_required.json"));
+            ApiDefinition.fromJson(
+                    JsonUtils.getJsonFromFile("src/test/resources/app_key_required.json"));
     apiContext.setApiDefinition(definition);
 
 
