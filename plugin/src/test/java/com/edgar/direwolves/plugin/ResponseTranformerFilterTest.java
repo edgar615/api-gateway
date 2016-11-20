@@ -1,6 +1,14 @@
 package com.edgar.direwolves.plugin;
 
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.plugin.response.ExtractResultFilter;
+import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;
+import com.edgar.direwolves.plugin.transformer.ResponseTransformerPlugin;
+import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
@@ -11,6 +19,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
@@ -18,61 +27,81 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Edgar on 2016/9/20.
  *
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class ResponseTranformerFilterTest {
+public class ResponseTranformerFilterTest extends FilterTest {
 
-  Vertx vertx;
+  private final List<Filter> filters = new ArrayList<>();
+  ResponseTransformerFilter filter;
+  private ApiContext apiContext;
+
+  private Vertx vertx;
 
   @Before
-  public void testSetUp(TestContext testContext) {
+  public void setUp() {
     vertx = Vertx.vertx();
+
+    filter = new ResponseTransformerFilter();
+    filter.config(vertx, new JsonObject());
+
+    filters.clear();
+    filters.add(filter);
   }
 
   @After
   public void tearDown(TestContext testContext) {
-//    vertx.close(testContext.asyncAssertSuccess());
+    vertx.close(testContext.asyncAssertSuccess());
   }
 
 
   @Test
   public void testResponseTransformer(TestContext testContext) {
+    ResponseTransformerPlugin plugin = (ResponseTransformerPlugin) ApiPlugin.create(ResponseTransformerPlugin.class.getSimpleName());
+    plugin.removeHeader("h3");
+    plugin.removeHeader("h4");
+    plugin.removeBody("p3");
+    plugin.removeBody("p4");
+    plugin.replaceHeader("h5", "v2");
+    plugin.replaceHeader("h6", "v1");
+    plugin.replaceBody("p5", "v2");
+    plugin.replaceBody("p6", "v1");
+    plugin.addHeader("h2", "v1");
+    plugin.addHeader("h1", "v2");
+    plugin.addBody("q1", "v2");
+    plugin.addBody("q2", "v1");
+    apiContext =
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("q3", "v3");
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
-    ApiDefinition definition =
-            ApiDefinition.fromJson(JsonUtils.getJsonFromFile("src/test/resources/device_add.json"));
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    definition.addPlugin(plugin);
     apiContext.setApiDefinition(definition);
     JsonObject response = new JsonObject()
             .put("name", "add_device")
             .put("isArray", false)
-            .put("body", new JsonObject());
+            .put("body", new JsonObject().put("foo", "bar"));
     apiContext.setResponse(response);
-    apiContext.setPrincipal(new JsonObject().put("userId", "1"));
 
-    ResponseTransformerFilter filter = new ResponseTransformerFilter();
-    filter.config(vertx, new JsonObject());
-
-    Future<ApiContext> future = Future.future();
-    filter.doFilter(apiContext, future);
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        ApiContext apiContext1 = ar.result();
-        JsonObject jsonObject = apiContext1.response();
-        testContext.assertEquals(5, jsonObject.getJsonObject("headers").size());
-        testContext.assertEquals(5, jsonObject.getJsonObject("body").size());
-      } else {
-        testContext.fail();
-      }
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> {
+          JsonObject jsonObject = context.response();
+          testContext.assertEquals(4, jsonObject.getJsonObject("headers").size());
+          testContext.assertEquals(5, jsonObject.getJsonObject("body").size());
+          async.complete();
+        }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
     });
   }
 }

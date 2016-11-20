@@ -47,9 +47,15 @@ public class DispatchHandler implements Handler<RoutingContext> {
       int statusCode = response.getInteger("statusCode", 200);
       boolean isArray = response.getBoolean("isArray", false);
       if (isArray) {
-        rc.response().end(response.getJsonArray("body", new JsonArray()).encode());
+        rc.response()
+            .setStatusCode(statusCode)
+            .setChunked(true)
+            .end(response.getJsonArray("body", new JsonArray()).encode());
       } else {
-        rc.response().end(response.getJsonObject("body", new JsonObject()).encode());
+        rc.response()
+            .setStatusCode(statusCode)
+            .setChunked(true)
+            .end(response.getJsonObject("body", new JsonObject()).encode());
       }
     })
             .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
@@ -74,7 +80,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
             .filter(filterPredicate)
             .collect(Collectors.toList());
     for (Filter filter : postFilters) {
-      task = task.flatMap(filter.name(), apiContext -> {
+      task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
           Future<ApiContext> completeFuture = Future.future();
           filter.doFilter(apiContext.copy(), completeFuture);
@@ -82,7 +88,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
         } else {
           return Future.succeededFuture(apiContext);
         }
-      });
+      }).andThen(apiContext -> apiContext.addAction(filter.getClass().getSimpleName(), apiContext));
     }
     return task;
   }

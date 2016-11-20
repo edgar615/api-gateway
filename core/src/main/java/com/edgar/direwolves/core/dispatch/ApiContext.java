@@ -112,16 +112,27 @@ public interface ApiContext {
   void addResult(JsonObject jsonObject);
 
   /**
-   *
    * @return 最终聚合的需要返回给调用方的响应
    */
   JsonObject response();
 
   /**
-   *
    * @param response 设置最终的结果
    */
   void setResponse(JsonObject response);
+
+  /**
+   * 添加一个动作，主要记录每次动作对ApiContext的改变，用来做日志跟踪.
+   *
+   * @param action     动作名称
+   * @param apiContext
+   */
+  void addAction(String action, ApiContext apiContext);
+
+  /**
+   * @return 返回所有的动作.
+   */
+  List<Map.Entry<String, ApiContext>> actions();
 
   /**
    * @return ApiContext

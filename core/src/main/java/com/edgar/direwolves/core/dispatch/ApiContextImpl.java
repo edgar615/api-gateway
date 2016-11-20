@@ -1,17 +1,16 @@
 package com.edgar.direwolves.core.dispatch;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 class ApiContextImpl implements ApiContext {
 
@@ -38,6 +37,8 @@ class ApiContextImpl implements ApiContext {
   private ApiDefinition apiDefinition;
 
   private JsonObject response = new JsonObject();
+
+  private List<Map.Entry<String, ApiContext>> actions = new ArrayList<>();
 
   ApiContextImpl(HttpMethod method, String path, Multimap<String, String> headers,
                  Multimap<String, String> params, JsonObject body) {
@@ -145,15 +146,25 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
+  public void addAction(String action, ApiContext apiContext) {
+    this.actions.add(Maps.immutableEntry(action, apiContext));
+  }
+
+  @Override
+  public List<Map.Entry<String, ApiContext>> actions() {
+    return ImmutableList.copyOf(actions);
+  }
+
+  @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
-            .add("method", method)
-            .add("path", path)
-            .add("params", params)
-            .add("headers", headers)
-            .add("body", body)
-            .add("variables", variables)
-            .add("apiDefinition", apiDefinition);
+        .add("method", method)
+        .add("path", path)
+        .add("params", params)
+        .add("headers", headers)
+        .add("body", body)
+        .add("variables", variables)
+        .add("apiDefinition", apiDefinition);
     if (principal != null) {
       helper.add("principal", principal.encode());
     }
@@ -168,10 +179,10 @@ class ApiContextImpl implements ApiContext {
     ApiContext apiContext = null;
     if (body() == null) {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), null);
+          ArrayListMultimap.create(params()), null);
     } else {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), body().copy());
+          ArrayListMultimap.create(params()), body().copy());
     }
 
     final ApiContext finalApiContext = apiContext;
@@ -185,6 +196,9 @@ class ApiContextImpl implements ApiContext {
     finalApiContext.setResponse(response);
     if (apiDefinition != null) {
       finalApiContext.setApiDefinition(apiDefinition.copy());
+    }
+    for (Map.Entry<String, ApiContext> action : actions) {
+      finalApiContext.addAction(action.getKey(), action.getValue());
     }
     return finalApiContext;
   }

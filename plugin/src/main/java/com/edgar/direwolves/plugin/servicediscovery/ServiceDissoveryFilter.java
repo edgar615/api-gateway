@@ -45,22 +45,20 @@ public class ServiceDissoveryFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     List<Future<Record>> futures = new ArrayList<>();
     apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof HttpEndpoint)
-            .map(e -> ((HttpEndpoint) e).service())
-            .collect(Collectors.toSet())
-            .forEach(s -> futures.add(serviceFuture(s)));
+        .filter(e -> e instanceof HttpEndpoint)
+        .map(e -> ((HttpEndpoint) e).service())
+        .collect(Collectors.toSet())
+        .forEach(s -> futures.add(serviceFuture(s)));
 
     Task.par(futures)
-            .andThen(records -> {
-              apiContext.apiDefinition().endpoints().stream()
-                      .filter(e -> e instanceof HttpEndpoint)
-                      .map(e -> toJson(apiContext, (HttpEndpoint) e, records))
-                      .forEach(req -> apiContext.addRequest(req));
-            })
-            .andThen(records -> completeFuture.complete(apiContext))
-            .onFailure(throwable -> {
-              completeFuture.fail(throwable);
-            });
+        .andThen(records -> {
+          apiContext.apiDefinition().endpoints().stream()
+              .filter(e -> e instanceof HttpEndpoint)
+              .map(e -> toJson(apiContext, (HttpEndpoint) e, records))
+              .forEach(req -> apiContext.addRequest(req));
+        })
+        .andThen(records -> completeFuture.complete(apiContext))
+        .onFailure(throwable -> completeFuture.fail(throwable));
   }
 
   @Override
@@ -99,16 +97,16 @@ public class ServiceDissoveryFilter implements Filter {
       request.put("body", body);
     }
     List<Record> recordList = records.stream()
-            .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
-            .collect(Collectors.toList());
-    if (records.isEmpty()) {
+        .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
+        .collect(Collectors.toList());
+    if (recordList.isEmpty()) {
       throw SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
     }
     Record record = recordList.get(0);
     request.put("host",
-                record.getLocation().getString("host"));
+        record.getLocation().getString("host"));
     request.put("port",
-                record.getLocation().getInteger("port"));
+        record.getLocation().getInteger("port"));
     return request;
   }
 }

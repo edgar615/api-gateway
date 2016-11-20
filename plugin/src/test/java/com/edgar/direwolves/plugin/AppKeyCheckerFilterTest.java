@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin;
 
+import com.edgar.direwolves.core.dispatch.Filter;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -36,7 +37,7 @@ import java.util.List;
  * Created by edgar on 16-10-31.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyCheckerFilterTest {
+public class AppKeyCheckerFilterTest extends FilterTest{
 
   Vertx vertx;
 
@@ -49,6 +50,10 @@ public class AppKeyCheckerFilterTest {
   int appCode = 0;
 
   String signMethod = "HMACMD5";
+
+  private final List<Filter> filters = new ArrayList<>();
+  private Filter filter;
+  private ApiContext apiContext;
 
   @Before
   public void setUp(TestContext testContext) {
