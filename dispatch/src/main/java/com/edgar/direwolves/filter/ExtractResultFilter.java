@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.response;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -26,8 +26,6 @@ public class ExtractResultFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return true;
-//    return apiContext.apiDefinition().plugin(ExtractResultPlugin.NAME) != null
-//        && apiContext.response().size() == 1;
   }
 
   @Override

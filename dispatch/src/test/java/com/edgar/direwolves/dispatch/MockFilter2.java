@@ -16,11 +16,6 @@ public class MockFilter2 implements Filter {
   }
 
   @Override
-  public String name() {
-    return NAME;
-  }
-
-  @Override
   public String type() {
     return PRE;
   }

@@ -182,14 +182,20 @@ public interface ApiContext {
       JsonArray val = (JsonArray) value;
       JsonArray replacedArray = new JsonArray();
       for (int i = 0; i < val.size(); i++) {
-        replacedArray.add(getValueByKeyword(val.getValue(i)));
+        Object newVal = getValueByKeyword(val.getValue(i));
+        if (newVal != null) {
+          replacedArray.add(newVal);
+        }
       }
       return replacedArray;
     } else if (value instanceof JsonObject) {
       JsonObject val = (JsonObject) value;
       JsonObject replacedObject = new JsonObject();
       for (String key : val.fieldNames()) {
-        replacedObject.put(key, getValueByKeyword(val.getValue(key)));
+        Object newVal = getValueByKeyword(val.getValue(key));
+        if (newVal != null) {
+          replacedObject.put(key, newVal);
+        }
       }
       return replacedObject;
     } else {

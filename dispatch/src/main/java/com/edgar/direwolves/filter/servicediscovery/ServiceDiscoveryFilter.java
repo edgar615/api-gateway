@@ -1,8 +1,9 @@
-package com.edgar.direwolves.plugin.servicediscovery;
+package com.edgar.direwolves.filter.servicediscovery;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.EventbusUtils;
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
  *
  * @author Edgar  Date 2016/11/18
  */
-public class ServiceDissoveryFilter implements Filter {
+public class ServiceDiscoveryFilter implements Filter {
 
   private Vertx vertx;
+
+  private RecordSelect recordSelect = RecordSelect.create();
 
   @Override
   public String type() {
@@ -64,18 +67,24 @@ public class ServiceDissoveryFilter implements Filter {
   @Override
   public void config(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
+    recordSelect.config(vertx, config);
   }
 
   private Future<Record> serviceFuture(String service) {
     //服务发现
     Future<Record> serviceFuture = Future.future();
-    vertx.eventBus().<JsonObject>send("service.discovery.select", service, ar -> {
+
+    Future<Record> future = recordSelect.select(service);
+    future.setHandler(ar -> {
       if (ar.succeeded()) {
-        JsonObject serviceJson = ar.result().body();
-        Record record = new Record(serviceJson);
-        serviceFuture.complete(record);
+        Record record = ar.result();
+        if (record == null) {
+          serviceFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE));
+        } else {
+          serviceFuture.complete(record);
+        }
       } else {
-        serviceFuture.fail(ar.cause());
+        serviceFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE));
       }
     });
     return serviceFuture;

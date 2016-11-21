@@ -1,6 +1,13 @@
 package com.edgar.direwolves.plugin;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPluginFactory;
+import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.plugin.client.AppKeyCheckerPlugin;
+import com.edgar.direwolves.plugin.transformer.RequestTransformerFilter;
+import com.edgar.util.vertx.task.Task;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -39,8 +46,6 @@ import java.util.List;
 @RunWith(VertxUnitRunner.class)
 public class AppKeyCheckerFilterTest extends FilterTest{
 
-  Vertx vertx;
-
   String appKey = "abc";
 
   String appSecret = "123456";
@@ -53,11 +58,29 @@ public class AppKeyCheckerFilterTest extends FilterTest{
 
   private final List<Filter> filters = new ArrayList<>();
   private Filter filter;
+
   private ApiContext apiContext;
 
+  private Vertx vertx;
+
   @Before
-  public void setUp(TestContext testContext) {
+  public void setUp() {
     vertx = Vertx.vertx();
+
+    filter = new AppKeyCheckerFilter();
+    filter.config(vertx, new JsonObject());
+
+    filters.clear();
+    filters.add(filter);
+
+    JsonArray appKeys = new JsonArray();
+    appKeys.add(new JsonObject()
+        .put("key", appKey)
+        .put("secret", appSecret)
+        .put("scope", "all")
+        .put("appCode", 0));
+    JsonObject config = new JsonObject().put("app_key.secret", appKeys);
+    filter.config(vertx, config);
   }
 
   @After
@@ -68,14 +91,6 @@ public class AppKeyCheckerFilterTest extends FilterTest{
   @Test
   public void testEmptySecret(TestContext testContext) {
 
-    JsonArray appKeys = new JsonArray();
-    appKeys.add(new JsonObject()
-                        .put("key", appKey)
-                        .put("secret", appSecret)
-                        .put("scope", "all")
-                        .put("appCode", 0));
-    JsonObject config = new JsonObject().put("app_key.secret", appKeys);
-
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
     params.put("nonce", Randoms.randomAlphabetAndNum(10));
@@ -83,60 +98,51 @@ public class AppKeyCheckerFilterTest extends FilterTest{
     params.put("v", "1.0");
     params.put("sign", Randoms.randomAlphabetAndNum(16).toUpperCase());
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+    apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    AppKeyCheckerFilter filter = new AppKeyCheckerFilter();
-    filter.config(vertx, config);
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    apiContext.setApiDefinition(definition);
+    definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
-    Future<ApiContext> future = Future.future();
-    filter.doFilter(apiContext, future);
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        Throwable throwable = ar.cause();
-        testContext.assertTrue(throwable instanceof SystemException);
-        SystemException ex = (SystemException) throwable;
-        testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
-      }
-    });
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> testContext.fail())
+        .onFailure(t -> {
+          testContext.assertTrue(t instanceof SystemException);
+          SystemException ex = (SystemException) t;
+          testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
+          async.complete();
+        });
   }
 
   @Test
   public void testAppKeyParam(TestContext testContext) {
 
-    JsonArray appKeys = new JsonArray();
-    appKeys.add(new JsonObject()
-                        .put("key", appKey)
-                        .put("secret", appSecret)
-                        .put("scope", "all")
-                        .put("appCode", 0));
-    JsonObject config = new JsonObject().put("app_key.secret", appKeys);
-
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
 
-    AppKeyCheckerFilter filter = new AppKeyCheckerFilter();
-    filter.config(vertx, config);
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    apiContext.setApiDefinition(definition);
+    definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
-    Future<ApiContext> future = Future.future();
-    try {
-      filter.doFilter(apiContext, future);
-      testContext.fail();
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof ValidationException);
-    }
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> testContext.fail())
+        .onFailure(t -> {
+          testContext.assertTrue(t instanceof ValidationException);
+          async.complete();
+        });
   }
 
   @Test
   public void testAppKeyParamErrorSign(TestContext testContext) {
-
-    JsonArray appKeys = new JsonArray();
-    appKeys.add(new JsonObject()
-                        .put("key", appKey)
-                        .put("secret", appSecret)
-                        .put("scope", "all")
-                        .put("appCode", 0));
-    JsonObject config = new JsonObject().put("app_key.secret", appKeys);
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -146,39 +152,29 @@ public class AppKeyCheckerFilterTest extends FilterTest{
     params.put("sign", Randoms.randomAlphabetAndNum(16).toUpperCase());
 
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    apiContext.setApiDefinition(definition);
+    definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
-    AppKeyCheckerFilter filter = new AppKeyCheckerFilter();
-    filter.config(vertx, config);
-
-    Future<ApiContext> future = Future.future();
-    filter.doFilter(apiContext, future);
-
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
     Async async = testContext.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        Throwable e = ar.cause();
-        testContext.assertTrue(e instanceof SystemException);
-        SystemException ex = (SystemException) e;
-        testContext.assertEquals(DefaultErrorCode.INVALID_REQ.getNumber(),
-                                 ex.getErrorCode().getNumber());
+    doFilter(task, filters)
+        .andThen(context -> testContext.fail())
+        .onFailure(e -> {
+          testContext.assertTrue(e instanceof SystemException);
+          SystemException ex = (SystemException) e;
+          testContext.assertEquals(DefaultErrorCode.INVALID_REQ.getNumber(),
+              ex.getErrorCode().getNumber());
 
-        async.complete();
-      }
-    });
+          async.complete();
+        });
   }
 
   @Test
   public void testAppKeyParamAndBody(TestContext testContext) {
-
-    JsonArray appKeys = new JsonArray();
-    appKeys.add(new JsonObject()
-                        .put("key", appKey)
-                        .put("secret", appSecret)
-                        .put("scope", "all")
-                        .put("appCode", 0));
-    JsonObject config = new JsonObject().put("app_key.secret", appKeys);
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -197,20 +193,23 @@ public class AppKeyCheckerFilterTest extends FilterTest{
 
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, body);
 
-    AppKeyCheckerFilter filter = new AppKeyCheckerFilter();
-    filter.config(vertx, config);
 
-    Future<ApiContext> future = Future.future();
-    filter.doFilter(apiContext, future);
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    apiContext.setApiDefinition(definition);
+    definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        ApiContext apiContext1 = ar.result();
-        testContext.assertFalse(apiContext1.params().containsKey("sign"));
-      } else {
-        testContext.fail();
-      }
-    });
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> {
+          testContext.assertFalse(context.params().containsKey("sign"));
+          async.complete();
+        })
+        .onFailure(t -> testContext.fail());
+
   }
 
   private String getFirst(Multimap<String, String> params, String paramName) {

@@ -7,4 +7,3 @@ com.edgar.direwolves.plugin.transformer.RequestTransformerPluginFactory
 com.edgar.direwolves.plugin.transformer.ResponseTransformerPluginFactory
 com.edgar.direwolves.plugin.authentication.AuthenticationPluginFactory
 com.edgar.direwolves.plugin.client.AppKeyCheckerPluginFactory
-com.edgar.direwolves.plugin.response.ExtractResultFactory

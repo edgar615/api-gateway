@@ -1,9 +1,8 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.plugin.request.RequestReplaceFilter;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -31,7 +30,6 @@ public class RequestReplaceFilterTest extends FilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
   RequestReplaceFilter filter;
-  private ApiContext apiContext;
 
   private Vertx vertx;
 
@@ -74,7 +72,7 @@ public class RequestReplaceFilterTest extends FilterTest {
         .put("p10", "$user.userId");
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", params, headers, jsonObject);
+        ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
     apiContext.addRequest(new JsonObject()
         .put("name", "add_device")
         .put("host", "localhost")
@@ -95,8 +93,8 @@ public class RequestReplaceFilterTest extends FilterTest {
           JsonObject request = context.requests().getJsonObject(0);
           testContext.assertEquals("localhost", request.getString("host"));
           testContext.assertEquals(8080, request.getInteger("port"));
-          testContext.assertEquals(9, request.getJsonObject("params").size());
-          testContext.assertEquals(2, request.getJsonObject("params").getJsonArray("q7").size());
+          testContext.assertEquals(5, request.getJsonObject("params").size());
+          testContext.assertEquals(1, request.getJsonObject("params").getJsonArray("q7").size());
           testContext.assertEquals("var_bar", request.getJsonObject("params").getString("q8"));
           testContext.assertEquals(2, request.getJsonObject("params").getInteger("q9"));
           testContext.assertEquals("1", request.getJsonObject("params").getString("q10"));

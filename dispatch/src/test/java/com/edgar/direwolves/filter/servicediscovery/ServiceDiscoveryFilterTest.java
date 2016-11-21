@@ -1,26 +1,22 @@
-package com.edgar.direwolves.plugin;
-
-import com.edgar.direwolves.core.definition.Endpoint;
-import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.plugin.arg.UrlArgValidateFilter;
-import com.edgar.util.vertx.task.Task;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+package com.edgar.direwolves.filter.servicediscovery;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.EventbusUtils;
-import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.direwolves.plugin.servicediscovery.ServiceDissoveryFilter;
-import com.edgar.direwolves.plugin.transformer.RequestTransformerFilter;
+import com.edgar.direwolves.filter.FilterTest;
+import com.edgar.direwolves.filter.servicediscovery.ServiceDiscoveryFilter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import io.vertx.core.Future;
+import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -41,14 +37,17 @@ import java.util.List;
  * @author Edgar  Date 2016/11/18
  */
 @RunWith(VertxUnitRunner.class)
-public class ServiceDissoveryFilterTest extends FilterTest {
+public class ServiceDiscoveryFilterTest extends FilterTest {
   private Vertx vertx;
   private final List<Filter> filters = new ArrayList<>();
   private Filter filter;
   private ApiContext apiContext;
+  MockConsulHttpVerticle mockConsulHttpVerticle;
   @Before
   public void testSetUp(TestContext testContext) {
     vertx = Vertx.vertx();
+    mockConsulHttpVerticle = new MockConsulHttpVerticle();
+    vertx.deployVerticle(mockConsulHttpVerticle, testContext.asyncAssertSuccess());
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("q3", "v3");
@@ -64,24 +63,17 @@ public class ServiceDissoveryFilterTest extends FilterTest {
     ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    filter = new ServiceDissoveryFilter();
-    filter.config(vertx, new JsonObject());
+    JsonObject config = new JsonObject()
+        .put("service.discovery", "consul://localhost:5601");
+    JsonObject strategy = new JsonObject();
+    config.put("service.discovery.select-strategy", strategy);
+
+    filter = new ServiceDiscoveryFilter();
+    filter.config(vertx, config);
 
     filters.clear();
     filters.add(filter);
 
-    vertx.eventBus().<String>consumer("service.discovery.select", msg -> {
-      String service = msg.body();
-      if ("device".equals(service)) {
-        Record record = HttpEndpoint.createRecord("device", "localhost", 8080, "/");
-        msg.reply(record.toJson());
-      } else if ("user".equals(service)) {
-        Record record = HttpEndpoint.createRecord("user", "localhost", 8081, "/");
-        msg.reply(record.toJson());
-      } else {
-        EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.UNKOWN_REMOTE));
-      }
-    });
   }
 
   @After
@@ -91,7 +83,7 @@ public class ServiceDissoveryFilterTest extends FilterTest {
 
   @Test
   public void testEndpointToRequest(TestContext testContext) {
-
+    add2Servers();
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -111,7 +103,7 @@ public class ServiceDissoveryFilterTest extends FilterTest {
 
   @Test
   public void testEndpointToRequest2(TestContext testContext) {
-
+    add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
@@ -148,7 +140,7 @@ public class ServiceDissoveryFilterTest extends FilterTest {
 
   @Test
   public void testNoService(TestContext testContext) {
-
+    add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "sms");
 
@@ -166,6 +158,30 @@ public class ServiceDissoveryFilterTest extends FilterTest {
           testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE.getNumber(), ex.failureCode());
           async.complete();
         });
+  }
+
+  private void add2Servers() {
+    mockConsulHttpVerticle.addService(new JsonObject()
+        .put("Node", "u221")
+        .put("Address", "10.4.7.221")
+        .put("ServiceID", "u221:device:8080")
+        .put("ServiceName", "device")
+        .put("ServiceTags", new JsonArray())
+        .put("ServicePort", 8080));
+    mockConsulHttpVerticle.addService((new JsonObject()
+        .put("Node", "u222")
+        .put("Address", "10.4.7.222")
+        .put("ServiceID", "u222:device:8080")
+        .put("ServiceName", "device")
+        .put("ServiceTags", new JsonArray())
+        .put("ServicePort", 8000)));
+    mockConsulHttpVerticle.addService((new JsonObject()
+        .put("Node", "u222")
+        .put("Address", "10.4.7.222")
+        .put("ServiceID", "u222:device:8080")
+        .put("ServiceName", "user")
+        .put("ServiceTags", new JsonArray())
+        .put("ServicePort", 8081)));
   }
 
 }

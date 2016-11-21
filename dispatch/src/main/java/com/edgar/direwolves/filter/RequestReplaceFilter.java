@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.request;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;

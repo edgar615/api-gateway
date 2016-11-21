@@ -18,11 +18,6 @@ public class MockFilter1 implements Filter {
   private Vertx vertx;
 
   @Override
-  public String name() {
-    return NAME;
-  }
-
-  @Override
   public String type() {
     return PRE;
   }

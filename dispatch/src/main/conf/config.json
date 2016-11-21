@@ -25,6 +25,8 @@
     "service": "user"
   },
   "app_key.secret.dir": "",
+  "app_key.secret.type": "memory",
+  "app_key.secret.req": "app_key.fetch",
   "app_key.secret": [
     {
       "key": "1",

@@ -4,6 +4,3 @@ com.edgar.direwolves.plugin.transformer.RequestTransformerFilter
 com.edgar.direwolves.plugin.transformer.ResponseTransformerFilter
 com.edgar.direwolves.plugin.authentication.AuthenticationFilter
 com.edgar.direwolves.plugin.client.AppKeyCheckerFilter
-com.edgar.direwolves.plugin.response.ExtractResultFilter
-com.edgar.direwolves.plugin.servicediscovery.ServiceDissoveryFilter
-com.edgar.direwolves.plugin.request.RequestReplaceFilter
