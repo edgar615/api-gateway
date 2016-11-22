@@ -3,7 +3,6 @@ package com.edgar.direwolves.filter.servicediscovery;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.EventbusUtils;
 import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;

@@ -51,17 +51,17 @@ class RequestTransformerImpl implements RequestTransformer {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("ResponseTransformer")
-            .add("name", name)
-            .add("headerRemove", headerRemove)
-            .add("headerReplace", headerReplace)
-            .add("headerAdd", headerAdd)
-            .add("bodyRemove", bodyRemove)
-            .add("bodyReplace", bodyReplace)
-            .add("bodyAdd", bodyAdd)
-            .add("bodyRemove", paramRemove)
-            .add("bodyReplace", paramReplace)
-            .add("bodyAdd", paramAdd)
-            .toString();
+        .add("name", name)
+        .add("headerRemove", headerRemove)
+        .add("headerReplace", headerReplace)
+        .add("headerAdd", headerAdd)
+        .add("bodyRemove", bodyRemove)
+        .add("bodyReplace", bodyReplace)
+        .add("bodyAdd", bodyAdd)
+        .add("bodyRemove", paramRemove)
+        .add("bodyReplace", paramReplace)
+        .add("bodyAdd", paramAdd)
+        .toString();
   }
 
   @Override

@@ -19,10 +19,10 @@ public class AclRestrictionPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-            .put("whitelist", new JsonArray().add("super").add("admin"))
-            .put("blacklist", new JsonArray().add("user"));
+        .put("whitelist", new JsonArray().add("super").add("admin"))
+        .put("blacklist", new JsonArray().add("user"));
     JsonObject jsonObject = new JsonObject()
-            .put("acl_restriction", config);
+        .put("acl_restriction", config);
     ApiPluginFactory<AclRestrictionPlugin> factory = new AclRestrictionFactory();
     AclRestrictionPlugin acl = factory.decode(jsonObject);
     Assert.assertEquals(2, acl.whitelist().size());
@@ -34,8 +34,8 @@ public class AclRestrictionPluginTest {
     ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
     AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
     acl.addWhitelist("user")
-            .addBlacklist("super")
-            .addBlacklist("admin");
+        .addBlacklist("super")
+        .addBlacklist("admin");
     Assert.assertEquals(2, acl.blacklist().size());
     Assert.assertEquals(1, acl.whitelist().size());
 
@@ -54,13 +54,13 @@ public class AclRestrictionPluginTest {
     ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
     AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
     acl.addWhitelist("user")
-            .addBlacklist("super")
-            .addBlacklist("admin");
+        .addBlacklist("super")
+        .addBlacklist("admin");
     Assert.assertEquals(2, acl.blacklist().size());
     Assert.assertEquals(1, acl.whitelist().size());
 
     acl.removeWhitelist("user")
-            .removeBlacklist("super");
+        .removeBlacklist("super");
     Assert.assertEquals(1, acl.blacklist().size());
     Assert.assertEquals(0, acl.whitelist().size());
   }
@@ -70,13 +70,13 @@ public class AclRestrictionPluginTest {
     ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
     AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
     acl.addWhitelist("user")
-            .addBlacklist("super")
-            .addBlacklist("admin");
+        .addBlacklist("super")
+        .addBlacklist("admin");
     Assert.assertEquals(2, acl.blacklist().size());
     Assert.assertEquals(1, acl.whitelist().size());
 
     acl.clearBlacklist()
-            .clearWhitelist();
+        .clearWhitelist();
     Assert.assertEquals(0, acl.blacklist().size());
     Assert.assertEquals(0, acl.whitelist().size());
   }

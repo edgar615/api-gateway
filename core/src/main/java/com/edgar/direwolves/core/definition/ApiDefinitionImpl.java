@@ -1,10 +1,9 @@
 package com.edgar.direwolves.core.definition;
 
+import com.edgar.util.base.MorePreconditions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
-import com.edgar.util.base.MorePreconditions;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;
@@ -143,12 +142,12 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("ApiDefinition")
-            .add("name", name)
-            .add("method", method)
-            .add("path", path)
-            .add("endpoints", endpoints)
-            .add("plugins", plugins)
-            .toString();
+        .add("name", name)
+        .add("method", method)
+        .add("path", path)
+        .add("endpoints", endpoints)
+        .add("plugins", plugins)
+        .toString();
   }
 
 }

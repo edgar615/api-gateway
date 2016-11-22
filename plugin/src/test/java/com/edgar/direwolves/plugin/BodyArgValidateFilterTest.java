@@ -1,22 +1,20 @@
 package com.edgar.direwolves.plugin;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.plugin.arg.*;
+import com.edgar.direwolves.plugin.arg.BodyArgPlugin;
+import com.edgar.direwolves.plugin.arg.BodyArgValidateFilter;
+import com.edgar.direwolves.plugin.arg.Parameter;
 import com.edgar.util.validation.Rule;
+import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.utils.JsonUtils;
-import com.edgar.util.validation.ValidationException;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -63,7 +61,7 @@ public class BodyArgValidateFilterTest extends FilterTest {
     plugin.add(parameter);
     parameter = Parameter.create("type", 1)
         .addRule(Rule.required())
-    .addRule(Rule.optional(Lists.newArrayList(1,2,3)));
+        .addRule(Rule.optional(Lists.newArrayList(1, 2, 3)));
     plugin.add(parameter);
 
 
@@ -107,7 +105,7 @@ public class BodyArgValidateFilterTest extends FilterTest {
     plugin.add(parameter);
     parameter = Parameter.create("type", 1)
         .addRule(Rule.required())
-        .addRule(Rule.optional(Lists.newArrayList(1,2,3)));
+        .addRule(Rule.optional(Lists.newArrayList(1, 2, 3)));
     plugin.add(parameter);
 
 

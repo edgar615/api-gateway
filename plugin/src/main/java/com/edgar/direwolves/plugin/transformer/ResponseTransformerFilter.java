@@ -8,9 +8,9 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * response_transfomer.
- * <p>
+ * <p/>
  * </pre>
- * <p>
+ * <p/>
  * Created by edgar on 16-9-20.
  */
 public class ResponseTransformerFilter implements Filter {
@@ -38,14 +38,14 @@ public class ResponseTransformerFilter implements Filter {
       return false;
     }
     return apiContext.apiDefinition().plugin(ResponseTransformerPlugin.class.getSimpleName())
-           != null;
+        != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     ResponseTransformerPlugin plugin =
-            (ResponseTransformerPlugin) apiContext.apiDefinition()
-                    .plugin(ResponseTransformerPlugin.class.getSimpleName());
+        (ResponseTransformerPlugin) apiContext.apiDefinition()
+            .plugin(ResponseTransformerPlugin.class.getSimpleName());
 
     JsonObject response = apiContext.response();
     //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改

@@ -2,26 +2,22 @@ package com.edgar.direwolves.plugin;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.plugin.client.AppKeyCheckerFilter;
 import com.edgar.direwolves.plugin.client.AppKeyCheckerPlugin;
-import com.edgar.direwolves.plugin.transformer.RequestTransformerFilter;
+import com.edgar.util.base.EncryptUtils;
+import com.edgar.util.base.Randoms;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
+import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.plugin.client.AppKeyCheckerFilter;
-import com.edgar.util.base.EncryptUtils;
-import com.edgar.util.base.Randoms;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
-import com.edgar.util.validation.ValidationException;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -30,7 +26,6 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,19 +39,14 @@ import java.util.List;
  * Created by edgar on 16-10-31.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyCheckerFilterTest extends FilterTest{
-
-  String appKey = "abc";
-
-  String appSecret = "123456";
-
-  String scope = "all";
-
-  int appCode = 0;
-
-  String signMethod = "HMACMD5";
+public class AppKeyCheckerFilterTest extends FilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
+  String appKey = "abc";
+  String appSecret = "123456";
+  String scope = "all";
+  int appCode = 0;
+  String signMethod = "HMACMD5";
   private Filter filter;
 
   private ApiContext apiContext;
@@ -184,8 +174,8 @@ public class AppKeyCheckerFilterTest extends FilterTest{
     params.put("deviceId", "1");
 
     JsonObject body = new JsonObject()
-            .put("name", "$#$%$%$%")
-            .put("code", 123434);
+        .put("name", "$#$%$%$%")
+        .put("code", 123434);
 
     params.put("body", body.encode());
     params.put("sign", signTopRequest(params, appSecret, signMethod));

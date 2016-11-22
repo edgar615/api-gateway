@@ -1,12 +1,11 @@
 package com.edgar.direwolves.dispatch.handler;
 
-import com.google.common.collect.ImmutableList;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.ImmutableList;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -29,7 +28,9 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
   private final List<Filter> filters;
 
-  public DispatchHandler(List<Filter> filters) {this.filters = ImmutableList.copyOf(filters);}
+  public DispatchHandler(List<Filter> filters) {
+    this.filters = ImmutableList.copyOf(filters);
+  }
 
 
   @Override
@@ -58,27 +59,27 @@ public class DispatchHandler implements Handler<RoutingContext> {
             .end(response.getJsonObject("body", new JsonObject()).encode());
       }
     })
-            .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
+        .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
   }
 
   public Task<ApiContext> apiContextTask(RoutingContext rc) {
     Future<ApiDefinition>
-            apiDefinitionFuture = Future.future();
+        apiDefinitionFuture = Future.future();
     getApiDefintion(rc, apiDefinitionFuture);
     return Task.create("Find api", apiDefinitionFuture)
-            .map(apiDefinition -> {
-              ApiContext apiContext = Utils.apiContext(rc);
-              apiContext.setApiDefinition(apiDefinition);
-              //设置变量
-              matches(apiContext, apiDefinition);
-              return apiContext;
-            });
+        .map(apiDefinition -> {
+          ApiContext apiContext = Utils.apiContext(rc);
+          apiContext.setApiDefinition(apiDefinition);
+          //设置变量
+          matches(apiContext, apiDefinition);
+          return apiContext;
+        });
   }
 
   public Task<ApiContext> doFilter(Task<ApiContext> task, Predicate<Filter> filterPredicate) {
     List<Filter> postFilters = filters.stream()
-            .filter(filterPredicate)
-            .collect(Collectors.toList());
+        .filter(filterPredicate)
+        .collect(Collectors.toList());
     for (Filter filter : postFilters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
@@ -124,13 +125,13 @@ public class DispatchHandler implements Handler<RoutingContext> {
         Future<JsonObject> future = Future.future();
         reusltsFuture.add(future);
         rc.vertx().eventBus().<JsonObject>send("direwolves.rpc.http.req",
-                                               requests.getJsonObject(0), ar -> {
-                  if (ar.succeeded()) {
-                    future.complete(ar.result().body());
-                  } else {
-                    future.fail(ar.cause());
-                  }
-                });
+            requests.getJsonObject(0), ar -> {
+              if (ar.succeeded()) {
+                future.complete(ar.result().body());
+              } else {
+                future.fail(ar.cause());
+              }
+            });
       }
     }
     Task.par(reusltsFuture).andThen(results -> {
@@ -144,8 +145,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
   private void getApiDefintion(RoutingContext rc, Future<ApiDefinition> completeFuture) {
     JsonObject matcher = new JsonObject()
-            .put("method", rc.request().method().name())
-            .put("path", rc.normalisedPath());
+        .put("method", rc.request().method().name())
+        .put("path", rc.normalisedPath());
     rc.vertx().eventBus().<List<ApiDefinition>>send("eb.api.match", matcher, ar -> {
       if (ar.succeeded()) {
         List<ApiDefinition> apiDefinitions = ar.result().body();

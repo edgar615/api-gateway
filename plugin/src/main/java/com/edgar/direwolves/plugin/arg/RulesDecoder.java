@@ -1,9 +1,8 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.edgar.util.validation.Rule;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-
-import com.edgar.util.validation.Rule;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -86,7 +85,7 @@ class RulesDecoder implements Function<JsonObject, List<Rule>> {
           rules.add(Rule.optional(ImmutableList.copyOf((Collection) value)));
         } else {
           Iterable<String> iterable =
-                  Splitter.on(",").trimResults().omitEmptyStrings().split(value.toString());
+              Splitter.on(",").trimResults().omitEmptyStrings().split(value.toString());
           rules.add(Rule.optional(ImmutableList.copyOf(iterable)));
         }
       }

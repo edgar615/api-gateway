@@ -187,7 +187,7 @@ public interface ApiContext {
           replacedArray.add(newVal);
         }
       }
-      return replacedArray;
+      return replacedArray.isEmpty() ? null : replacedArray;
     } else if (value instanceof JsonObject) {
       JsonObject val = (JsonObject) value;
       JsonObject replacedObject = new JsonObject();
@@ -197,7 +197,7 @@ public interface ApiContext {
           replacedObject.put(key, newVal);
         }
       }
-      return replacedObject;
+      return replacedObject.isEmpty() ? null : replacedObject;
     } else {
       return value;
     }

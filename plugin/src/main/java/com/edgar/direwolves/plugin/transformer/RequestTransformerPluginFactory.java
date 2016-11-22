@@ -1,10 +1,9 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
  * }
  * ]
  * </pre>
- * <p>
+ * <p/>
  * Created by edgar on 16-10-23.
  */
 public class RequestTransformerPluginFactory implements ApiPluginFactory<RequestTransformerPlugin> {
@@ -76,41 +75,41 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
   public JsonObject encode(RequestTransformerPlugin plugin) {
     JsonArray jsonArray = new JsonArray();
     plugin.transformers().stream()
-            .map(t -> toJson(t)
-            ).forEach(j -> jsonArray.add(j));
+        .map(t -> toJson(t)
+        ).forEach(j -> jsonArray.add(j));
     return new JsonObject().put("request_transformer", jsonArray);
   }
 
   private JsonObject toJson(RequestTransformer transformer) {
     return new JsonObject()
-            .put("name", transformer.name())
-            .put("header.remove", transformer.headerRemoved())
-            .put("query.remove", transformer.paramRemoved())
-            .put("body.remove", transformer.bodyRemoved())
-            .put("header.replace", transformer.headerReplaced()
-                    .stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.toList()))
-            .put("query.replace", transformer.paramReplaced()
-                    .stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.toList()))
-            .put("body.replace", transformer.bodyReplaced()
-                    .stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.toList()))
-            .put("header.add", transformer.headerAdded()
-                    .stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.toList()))
-            .put("query.add", transformer.paramAdded()
-                    .stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.toList()))
-            .put("body.add", transformer.bodyAdded()
-                    .stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.toList()));
+        .put("name", transformer.name())
+        .put("header.remove", transformer.headerRemoved())
+        .put("query.remove", transformer.paramRemoved())
+        .put("body.remove", transformer.bodyRemoved())
+        .put("header.replace", transformer.headerReplaced()
+            .stream()
+            .map(entry -> entry.getKey() + ":" + entry.getValue())
+            .collect(Collectors.toList()))
+        .put("query.replace", transformer.paramReplaced()
+            .stream()
+            .map(entry -> entry.getKey() + ":" + entry.getValue())
+            .collect(Collectors.toList()))
+        .put("body.replace", transformer.bodyReplaced()
+            .stream()
+            .map(entry -> entry.getKey() + ":" + entry.getValue())
+            .collect(Collectors.toList()))
+        .put("header.add", transformer.headerAdded()
+            .stream()
+            .map(entry -> entry.getKey() + ":" + entry.getValue())
+            .collect(Collectors.toList()))
+        .put("query.add", transformer.paramAdded()
+            .stream()
+            .map(entry -> entry.getKey() + ":" + entry.getValue())
+            .collect(Collectors.toList()))
+        .put("body.add", transformer.bodyAdded()
+            .stream()
+            .map(entry -> entry.getKey() + ":" + entry.getValue())
+            .collect(Collectors.toList()));
   }
 
   private void removeHeader(JsonObject endpoint, RequestTransformer transformer) {
@@ -139,9 +138,9 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
     for (int j = 0; j < replaces.size(); j++) {
       String value = replaces.getString(j);
       Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer
-              .replaceHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+          .replaceHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
 
@@ -150,9 +149,9 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
     for (int j = 0; j < replaces.size(); j++) {
       String value = replaces.getString(j);
       Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer
-              .replaceParam(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+          .replaceParam(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
 
@@ -161,9 +160,9 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
     for (int j = 0; j < replaces.size(); j++) {
       String value = replaces.getString(j);
       Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer
-              .replaceBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+          .replaceBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
 
@@ -172,7 +171,7 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer.addHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
@@ -182,7 +181,7 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer.addParam(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
@@ -192,7 +191,7 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory<Request
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer.addBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }

@@ -19,18 +19,18 @@ public class BodyArgPluginTest {
   public void testDecode() {
     JsonObject jsonObject = new JsonObject();
     JsonObject arg1 = new JsonObject()
-            .put("name", "macAddress")
-            .put("default_value", "FFFFFFFFFFFF")
-            .put("rules", new JsonObject().put("required", true)
-                    .put("regex", "[0-9A-F]{16}"));
+        .put("name", "macAddress")
+        .put("default_value", "FFFFFFFFFFFF")
+        .put("rules", new JsonObject().put("required", true)
+            .put("regex", "[0-9A-F]{16}"));
     JsonObject arg2 = new JsonObject()
-            .put("name", "type")
-            .put("rules", new JsonObject().put("required", true)
-                    .put("integer", true));
+        .put("name", "type")
+        .put("rules", new JsonObject().put("required", true)
+            .put("integer", true));
     JsonObject arg3 = new JsonObject()
-            .put("name", "barcode");
+        .put("name", "barcode");
     JsonArray urlArgs = new JsonArray()
-            .add(arg1).add(arg2).add(arg3);
+        .add(arg1).add(arg2).add(arg3);
     jsonObject.put("body_arg", urlArgs);
     BodyArgPlugin plugin = new BodyArgPluginFactory().decode(jsonObject);
     Assert.assertEquals(3, plugin.parameters().size());
@@ -39,12 +39,12 @@ public class BodyArgPluginTest {
   @Test
   public void testEncode() {
     BodyArgPlugin bodyArgPlugin =
-            (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
+        (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     bodyArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
-                              .addRule(Rule.regex("[0-9A-F]{16}")));
+        .addRule(Rule.regex("[0-9A-F]{16}")));
     bodyArgPlugin.add(Parameter.create("type", null)
-                              .addRule(Rule.required())
-                              .addRule(Rule.integer()));
+        .addRule(Rule.required())
+        .addRule(Rule.integer()));
     bodyArgPlugin.add(Parameter.create("barcode", null));
     JsonObject jsonObject = bodyArgPlugin.encode();
     Assert.assertTrue(jsonObject.containsKey("body_arg"));
@@ -56,12 +56,12 @@ public class BodyArgPluginTest {
   @Test
   public void testRemove() {
     BodyArgPlugin bodyArgPlugin =
-            (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
+        (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     bodyArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
-                              .addRule(Rule.regex("[0-9A-F]{16}")));
+        .addRule(Rule.regex("[0-9A-F]{16}")));
     bodyArgPlugin.add(Parameter.create("type", null)
-                              .addRule(Rule.required())
-                              .addRule(Rule.integer()));
+        .addRule(Rule.required())
+        .addRule(Rule.integer()));
     bodyArgPlugin.add(Parameter.create("barcode", null));
 
     Assert.assertEquals(3, bodyArgPlugin.parameters().size());
@@ -72,12 +72,12 @@ public class BodyArgPluginTest {
   @Test
   public void testClear() {
     BodyArgPlugin bodyArgPlugin =
-            (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
+        (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     bodyArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
-                              .addRule(Rule.regex("[0-9A-F]{16}")));
+        .addRule(Rule.regex("[0-9A-F]{16}")));
     bodyArgPlugin.add(Parameter.create("type", null)
-                              .addRule(Rule.required())
-                              .addRule(Rule.integer()));
+        .addRule(Rule.required())
+        .addRule(Rule.integer()));
     bodyArgPlugin.add(Parameter.create("barcode", null));
 
     Assert.assertEquals(3, bodyArgPlugin.parameters().size());

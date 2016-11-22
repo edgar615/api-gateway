@@ -1,13 +1,12 @@
 package com.edgar.direwolves.plugin.authentication;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.AuthenticationStrategy;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.google.common.collect.Lists;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -38,7 +37,7 @@ public class AuthenticationFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     ApiPlugin plugin =
-            apiContext.apiDefinition().plugin(AuthenticationPlugin.class.getSimpleName());
+        apiContext.apiDefinition().plugin(AuthenticationPlugin.class.getSimpleName());
     if (plugin == null) {
       return false;
     }
@@ -49,45 +48,45 @@ public class AuthenticationFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     AuthenticationPlugin
-            plugin =
-            (AuthenticationPlugin) apiContext.apiDefinition()
-                    .plugin(AuthenticationPlugin.class.getSimpleName());
+        plugin =
+        (AuthenticationPlugin) apiContext.apiDefinition()
+            .plugin(AuthenticationPlugin.class.getSimpleName());
     List<Future> futures = new ArrayList<>();
     strategies.stream()
-            .filter(s -> plugin.authentications().contains(s.name()))
-            .forEach(s -> {
-              Future<JsonObject> future = Future.future();
-              futures.add(future);
-              try {
-                s.doAuthentication(apiContext, future);
-              } catch (Exception e) {
-                if (!future.isComplete()) {
-                  future.fail(e);
-                }
-              }
-            });
+        .filter(s -> plugin.authentications().contains(s.name()))
+        .forEach(s -> {
+          Future<JsonObject> future = Future.future();
+          futures.add(future);
+          try {
+            s.doAuthentication(apiContext, future);
+          } catch (Exception e) {
+            if (!future.isComplete()) {
+              future.fail(e);
+            }
+          }
+        });
     CompositeFuture.any(futures)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                for (int i = 0; i < futures.size(); i++) {
-                  if (futures.get(i).succeeded()) {
-                    apiContext.setPrincipal((JsonObject) futures.get(i).result());
-                    completeFuture.complete(apiContext);
-                    return;
-                  }
-                }
-                completeFuture
-                        .fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause()));
-              } else {
-                completeFuture.fail(ar.cause());
+        .setHandler(ar -> {
+          if (ar.succeeded()) {
+            for (int i = 0; i < futures.size(); i++) {
+              if (futures.get(i).succeeded()) {
+                apiContext.setPrincipal((JsonObject) futures.get(i).result());
+                completeFuture.complete(apiContext);
+                return;
               }
-            });
+            }
+            completeFuture
+                .fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause()));
+          } else {
+            completeFuture.fail(ar.cause());
+          }
+        });
   }
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
     List<AuthenticationStrategy> list = Lists
-            .newArrayList(ServiceLoader.load(AuthenticationStrategy.class));
+        .newArrayList(ServiceLoader.load(AuthenticationStrategy.class));
     list.forEach(a -> a.config(vertx, config));
     strategies.addAll(list);
   }

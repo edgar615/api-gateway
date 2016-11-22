@@ -23,7 +23,6 @@ public interface Filter extends Configurable {
   String type();
 
   /**
-   *
    * @return filter的顺序
    */
   int order();

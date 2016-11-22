@@ -1,11 +1,10 @@
 package com.edgar.direwolves.dispatch.verticle;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
+import com.google.common.collect.Lists;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;

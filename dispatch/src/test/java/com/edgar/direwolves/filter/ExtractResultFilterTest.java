@@ -1,10 +1,9 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.util.vertx.task.Task;
-
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.Result;
+import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -53,7 +52,7 @@ public class ExtractResultFilterTest extends FilterTest {
   public void testSingleValue(TestContext testContext) {
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
     Result result = Result.createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
 
     apiContext.addResult(result.toJson());
@@ -73,7 +72,7 @@ public class ExtractResultFilterTest extends FilterTest {
   public void testZipValue(TestContext testContext) {
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
     Result result = Result.createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
     apiContext.addResult(result.toJson());
     result = Result.createJsonObject("2", 200, new JsonObject().put("bar", "foo"), 0);
@@ -102,7 +101,7 @@ public class ExtractResultFilterTest extends FilterTest {
   public void testOneFailedValue(TestContext testContext) {
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
     Result result = Result.createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
     apiContext.addResult(result.toJson());
     result = Result.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
@@ -127,7 +126,7 @@ public class ExtractResultFilterTest extends FilterTest {
   public void testTwoFailedValue(TestContext testContext) {
 
     ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
     Result result = Result.createJsonObject("1", 403, new JsonObject().put("foo", "bar"), 0);
     apiContext.addResult(result.toJson());
     result = Result.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);

@@ -1,14 +1,13 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -38,18 +37,18 @@ public class BodyArgValidateFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     BodyArgPlugin plugin =
-            (BodyArgPlugin) apiContext.apiDefinition().plugin(BodyArgPlugin.class.getSimpleName());
+        (BodyArgPlugin) apiContext.apiDefinition().plugin(BodyArgPlugin.class.getSimpleName());
     if (apiContext.body() == null) {
       throw SystemException.create(DefaultErrorCode.INVALID_JSON);
     }
     //设置默认值
     plugin.parameters().stream()
-            .filter(p -> p.defaultValue() != null)
-            .forEach(p -> {
-              if (!apiContext.body().containsKey(p.name())) {
-                apiContext.body().put(p.name(), p.defaultValue().toString());
-              }
-            });
+        .filter(p -> p.defaultValue() != null)
+        .forEach(p -> {
+          if (!apiContext.body().containsKey(p.name())) {
+            apiContext.body().put(p.name(), p.defaultValue().toString());
+          }
+        });
     //校验
     final Multimap<String, Rule> rules = ArrayListMultimap.create();
     plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));

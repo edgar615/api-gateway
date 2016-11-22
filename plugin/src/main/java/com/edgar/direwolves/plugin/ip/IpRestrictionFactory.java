@@ -47,8 +47,8 @@ public class IpRestrictionFactory implements ApiPluginFactory<IpRestrictionPlugi
   @Override
   public JsonObject encode(IpRestrictionPlugin ipRestrictionPlugin) {
     return new JsonObject().put("ip_restriction", new JsonObject()
-            .put("whitelist", new JsonArray(ipRestrictionPlugin.whitelist()))
-            .put("blacklist", new JsonArray(ipRestrictionPlugin.blacklist())));
+        .put("whitelist", new JsonArray(ipRestrictionPlugin.whitelist()))
+        .put("blacklist", new JsonArray(ipRestrictionPlugin.blacklist())));
   }
 
   @Override

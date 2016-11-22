@@ -1,6 +1,5 @@
 package com.edgar.direwolves.filter.servicediscovery;
 
-import com.edgar.direwolves.servicediscovery.RecordSelect;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.vertx.core.Future;

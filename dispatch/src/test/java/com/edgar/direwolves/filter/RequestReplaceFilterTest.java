@@ -93,20 +93,20 @@ public class RequestReplaceFilterTest extends FilterTest {
           JsonObject request = context.requests().getJsonObject(0);
           testContext.assertEquals("localhost", request.getString("host"));
           testContext.assertEquals(8080, request.getInteger("port"));
-          testContext.assertEquals(5, request.getJsonObject("params").size());
+          testContext.assertEquals(4, request.getJsonObject("params").size());
           testContext.assertEquals(1, request.getJsonObject("params").getJsonArray("q7").size());
-          testContext.assertEquals("var_bar", request.getJsonObject("params").getString("q8"));
-          testContext.assertEquals(2, request.getJsonObject("params").getInteger("q9"));
-          testContext.assertEquals("1", request.getJsonObject("params").getString("q10"));
+          testContext.assertEquals("var_bar", request.getJsonObject("params").getJsonArray("q8").getString(0));
+          testContext.assertEquals(1, request.getJsonObject("params").getJsonArray("q9").getInteger(0));
+          testContext.assertNull(request.getJsonObject("params").getJsonArray("q10"));
 
-          testContext.assertEquals(8, request.getJsonObject("headers").size());
-          testContext.assertEquals("1", request.getJsonObject("headers").getString("h7"));
-          testContext.assertEquals("var_bar", request.getJsonObject("headers").getString("h9"));
-          testContext.assertEquals("query_bar", request.getJsonObject("headers").getString("h8"));
-          testContext.assertEquals(2, request.getJsonObject("headers").getInteger("h10"));
+          testContext.assertEquals(4, request.getJsonObject("headers").size());
+          testContext.assertFalse(request.getJsonObject("headers").containsKey("h7"));
+          testContext.assertEquals("var_bar", request.getJsonObject("headers").getJsonArray("h9").getString(0));
+          testContext.assertEquals("query_bar", request.getJsonObject("headers").getJsonArray("h8").getString(0));
+          testContext.assertEquals(1, request.getJsonObject("headers").getJsonArray("h10").getInteger(0));
 
           testContext.assertNotNull(request.getJsonObject("body"));
-          testContext.assertEquals(9, request.getJsonObject("body").size());
+          testContext.assertEquals(4, request.getJsonObject("body").size());
           testContext.assertEquals(2, request.getJsonObject("body").getJsonArray("p7").size());
           testContext.assertEquals("1", request.getJsonObject("body").getString("p10"));
           testContext.assertEquals("var_bar", request.getJsonObject("body").getString("p8"));

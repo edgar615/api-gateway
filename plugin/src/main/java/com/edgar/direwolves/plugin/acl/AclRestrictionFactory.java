@@ -47,8 +47,8 @@ public class AclRestrictionFactory implements ApiPluginFactory<AclRestrictionPlu
   @Override
   public JsonObject encode(AclRestrictionPlugin plugin) {
     return new JsonObject().put("acl_restriction", new JsonObject()
-            .put("whitelist", new JsonArray(plugin.whitelist()))
-            .put("blacklist", new JsonArray(plugin.blacklist())));
+        .put("whitelist", new JsonArray(plugin.whitelist()))
+        .put("blacklist", new JsonArray(plugin.blacklist())));
   }
 
   @Override

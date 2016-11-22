@@ -15,7 +15,6 @@
         <module>cli</module>
         <module>core</module>
         <module>plugin</module>
-        <module>servicediscovery</module>
     </modules>
 
     <properties>
