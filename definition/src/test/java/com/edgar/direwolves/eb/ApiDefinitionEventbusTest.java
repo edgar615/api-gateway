@@ -58,7 +58,6 @@ public class ApiDefinitionEventbusTest {
 
     ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
     Assert.assertEquals("/devices", apiDefinition.path());
-    Assert.assertEquals("device:write", apiDefinition.scope());
 
     Assert.assertEquals(0, apiDefinition.plugins().size());
 //    Assert.assertNull(apiDefinition.plugin(AclRestriction.NAME));

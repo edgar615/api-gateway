@@ -27,7 +27,6 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
         .put("name", definition.name())
         .put("method", definition.method().name())
         .put("path", definition.path())
-        .put("scope", definition.scope())
         .put("endpoints", createEndpointArray(definition.endpoints()));
     definition.plugins().forEach(p -> jsonObject.mergeIn(p.encode()));
     return jsonObject;

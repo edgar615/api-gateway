@@ -1,9 +1,10 @@
 package com.edgar.direwolves.core.definition;
 
-import com.edgar.util.base.MorePreconditions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import com.edgar.util.base.MorePreconditions;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;
@@ -61,23 +62,17 @@ class ApiDefinitionImpl implements ApiDefinition {
 //    private String description;
 
   /**
-   * 权限范围，默认default;
-   */
-  private final String scope;
-
-  /**
    * 远程请求定义.
    */
   private final List<Endpoint> endpoints;
 
   private final List<ApiPlugin> plugins = new ArrayList<>();
 
-  ApiDefinitionImpl(String name, HttpMethod method, String path, String scope,
+  ApiDefinitionImpl(String name, HttpMethod method, String path,
                     List<Endpoint> endpoints) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
-    Preconditions.checkNotNull(scope, "service can not be null");
     Preconditions.checkNotNull(endpoints, "endpoints can not be null");
     MorePreconditions.checkNotEmpty(endpoints, "endpoints can not be empty");
     if (!path.startsWith("/")) {
@@ -90,7 +85,6 @@ class ApiDefinitionImpl implements ApiDefinition {
     this.name = name;
     this.method = method;
     this.path = path;
-    this.scope = scope;
     this.endpoints = ImmutableList.copyOf(endpoints);
     this.pattern = Pattern.compile(path);
   }
@@ -113,11 +107,6 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public Pattern pattern() {
     return pattern;
-  }
-
-  @Override
-  public String scope() {
-    return scope;
   }
 
   @Override
@@ -154,13 +143,12 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("ApiDefinition")
-        .add("name", name)
-        .add("method", method)
-        .add("path", path)
-        .add("scope", scope)
-        .add("endpoints", endpoints)
-        .add("plugins", plugins)
-        .toString();
+            .add("name", name)
+            .add("method", method)
+            .add("path", path)
+            .add("endpoints", endpoints)
+            .add("plugins", plugins)
+            .toString();
   }
 
 }

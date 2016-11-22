@@ -84,7 +84,7 @@ public class RequestTransformerFilterTest extends FilterTest {
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     apiContext.addRequest(new JsonObject()
         .put("name", "add_device")
@@ -129,7 +129,7 @@ public class RequestTransformerFilterTest extends FilterTest {
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     apiContext.addRequest(new JsonObject()
         .put("name", "add_device")
@@ -189,7 +189,7 @@ public class RequestTransformerFilterTest extends FilterTest {
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     apiContext.addRequest(new JsonObject()
         .put("name", "add_device")

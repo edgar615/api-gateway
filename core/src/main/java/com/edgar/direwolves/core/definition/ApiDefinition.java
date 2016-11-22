@@ -43,11 +43,6 @@ public interface ApiDefinition {
   Pattern pattern();
 
   /**
-   * @return 权限范围
-   */
-  String scope();
-
-  /**
    * @return 远程请求定义
    */
   List<Endpoint> endpoints();
@@ -73,9 +68,9 @@ public interface ApiDefinition {
    */
   ApiDefinition removePlugin(String name);
 
-  static ApiDefinition create(String name, HttpMethod method, String path, String scope,
+  static ApiDefinition create(String name, HttpMethod method, String path,
                               List<Endpoint> endpoints) {
-    return new ApiDefinitionImpl(name, method, path, scope, endpoints);
+    return new ApiDefinitionImpl(name, method, path, endpoints);
   }
 
   static ApiDefinition fromJson(JsonObject jsonObject) {

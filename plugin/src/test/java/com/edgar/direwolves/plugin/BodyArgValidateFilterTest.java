@@ -81,7 +81,7 @@ public class BodyArgValidateFilterTest extends FilterTest {
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
     HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -121,7 +121,7 @@ public class BodyArgValidateFilterTest extends FilterTest {
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     apiContext.apiDefinition().addPlugin(plugin);

@@ -49,10 +49,9 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
         .checkArgument(jsonObject.containsKey("endpoints"), "api endpoints cannot be null");
     String name = jsonObject.getString("name");
     String path = jsonObject.getString("path");
-    String scope = jsonObject.getString("scope", "default");
     HttpMethod method = method(jsonObject.getString("method", "get"));
 
-    ApiDefinition apiDefinition = ApiDefinition.create(name, method, path, scope, createEndpoints(jsonObject.getJsonArray("endpoints")));
+    ApiDefinition apiDefinition = ApiDefinition.create(name, method, path, createEndpoints(jsonObject.getJsonArray("endpoints")));
     ApiPlugin.factories.forEach(f -> apiDefinition.addPlugin((ApiPlugin) f.decode(jsonObject)));
     return apiDefinition;
   }

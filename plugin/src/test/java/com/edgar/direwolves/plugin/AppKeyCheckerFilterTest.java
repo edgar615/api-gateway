@@ -102,7 +102,7 @@ public class AppKeyCheckerFilterTest extends FilterTest{
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
@@ -126,7 +126,7 @@ public class AppKeyCheckerFilterTest extends FilterTest{
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
@@ -154,7 +154,7 @@ public class AppKeyCheckerFilterTest extends FilterTest{
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 
@@ -196,7 +196,7 @@ public class AppKeyCheckerFilterTest extends FilterTest{
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyCheckerPlugin.class.getSimpleName()));
 

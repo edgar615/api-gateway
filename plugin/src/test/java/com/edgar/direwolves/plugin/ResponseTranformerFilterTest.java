@@ -75,7 +75,7 @@ public class ResponseTranformerFilterTest extends FilterTest {
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
     apiContext.setApiDefinition(definition);
     JsonObject response = new JsonObject()

@@ -30,7 +30,6 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals(HttpMethod.GET, apiDefinition.method());
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
-    Assert.assertEquals("default", apiDefinition.scope());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
     Assert.assertTrue(endpoint instanceof HttpEndpoint);
     HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
@@ -68,7 +67,6 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals(HttpMethod.POST, apiDefinition.method());
 
     Assert.assertEquals(2, apiDefinition.endpoints().size());
-    Assert.assertEquals("default", apiDefinition.scope());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
     Assert.assertTrue(endpoint instanceof HttpEndpoint);
     HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;

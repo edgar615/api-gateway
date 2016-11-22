@@ -54,7 +54,7 @@ public class UrlArgValidateFilterTest extends FilterTest {
     HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     filter = new UrlArgValidateFilter();

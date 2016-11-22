@@ -18,15 +18,14 @@ public class ApiDefinitionTest {
     HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",  Lists.newArrayList(httpEndpoint));
     Assert.assertEquals("/devices", apiDefinition.path());
-    Assert.assertEquals("default", apiDefinition.scope());
   }
 
   @Test
   public void testEndpointsShouldNotEmpty() {
     try {
-      ApiDefinition.create("get_device", HttpMethod.GET, "device/", "default", Lists.newArrayList());
+      ApiDefinition.create("get_device", HttpMethod.GET, "device/",Lists.newArrayList());
       Assert.fail();
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -38,7 +37,7 @@ public class ApiDefinitionTest {
   public void testEndpointsShouldImmutable() {
     HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "device/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
@@ -78,7 +77,7 @@ public class ApiDefinitionTest {
   public void testMatcher() {
     HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/",
         "device");
-    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",  Lists.newArrayList(httpEndpoint));
 
     Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices"));
     Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
@@ -89,7 +88,7 @@ public class ApiDefinitionTest {
 
     httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices",
         "device");
-    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)", "default", Lists.newArrayList(httpEndpoint));
+    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)", Lists.newArrayList(httpEndpoint));
 
     Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices"));
     Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
@@ -99,7 +98,7 @@ public class ApiDefinitionTest {
 
     httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices",
         "device");
-    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\w+]+)", "default", Lists.newArrayList(httpEndpoint));
+    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\w+]+)",  Lists.newArrayList(httpEndpoint));
 
     Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices"));
     Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));

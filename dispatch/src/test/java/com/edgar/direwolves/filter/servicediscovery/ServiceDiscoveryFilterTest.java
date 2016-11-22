@@ -60,7 +60,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     JsonObject config = new JsonObject()
@@ -110,7 +110,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint2 =
         Endpoint.createHttp("get_user", HttpMethod.GET, "users/", "user");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint, httpEndpoint2));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, httpEndpoint2));
     apiContext.setApiDefinition(definition);
 
     Task<ApiContext> task = Task.create();
@@ -144,7 +144,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "sms");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", "default", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     Task<ApiContext> task = Task.create();
