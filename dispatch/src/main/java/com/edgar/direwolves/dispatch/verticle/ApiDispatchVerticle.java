@@ -11,6 +11,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.ServiceLoader;
  */
 public class ApiDispatchVerticle extends AbstractVerticle {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiDispatchVerticle.class);
+
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
@@ -32,6 +36,9 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     Collections.sort(filterList, (o1, o2) -> o1.order() - o2.order());
     filterList.forEach(filter -> {
       filter.config(vertx, new JsonObject());
+    });
+    filterList.forEach(filter -> {
+      LOGGER.info("filter loaded,name->{}, type->{}, order->{}", filter.getClass().getSimpleName(), filter.type(), filter.order());
     });
 
     int port = config().getInteger("http.port", 8080);

@@ -62,7 +62,7 @@ public class JwtStrategy implements AuthenticationStrategy {
   public void doAuthentication(ApiContext apiContext, Future<JsonObject> completeFuture) {
     try {
       String token = extractToken(apiContext);
-      auth(token, apiContext, completeFuture);
+      auth(token, completeFuture);
     } catch (Exception e) {
       completeFuture.fail(e);
     }
@@ -89,7 +89,7 @@ public class JwtStrategy implements AuthenticationStrategy {
     throw SystemException.create(DefaultErrorCode.INVALID_TOKEN);
   }
 
-  private void auth(String token, ApiContext apiContext, Future<JsonObject> completeFuture) {
+  private void auth(String token, Future<JsonObject> completeFuture) {
 
     JsonObject jwtConfig = new JsonObject().put("keyStore", config);
 

@@ -1,5 +1,9 @@
 {
   "http.port": 9000,
+  "redis.host" : "localhost",
+  "redis.port" : 6379,
+  "redis.password" : "123456",
+  "redis.key.prefix" : "",
   "api.config.dir": "/",
   "api.config.auto_refresh": false,
   "service.discovery": "consul://localhost:8500",
