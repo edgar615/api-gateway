@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.transformer;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;

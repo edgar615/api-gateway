@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.arg;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.plugin.arg.BodyArgPlugin;

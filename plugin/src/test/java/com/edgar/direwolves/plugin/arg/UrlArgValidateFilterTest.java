@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.arg;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.plugin.FilterTest;
 import com.edgar.direwolves.plugin.arg.Parameter;
 import com.edgar.direwolves.plugin.arg.UrlArgPlugin;
 import com.edgar.direwolves.plugin.arg.UrlArgValidateFilter;

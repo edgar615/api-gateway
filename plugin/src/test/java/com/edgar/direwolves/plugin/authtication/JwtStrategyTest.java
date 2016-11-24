@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.authtication;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.plugin.authentication.JwtStrategy;
@@ -28,7 +28,7 @@ import java.util.Base64;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class JwtFilterTest {
+public class JwtStrategyTest {
 
   Vertx vertx;
 

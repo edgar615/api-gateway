@@ -1,10 +1,11 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.transformer;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.plugin.FilterTest;
 import com.edgar.direwolves.plugin.transformer.RequestTransformer;
 import com.edgar.direwolves.plugin.transformer.RequestTransformerFilter;
 import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;
