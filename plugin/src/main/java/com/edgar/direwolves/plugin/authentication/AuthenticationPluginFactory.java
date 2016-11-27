@@ -23,6 +23,9 @@ public class AuthenticationPluginFactory implements ApiPluginFactory<Authenticat
 
   @Override
   public AuthenticationPlugin decode(JsonObject jsonObject) {
+    if (!jsonObject.containsKey("authentication")) {
+      return null;
+    }
     AuthenticationPlugin authenticationPlugin = new AuthenticationPluginImpl();
     JsonArray jsonArray = jsonObject.getJsonArray("authentication", new JsonArray());
     for (int i = 0; i < jsonArray.size(); i++) {

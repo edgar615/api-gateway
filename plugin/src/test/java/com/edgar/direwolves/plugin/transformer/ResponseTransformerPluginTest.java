@@ -1,9 +1,6 @@
 package com.edgar.direwolves.plugin.transformer;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.plugin.transformer.RequestTransformerPlugin;
-import com.edgar.direwolves.plugin.transformer.ResponseTransformerPlugin;
-import com.edgar.direwolves.plugin.transformer.ResponseTransformerPluginFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

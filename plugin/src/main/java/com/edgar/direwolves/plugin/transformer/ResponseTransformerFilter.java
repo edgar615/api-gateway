@@ -37,8 +37,8 @@ public class ResponseTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.apiDefinition().plugin(ResponseTransformerPlugin.class.getSimpleName())
-        != null;
+    return apiContext.apiDefinition()
+        .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
   }
 
   @Override

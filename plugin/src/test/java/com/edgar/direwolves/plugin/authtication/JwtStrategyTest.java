@@ -1,6 +1,7 @@
 package com.edgar.direwolves.plugin.authtication;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.utils.EventbusUtils;
 import com.edgar.direwolves.plugin.authentication.JwtStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -21,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Base64;
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -34,16 +36,34 @@ public class JwtStrategyTest {
 
   JWTAuth provider;
 
+  String jti = UUID.randomUUID().toString();
+  private String userGetAddress = UUID.randomUUID().toString();
+  private String userKey = UUID.randomUUID().toString();
+
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
 
     JsonObject config = new JsonObject().put("keyStore", new JsonObject()
-        .put("path", "keystore.jceks")
-        .put("type", "jceks")
-        .put("password", "secret"));
+            .put("path", "keystore.jceks")
+            .put("type", "jceks")
+            .put("password", "secret")
+    );
 
     provider = JWTAuth.create(vertx, config);
+
+    vertx.eventBus().<Integer>consumer(userGetAddress, msg -> {
+      int userId = msg.body();
+      if (userId < 10) {
+        msg.reply(new JsonObject()
+            .put(userKey, 1)
+            .put("username", "edgar")
+            .put("tel", "123456")
+            .put("jti", jti));
+      } else {
+        EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.INVALID_TOKEN));
+      }
+    });
 
   }
 
@@ -96,10 +116,8 @@ public class JwtStrategyTest {
   public void testJwt(TestContext testContext) {
 
     JsonObject claims = new JsonObject()
-        .put("userId", 1)
-        .put("companyCode", 1)
-        .put("admin", false)
-        .put("username", "Edgar");
+        .put(userKey, 1)
+        .put("jti", jti);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token = createToken(claims);
@@ -116,7 +134,9 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30));
+        .put("jwt.expires", 60 * 30)
+        .put("jwt.user.get.address", userGetAddress)
+        .put("jwt.user.key", userKey));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -141,7 +161,7 @@ public class JwtStrategyTest {
   public void testExpiredJwt(TestContext testContext) {
 
     JsonObject claims = new JsonObject()
-        .put("userId", 1)
+        .put(userKey, 1)
         .put("companyCode", 1)
         .put("admin", false)
         .put("username", "Edgar")
@@ -185,10 +205,8 @@ public class JwtStrategyTest {
   public void testJwtClaim(TestContext testContext) {
 
     JsonObject claims = new JsonObject()
-        .put("userId", 1)
-        .put("companyCode", 1)
-        .put("admin", false)
-        .put("username", "Edgar");
+        .put("jti", jti)
+        .put(userKey, 1);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
 //    JwtTokenGenerator jwtTokenGenerator = new JwtTokenGenerator();
@@ -210,7 +228,7 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30));
+        .put("jwt.expires", 60 * 30).put("jwt.user.get.address", userGetAddress).put("jwt.user.key", userKey));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -227,6 +245,85 @@ public class JwtStrategyTest {
         async.complete();
       } else {
         testContext.fail();
+      }
+    });
+  }
+
+  @Test
+  public void testUnkownUser(TestContext testContext) {
+
+    JsonObject claims = new JsonObject()
+        .put("jti", jti)
+        .put(userKey, 10);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token = createToken(claims);
+    System.out.println(token);
+
+    String[] tokens = token.split("\\.");
+    String claim = tokens[1];
+    String claimJson = new String(Base64.getDecoder().decode(claim));
+    System.out.println(claimJson);
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer " + token);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
+
+    JwtStrategy filter = new JwtStrategy();
+    filter.config(vertx, new JsonObject()
+        .put("jwt.expires", 60 * 30)
+        .put("jwt.user.get.address", userGetAddress)
+        .put("jwt.user.key", userKey));
+
+    Future<JsonObject> future = Future.future();
+    filter.doAuthentication(apiContext, future);
+
+    Async async = testContext.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        async.complete();
+      }
+    });
+  }
+
+  @Test
+  public void testUnkownJti(TestContext testContext) {
+
+    JsonObject claims = new JsonObject()
+        .put("jti", UUID.randomUUID().toString())
+        .put(userKey, 10);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token = createToken(claims);
+    System.out.println(token);
+
+    String[] tokens = token.split("\\.");
+    String claim = tokens[1];
+    String claimJson = new String(Base64.getDecoder().decode(claim));
+    System.out.println(claimJson);
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer " + token);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
+
+    JwtStrategy filter = new JwtStrategy();
+    filter.config(vertx, new JsonObject()
+        .put("jwt.expires", 60 * 30)
+        .put("jwt.user.get.address", "user.get"));
+
+    Future<JsonObject> future = Future.future();
+    filter.doAuthentication(apiContext, future);
+
+    Async async = testContext.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        SystemException ex = (SystemException) ar.cause();
+        testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+        async.complete();
       }
     });
   }

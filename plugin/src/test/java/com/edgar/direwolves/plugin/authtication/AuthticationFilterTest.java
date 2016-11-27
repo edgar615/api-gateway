@@ -5,9 +5,8 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.JsonUtils;
+import com.edgar.direwolves.core.utils.EventbusUtils;
 import com.edgar.direwolves.plugin.FilterTest;
-import com.edgar.direwolves.plugin.arg.BodyArgValidateFilter;
 import com.edgar.direwolves.plugin.authentication.AuthenticationFilter;
 import com.edgar.direwolves.plugin.authentication.AuthenticationPlugin;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -16,7 +15,6 @@ import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -32,6 +30,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/10/31.
@@ -46,15 +45,30 @@ public class AuthticationFilterTest extends FilterTest {
 
   private Vertx vertx;
 
+  private String jti = UUID.randomUUID().toString();
+
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
 
     filter = new AuthenticationFilter();
-    filter.config(vertx, new JsonObject());
+    filter.config(vertx, new JsonObject().put("jwt.user.get.address", "user.get"));
 
     filters.clear();
     filters.add(filter);
+
+    vertx.eventBus().<Integer>consumer("user.get", msg -> {
+      int userId = msg.body();
+      if (userId < 10) {
+        msg.reply(new JsonObject()
+            .put("userId", 1)
+            .put("username", "edgar")
+            .put("tel", "123456")
+            .put("jti", jti));
+      } else {
+        EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.INVALID_TOKEN));
+      }
+    });
   }
 
   @Test
@@ -98,9 +112,7 @@ public class AuthticationFilterTest extends FilterTest {
 
     JsonObject claims = new JsonObject()
         .put("userId", 1)
-        .put("companyCode", 1)
-        .put("admin", false)
-        .put("username", "Edgar");
+        .put("jti", jti);
     headers.put("Authorization", "Bearer " + createToken(claims));
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
@@ -121,7 +133,7 @@ public class AuthticationFilterTest extends FilterTest {
     doFilter(task, filters)
         .andThen(context -> {
           JsonObject principal = context.principal();
-          testContext.assertEquals("Edgar", principal.getString("username"));
+          testContext.assertEquals("edgar", principal.getString("username"));
           async.complete();
         })
         .onFailure(throwable -> testContext.fail());

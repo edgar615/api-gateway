@@ -2,8 +2,6 @@ package com.edgar.direwolves.plugin.ip;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
-import com.edgar.direwolves.plugin.ip.IpRestrictionFactory;
-import com.edgar.direwolves.plugin.ip.IpRestrictionPlugin;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

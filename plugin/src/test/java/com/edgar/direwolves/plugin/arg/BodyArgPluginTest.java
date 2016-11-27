@@ -1,9 +1,6 @@
 package com.edgar.direwolves.plugin.arg;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.plugin.arg.BodyArgPlugin;
-import com.edgar.direwolves.plugin.arg.BodyArgPluginFactory;
-import com.edgar.direwolves.plugin.arg.Parameter;
 import com.edgar.util.validation.Rule;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

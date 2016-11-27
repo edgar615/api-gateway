@@ -2,9 +2,6 @@ package com.edgar.direwolves.plugin.ratelimit;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
-import com.edgar.direwolves.plugin.ratelimit.RateLimit;
-import com.edgar.direwolves.plugin.ratelimit.RateLimitPlugin;
-import com.edgar.direwolves.plugin.ratelimit.RateLimitPluginFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

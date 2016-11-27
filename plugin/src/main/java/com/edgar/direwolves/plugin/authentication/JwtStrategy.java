@@ -11,9 +11,12 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * JWT类型token的校验.
@@ -31,11 +34,18 @@ import java.util.List;
  * Created by edgar on 16-9-20.
  */
 public class JwtStrategy implements AuthenticationStrategy {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JwtStrategy.class);
+
   private static final String HEADER_AUTH = "Authorization";
 
   private static final String AUTH_PREFIX = "Bearer ";
 
   private static final String NAME = "jwt";
+
+  private String userGetAddress;
+
+  private String userKey = "userId";
 
   private JsonObject config = new JsonObject()
       .put("path", "keystore.jceks")
@@ -56,6 +66,9 @@ public class JwtStrategy implements AuthenticationStrategy {
     if (config.containsKey("keystore.password")) {
       this.config.put("password", config.getString("keystore.password"));
     }
+
+    this.userGetAddress = config.getString("jwt.user.get.address", "eventbus.jwt.user.get");
+    this.userKey = config.getString("jwt.user.key", "userId");
   }
 
   @Override
@@ -97,8 +110,34 @@ public class JwtStrategy implements AuthenticationStrategy {
 
     provider.authenticate(new JsonObject().put("jwt", token), ar -> {
       if (ar.succeeded()) {
-        completeFuture.complete(ar.result().principal());
+        JsonObject principal = ar.result().principal();
+        String jti = principal.getString("jti");
+        Integer userId = principal.getInteger(userKey);
+        if (userId == null) {
+          LOGGER.debug("jwt failed, error->userId not found");
+          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
+        } else {
+          vertx.eventBus().<JsonObject>send(userGetAddress, userId, reply -> {
+            if (reply.succeeded()) {
+              JsonObject user = reply.result().body();
+              String userJti = user.getString("jti", UUID.randomUUID().toString());
+              if (userJti.equalsIgnoreCase(jti)) {
+                LOGGER.debug("jwt succeeded, userId->{}, jti->{}", userId, jti);
+                completeFuture.complete(user.mergeIn(principal).copy());
+              } else {
+                LOGGER.debug("jwt failed, userId->{}, jti->{}, error->jti inequality", userId, jti);
+                completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN));
+              }
+
+            } else {
+              LOGGER.debug("jwt failed,userId->{},  jti->{}, error->{}", userId, jti, reply.cause());
+              completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
+            }
+          });
+        }
+
       } else {
+        LOGGER.debug("jwt failed, error->{}", ar.cause());
         fail(completeFuture, ar);
       }
     });
