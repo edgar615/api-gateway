@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-core</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>

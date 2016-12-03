@@ -61,18 +61,13 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-codegen</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-core</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -93,20 +88,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <annotationProcessors>
-                        <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
-                    </annotationProcessors>
-                    <generatedSourcesDirectory>
-                        ${project.basedir}/src/main/generated
-                    </generatedSourcesDirectory>
-                    <compilerArgs>
-                        <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
-                    </compilerArgs>
-                </configuration>
             </plugin>
 
             <plugin>

@@ -3,4 +3,3 @@ com.edgar.direwolves.plugin.arg.BodyArgValidateFilter
 com.edgar.direwolves.plugin.transformer.RequestTransformerFilter
 com.edgar.direwolves.plugin.transformer.ResponseTransformerFilter
 com.edgar.direwolves.plugin.authentication.AuthenticationFilter
-com.edgar.direwolves.plugin.client.AppKeyCheckerFilter

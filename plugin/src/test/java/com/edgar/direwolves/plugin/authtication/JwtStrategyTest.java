@@ -52,6 +52,8 @@ public class JwtStrategyTest {
 
     provider = JWTAuth.create(vertx, config);
 
+//    ProxyHelper.registerService(UserService.class, vertx, new MockUserService(vertx, userGetAddress), UserService.SERVICE_ADDRESS);
+
     vertx.eventBus().<Integer>consumer(userGetAddress, msg -> {
       int userId = msg.body();
       if (userId < 10) {

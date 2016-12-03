@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.client;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;

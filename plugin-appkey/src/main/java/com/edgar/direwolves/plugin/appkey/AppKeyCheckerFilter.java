@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.client;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -98,7 +98,7 @@ public class AppKeyCheckerFilter implements Filter {
 
   private Vertx vertx;
 
-  private JsonArray secrets = new JsonArray();
+  private String appGetAddress;
 
   public AppKeyCheckerFilter() {
     commonParamRule.put("appKey", Rule.required());
@@ -127,8 +127,7 @@ public class AppKeyCheckerFilter implements Filter {
   @Override
   public void config(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    JsonArray secretArray = config.getJsonArray("app_key.secret", new JsonArray());
-    secrets.addAll(secretArray);
+    this.appGetAddress = config.getString("appkey.get.address", "eventbus.appkey.get");
   }
 
   @Override
@@ -150,39 +149,28 @@ public class AppKeyCheckerFilter implements Filter {
       params.put("body", apiContext.body().encode());
     }
 
-    JsonObject company = filterByAppKey(appKey);
-    if (company == null) {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
-    } else {
-      String secret = company.getString("secret", "UNKOWNSECRET");
+    vertx.eventBus().<JsonObject>send(appGetAddress, appKey, ar -> {
+      if (ar.succeeded()) {
+        JsonObject result = ar.result().body();
+        String secret = result.getString("appSecret", "UNKOWNSECRET");
+        String serverSignValue = signTopRequest(params, secret, signMethod);
+        if (!clientSignValue.equals(serverSignValue)) {
+          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+        } else {
+          apiContext.params().removeAll("sign");
+          apiContext.params().removeAll("signMethod");
+          apiContext.params().removeAll("v");
+          apiContext.params().removeAll("appKey");
+          apiContext.addVariable("app_key.code", result.getInteger("code", 0));
+          apiContext.addVariable("app_key.scope", result.getString("scope", "default"));
+          completeFuture.complete(apiContext);
+        }
 
-      String serverSignValue = signTopRequest(params, secret, signMethod);
-      if (!clientSignValue.equals(serverSignValue)) {
-        completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
       } else {
-        apiContext.addVariable("app_key.code", company.getInteger("code", 0));
-        apiContext.addVariable("app_key.scope", company.getString("scope", "default"));
-
-        apiContext.params().removeAll("sign");
-        apiContext.params().removeAll("signMethod");
-        apiContext.params().removeAll("v");
-        apiContext.params().removeAll("appKey");
-        completeFuture.complete(apiContext);
+        completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
       }
-    }
-  }
+    });
 
-  private JsonObject filterByAppKey(String appKey) {
-
-    JsonObject appJson = null;
-    for (int i = 0; i < secrets.size(); i++) {
-      JsonObject c = secrets.getJsonObject(i);
-      String key = c.getString("key");
-      if (appKey.equalsIgnoreCase(key)) {
-        appJson = c;
-      }
-    }
-    return appJson;
   }
 
   private String signTopRequest(Multimap<String, String> params, String secret, String signMethod) {

@@ -1,11 +1,12 @@
-package com.edgar.direwolves.plugin.client;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.plugin.FilterTest;
+import com.edgar.direwolves.core.utils.EventbusUtils;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -33,12 +34,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by edgar on 16-10-31.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyCheckerFilterTest extends FilterTest {
+public class AppKeyCheckerFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
   String appKey = "abc";
@@ -47,7 +49,7 @@ public class AppKeyCheckerFilterTest extends FilterTest {
   int appCode = 0;
   String signMethod = "HMACMD5";
   private Filter filter;
-
+  private String appGetAddress = UUID.randomUUID().toString();
   private ApiContext apiContext;
 
   private Vertx vertx;
@@ -62,14 +64,20 @@ public class AppKeyCheckerFilterTest extends FilterTest {
     filters.clear();
     filters.add(filter);
 
-    JsonArray appKeys = new JsonArray();
-    appKeys.add(new JsonObject()
-        .put("key", appKey)
-        .put("secret", appSecret)
-        .put("scope", "all")
-        .put("appCode", 0));
-    JsonObject config = new JsonObject().put("app_key.secret", appKeys);
+    JsonObject config = new JsonObject().put("appkey.get.address",appGetAddress);
     filter.config(vertx, config);
+    vertx.eventBus().<String>consumer(appGetAddress, msg -> {
+      String key = msg.body();
+      if (key.equalsIgnoreCase(appKey)) {
+        msg.reply(new JsonObject()
+            .put("appKey", appKey)
+            .put("code", appCode)
+            .put("scope", scope)
+            .put("appSecret", appSecret));
+      } else {
+        EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.INVALID_REQ));
+      }
+    });
   }
 
   @After
@@ -98,7 +106,7 @@ public class AppKeyCheckerFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(t -> {
           testContext.assertTrue(t instanceof SystemException);
@@ -122,7 +130,7 @@ public class AppKeyCheckerFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(t -> {
           testContext.assertTrue(t instanceof ValidationException);
@@ -150,7 +158,7 @@ public class AppKeyCheckerFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(e -> {
           testContext.assertTrue(e instanceof SystemException);
@@ -192,12 +200,15 @@ public class AppKeyCheckerFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           testContext.assertFalse(context.params().containsKey("sign"));
           async.complete();
         })
-        .onFailure(t -> testContext.fail());
+        .onFailure(t -> {
+          t.printStackTrace();
+          testContext.fail();
+        });
 
   }
 

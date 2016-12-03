@@ -2,6 +2,7 @@ package com.edgar.direwolves.plugin.authentication;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.AuthenticationStrategy;
+import com.edgar.direwolves.core.spi.UserService;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Strings;
@@ -11,6 +12,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,8 @@ public class JwtStrategy implements AuthenticationStrategy {
       .put("password", "secret");
 
   private Vertx vertx;
+
+  private UserService userService;
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
@@ -128,7 +132,6 @@ public class JwtStrategy implements AuthenticationStrategy {
                 LOGGER.debug("jwt failed, userId->{}, jti->{}, error->jti inequality", userId, jti);
                 completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN));
               }
-
             } else {
               LOGGER.debug("jwt failed,userId->{},  jti->{}, error->{}", userId, jti, reply.cause());
               completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
