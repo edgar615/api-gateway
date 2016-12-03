@@ -1,8 +1,7 @@
-package com.edgar.direwolves.plugin.authtication;
+package com.edgar.direwolves.plugin.authentication;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.EventbusUtils;
-import com.edgar.direwolves.plugin.authentication.JwtStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.collect.ArrayListMultimap;

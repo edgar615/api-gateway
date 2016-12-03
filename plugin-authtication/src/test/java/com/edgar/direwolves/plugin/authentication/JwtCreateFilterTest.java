@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.authtication;
+package com.edgar.direwolves.plugin.authentication;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
@@ -6,9 +6,7 @@ import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.EventbusUtils;
-import com.edgar.direwolves.plugin.FilterTest;
-import com.edgar.direwolves.plugin.authentication.JwtCreateFilter;
-import com.edgar.direwolves.plugin.authentication.JwtCreatePlugin;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -35,7 +33,7 @@ import java.util.*;
  * @author Edgar  Date 2016/10/31
  */
 @RunWith(VertxUnitRunner.class)
-public class JwtCreateFilterTest extends FilterTest {
+public class JwtCreateFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
   JwtCreateFilter filter;
@@ -98,7 +96,7 @@ public class JwtCreateFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(throwable -> {
           async.complete();
@@ -136,7 +134,7 @@ public class JwtCreateFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           JsonObject response = context.response();
           String token = response.getJsonObject("body").getString("token");

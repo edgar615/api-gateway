@@ -1,0 +1,2 @@
+com.edgar.direwolves.plugin.authentication.AuthenticationPluginFactory
+com.edgar.direwolves.plugin.authentication.JwtCreatePluginFactory

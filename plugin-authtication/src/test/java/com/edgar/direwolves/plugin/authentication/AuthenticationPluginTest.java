@@ -1,9 +1,7 @@
-package com.edgar.direwolves.plugin.authtication;
+package com.edgar.direwolves.plugin.authentication;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
-import com.edgar.direwolves.plugin.authentication.AuthenticationPlugin;
-import com.edgar.direwolves.plugin.authentication.AuthenticationPluginFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

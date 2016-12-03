@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.authtication;
+package com.edgar.direwolves.plugin.authentication;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
@@ -6,9 +6,7 @@ import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.EventbusUtils;
-import com.edgar.direwolves.plugin.FilterTest;
-import com.edgar.direwolves.plugin.authentication.AuthenticationFilter;
-import com.edgar.direwolves.plugin.authentication.AuthenticationPlugin;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -38,7 +36,7 @@ import java.util.UUID;
  * @author Edgar  Date 2016/10/31
  */
 @RunWith(VertxUnitRunner.class)
-public class AuthticationFilterTest extends FilterTest {
+public class AuthticationFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
   AuthenticationFilter filter;
@@ -93,7 +91,7 @@ public class AuthticationFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(throwable -> {
           testContext.assertTrue(throwable instanceof SystemException);
@@ -130,7 +128,7 @@ public class AuthticationFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           JsonObject principal = context.principal();
           testContext.assertEquals("edgar", principal.getString("username"));
@@ -164,7 +162,7 @@ public class AuthticationFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           JsonObject principal = context.principal();
           testContext.assertEquals("edgar", principal.getString("username"));
@@ -199,7 +197,7 @@ public class AuthticationFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(throwable -> {
           testContext.assertTrue(throwable instanceof SystemException);
@@ -234,7 +232,7 @@ public class AuthticationFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(throwable -> {
           testContext.assertTrue(throwable instanceof SystemException);

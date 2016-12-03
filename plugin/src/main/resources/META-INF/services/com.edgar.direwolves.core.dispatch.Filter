@@ -2,4 +2,3 @@ com.edgar.direwolves.plugin.arg.UrlArgValidateFilter
 com.edgar.direwolves.plugin.arg.BodyArgValidateFilter
 com.edgar.direwolves.plugin.transformer.RequestTransformerFilter
 com.edgar.direwolves.plugin.transformer.ResponseTransformerFilter
-com.edgar.direwolves.plugin.authentication.AuthenticationFilter
