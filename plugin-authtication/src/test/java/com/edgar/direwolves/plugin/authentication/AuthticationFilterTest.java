@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.authentication;
 
+import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -7,6 +8,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.EventbusUtils;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -21,6 +23,7 @@ import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.serviceproxy.ProxyHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,34 +42,34 @@ import java.util.UUID;
 public class AuthticationFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
-  AuthenticationFilter filter;
+  Filter filter;
 
   private Vertx vertx;
 
-  private String jti = UUID.randomUUID().toString();
+  String jti = UUID.randomUUID().toString();
+  private String userKey = UUID.randomUUID().toString();
+  private String cacheAddress = UUID.randomUUID().toString();
+  private String namespace = UUID.randomUUID().toString();
+  private int userId = Integer.parseInt(Randoms.randomNumber(5));
+  CacheProvider cacheProvider = new MockCacheProvider();
 
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = new AuthenticationFilter();
-    filter.config(vertx, new JsonObject().put("jwt.user.get.address", "user.get"));
+    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, cacheAddress);
+
+    filter = Filter.create(AuthenticationFilter.class.getSimpleName(), vertx,
+        new JsonObject()
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", false)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
 
     filters.clear();
     filters.add(filter);
 
-    vertx.eventBus().<Integer>consumer("user.get", msg -> {
-      int userId = msg.body();
-      if (userId < 10) {
-        msg.reply(new JsonObject()
-            .put("userId", 1)
-            .put("username", "edgar")
-            .put("tel", "123456")
-            .put("jti", jti));
-      } else {
-        EventbusUtils.fail(msg, SystemException.create(DefaultErrorCode.INVALID_TOKEN));
-      }
-    });
   }
 
   @Test
@@ -94,6 +97,7 @@ public class AuthticationFilterTest {
     Filters.doFilter(task, filters)
         .andThen(context -> testContext.fail())
         .onFailure(throwable -> {
+          throwable.printStackTrace();
           testContext.assertTrue(throwable instanceof SystemException);
           SystemException ex = (SystemException) throwable;
           testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());

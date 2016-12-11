@@ -6,7 +6,7 @@ import com.edgar.direwolves.core.dispatch.AuthenticationStrategy;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -22,7 +22,12 @@ import java.util.ServiceLoader;
  * @author Edgar  Date 2016/10/31
  */
 public class AuthenticationFilter implements Filter {
-  private static final List<AuthenticationStrategy> strategies = new ArrayList<>();
+  private static final List<AuthenticationStrategy> strategies = ImmutableList.copyOf(
+      ServiceLoader.load(AuthenticationStrategy.class));
+
+  public AuthenticationFilter(Vertx vertx, JsonObject config) {
+
+  }
 
   @Override
   public String type() {
@@ -85,9 +90,5 @@ public class AuthenticationFilter implements Filter {
 
   @Override
   public void config(Vertx vertx, JsonObject config) {
-    List<AuthenticationStrategy> list = Lists
-        .newArrayList(ServiceLoader.load(AuthenticationStrategy.class));
-    list.forEach(a -> a.config(vertx, config));
-    strategies.addAll(list);
   }
 }

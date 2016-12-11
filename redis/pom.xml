@@ -17,5 +17,10 @@
             <artifactId>direwolves-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-redis-client</artifactId>
+        </dependency>
     </dependencies>
 </project>

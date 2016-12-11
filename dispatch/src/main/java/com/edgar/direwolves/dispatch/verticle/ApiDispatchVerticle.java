@@ -1,5 +1,6 @@
 package com.edgar.direwolves.dispatch.verticle;
 
+import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
@@ -11,6 +12,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,10 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
+
+    CacheProvider cacheProvider = CacheProvider.create(vertx, config());
+    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider,"cache");
+
 
     //初始化Filter
     List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(Filter.class));

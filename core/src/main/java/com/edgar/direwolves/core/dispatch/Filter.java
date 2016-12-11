@@ -1,21 +1,36 @@
 package com.edgar.direwolves.core.dispatch;
 
 import com.edgar.direwolves.core.spi.Configurable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * api请求的过滤器.
  * Created by edgar on 16-9-18.
  */
 public interface Filter extends Configurable {
-
+  List<FilterFactory> factories = ImmutableList.copyOf(ServiceLoader.load(FilterFactory.class));
   String PRE = "PRE";
-
   String POST = "POST";
+
+  static Filter create(String name,Vertx vertx, JsonObject config) {
+    List<FilterFactory> list = factories.stream()
+        .filter(f -> name.equalsIgnoreCase(f.name()))
+        .collect(Collectors.toList());
+    if (list.isEmpty()) {
+      throw new NoSuchElementException("no such factory->" + name);
+    }
+    return list.get(0).create(vertx, config);
+  }
 
   /**
    * @return filter的类型 pre或者post

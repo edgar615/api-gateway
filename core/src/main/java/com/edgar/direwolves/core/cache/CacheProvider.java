@@ -1,9 +1,10 @@
 package com.edgar.direwolves.core.cache;
 
-import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.ServiceHelper;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -11,6 +12,11 @@ import io.vertx.core.json.JsonObject;
  */
 @ProxyGen
 public interface CacheProvider {
+  CacheFactory factory = ServiceHelper.loadFactory(CacheFactory.class);
+
+  static CacheProvider create(Vertx vertx, JsonObject config) {
+    return factory.create(vertx, config);
+  }
 
   /**
    * 从缓存中获取值.
@@ -27,17 +33,17 @@ public interface CacheProvider {
    * @param value   缓存的键值，不能为 {@code null}.
    * @param handler 回调函数.
    */
-  void set(String key, JsonObject value, Handler<AsyncResult<JsonObject>> handler);
+  void set(String key, JsonObject value, Handler<AsyncResult<Void>> handler);
 
   /**
    * 将键值对放入缓存.
    *
    * @param key     缓存的键值，不能为 {@code null}.
    * @param value   缓存的键值，不能为 {@code null}.
-   * @param handler 回调函数.
    * @param expires 缓存的失效
+   * @param handler 回调函数.
    */
-  void setex(String key, JsonObject value, long expires, Handler<AsyncResult<JsonObject>> handler);
+  void setex(String key, JsonObject value, int expires, Handler<AsyncResult<Void>> handler);
 
   /**
    * 根据键删除缓存值.
@@ -45,6 +51,6 @@ public interface CacheProvider {
    * @param key     缓存的键值，不能为 {@code null}.
    * @param handler 回调函数.
    */
-  void delete(String key, Handler<AsyncResult<JsonObject>> handler);
+  void delete(String key, Handler<AsyncResult<Void>> handler);
 
 }

@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.authentication;
 
+import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -21,6 +22,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.serviceproxy.ProxyHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,20 +38,23 @@ import java.util.*;
 public class JwtCreateFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
-  JwtCreateFilter filter;
-
+  Filter filter;
+  CacheProvider cacheProvider = new MockCacheProvider();
   private Vertx vertx;
-
   private String userAddAddress = UUID.randomUUID().toString();
   private String userKey = UUID.randomUUID().toString();
+  private String cacheAddress = UUID.randomUUID().toString();
+  private String namespace = UUID.randomUUID().toString();
 
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
+    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, cacheAddress);
 
-    filter = new JwtCreateFilter();
-    filter.config(vertx, new JsonObject().put("jwt.user.add.address", userAddAddress)
-        .put("jwt.user.key", userKey));
+    filter = Filter.create(JwtCreateFilter.class.getSimpleName(), vertx,
+        new JsonObject().put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace)
+            .put("jwt.user.key", userKey));
 
     filters.clear();
     filters.add(filter);
