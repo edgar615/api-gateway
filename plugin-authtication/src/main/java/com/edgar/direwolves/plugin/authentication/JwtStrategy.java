@@ -1,11 +1,12 @@
 package com.edgar.direwolves.plugin.authentication;
 
+import com.google.common.base.Strings;
+
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.AuthenticationStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.base.Strings;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -53,10 +54,10 @@ public class JwtStrategy implements AuthenticationStrategy {
 
   private CacheProvider cacheProvider;
 
-  private JsonObject config = new JsonObject()
-      .put("path", "keystore.jceks")
-      .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-      .put("password", "secret");
+  private JsonObject jwtConfig = new JsonObject()
+          .put("path", "keystore.jceks")
+          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+          .put("password", "secret");
 
   private Vertx vertx;
 
@@ -64,13 +65,13 @@ public class JwtStrategy implements AuthenticationStrategy {
   public void config(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     if (config.containsKey("keystore.path")) {
-      this.config.put("path", config.getString("keystore.path"));
+      this.jwtConfig.put("path", config.getString("keystore.path"));
     }
     if (config.containsKey("keystore.type")) {
-      this.config.put("type", config.getString("keystore.type"));
+      this.jwtConfig.put("type", config.getString("keystore.type"));
     }
     if (config.containsKey("keystore.password")) {
-      this.config.put("password", config.getString("keystore.password"));
+      this.jwtConfig.put("password", config.getString("keystore.password"));
     }
 
     this.userKey = config.getString("jwt.user.key", "userId");
@@ -86,7 +87,7 @@ public class JwtStrategy implements AuthenticationStrategy {
       String token = extractToken(apiContext);
       Future<JsonObject> authFuture = auth(token);
       authFuture.compose(this::userCheck)
-          .setHandler(completeFuture.completer());
+              .setHandler(completeFuture.completer());
     } catch (Exception e) {
       completeFuture.fail(e);
     }
@@ -145,7 +146,7 @@ public class JwtStrategy implements AuthenticationStrategy {
 
   private Future<JsonObject> auth(String token) {
     Future<JsonObject> authFuture = Future.future();
-    JsonObject jwtConfig = new JsonObject().put("keyStore", config);
+    JsonObject jwtConfig = new JsonObject().put("keyStore", this.jwtConfig);
 
     JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
 

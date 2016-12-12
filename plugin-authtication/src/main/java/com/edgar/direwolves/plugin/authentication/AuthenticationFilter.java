@@ -26,7 +26,7 @@ public class AuthenticationFilter implements Filter {
       ServiceLoader.load(AuthenticationStrategy.class));
 
   public AuthenticationFilter(Vertx vertx, JsonObject config) {
-
+    strategies.forEach(s -> s.config(vertx, config));
   }
 
   @Override

@@ -1,12 +1,13 @@
 package com.edgar.direwolves.plugin.authentication;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -38,11 +39,16 @@ public class JwtStrategyTest {
   JWTAuth provider;
 
   String jti = UUID.randomUUID().toString();
-  private String userKey = UUID.randomUUID().toString();
-  private String cacheAddress = UUID.randomUUID().toString();
-  private String namespace = UUID.randomUUID().toString();
-  private int userId = Integer.parseInt(Randoms.randomNumber(5));
+
   CacheProvider cacheProvider = new MockCacheProvider();
+
+  private String userKey = UUID.randomUUID().toString();
+
+  private String cacheAddress = UUID.randomUUID().toString();
+
+  private String namespace = UUID.randomUUID().toString();
+
+  private int userId = Integer.parseInt(Randoms.randomNumber(5));
 
   @Before
   public void setUp(TestContext testContext) {
@@ -63,7 +69,7 @@ public class JwtStrategyTest {
   @Test
   public void testNoJwtHeader(TestContext testContext) {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap
-        .create(), null, null);
+            .create(), null, null);
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject());
@@ -78,6 +84,7 @@ public class JwtStrategyTest {
         testContext.assertTrue(throwable instanceof SystemException);
         SystemException ex = (SystemException) throwable;
         testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+
       }
     });
   }
@@ -108,16 +115,15 @@ public class JwtStrategyTest {
   @Test
   public void testSuccessJwt(TestContext testContext) {
     cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-        .put("userId", userId)
-        .put("username", "password")
-        .put("jti", jti), ar -> {
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
 
     });
 
-
     JsonObject claims = new JsonObject()
-        .put(userKey, userId)
-        .put("jti", UUID.randomUUID().toString());
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token = createToken(claims);
@@ -134,11 +140,11 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30)
-        .put("jwt.user.key", userKey)
-        .put("jwt.user.unique", false)
-        .put("service.cache.address", cacheAddress)
-        .put("project.namespace", namespace));
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", false)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -164,17 +170,17 @@ public class JwtStrategyTest {
   @Test
   public void testExpiredJwt(TestContext testContext) {
     cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-        .put("userId", userId)
-        .put("username", "password")
-        .put("jti", jti), ar -> {
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
 
     });
     JsonObject claims = new JsonObject()
-        .put(userKey, userId)
-        .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
+            .put(userKey, userId)
+            .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
 
     String token =
-        provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
     System.out.println(token);
 
     String[] tokens = token.split("\\.");
@@ -188,10 +194,10 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30)
-        .put("jwt.user.key", userKey)
-        .put("service.cache.address", cacheAddress)
-        .put("project.namespace", namespace));
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -213,16 +219,15 @@ public class JwtStrategyTest {
   @Test
   public void testDuplicateToken(TestContext testContext) {
     cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-        .put("userId", userId)
-        .put("username", "password")
-        .put("jti", jti), ar -> {
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
 
     });
 
-
     JsonObject claims = new JsonObject()
-        .put(userKey, userId)
-        .put("jti", UUID.randomUUID().toString());
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token = createToken(claims);
@@ -239,11 +244,11 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30)
-        .put("jwt.user.key", userKey)
-        .put("jwt.user.unique", true)
-        .put("service.cache.address", cacheAddress)
-        .put("project.namespace", namespace));
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", true)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -265,16 +270,16 @@ public class JwtStrategyTest {
   @Test
   public void testEqualsJtiToken(TestContext testContext) {
     cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-        .put("userId", userId)
-        .put("username", "password")
-        .put("jti", jti), ar -> {
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
 
     });
 
 
     JsonObject claims = new JsonObject()
-        .put(userKey, userId)
-        .put("jti", jti);
+            .put(userKey, userId)
+            .put("jti", jti);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token = createToken(claims);
@@ -291,11 +296,11 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30)
-        .put("jwt.user.key", userKey)
-        .put("jwt.user.unique", true)
-        .put("service.cache.address", cacheAddress)
-        .put("project.namespace", namespace));
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", true)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -321,17 +326,18 @@ public class JwtStrategyTest {
   @Test
   public void testUnkownUser(TestContext testContext) {
 
-    cacheProvider.set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
-        .put("userId", userId)
-        .put("username", "password")
-        .put("jti", jti), ar -> {
+    cacheProvider
+            .set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
+                    .put("userId", userId)
+                    .put("username", "password")
+                    .put("jti", jti), ar -> {
 
-    });
+            });
 
 
     JsonObject claims = new JsonObject()
-        .put(userKey, userId)
-        .put("jti", jti);
+            .put(userKey, userId)
+            .put("jti", jti);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token = createToken(claims);
@@ -348,11 +354,11 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy();
     filter.config(vertx, new JsonObject()
-        .put("jwt.expires", 60 * 30)
-        .put("jwt.user.key", userKey)
-        .put("jwt.user.unique", true)
-        .put("service.cache.address", cacheAddress)
-        .put("project.namespace", namespace));
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", true)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -369,11 +375,11 @@ public class JwtStrategyTest {
 
   public String createToken(JsonObject claims) {
     JsonObject config = new JsonObject()
-        .put("path", "keystore.jceks")
-        .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-        .put("password", "secret")
-        .put("algorithm", "HS512")
-        .put("expiresInSeconds", 1800);
+            .put("path", "keystore.jceks")
+            .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+            .put("password", "secret")
+            .put("algorithm", "HS512")
+            .put("expiresInSeconds", 1800);
     JsonObject jwtConfig = new JsonObject().put("keyStore", config);
     JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
     return provider.generateToken(claims, new JWTOptions(config));

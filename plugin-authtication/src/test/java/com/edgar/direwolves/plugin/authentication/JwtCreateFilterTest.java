@@ -97,7 +97,6 @@ public class JwtCreateFilterTest {
             .put("statusCode", 200)
     );
 
-
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
