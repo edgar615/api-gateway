@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.dispatch.AuthenticationStrategy;
+import com.edgar.direwolves.core.auth.AuthenticationStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
@@ -137,7 +137,7 @@ public class JwtStrategy implements AuthenticationStrategy {
           }
 
         } else {
-          userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN));
+          userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
         }
       });
     }

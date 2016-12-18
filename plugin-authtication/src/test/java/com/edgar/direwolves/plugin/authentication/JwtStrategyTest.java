@@ -67,7 +67,7 @@ public class JwtStrategyTest {
   }
 
   @Test
-  public void testNoJwtHeader(TestContext testContext) {
+  public void noHeaderShouldThrowInvalidToken(TestContext testContext) {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap
             .create(), null, null);
 
@@ -90,7 +90,7 @@ public class JwtStrategyTest {
   }
 
   @Test
-  public void testJwtHeaderNoBearer(TestContext testContext) {
+  public void lackBearerShouldThrowInvalidToken(TestContext testContext) {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("Authorization", "invalidtoken");
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
@@ -113,7 +113,163 @@ public class JwtStrategyTest {
   }
 
   @Test
-  public void testSuccessJwt(TestContext testContext) {
+  public void jwtExpiredShouldThrowExpiredToken(TestContext testContext) {
+    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
+
+    });
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
+
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    System.out.println(token);
+
+    String[] tokens = token.split("\\.");
+    String claim = tokens[1];
+    String claimJson = new String(Base64.getDecoder().decode(claim));
+    System.out.println(claimJson);
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer " + token);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
+
+    JwtStrategy filter = new JwtStrategy();
+    filter.config(vertx, new JsonObject()
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
+
+    Future<JsonObject> future = Future.future();
+    filter.doAuthentication(apiContext, future);
+
+    Async async = testContext.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        Throwable throwable = ar.cause();
+        Assert.assertTrue(throwable instanceof SystemException);
+        SystemException ex = (SystemException) throwable;
+        Assert.assertEquals(1005, ex.getErrorCode().getNumber());
+        async.complete();
+      }
+    });
+  }
+
+  @Test
+  public void unequalJtiShouldThrowExpiredTokenWhenRestrictedUniqueUser(TestContext testContext) {
+    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
+
+    });
+
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token = createToken(claims);
+    System.out.println(token);
+
+    String[] tokens = token.split("\\.");
+    String claim = tokens[1];
+    String claimJson = new String(Base64.getDecoder().decode(claim));
+    System.out.println(claimJson);
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer " + token);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
+
+    JwtStrategy filter = new JwtStrategy();
+    filter.config(vertx, new JsonObject()
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", true)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
+
+    Future<JsonObject> future = Future.future();
+    filter.doAuthentication(apiContext, future);
+
+    Async async = testContext.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        Throwable throwable = ar.cause();
+        Assert.assertTrue(throwable instanceof SystemException);
+        SystemException ex = (SystemException) throwable;
+        Assert.assertEquals(DefaultErrorCode.EXPIRE_TOKEN, ex.getErrorCode());
+        async.complete();
+      }
+    });
+  }
+
+  @Test
+  public void unequalJtiShouldSuccessWhenUnrestrictedUniqueUser(TestContext testContext) {
+    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
+
+    });
+
+
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token = createToken(claims);
+    System.out.println(token);
+
+    String[] tokens = token.split("\\.");
+    String claim = tokens[1];
+    String claimJson = new String(Base64.getDecoder().decode(claim));
+    System.out.println(claimJson);
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("Authorization", "Bearer " + token);
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
+
+    JwtStrategy filter = new JwtStrategy();
+    filter.config(vertx, new JsonObject()
+            .put("jwt.expires", 60 * 30)
+            .put("jwt.user.key", userKey)
+            .put("jwt.user.unique", false)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace));
+
+    Future<JsonObject> future = Future.future();
+    filter.doAuthentication(apiContext, future);
+
+    Async async = testContext.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        JsonObject principal = ar.result();
+        testContext.assertTrue(principal.containsKey("username"));
+        testContext.assertFalse(principal.containsKey("exp"));
+        testContext.assertFalse(principal.containsKey("iat"));
+        testContext.assertFalse(principal.containsKey("iss"));
+        testContext.assertFalse(principal.containsKey("sub"));
+        testContext.assertFalse(principal.containsKey("aud"));
+        async.complete();
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+  }
+
+  @Test
+  public void equalJtiShouldSuccessWhenRestrictedUniqueUser(TestContext testContext) {
     cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
             .put("userId", userId)
             .put("username", "password")
@@ -168,163 +324,7 @@ public class JwtStrategyTest {
   }
 
   @Test
-  public void testExpiredJwt(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
-            .put("username", "password")
-            .put("jti", jti), ar -> {
-
-    });
-    JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
-
-    String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
-    System.out.println(token);
-
-    String[] tokens = token.split("\\.");
-    String claim = tokens[1];
-    String claimJson = new String(Base64.getDecoder().decode(claim));
-    System.out.println(claimJson);
-
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("Authorization", "Bearer " + token);
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
-
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
-            .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
-            .put("service.cache.address", cacheAddress)
-            .put("project.namespace", namespace));
-
-    Future<JsonObject> future = Future.future();
-    filter.doAuthentication(apiContext, future);
-
-    Async async = testContext.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        Throwable throwable = ar.cause();
-        Assert.assertTrue(throwable instanceof SystemException);
-        SystemException ex = (SystemException) throwable;
-        Assert.assertEquals(1005, ex.getErrorCode().getNumber());
-        async.complete();
-      }
-    });
-  }
-
-  @Test
-  public void testDuplicateToken(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
-            .put("username", "password")
-            .put("jti", jti), ar -> {
-
-    });
-
-    JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("jti", UUID.randomUUID().toString());
-//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
-
-    String token = createToken(claims);
-    System.out.println(token);
-
-    String[] tokens = token.split("\\.");
-    String claim = tokens[1];
-    String claimJson = new String(Base64.getDecoder().decode(claim));
-    System.out.println(claimJson);
-
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("Authorization", "Bearer " + token);
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
-
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
-            .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
-            .put("jwt.user.unique", true)
-            .put("service.cache.address", cacheAddress)
-            .put("project.namespace", namespace));
-
-    Future<JsonObject> future = Future.future();
-    filter.doAuthentication(apiContext, future);
-
-    Async async = testContext.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        Throwable throwable = ar.cause();
-        Assert.assertTrue(throwable instanceof SystemException);
-        SystemException ex = (SystemException) throwable;
-        Assert.assertEquals(1005, ex.getErrorCode().getNumber());
-        async.complete();
-      }
-    });
-  }
-
-  @Test
-  public void testEqualsJtiToken(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
-            .put("username", "password")
-            .put("jti", jti), ar -> {
-
-    });
-
-
-    JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("jti", jti);
-//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
-
-    String token = createToken(claims);
-    System.out.println(token);
-
-    String[] tokens = token.split("\\.");
-    String claim = tokens[1];
-    String claimJson = new String(Base64.getDecoder().decode(claim));
-    System.out.println(claimJson);
-
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("Authorization", "Bearer " + token);
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
-
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
-            .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
-            .put("jwt.user.unique", true)
-            .put("service.cache.address", cacheAddress)
-            .put("project.namespace", namespace));
-
-    Future<JsonObject> future = Future.future();
-    filter.doAuthentication(apiContext, future);
-
-    Async async = testContext.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        JsonObject principal = ar.result();
-        testContext.assertTrue(principal.containsKey("username"));
-        testContext.assertFalse(principal.containsKey("exp"));
-        testContext.assertFalse(principal.containsKey("iat"));
-        testContext.assertFalse(principal.containsKey("iss"));
-        testContext.assertFalse(principal.containsKey("sub"));
-        testContext.assertFalse(principal.containsKey("aud"));
-        async.complete();
-      } else {
-        ar.cause().printStackTrace();
-        testContext.fail();
-      }
-    });
-  }
-
-  @Test
-  public void testUnkownUser(TestContext testContext) {
+  public void unSavedJtiShouldThrownInvalidToken(TestContext testContext) {
 
     cacheProvider
             .set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
@@ -368,6 +368,10 @@ public class JwtStrategyTest {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
+        Throwable throwable = ar.cause();
+        Assert.assertTrue(throwable instanceof SystemException);
+        SystemException ex = (SystemException) throwable;
+        Assert.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
         async.complete();
       }
     });

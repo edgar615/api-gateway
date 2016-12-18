@@ -1,5 +1,6 @@
-package com.edgar.direwolves.core.dispatch;
+package com.edgar.direwolves.core.auth;
 
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.spi.Configurable;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -9,7 +10,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/31
  */
-public interface AuthenticationStrategy extends Configurable {
+public interface AuthenticationStrategy {
 
   void doAuthentication(ApiContext apiContext, Future<JsonObject> completeFuture);
 
