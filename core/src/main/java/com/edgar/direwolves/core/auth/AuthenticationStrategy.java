@@ -1,7 +1,6 @@
 package com.edgar.direwolves.core.auth;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.spi.Configurable;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
@@ -15,4 +14,5 @@ public interface AuthenticationStrategy {
   void doAuthentication(ApiContext apiContext, Future<JsonObject> completeFuture);
 
   String name();
+
 }

@@ -2,9 +2,9 @@ package com.edgar.direwolves.plugin.authentication;
 
 import com.google.common.base.Strings;
 
+import com.edgar.direwolves.core.auth.AuthenticationStrategy;
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.auth.AuthenticationStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
@@ -61,8 +61,7 @@ public class JwtStrategy implements AuthenticationStrategy {
 
   private Vertx vertx;
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
+  public JwtStrategy(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     if (config.containsKey("keystore.path")) {
       this.jwtConfig.put("path", config.getString("keystore.path"));

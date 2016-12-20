@@ -12,11 +12,11 @@ import io.vertx.core.json.JsonObject;
 public class JwtStrategyFactory implements Factory<JwtStrategy> {
   @Override
   public String name() {
-    return null;
+    return JwtStrategy.class.getSimpleName();
   }
 
   @Override
   public JwtStrategy create(Vertx vertx, JsonObject config) {
-    return null;
+    return new JwtStrategy(vertx, config);
   }
 }

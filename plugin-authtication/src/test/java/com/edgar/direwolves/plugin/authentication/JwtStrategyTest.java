@@ -71,8 +71,7 @@ public class JwtStrategyTest {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap
             .create(), null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject());
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject());
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -95,8 +94,7 @@ public class JwtStrategyTest {
     headers.put("Authorization", "invalidtoken");
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject());
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject());
 
     Future<JsonObject> future = Future.future();
     filter.doAuthentication(apiContext, future);
@@ -114,12 +112,12 @@ public class JwtStrategyTest {
 
   @Test
   public void jwtExpiredShouldThrowExpiredToken(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
-            .put("username", "password")
-            .put("jti", jti), ar -> {
-
-    });
+//    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+//            .put("userId", userId)
+//            .put("username", "password")
+//            .put("jti", jti), ar -> {
+//
+//    });
     JsonObject claims = new JsonObject()
             .put(userKey, userId)
             .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
@@ -137,8 +135,7 @@ public class JwtStrategyTest {
     headers.put("Authorization", "Bearer " + token);
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
             .put("jwt.user.key", userKey)
             .put("service.cache.address", cacheAddress)
@@ -187,8 +184,7 @@ public class JwtStrategyTest {
     headers.put("Authorization", "Bearer " + token);
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
             .put("jwt.user.key", userKey)
             .put("jwt.user.unique", true)
@@ -239,8 +235,7 @@ public class JwtStrategyTest {
     headers.put("Authorization", "Bearer " + token);
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
             .put("jwt.user.key", userKey)
             .put("jwt.user.unique", false)
@@ -294,8 +289,7 @@ public class JwtStrategyTest {
     headers.put("Authorization", "Bearer " + token);
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
             .put("jwt.user.key", userKey)
             .put("jwt.user.unique", false)
@@ -352,8 +346,7 @@ public class JwtStrategyTest {
     headers.put("Authorization", "Bearer " + token);
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", headers, null, null);
 
-    JwtStrategy filter = new JwtStrategy();
-    filter.config(vertx, new JsonObject()
+    JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
             .put("jwt.user.key", userKey)
             .put("jwt.user.unique", true)

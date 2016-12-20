@@ -59,36 +59,29 @@ public class AuthticationFilterTest {
 
   private int userId = Integer.parseInt(Randoms.randomNumber(5));
 
+  JWTAuth provider;
+
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-
     ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, cacheAddress);
-
-    filter = Filter.create(AuthenticationFilter.class.getSimpleName(), vertx,
-                           new JsonObject()
-                                   .put("jwt.expires", 60 * 30)
-                                   .put("jwt.user.key", userKey)
-                                   .put("jwt.user.unique", false)
-                                   .put("service.cache.address", cacheAddress)
-                                   .put("project.namespace", namespace)
-                                   .put("keyStore", new JsonObject()
-                                           .put("path", "keystore.jceks")
-                                           .put("type", "jceks")
-                                           .put("password", "secret")
-                                   ));
-
     filters.clear();
-    filters.add(filter);
+    JsonObject config = new JsonObject().put("keyStore", new JsonObject()
+            .put("path", "keystore.jceks")
+            .put("type", "jceks")
+            .put("password", "secret")
+    );
 
+    provider = JWTAuth.create(vertx, config);
   }
 
   @Test
-  public void testNoHeader(TestContext testContext) {
-    ApiContext apiContext = createApiContext();
+  public void noHeaderShouldThrowInvalidToken(TestContext testContext) {
 
+    ApiContext apiContext = createApiContext();
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject());
+    filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -104,13 +97,13 @@ public class AuthticationFilterTest {
   }
 
   @Test
-  public void testInvalidHeader(TestContext testContext) {
+  public void lackBearerShouldThrowInvalidToken(TestContext testContext) {
     ApiContext apiContext = createApiContext();
     apiContext.headers().put("Authorization", "invalidtoken");
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject());
-
+    filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -125,24 +118,18 @@ public class AuthticationFilterTest {
   }
 
   @Test
-  public void testErrorJwt(TestContext testContext) {
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("q3", "v3");
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-    headers.put("h3", "v3.2");
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
-                                                                                  .class
-                                                                                  .getSimpleName());
-    plugin.add("jwt").add("basic");
-    apiContext.apiDefinition().addPlugin(plugin);
+  public void jwtExpiredShouldThrowExpiredToken(TestContext testContext) {
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Bearer " + token);
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject());
+    filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
