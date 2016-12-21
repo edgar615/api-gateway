@@ -5,10 +5,10 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 /**
  * Created by edgar on 16-11-26.
  */
-public interface JwtCreatePlugin extends ApiPlugin {
+public interface JwtBuildPlugin extends ApiPlugin {
 
   @Override
   default String name() {
-    return JwtCreatePlugin.class.getSimpleName();
+    return JwtBuildPlugin.class.getSimpleName();
   }
 }

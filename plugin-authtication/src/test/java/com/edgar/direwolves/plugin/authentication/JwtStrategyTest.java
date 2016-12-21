@@ -137,7 +137,7 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
+            .put("jwt.userClaimKey", userKey)
             .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace));
 
@@ -186,7 +186,7 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
+            .put("jwt.userClaimKey", userKey)
             .put("jwt.user.unique", true)
             .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace));
@@ -237,7 +237,7 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
+            .put("jwt.userClaimKey", userKey)
             .put("jwt.user.unique", false)
             .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace));
@@ -291,7 +291,7 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
+            .put("jwt.userClaimKey", userKey)
             .put("jwt.user.unique", false)
             .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace));
@@ -348,7 +348,7 @@ public class JwtStrategyTest {
 
     JwtStrategy filter = new JwtStrategy(vertx, new JsonObject()
             .put("jwt.expires", 60 * 30)
-            .put("jwt.user.key", userKey)
+            .put("jwt.userClaimKey", userKey)
             .put("jwt.user.unique", true)
             .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace));

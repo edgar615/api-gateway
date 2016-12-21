@@ -35,7 +35,7 @@ import java.util.*;
  * @author Edgar  Date 2016/10/31
  */
 @RunWith(VertxUnitRunner.class)
-public class JwtCreateFilterTest {
+public class JwtBuildFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
   Filter filter;
@@ -51,10 +51,10 @@ public class JwtCreateFilterTest {
     vertx = Vertx.vertx();
     ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, cacheAddress);
 
-    filter = Filter.create(JwtCreateFilter.class.getSimpleName(), vertx,
-        new JsonObject().put("service.cache.address", cacheAddress)
+    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
+                           new JsonObject().put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace)
-            .put("jwt.user.key", userKey));
+            .put("jwt.userClaimKey", userKey));
 
     filters.clear();
     filters.add(filter);
@@ -69,29 +69,41 @@ public class JwtCreateFilterTest {
       }
     });
   }
-
   @Test
-  public void testErrorJwt(TestContext testContext) {
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("q3", "v3");
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-    headers.put("h3", "v3.2");
-    ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    JwtCreatePlugin plugin = (JwtCreatePlugin) ApiPlugin.create(JwtCreatePlugin
-        .class
-        .getSimpleName());
-    apiContext.apiDefinition().addPlugin(plugin);
+  public void badRequestShouldNotContainToken(TestContext testContext) {
+    ApiContext apiContext = createContext();
+
+    JsonObject body = new JsonObject()
+            .put("username", "edgar")
+            .put("tel", "123456")
+            .put(userKey, 10);
+    apiContext.setResponse(new JsonObject()
+                                   .put("body", body)
+                                   .put("statusCode", 400)
+    );
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject response = context.response();
+              testContext.assertFalse(response.getJsonObject("body").containsKey("token"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
+  }
+  @Test
+  public void missUserKeyShouldNotContainToken(TestContext testContext) {
+    ApiContext apiContext = createContext();
 
     JsonObject body = new JsonObject()
         .put("username", "edgar")
         .put("tel", "123456")
-        .put(userKey, 10);
+        .put("userId", 10);
     apiContext.setResponse(new JsonObject()
             .put("body", body)
             .put("statusCode", 200)
@@ -101,25 +113,39 @@ public class JwtCreateFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> testContext.fail())
-        .onFailure(throwable -> {
-          async.complete();
-        });
+            .andThen(context -> {
+              JsonObject response = context.response();
+              testContext.assertFalse(response.getJsonObject("body").containsKey("token"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
   }
 
-  @Test
-  public void testCreateJwt(TestContext testContext) {
-    Multimap<String, String> params = ArrayListMultimap.create();
+  public ApiContext createContext() {Multimap<String, String> params = ArrayListMultimap.create();
     params.put("q3", "v3");
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("h3", "v3");
-
+    headers.put("h3", "v3.2");
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
+            .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
+    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
+        .class
+        .getSimpleName());
+    apiContext.apiDefinition().addPlugin(plugin);
+    return apiContext;
+  }
+
+  @Test
+  public void validUserShouldContainToken(TestContext testContext) {
+    ApiContext apiContext = createContext();
 
     JsonObject body = new JsonObject()
         .put("username", "edgar")
@@ -130,7 +156,7 @@ public class JwtCreateFilterTest {
             .put("statusCode", 200)
     );
 
-    JwtCreatePlugin plugin = (JwtCreatePlugin) ApiPlugin.create(JwtCreatePlugin
+    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
         .class
         .getSimpleName());
     apiContext.apiDefinition().addPlugin(plugin);
@@ -141,6 +167,7 @@ public class JwtCreateFilterTest {
     Filters.doFilter(task, filters)
         .andThen(context -> {
           JsonObject response = context.response();
+          testContext.assertTrue(response.getJsonObject("body").containsKey("token"));
           String token = response.getJsonObject("body").getString("token");
           String token2 = Iterables.get(Splitter.on(".").split(token), 1);
           JsonObject chaim = new JsonObject(new String(Base64.getDecoder().decode(token2)));

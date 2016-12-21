@@ -8,14 +8,14 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-12-11.
  */
-public class JwtCreateFIlterFactory implements FilterFactory {
+public class JwtBuildFilterFactory implements FilterFactory {
   @Override
   public String name() {
-    return JwtCreateFilter.class.getSimpleName();
+    return JwtBuildFilter.class.getSimpleName();
   }
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new JwtCreateFilter(vertx, config);
+    return new JwtBuildFilter(vertx, config);
   }
 }

@@ -54,6 +54,8 @@ public class JwtStrategy implements AuthenticationStrategy {
 
   private CacheProvider cacheProvider;
 
+  private String permissionsKey = "permissions";
+
   private JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
           .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
@@ -73,7 +75,8 @@ public class JwtStrategy implements AuthenticationStrategy {
       this.jwtConfig.put("password", config.getString("keystore.password"));
     }
 
-    this.userKey = config.getString("jwt.user.key", "userId");
+    this.userKey = config.getString("jwt.userClaimKey", "userId");
+    this.permissionsKey = config.getString("jwt.permissionsClaimKey", "permissions");
     this.namespace = config.getString("project.namespace", "");
     this.uniqueToken = config.getBoolean("jwt.user.unique", false);
     String address = config.getString("service.cache.address", "direwolves.cache");

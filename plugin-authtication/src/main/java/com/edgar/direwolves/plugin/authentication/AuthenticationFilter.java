@@ -76,6 +76,10 @@ public class AuthenticationFilter implements Filter {
                 }
               }
             });
+    if (futures.isEmpty()) {
+      completeFuture.complete(apiContext);
+      return;
+    }
     CompositeFuture.any(futures)
             .setHandler(ar -> {
               if (ar.succeeded()) {
@@ -89,6 +93,16 @@ public class AuthenticationFilter implements Filter {
                 completeFuture
                         .fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause()));
               } else {
+                //如果包含token过期，返回token过期，否则返回token非法
+                for (int i = 0; i < futures.size(); i++) {
+                  if (futures.get(i).cause() instanceof SystemException) {
+                    SystemException ex = (SystemException) futures.get(i).cause();
+                    if (ex.getErrorCode() == DefaultErrorCode.EXPIRE_TOKEN) {
+                      completeFuture.fail(ex);
+                      return;
+                    }
+                  }
+                }
                 completeFuture.fail(ar.cause());
               }
             });

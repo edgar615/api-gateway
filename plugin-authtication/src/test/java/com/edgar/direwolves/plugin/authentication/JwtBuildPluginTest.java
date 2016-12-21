@@ -11,25 +11,25 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class JwtCreatePluginTest {
+public class JwtBuildPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-        .put("jwt_create", true);
-    ApiPluginFactory<JwtCreatePlugin> factory = new JwtCreatePluginFactory();
-    JwtCreatePlugin plugin = factory.decode(config);
+        .put("jwt_build", true);
+    ApiPluginFactory<JwtBuildPlugin> factory = new JwtCreatePluginFactory();
+    JwtBuildPlugin plugin = factory.decode(config);
     Assert.assertNotNull(plugin);
   }
 
   @Test
   public void testEncode() {
-    JwtCreatePlugin plugin = (JwtCreatePlugin) ApiPlugin.create(JwtCreatePlugin
+    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
         .class
         .getSimpleName());
 
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.getBoolean("jwt_create"));
+    Assert.assertTrue(jsonObject.getBoolean("jwt_build"));
   }
 
 }

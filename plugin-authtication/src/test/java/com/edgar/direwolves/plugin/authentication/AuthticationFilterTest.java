@@ -15,6 +15,7 @@ import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -24,6 +25,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.serviceproxy.ProxyHelper;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +51,8 @@ public class AuthticationFilterTest {
 
   CacheProvider cacheProvider = new MockCacheProvider();
 
+  JWTAuth provider;
+
   private Vertx vertx;
 
   private String userKey = UUID.randomUUID().toString();
@@ -58,8 +62,6 @@ public class AuthticationFilterTest {
   private String namespace = UUID.randomUUID().toString();
 
   private int userId = Integer.parseInt(Randoms.randomNumber(5));
-
-  JWTAuth provider;
 
   @Before
   public void setUp() {
@@ -137,16 +139,56 @@ public class AuthticationFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> testContext.fail())
             .onFailure(throwable -> {
-              throwable.printStackTrace();
               testContext.assertTrue(throwable instanceof SystemException);
               SystemException ex = (SystemException) throwable;
-              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+              testContext.assertEquals(DefaultErrorCode.EXPIRE_TOKEN, ex.getErrorCode());
               async.complete();
             });
   }
 
   @Test
-  public void testSuccessJwt(TestContext testContext) {
+  public void unequalJtiShouldThrowExpiredTokenWhenRestrictedUniqueUser(TestContext testContext) {
+    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+            .put("userId", userId)
+            .put("username", "password")
+            .put("jti", jti), ar -> {
+
+    });
+
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Bearer " + token);
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.expires", 60 * 30)
+                                          .put("jwt.userClaimKey", userKey)
+                                          .put("jwt.user.unique", true)
+                                          .put("service.cache.address", cacheAddress)
+                                          .put("project.namespace", namespace));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> testContext.fail())
+            .onFailure(throwable -> {
+              testContext.assertTrue(throwable instanceof SystemException);
+              SystemException ex = (SystemException) throwable;
+              testContext.assertEquals(DefaultErrorCode.EXPIRE_TOKEN, ex.getErrorCode());
+              async.complete();
+            });
+  }
+
+  @Test
+  public void unequalJtiShouldSuccessWhenUnrestrictedUniqueUser(TestContext testContext) {
     cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
             .put("userId", userId)
             .put("username", "edgar")
@@ -161,22 +203,21 @@ public class AuthticationFilterTest {
 
     JsonObject claims = new JsonObject()
             .put(userKey, userId)
-            .put("jti", jti);
-    headers.put("Authorization", "Bearer " + createToken(claims));
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+            .put("jti", UUID.randomUUID().toString());
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
-                                                                                  .class
-                                                                                  .getSimpleName());
-    plugin.add("jwt").add("basic");
-    apiContext.apiDefinition().addPlugin(plugin);
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Bearer " + token);
 
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.expires", 60 * 30)
+                                          .put("jwt.userClaimKey", userKey)
+                                          .put("service.cache.address", cacheAddress)
+                                          .put("project.namespace", namespace));
+    filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -193,27 +234,104 @@ public class AuthticationFilterTest {
   }
 
   @Test
-  public void testSuccessBasic(TestContext testContext) {
+  public void equalJtiShouldSuccessWhenRestrictedUniqueUser(TestContext testContext) {
+    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+            .put("userId", userId)
+            .put("username", "edgar")
+            .put("jti", jti), ar -> {
+
+    });
+
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("q3", "v3");
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("h3", "v3");
 
-    String basic = Base64.getEncoder().encodeToString("edgar:123".getBytes());
-    headers.put("Authorization", "Basic " + basic);
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
-                                                                                  .class
-                                                                                  .getSimpleName());
-    plugin.add("jwt").add("basic");
-    apiContext.apiDefinition().addPlugin(plugin);
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Bearer " + token);
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.expires", 60 * 30)
+                                          .put("jwt.userClaimKey", userKey)
+                                          .put("service.cache.address", cacheAddress)
+                                          .put("project.namespace", namespace));
+    filters.add(filter);
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject principal = context.principal();
+              testContext.assertEquals("edgar", principal.getString("username"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void unSavedJtiShouldThrownInvalidToken(TestContext testContext) {
+
+    cacheProvider
+            .set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
+                    .put("userId", userId)
+                    .put("username", "password")
+                    .put("jti", jti), ar -> {
+
+            });
+
+
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("jti", jti);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Bearer " + token);
+
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.expires", 60 * 30)
+                                          .put("jwt.userClaimKey", userKey)
+                                          .put("service.cache.address", cacheAddress)
+                                          .put("project.namespace", namespace));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> testContext.fail())
+            .onFailure(throwable -> {
+              testContext.assertTrue(throwable instanceof SystemException);
+              SystemException ex = (SystemException) throwable;
+              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+              async.complete();
+            });
+  }
+
+  @Test
+  public void testSuccessBasic(TestContext testContext) {
+    String basic = Base64.getEncoder().encodeToString("edgar:123".getBytes());
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Basic " + basic);
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject());
+    filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -225,31 +343,21 @@ public class AuthticationFilterTest {
               testContext.assertEquals("super", principal.getString("role"));
               async.complete();
             })
-            .onFailure(throwable -> testContext.fail());
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
   }
 
   @Test
   public void testInvalidBasic(TestContext testContext) {
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("q3", "v3");
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-
     String basic = Base64.getEncoder().encodeToString("edgar".getBytes());
-    headers.put("Authorization", "Basic " + basic);
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Basic " + basic);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
-                                                                                  .class
-                                                                                  .getSimpleName());
-    plugin.add("jwt").add("basic");
-    apiContext.apiDefinition().addPlugin(plugin);
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject());
+    filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -266,26 +374,13 @@ public class AuthticationFilterTest {
 
   @Test
   public void testErrorPwdBasic(TestContext testContext) {
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("q3", "v3");
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-
     String basic = Base64.getEncoder().encodeToString("edgar:1".getBytes());
-    headers.put("Authorization", "Basic " + basic);
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+    ApiContext apiContext = createApiContext();
+    apiContext.headers().put("Authorization", "Basic " + basic);
 
-    AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
-                                                                                  .class
-                                                                                  .getSimpleName());
-    plugin.add("jwt").add("basic");
-    apiContext.apiDefinition().addPlugin(plugin);
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject());
+    filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);

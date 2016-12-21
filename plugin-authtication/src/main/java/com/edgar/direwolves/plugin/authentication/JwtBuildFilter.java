@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Created by edgar on 16-11-26.
  */
-public class JwtCreateFilter implements Filter {
+public class JwtBuildFilter implements Filter {
   private final Vertx vertx;
 
   private final int expires;
@@ -25,14 +25,15 @@ public class JwtCreateFilter implements Filter {
   private final String userKey;
 
   private final CacheProvider cacheProvider;
+
   private final String namespace;
 
   private final JsonObject jwtConfig = new JsonObject()
-      .put("path", "keystore.jceks")
-      .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-      .put("password", "secret")
-      .put("algorithm", "HS512")
-      .put("expiresInSeconds", 1800);
+          .put("path", "keystore.jceks")
+          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+          .put("password", "secret")
+          .put("algorithm", "HS512")
+          .put("expiresInSeconds", 1800);
 
   /**
    * <pre>
@@ -46,10 +47,10 @@ public class JwtCreateFilter implements Filter {
    *     - jwt.expires int 过期时间exp，单位秒，默认值1800
    * </pre>
    *
-   * @param vertx Vertx
+   * @param vertx  Vertx
    * @param config 配置
    */
-  public JwtCreateFilter(Vertx vertx, JsonObject config) {
+  public JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     if (config.containsKey("keystore.path")) {
       this.jwtConfig.put("path", config.getString("keystore.path"));
@@ -76,7 +77,7 @@ public class JwtCreateFilter implements Filter {
       this.jwtConfig.put("expiresInSeconds", config.getInteger("jwt.expires"));
     }
     this.expires = config.getInteger("jwt.expires", 1800);
-    this.userKey = config.getString("jwt.user.key", "userId");
+    this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("project.namespace", "");
     String address = config.getString("service.cache.address", "direwolves.cache");
     this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
@@ -98,7 +99,7 @@ public class JwtCreateFilter implements Filter {
       return false;
     }
     return apiContext.apiDefinition()
-        .plugin(JwtCreatePlugin.class.getSimpleName()) != null;
+                   .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
   }
 
   @Override
@@ -106,13 +107,15 @@ public class JwtCreateFilter implements Filter {
     JsonObject jwtConfig = new JsonObject().put("keyStore", this.jwtConfig);
     JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
     JsonObject response = apiContext.response();
-    if (response.getBoolean("isArray", true)) {
+    if (response.getBoolean("isArray", true)
+        && response.getInteger("statusCode", 0) < 400
+        && response.getJsonObject("body", new JsonObject()).containsKey(userKey)) {
       JsonObject body = response.getJsonObject("body");
       String jti = UUID.randomUUID().toString();
       int userId = body.getInteger(userKey);
       JsonObject claims = new JsonObject()
-          .put("jti", jti)
-          .put(userKey, userId);
+              .put("jti", jti)
+              .put(userKey, userId);
       String userCacheKey = namespace + ":user:" + userId;
       JsonObject user = body.copy().put("jti", jti);
       cacheProvider.setex(userCacheKey, user, expires, ar -> {
@@ -130,7 +133,9 @@ public class JwtCreateFilter implements Filter {
         }
       });
     } else {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_JSON));
+      completeFuture.complete(apiContext);
+//      completeFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN)
+//                                  .set("details", "Invalid user information"));
     }
   }
 

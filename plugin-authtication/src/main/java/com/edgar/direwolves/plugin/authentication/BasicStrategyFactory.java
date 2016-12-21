@@ -9,14 +9,14 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/12/18
  */
-public class JwtStrategyFactory implements AuthenticationStrategyFactory {
+public class BasicStrategyFactory implements AuthenticationStrategyFactory {
   @Override
   public String name() {
-    return "jwt";
+    return "basic";
   }
 
   @Override
-  public JwtStrategy create(Vertx vertx, JsonObject config) {
-    return new JwtStrategy(vertx, config);
+  public BasicStrategy create(Vertx vertx, JsonObject config) {
+    return new BasicStrategy(vertx, config);
   }
 }
