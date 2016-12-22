@@ -4,6 +4,8 @@
 .idea/
 */*.log
 *.log
+.vertx
+/.vertx
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
