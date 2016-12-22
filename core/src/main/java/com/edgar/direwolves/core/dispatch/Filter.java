@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-9-18.
  */
 public interface Filter extends Configurable {
+
   List<FilterFactory> factories = ImmutableList.copyOf(ServiceLoader.load(FilterFactory.class));
   String PRE = "PRE";
   String POST = "POST";
@@ -30,6 +31,10 @@ public interface Filter extends Configurable {
       throw new NoSuchElementException("no such factory->" + name);
     }
     return list.get(0).create(vertx, config);
+  }
+
+  default void config(Vertx vertx, JsonObject config) {
+
   }
 
   /**

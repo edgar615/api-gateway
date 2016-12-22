@@ -13,7 +13,9 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-10-28.
  */
-public class UrlArgValidateFilter implements Filter {
+public class UrlArgFilter implements Filter {
+  UrlArgFilter() {
+  }
 
   @Override
   public String type() {
@@ -49,8 +51,4 @@ public class UrlArgValidateFilter implements Filter {
     completeFuture.complete(apiContext);
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-
-  }
 }

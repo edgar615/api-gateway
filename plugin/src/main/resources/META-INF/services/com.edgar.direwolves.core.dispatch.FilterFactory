@@ -1,0 +1,4 @@
+com.edgar.direwolves.plugin.arg.UrlArgFilterFactory
+com.edgar.direwolves.plugin.arg.BodyArgFilterFactory
+com.edgar.direwolves.plugin.transformer.RequestTransformerFilterFactory
+com.edgar.direwolves.plugin.transformer.ResponseTransformerFilterFactory

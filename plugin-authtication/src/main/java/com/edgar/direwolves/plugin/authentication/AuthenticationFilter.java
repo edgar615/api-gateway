@@ -30,7 +30,7 @@ public class AuthenticationFilter implements Filter {
 
   private final List<AuthenticationStrategy> strategies;
 
-  public AuthenticationFilter(Vertx vertx, JsonObject config) {
+  AuthenticationFilter(Vertx vertx, JsonObject config) {
     strategies = factories.stream().map(f -> f.create(vertx, config))
             .collect(Collectors.toList());
   }
@@ -108,7 +108,4 @@ public class AuthenticationFilter implements Filter {
             });
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-  }
 }

@@ -124,8 +124,7 @@ public class AppKeyCheckerFilter implements Filter {
     return 0;
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
+  AppKeyCheckerFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.appGetAddress = config.getString("appkey.get.address", "eventbus.appkey.get");
   }

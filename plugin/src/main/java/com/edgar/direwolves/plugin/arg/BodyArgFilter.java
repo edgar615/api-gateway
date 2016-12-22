@@ -15,9 +15,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-10-28.
  */
-public class BodyArgValidateFilter implements Filter {
-
-  public static final String NAME = "BODY_ARG_VALIDATE";
+public class BodyArgFilter implements Filter {
 
   @Override
   public String type() {
@@ -27,6 +25,9 @@ public class BodyArgValidateFilter implements Filter {
   @Override
   public int order() {
     return 100;
+  }
+
+  BodyArgFilter() {
   }
 
   @Override
@@ -56,8 +57,4 @@ public class BodyArgValidateFilter implements Filter {
     completeFuture.complete(apiContext);
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-
-  }
 }

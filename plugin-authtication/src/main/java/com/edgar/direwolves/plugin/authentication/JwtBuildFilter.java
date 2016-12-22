@@ -3,8 +3,6 @@ package com.edgar.direwolves.plugin.authentication;
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -29,11 +27,11 @@ public class JwtBuildFilter implements Filter {
   private final String namespace;
 
   private final JsonObject jwtConfig = new JsonObject()
-          .put("path", "keystore.jceks")
-          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-          .put("password", "secret")
-          .put("algorithm", "HS512")
-          .put("expiresInSeconds", 1800);
+      .put("path", "keystore.jceks")
+      .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+      .put("password", "secret")
+      .put("algorithm", "HS512")
+      .put("expiresInSeconds", 1800);
 
   /**
    * <pre>
@@ -50,7 +48,7 @@ public class JwtBuildFilter implements Filter {
    * @param vertx  Vertx
    * @param config 配置
    */
-  public JwtBuildFilter(Vertx vertx, JsonObject config) {
+  JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     if (config.containsKey("keystore.path")) {
       this.jwtConfig.put("path", config.getString("keystore.path"));
@@ -99,7 +97,7 @@ public class JwtBuildFilter implements Filter {
       return false;
     }
     return apiContext.apiDefinition()
-                   .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
+        .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
   }
 
   @Override
@@ -114,8 +112,8 @@ public class JwtBuildFilter implements Filter {
       String jti = UUID.randomUUID().toString();
       int userId = body.getInteger(userKey);
       JsonObject claims = new JsonObject()
-              .put("jti", jti)
-              .put(userKey, userId);
+          .put("jti", jti)
+          .put(userKey, userId);
       String userCacheKey = namespace + ":user:" + userId;
       JsonObject user = body.copy().put("jti", jti);
       cacheProvider.setex(userCacheKey, user, expires, ar -> {
@@ -139,25 +137,4 @@ public class JwtBuildFilter implements Filter {
     }
   }
 
-  /**
-   * 配置.
-   * <pre>
-   *     - keystore.path string 证书文件路径 默认值keystore.jceks
-   *     - keystore.type string 证书类型，可选值 jceks, jks,默认值jceks
-   *     - keystore.password string 证书密钥，默认值secret
-   *     - jwt.alg string jwt的加密算法,默认值HS512
-   *     - jwt.audience string token的客户aud
-   *     - jwt.issuer string token的发行者iss
-   *     - jwt.subject string token的主题sub
-   *     - jwt.expires int 过期时间exp，单位秒，默认值1800
-   * </pre>
-   *
-   * @param vertx  Vertx
-   * @param config 配置
-   */
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-
-
-  }
 }

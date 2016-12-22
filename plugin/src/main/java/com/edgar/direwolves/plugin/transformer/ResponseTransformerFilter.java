@@ -15,7 +15,8 @@ import io.vertx.core.json.JsonObject;
  */
 public class ResponseTransformerFilter implements Filter {
 
-  private Vertx vertx;
+  ResponseTransformerFilter() {
+  }
 
   @Override
   public String type() {
@@ -25,11 +26,6 @@ public class ResponseTransformerFilter implements Filter {
   @Override
   public int order() {
     return 100;
-  }
-
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
   }
 
   @Override
