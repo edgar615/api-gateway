@@ -43,8 +43,8 @@ class ArgPluginImpl implements ArgPlugin {
   public Parameter parameter(String name) {
     Preconditions.checkNotNull(name, "name cannot be null");
     List<Parameter> list = parameters.stream()
-        .filter(p -> name.equalsIgnoreCase(p.name()))
-        .collect(Collectors.toList());
+            .filter(p -> name.equalsIgnoreCase(p.name()))
+            .collect(Collectors.toList());
     if (list.isEmpty()) {
       return null;
     }

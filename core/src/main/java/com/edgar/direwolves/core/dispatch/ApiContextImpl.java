@@ -1,16 +1,22 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 class ApiContextImpl implements ApiContext {
 
@@ -62,17 +68,20 @@ class ApiContextImpl implements ApiContext {
 
   @Override
   public Multimap<String, String> params() {
-    return params;
+    return ImmutableMultimap.copyOf(params);
   }
 
   @Override
   public Multimap<String, String> headers() {
-    return headers;
+    return ImmutableMultimap.copyOf(headers);
   }
 
   @Override
   public JsonObject body() {
-    return body;
+    if (body != null) {
+      return body.copy();
+    }
+    return null;
   }
 
   @Override
@@ -158,13 +167,13 @@ class ApiContextImpl implements ApiContext {
   @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
-        .add("method", method)
-        .add("path", path)
-        .add("params", params)
-        .add("headers", headers)
-        .add("body", body)
-        .add("variables", variables)
-        .add("apiDefinition", apiDefinition);
+            .add("method", method)
+            .add("path", path)
+            .add("params", params)
+            .add("headers", headers)
+            .add("body", body)
+            .add("variables", variables)
+            .add("apiDefinition", apiDefinition);
     if (principal != null) {
       helper.add("principal", principal.encode());
     }
@@ -179,28 +188,17 @@ class ApiContextImpl implements ApiContext {
     ApiContext apiContext = null;
     if (body() == null) {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-          ArrayListMultimap.create(params()), null);
+                                      ArrayListMultimap.create(params()), null);
     } else {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-          ArrayListMultimap.create(params()), body().copy());
+                                      ArrayListMultimap.create(params()), body().copy());
     }
 
     final ApiContext finalApiContext = apiContext;
-    variables().forEach((key, value) -> finalApiContext.addVariable(key, value));
-    for (int i = 0; i < requests().size(); i++) {
-      finalApiContext.addRequest(requests().getJsonObject(i).copy());
-    }
-    for (int i = 0; i < results().size(); i++) {
-      finalApiContext.addResult(results().getJsonObject(i).copy());
-    }
-    finalApiContext.setResponse(response);
-    if (apiDefinition != null) {
-      finalApiContext.setApiDefinition(apiDefinition.copy());
-    }
-    for (Map.Entry<String, ApiContext> action : actions) {
-      finalApiContext.addAction(action.getKey(), action.getValue());
-    }
+    ApiContext.copyProperites(this, finalApiContext);
     return finalApiContext;
   }
+
+
 
 }

@@ -51,7 +51,7 @@ public class BodyArgPluginTest {
   }
 
   @Test
-  public void testRemove() {
+  public void testRemoveParamter() {
     BodyArgPlugin bodyArgPlugin =
         (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     bodyArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
@@ -67,7 +67,7 @@ public class BodyArgPluginTest {
   }
 
   @Test
-  public void testClear() {
+  public void testClearParamter() {
     BodyArgPlugin bodyArgPlugin =
         (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     bodyArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")

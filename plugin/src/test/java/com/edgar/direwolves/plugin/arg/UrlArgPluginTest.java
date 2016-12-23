@@ -50,7 +50,7 @@ public class UrlArgPluginTest {
   }
 
   @Test
-  public void testRemove() {
+  public void testRemoveParamter() {
     UrlArgPlugin urlArgPlugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     urlArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
         .addRule(Rule.regex("[0-9A-F]{16}")));
@@ -65,7 +65,7 @@ public class UrlArgPluginTest {
   }
 
   @Test
-  public void testClear() {
+  public void testClearParamter() {
     UrlArgPlugin urlArgPlugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     urlArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
         .addRule(Rule.regex("[0-9A-F]{16}")));

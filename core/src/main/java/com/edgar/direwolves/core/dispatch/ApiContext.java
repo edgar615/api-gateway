@@ -1,8 +1,9 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -16,12 +17,6 @@ import java.util.Map;
  * @author Edgar  Date 2016/10/10
  */
 public interface ApiContext {
-
-  static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
-                           Multimap<String, String> params, JsonObject body) {
-    return new ApiContextImpl(method, path, headers, params, body);
-  }
-
 
   /**
    * @return ID，全局唯一.
@@ -90,7 +85,6 @@ public interface ApiContext {
    */
   void setApiDefinition(ApiDefinition apiDefinition);
 
-
   /**
    * @return 经过requestTransformer后的请求.
    */
@@ -139,13 +133,35 @@ public interface ApiContext {
    */
   ApiContext copy();
 
+  static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
+                           Multimap<String, String> params, JsonObject body) {
+    return new ApiContextImpl(method, path, headers, params, body);
+  }
+
+  static void copyProperites(ApiContext source, ApiContext target) {
+    source.variables().forEach((key, value) -> target.addVariable(key, value));
+    for (int i = 0; i < source.requests().size(); i++) {
+      target.addRequest(source.requests().getJsonObject(i).copy());
+    }
+    for (int i = 0; i < source.results().size(); i++) {
+      target.addResult(source.results().getJsonObject(i).copy());
+    }
+    target.setResponse(source.response());
+    if (source.apiDefinition() != null) {
+      target.setApiDefinition(source.apiDefinition().copy());
+    }
+    for (Map.Entry<String, ApiContext> action : source.actions()) {
+      target.addAction(action.getKey(), action.getValue());
+    }
+  }
+
   default Object getValueByKeyword(Object value) {
     if (value instanceof String) {
       String val = (String) value;
       //路径参数
       if (val.startsWith("$header.")) {
         List<String> list =
-            Lists.newArrayList(headers().get(val.substring("$header.".length())));
+                Lists.newArrayList(headers().get(val.substring("$header.".length())));
         if (list.isEmpty()) {
           return null;
         } else if (list.size() == 1) {
@@ -155,7 +171,7 @@ public interface ApiContext {
         }
       } else if (val.startsWith("$query.")) {
         List<String> list =
-            Lists.newArrayList(params().get(val.substring("$query.".length())));
+                Lists.newArrayList(params().get(val.substring("$query.".length())));
         if (list.isEmpty()) {
           return null;
         } else if (list.size() == 1) {
