@@ -4,7 +4,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.utils.MultiMapToMultimap;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.collect.Lists;
+import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
@@ -13,9 +13,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Edgar on 2016/10/14.
@@ -53,8 +51,26 @@ public class Utils {
     variables.put("request.query_string", req.query());
     variables.put("request.uri", req.uri());
     variables.put("request.path_info", req.path());
-    variables.put("request.client_ip", req.remoteAddress().host());
+    variables.put("request.client_ip", getClientIp(req));
     return variables;
+  }
+
+  public static String getClientIp(HttpServerRequest request) {
+    String ip = request.getHeader("X-Forwarded-For");
+    if (!Strings.isNullOrEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
+      //多次反向代理后会有多个ip值，第一个ip才是真实ip
+      int index = ip.indexOf(",");
+      if (index != -1) {
+        return ip.substring(0, index);
+      } else {
+        return ip;
+      }
+    }
+    ip = request.getHeader("X-Real-IP");
+    if (!Strings.isNullOrEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
+      return ip;
+    }
+    return request.remoteAddress().host();
   }
 
 }

@@ -20,7 +20,7 @@ public interface RateLimit {
   }
 
   /**
-   * 限制条件,user_rate | token_rate | app_key_rate
+   * 限制条件,user_rate | app_key_rate
    *
    * @return 限制条件
    */

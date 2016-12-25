@@ -15,7 +15,9 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -34,7 +36,7 @@ public class UrlArgFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
-  UrlArgFilter filter;
+  Filter filter;
 
   private ApiContext apiContext;
 
@@ -55,7 +57,7 @@ public class UrlArgFilterTest {
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    filter = new UrlArgFilter();
+    filter = Filter.create(UrlArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject());
 
     filters.clear();
     filters.add(filter);

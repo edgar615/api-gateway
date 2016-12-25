@@ -20,9 +20,9 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class IpRestrictionFactory implements ApiPluginFactory<IpRestrictionPlugin> {
+public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
   @Override
-  public IpRestrictionPlugin decode(JsonObject jsonObject) {
+  public IpRestriction decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("ip_restriction")) {
       return null;
     }
@@ -38,26 +38,26 @@ public class IpRestrictionFactory implements ApiPluginFactory<IpRestrictionPlugi
       blacklist.add(blackArray.getString(i));
     }
 
-    IpRestrictionPlugin aclRestriction = new IpRestrictionPluginImpl();
+    IpRestriction aclRestriction = new IpRestrictionImpl();
     whitelist.forEach(w -> aclRestriction.addWhitelist(w));
     blacklist.forEach(b -> aclRestriction.addBlacklist(b));
     return aclRestriction;
   }
 
   @Override
-  public JsonObject encode(IpRestrictionPlugin ipRestrictionPlugin) {
+  public JsonObject encode(IpRestriction ipRestriction) {
     return new JsonObject().put("ip_restriction", new JsonObject()
-        .put("whitelist", new JsonArray(ipRestrictionPlugin.whitelist()))
-        .put("blacklist", new JsonArray(ipRestrictionPlugin.blacklist())));
+        .put("whitelist", new JsonArray(ipRestriction.whitelist()))
+        .put("blacklist", new JsonArray(ipRestriction.blacklist())));
   }
 
   @Override
   public String name() {
-    return IpRestrictionPlugin.class.getSimpleName();
+    return IpRestriction.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new IpRestrictionPluginImpl();
+    return new IpRestrictionImpl();
   }
 }

@@ -14,6 +14,7 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -34,12 +35,12 @@ import java.util.List;
 public class BodyArgFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
-  BodyArgFilter filter;
+  Filter filter;
   private ApiContext apiContext;
 
   @Before
   public void setUp() {
-    filter = new BodyArgFilter();
+    filter = Filter.create(BodyArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject());
 
     filters.clear();
     filters.add(filter);
