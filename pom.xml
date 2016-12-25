@@ -16,6 +16,8 @@
         <module>core</module>
         <module>plugin</module>
         <module>redis</module>
+        <module>plugin-authentication</module>
+        <module>plugin-appkey</module>
     </modules>
 
     <properties>

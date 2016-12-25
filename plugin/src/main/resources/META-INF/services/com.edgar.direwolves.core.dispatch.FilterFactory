@@ -3,8 +3,4 @@ com.edgar.direwolves.plugin.arg.BodyArgFilterFactory
 com.edgar.direwolves.plugin.transformer.RequestTransformerFilterFactory
 com.edgar.direwolves.plugin.transformer.ResponseTransformerFilterFactory
 com.edgar.direwolves.plugin.ip.IpRestrictionFilterFactory
-com.edgar.direwolves.plugin.appkey.AppKeyAuthenticateFactory
-com.edgar.direwolves.plugin.authorization.AppKeyAuthoriseFactory
-com.edgar.direwolves.plugin.authentication.JwtBuildFilterFactory
-com.edgar.direwolves.plugin.authentication.AuthenticationFilterFactory
-com.edgar.direwolves.plugin.authorization.UserAuthoriseFactory
+com.edgar.direwolves.plugin.authorization.AuthoriseFilterFactory
