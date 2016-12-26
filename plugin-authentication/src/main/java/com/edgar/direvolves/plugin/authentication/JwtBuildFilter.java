@@ -3,6 +3,7 @@ package com.edgar.direvolves.plugin.authentication;
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.dispatch.Result;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -27,11 +28,11 @@ public class JwtBuildFilter implements Filter {
   private final String namespace;
 
   private final JsonObject jwtConfig = new JsonObject()
-      .put("path", "keystore.jceks")
-      .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-      .put("password", "secret")
-      .put("algorithm", "HS512")
-      .put("expiresInSeconds", 1800);
+          .put("path", "keystore.jceks")
+          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+          .put("password", "secret")
+          .put("algorithm", "HS512")
+          .put("expiresInSeconds", 1800);
 
   /**
    * <pre>
@@ -97,23 +98,23 @@ public class JwtBuildFilter implements Filter {
       return false;
     }
     return apiContext.apiDefinition()
-        .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
+                   .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     JsonObject jwtConfig = new JsonObject().put("keyStore", this.jwtConfig);
     JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
-    JsonObject response = apiContext.response();
-    if (response.getBoolean("isArray", true)
-        && response.getInteger("statusCode", 0) < 400
-        && response.getJsonObject("body", new JsonObject()).containsKey(userKey)) {
-      JsonObject body = response.getJsonObject("body");
+    Result result = apiContext.result();
+    if (!result.isArray()
+        && result.statusCode() < 400
+        && result.responseObject().containsKey(userKey)) {
+      JsonObject body = result.responseObject();
       String jti = UUID.randomUUID().toString();
       int userId = body.getInteger(userKey);
       JsonObject claims = new JsonObject()
-          .put("jti", jti)
-          .put(userKey, userId);
+              .put("jti", jti)
+              .put(userKey, userId);
       String userCacheKey = namespace + ":user:" + userId;
       JsonObject user = body.copy().put("jti", jti);
       cacheProvider.setex(userCacheKey, user, expires, ar -> {
@@ -121,7 +122,8 @@ public class JwtBuildFilter implements Filter {
           try {
             String token = provider.generateToken(claims, new JWTOptions(this.jwtConfig));
             body.put("token", token);
-            apiContext.setResponse(response.put("body", body));
+            apiContext.setResult(Result.createJsonObject(result.id(), result.statusCode(), body,
+                                                         result.header()));
             completeFuture.complete(apiContext);
           } catch (Exception e) {
             completeFuture.fail(e);

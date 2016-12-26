@@ -9,6 +9,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -24,6 +25,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -31,7 +33,7 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class RequestTransformerFilterTest  {
+public class RequestTransformerFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -65,13 +67,15 @@ public class RequestTransformerFilterTest  {
     RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
             .create(RequestTransformerPlugin.class.getSimpleName());
     plugin.addTransformer(transformer);
-    apiContext.addRequest(new JsonObject()
-                                  .put("name", "add_device")
-                                  .put("host", "localhost")
-                                  .put("port", 8080)
-                                  .put("method", "post")
-                                  .put("params", new JsonObject().put("q3", "v3"))
-                                  .put("headers", new JsonObject().put("h3", "v3")));
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                                          "add_device");
+    httpRpcRequest.setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("q3", "v3")
+            .addHeader("h3", "v3");
+    apiContext.addRequest(httpRpcRequest);
 
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -80,15 +84,15 @@ public class RequestTransformerFilterTest  {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               testContext.assertEquals(1, context.requests().size());
-              JsonObject request = context.requests().getJsonObject(0);
-              testContext.assertEquals("localhost", request.getString("host"));
-              testContext.assertEquals(8080, request.getInteger("port"));
-              testContext.assertEquals(4, request.getJsonObject("params").size());
-              testContext.assertEquals(4, request.getJsonObject("headers").size());
-              testContext.assertFalse(request.getJsonObject("params").containsKey("q3"));
-              testContext.assertFalse(request.getJsonObject("headers").containsKey("h3"));
-              testContext.assertNull(request.getJsonObject("body"));
-              System.out.println(request.encodePrettily());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8080, request.getPort());
+              testContext.assertEquals(4, request.getParams().size());
+              testContext.assertEquals(4, request.getHeader().size());
+              testContext.assertFalse(request.getParams().containsKey("q3"));
+              testContext.assertFalse(request.getHeader().containsKey("h3"));
+              testContext.assertNull(request.getBody());
+              System.out.println(request);
               async.complete();
             }).onFailure(t -> testContext.fail());
   }
@@ -101,20 +105,26 @@ public class RequestTransformerFilterTest  {
     RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
             .create(RequestTransformerPlugin.class.getSimpleName());
     plugin.addTransformer(transformer);
-    apiContext.addRequest(new JsonObject()
-                                  .put("name", "add_device")
-                                  .put("host", "localhost")
-                                  .put("port", 8080)
-                                  .put("method", "post")
-                                  .put("params", new JsonObject().put("q3", "v3"))
-                                  .put("headers", new JsonObject().put("h3", "v3")));
-    apiContext.addRequest(new JsonObject()
-                                  .put("name", "update_device")
-                                  .put("host", "localhost")
-                                  .put("port", 8080)
-                                  .put("method", "post")
-                                  .put("params", new JsonObject().put("q3", "v3"))
-                                  .put("headers", new JsonObject().put("h3", "v3")));
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                                          "add_device");
+    httpRpcRequest.setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("q3", "v3")
+            .addHeader("h3", "v3");
+    apiContext.addRequest(httpRpcRequest);
+
+    httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                           "update_device");
+    httpRpcRequest.setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("q3", "v3")
+            .addHeader("h3", "v3");
+    apiContext.addRequest(httpRpcRequest);
+
 
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -123,23 +133,23 @@ public class RequestTransformerFilterTest  {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               testContext.assertEquals(2, context.requests().size());
-              JsonObject request = context.requests().getJsonObject(0);
-              testContext.assertEquals("localhost", request.getString("host"));
-              testContext.assertEquals(8080, request.getInteger("port"));
-              testContext.assertEquals(4, request.getJsonObject("params").size());
-              testContext.assertEquals(4, request.getJsonObject("headers").size());
-              testContext.assertFalse(request.getJsonObject("params").containsKey("q3"));
-              testContext.assertFalse(request.getJsonObject("headers").containsKey("h3"));
-              testContext.assertNull(request.getJsonObject("body"));
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8080, request.getPort());
+              testContext.assertEquals(4, request.getParams().size());
+              testContext.assertEquals(4, request.getHeader().size());
+              testContext.assertFalse(request.getParams().containsKey("q3"));
+              testContext.assertFalse(request.getHeader().containsKey("h3"));
+              testContext.assertNull(request.getBody());
 
-              request = context.requests().getJsonObject(1);
-              testContext.assertEquals("localhost", request.getString("host"));
-              testContext.assertEquals(8080, request.getInteger("port"));
-              testContext.assertEquals(1, request.getJsonObject("params").size());
-              testContext.assertEquals(1, request.getJsonObject("headers").size());
-              testContext.assertTrue(request.getJsonObject("params").containsKey("q3"));
-              testContext.assertTrue(request.getJsonObject("headers").containsKey("h3"));
-              testContext.assertNull(request.getJsonObject("body"));
+              request = (HttpRpcRequest) context.requests().get(1);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8080, request.getPort());
+              testContext.assertEquals(1, request.getParams().size());
+              testContext.assertEquals(1, request.getHeader().size());
+              testContext.assertFalse(request.getParams().containsKey("q3"));
+              testContext.assertFalse(request.getHeader().containsKey("h3"));
+              testContext.assertNull(request.getBody());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }
@@ -153,14 +163,15 @@ public class RequestTransformerFilterTest  {
             .create(RequestTransformerPlugin.class.getSimpleName());
     plugin.addTransformer(transformer);
 
-    apiContext.addRequest(new JsonObject()
-                                  .put("name", "add_device")
-                                  .put("host", "localhost")
-                                  .put("port", 8080)
-                                  .put("method", "post")
-                                  .put("body", new JsonObject())
-                                  .put("params", new JsonObject().put("q3", "v3"))
-                                  .put("headers", new JsonObject().put("h3", "v3")));
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                                          "add_device");
+    httpRpcRequest.setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("q3", "v3")
+            .addHeader("h3", "v3");
+    apiContext.addRequest(httpRpcRequest);
 
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -168,16 +179,16 @@ public class RequestTransformerFilterTest  {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              testContext.assertEquals(1, context.requests().size());
-              JsonObject request = context.requests().getJsonObject(0);
-              testContext.assertEquals("localhost", request.getString("host"));
-              testContext.assertEquals(8080, request.getInteger("port"));
-              testContext.assertEquals(4, request.getJsonObject("params").size());
-              testContext.assertEquals(4, request.getJsonObject("headers").size());
-              testContext.assertFalse(request.getJsonObject("params").containsKey("q3"));
-              testContext.assertFalse(request.getJsonObject("headers").containsKey("h3"));
-              testContext.assertEquals(4, request.getJsonObject("body").size());
-              System.out.println(request.encodePrettily());
+              testContext.assertEquals(21, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8080, request.getPort());
+              testContext.assertEquals(4, request.getParams().size());
+              testContext.assertEquals(4, request.getHeader().size());
+              testContext.assertFalse(request.getParams().containsKey("q3"));
+              testContext.assertFalse(request.getHeader().containsKey("h3"));
+              testContext.assertEquals(4, request.getBody().size());
+              System.out.println(request);
               async.complete();
             }).onFailure(t -> testContext.fail());
   }

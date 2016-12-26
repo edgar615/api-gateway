@@ -8,8 +8,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -34,15 +35,15 @@ class ApiContextImpl implements ApiContext {
 
   private final Map<String, Object> variables = new HashMap<>();
 
-  private final JsonArray requests = new JsonArray();
+  private final List<RpcRequest> requests = new ArrayList<>();
 
-  private final JsonArray results = new JsonArray();
+  private final List<RpcResponse> responses = new ArrayList<>();
 
   private JsonObject principal;
 
   private ApiDefinition apiDefinition;
 
-  private JsonObject response = new JsonObject();
+  private Result result;
 
   private List<Map.Entry<String, ApiContext>> actions = new ArrayList<>();
 
@@ -125,33 +126,33 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public JsonArray requests() {
+  public List<RpcRequest> requests() {
     return requests;
   }
 
   @Override
-  public void addRequest(JsonObject jsonObject) {
-    this.requests.add(jsonObject);
+  public void addRequest(RpcRequest request) {
+    this.requests.add(request);
   }
 
   @Override
-  public JsonArray results() {
-    return results;
+  public List<RpcResponse> responses() {
+    return responses;
   }
 
   @Override
-  public void addResult(JsonObject jsonObject) {
-    this.results.add(jsonObject);
+  public void addResponse(RpcResponse response) {
+    this.responses.add(response);
   }
 
   @Override
-  public JsonObject response() {
-    return response;
+  public Result result() {
+    return result;
   }
 
   @Override
-  public void setResponse(JsonObject response) {
-    this.response.mergeIn(response);
+  public void setResult(Result result) {
+    this.result = result;
   }
 
   @Override
@@ -177,9 +178,9 @@ class ApiContextImpl implements ApiContext {
     if (principal != null) {
       helper.add("principal", principal.encode());
     }
-    helper.add("requests", requests.encode());
-    helper.add("results", results);
-    helper.add("response", response);
+    helper.add("requests", requests);
+    helper.add("responses", responses);
+    helper.add("result", result);
 
     return helper.toString();
   }
@@ -198,7 +199,6 @@ class ApiContextImpl implements ApiContext {
     ApiContext.copyProperites(this, finalApiContext);
     return finalApiContext;
   }
-
 
 
 }

@@ -1,8 +1,11 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -16,31 +19,6 @@ import java.util.Map;
  * @author Edgar  Date 2016/10/10
  */
 public interface ApiContext {
-
-  static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
-                           Multimap<String, String> params, JsonObject body) {
-    return new ApiContextImpl(method, path, headers, params, body);
-  }
-
-  static void copyProperites(ApiContext source, ApiContext target) {
-
-    target.setPrincipal(source.principal());
-
-    source.variables().forEach((key, value) -> target.addVariable(key, value));
-    for (int i = 0; i < source.requests().size(); i++) {
-      target.addRequest(source.requests().getJsonObject(i).copy());
-    }
-    for (int i = 0; i < source.results().size(); i++) {
-      target.addResult(source.results().getJsonObject(i).copy());
-    }
-    target.setResponse(source.response());
-    if (source.apiDefinition() != null) {
-      target.setApiDefinition(source.apiDefinition().copy());
-    }
-    for (Map.Entry<String, ApiContext> action : source.actions()) {
-      target.addAction(action.getKey(), action.getValue());
-    }
-  }
 
   /**
    * @return ID，全局唯一.
@@ -112,32 +90,32 @@ public interface ApiContext {
   /**
    * @return 经过requestTransformer后的请求.
    */
-  JsonArray requests();
+  List<RpcRequest> requests();
 
   /**
-   * @param jsonObject 添加一个经过requestTransformer后的请求
+   * @param request 将endpoint转换后的RPC请求
    */
-  void addRequest(JsonObject jsonObject);
+  void addRequest(RpcRequest request);
 
   /**
    * @return RPC请求的结果.
    */
-  JsonArray results();
+  List<RpcResponse> responses();
 
   /**
-   * @param jsonObject RPC请求的结果
+   * @param response RPC请求的结果
    */
-  void addResult(JsonObject jsonObject);
+  void addResponse(RpcResponse response);
 
   /**
    * @return 最终聚合的需要返回给调用方的响应
    */
-  JsonObject response();
+  Result result();
 
   /**
-   * @param response 设置最终的结果
+   * @param result 设置最终的结果
    */
-  void setResponse(JsonObject response);
+  void setResult(Result result);
 
   /**
    * 添加一个动作，主要记录每次动作对ApiContext的改变，用来做日志跟踪.
@@ -157,13 +135,40 @@ public interface ApiContext {
    */
   ApiContext copy();
 
+  static ApiContext create(HttpMethod method, String path, Multimap<String, String> headers,
+                           Multimap<String, String> params, JsonObject body) {
+    return new ApiContextImpl(method, path, headers, params, body);
+  }
+
+  static void copyProperites(ApiContext source, ApiContext target) {
+
+    target.setPrincipal(source.principal());
+
+    source.variables().forEach((key, value) -> target.addVariable(key, value));
+    for (int i = 0; i < source.requests().size(); i++) {
+      target.addRequest(source.requests().get(i).copy());
+    }
+    for (int i = 0; i < source.responses().size(); i++) {
+      target.addResponse(source.responses().get(i).copy());
+    }
+    if (source.result() != null) {
+      target.setResult(source.result().copy());
+    }
+    if (source.apiDefinition() != null) {
+      target.setApiDefinition(source.apiDefinition().copy());
+    }
+    for (Map.Entry<String, ApiContext> action : source.actions()) {
+      target.addAction(action.getKey(), action.getValue());
+    }
+  }
+
   default Object getValueByKeyword(Object value) {
     if (value instanceof String) {
       String val = (String) value;
       //路径参数
       if (val.startsWith("$header.")) {
         List<String> list =
-            Lists.newArrayList(headers().get(val.substring("$header.".length())));
+                Lists.newArrayList(headers().get(val.substring("$header.".length())));
         if (list.isEmpty()) {
           return null;
         } else if (list.size() == 1) {
@@ -173,7 +178,7 @@ public interface ApiContext {
         }
       } else if (val.startsWith("$query.")) {
         List<String> list =
-            Lists.newArrayList(params().get(val.substring("$query.".length())));
+                Lists.newArrayList(params().get(val.substring("$query.".length())));
         if (list.isEmpty()) {
           return null;
         } else if (list.size() == 1) {

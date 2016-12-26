@@ -12,18 +12,18 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/9/21
  */
-public class ResultTest {
+public class RpcResponseTest {
 
   @Test
   public void testEmptyJsonObject() {
     JsonObject jsonObject = new JsonObject();
     Buffer buffer = Buffer.buffer();
     jsonObject.writeToBuffer(buffer);
-    Result result = Result.create("test", 200, buffer, 0);
-    Assert.assertFalse(result.isArray());
-    Assert.assertNotNull(result.responseObject());
-    Assert.assertNull(result.responseArray());
-    Assert.assertEquals("{}", result.responseObject().encode());
+    RpcResponse rpcResponse = RpcResponse.create("test", 200, buffer, 0);
+    Assert.assertFalse(rpcResponse.isArray());
+    Assert.assertNotNull(rpcResponse.responseObject());
+    Assert.assertNull(rpcResponse.responseArray());
+    Assert.assertEquals("{}", rpcResponse.responseObject().encode());
   }
 
   @Test
@@ -31,11 +31,11 @@ public class ResultTest {
     JsonObject jsonObject = new JsonObject().put("foo", "bar");
     Buffer buffer = Buffer.buffer();
     jsonObject.writeToBuffer(buffer);
-    Result result = Result.create("test", 200, buffer, 0);
-    Assert.assertFalse(result.isArray());
-    Assert.assertNotNull(result.responseObject());
-    Assert.assertNull(result.responseArray());
-    Assert.assertEquals(jsonObject.encode(), result.responseObject().encode());
+    RpcResponse rpcResponse = RpcResponse.create("test", 200, buffer, 0);
+    Assert.assertFalse(rpcResponse.isArray());
+    Assert.assertNotNull(rpcResponse.responseObject());
+    Assert.assertNull(rpcResponse.responseArray());
+    Assert.assertEquals(jsonObject.encode(), rpcResponse.responseObject().encode());
   }
 
   @Test
@@ -43,11 +43,11 @@ public class ResultTest {
     JsonArray jsonArray = new JsonArray();
     Buffer buffer = Buffer.buffer();
     jsonArray.writeToBuffer(buffer);
-    Result result = Result.create("test", 200, buffer, 0);
-    Assert.assertTrue(result.isArray());
-    Assert.assertNull(result.responseObject());
-    Assert.assertNotNull(result.responseArray());
-    Assert.assertEquals("[]", result.responseArray().encode());
+    RpcResponse rpcResponse = RpcResponse.create("test", 200, buffer, 0);
+    Assert.assertTrue(rpcResponse.isArray());
+    Assert.assertNull(rpcResponse.responseObject());
+    Assert.assertNotNull(rpcResponse.responseArray());
+    Assert.assertEquals("[]", rpcResponse.responseArray().encode());
   }
 
   @Test
@@ -56,18 +56,18 @@ public class ResultTest {
         .add(new JsonObject().put("foo", "bar"));
     Buffer buffer = Buffer.buffer();
     jsonArray.writeToBuffer(buffer);
-    Result result = Result.create("test", 200, buffer, 0);
-    Assert.assertTrue(result.isArray());
-    Assert.assertNull(result.responseObject());
-    Assert.assertNotNull(result.responseArray());
-    Assert.assertEquals(jsonArray.encode(), result.responseArray().encode());
+    RpcResponse rpcResponse = RpcResponse.create("test", 200, buffer, 0);
+    Assert.assertTrue(rpcResponse.isArray());
+    Assert.assertNull(rpcResponse.responseObject());
+    Assert.assertNotNull(rpcResponse.responseArray());
+    Assert.assertEquals(jsonArray.encode(), rpcResponse.responseArray().encode());
   }
 
   @Test
   public void testInvalidJson() {
     Buffer buffer = Buffer.buffer("foo");
     try {
-      Result.create("test", 200, buffer, 0);
+      RpcResponse.create("test", 200, buffer, 0);
       Assert.fail();
     } catch (Exception e) {
       Assert.assertTrue(e instanceof SystemException);

@@ -1,6 +1,6 @@
 package com.edgar.direwolves.rpc.http;
 
-import com.edgar.direwolves.core.rpc.Result;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.exception.DefaultErrorCode;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
@@ -57,10 +57,10 @@ public class HttpRpcVerticleTest {
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
       if (ar.succeeded()) {
         JsonObject jsonObject = ar.result().body();
-        Result result = createBodyResult(jsonObject);
-        context.assertFalse(result.isArray());
-        context.assertEquals("bar", result.responseObject().getString("foo"));
-        context.assertEquals("abc", result.id());
+        RpcResponse rpcResponse = createBodyResult(jsonObject);
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("bar", rpcResponse.responseObject().getString("foo"));
+        context.assertEquals("abc", rpcResponse.id());
         async.complete();
       } else {
         context.fail();
@@ -84,10 +84,10 @@ public class HttpRpcVerticleTest {
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
       if (ar.succeeded()) {
         JsonObject jsonObject = ar.result().body();
-        Result result = createBodyResult(jsonObject);
-        context.assertFalse(result.isArray());
-        context.assertEquals("bar", result.responseObject().getString("foo"));
-        context.assertEquals("abc", result.id());
+        RpcResponse rpcResponse = createBodyResult(jsonObject);
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("bar", rpcResponse.responseObject().getString("foo"));
+        context.assertEquals("abc", rpcResponse.id());
         async.complete();
       } else {
         context.fail();
@@ -109,9 +109,9 @@ public class HttpRpcVerticleTest {
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
       if (ar.succeeded()) {
-        Result result = createBodyResult(ar.result().body());
-        context.assertFalse(result.isArray());
-        context.assertEquals("1", result.responseObject().getString("result"));
+        RpcResponse rpcResponse = createBodyResult(ar.result().body());
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("result"));
         async.complete();
       } else {
         context.fail();
@@ -132,9 +132,9 @@ public class HttpRpcVerticleTest {
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
       if (ar.succeeded()) {
-        Result result = createArrayResult(ar.result().body());
-        context.assertTrue(result.isArray());
-        context.assertEquals(2, result.responseArray().size());
+        RpcResponse rpcResponse = createArrayResult(ar.result().body());
+        context.assertTrue(rpcResponse.isArray());
+        context.assertEquals(2, rpcResponse.responseArray().size());
         async.complete();
       } else {
         context.fail();
@@ -156,9 +156,9 @@ public class HttpRpcVerticleTest {
     Async async = context.async();
     vertx.eventBus().<JsonObject>send(address, config, ar -> {
       if (ar.succeeded()) {
-        Result result = createBodyResult(ar.result().body());
-        context.assertFalse(result.isArray());
-        context.assertEquals("1", result.responseObject().getString("id"));
+        RpcResponse rpcResponse = createBodyResult(ar.result().body());
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
         async.complete();
       } else {
         context.fail();
@@ -213,19 +213,19 @@ public class HttpRpcVerticleTest {
     });
   }
 
-  public Result createArrayResult(JsonObject jsonObject) {
+  public RpcResponse createArrayResult(JsonObject jsonObject) {
     String id = jsonObject.getString("id", UUID.randomUUID().toString());
     long elapsedTime = jsonObject.getLong("elapsedTime", 0l);
     int statusCode = jsonObject.getInteger("statusCode", 200);
     JsonArray body = jsonObject.getJsonArray("responseArray");
-    return Result.createJsonArray(id, statusCode, body, elapsedTime);
+    return RpcResponse.createJsonArray(id, statusCode, body, elapsedTime);
   }
 
-  public Result createBodyResult(JsonObject jsonObject) {
+  public RpcResponse createBodyResult(JsonObject jsonObject) {
     String id = jsonObject.getString("id", UUID.randomUUID().toString());
     long elapsedTime = jsonObject.getLong("elapsedTime", 0l);
     int statusCode = jsonObject.getInteger("statusCode", 200);
     JsonObject body = jsonObject.getJsonObject("responseBody");
-    return Result.createJsonObject(id, statusCode, body, elapsedTime);
+    return RpcResponse.createJsonObject(id, statusCode, body, elapsedTime);
   }
 }

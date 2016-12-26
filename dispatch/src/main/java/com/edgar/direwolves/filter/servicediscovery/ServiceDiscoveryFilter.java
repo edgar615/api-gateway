@@ -3,7 +3,8 @@ package com.edgar.direwolves.filter.servicediscovery;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.JsonUtils;
+import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -47,20 +48,20 @@ public class ServiceDiscoveryFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     List<Future<Record>> futures = new ArrayList<>();
     apiContext.apiDefinition().endpoints().stream()
-        .filter(e -> e instanceof HttpEndpoint)
-        .map(e -> ((HttpEndpoint) e).service())
-        .collect(Collectors.toSet())
-        .forEach(s -> futures.add(serviceFuture(s)));
+            .filter(e -> e instanceof HttpEndpoint)
+            .map(e -> ((HttpEndpoint) e).service())
+            .collect(Collectors.toSet())
+            .forEach(s -> futures.add(serviceFuture(s)));
 
     Task.par(futures)
-        .andThen(records -> {
-          apiContext.apiDefinition().endpoints().stream()
-              .filter(e -> e instanceof HttpEndpoint)
-              .map(e -> toJson(apiContext, (HttpEndpoint) e, records))
-              .forEach(req -> apiContext.addRequest(req));
-        })
-        .andThen(records -> completeFuture.complete(apiContext))
-        .onFailure(throwable -> completeFuture.fail(throwable));
+            .andThen(records -> {
+              apiContext.apiDefinition().endpoints().stream()
+                      .filter(e -> e instanceof HttpEndpoint)
+                      .map(e -> toRpc(apiContext, (HttpEndpoint) e, records))
+                      .forEach(req -> apiContext.addRequest(req));
+            })
+            .andThen(records -> completeFuture.complete(apiContext))
+            .onFailure(throwable -> completeFuture.fail(throwable));
   }
 
   @Override
@@ -89,32 +90,23 @@ public class ServiceDiscoveryFilter implements Filter {
     return serviceFuture;
   }
 
-  private JsonObject toJson(ApiContext apiContext, HttpEndpoint endpoint, List<Record> records) {
-    JsonObject request = new JsonObject();
-    request.put("id", UUID.randomUUID().toString());
-    request.put("name", endpoint.name());
-    request.put("type", "http");
-    request.put("path", endpoint.path());
-    request.put("method", endpoint.method().name());
-    JsonObject params = JsonUtils.mutlimapToJson(apiContext.params());
-    request.put("params", params);
-    JsonObject headers = JsonUtils.mutlimapToJson(apiContext.headers());
-    request.put("headers", headers);
-    if (apiContext.body() != null) {
-      JsonObject body = apiContext.body().copy();
-      request.put("body", body);
-    }
+  private RpcRequest toRpc(ApiContext apiContext, HttpEndpoint endpoint, List<Record> records) {
+    HttpRpcRequest httpRpcRequest =
+            HttpRpcRequest.create(UUID.randomUUID().toString(), endpoint.name());
+    httpRpcRequest.setPath(endpoint.path());
+    httpRpcRequest.setHttpMethod(endpoint.method());
+    httpRpcRequest.addParams(apiContext.params());
+    httpRpcRequest.addHeaders(apiContext.headers());
+    httpRpcRequest.setBody(apiContext.body());
     List<Record> recordList = records.stream()
-        .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
-        .collect(Collectors.toList());
+            .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
+            .collect(Collectors.toList());
     if (recordList.isEmpty()) {
       throw SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
     }
     Record record = recordList.get(0);
-    request.put("host",
-        record.getLocation().getString("host"));
-    request.put("port",
-        record.getLocation().getInteger("port"));
-    return request;
+    httpRpcRequest.setHost(record.getLocation().getString("host"));
+    httpRpcRequest.setPort(record.getLocation().getInteger("port"));
+    return httpRpcRequest;
   }
 }

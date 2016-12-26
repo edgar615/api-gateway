@@ -1,16 +1,23 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.dispatch.Result;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * response_transfomer.
- * <p/>
+ * <p>
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class ResponseTransformerFilter implements Filter {
@@ -34,68 +41,80 @@ public class ResponseTransformerFilter implements Filter {
       return false;
     }
     return apiContext.apiDefinition()
-        .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
+                   .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     ResponseTransformerPlugin plugin =
-        (ResponseTransformerPlugin) apiContext.apiDefinition()
-            .plugin(ResponseTransformerPlugin.class.getSimpleName());
+            (ResponseTransformerPlugin) apiContext.apiDefinition()
+                    .plugin(ResponseTransformerPlugin.class.getSimpleName());
 
-    JsonObject response = apiContext.response();
+    Result result = apiContext.result();
     //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改
-    boolean isArray = response.getBoolean("isArray");
+    boolean isArray = result.isArray();
     //body目前仅考虑JsonObject的替换
+    Multimap<String, String> header =
+            replaceHeader(apiContext, tranformerHeaders(result.header(), plugin));
+
     if (!isArray) {
-      tranformerBody(response.getJsonObject("body"), plugin);
+      JsonObject body = replaceBody(apiContext, tranformerBody(result.responseObject(), plugin));
+      apiContext.setResult(Result.createJsonObject(result.id(), result.statusCode(),
+                                                   body, header));
+    } else {
+      apiContext.setResult(Result.createJsonArray(result.id(), result.statusCode(),
+                                                  result.responseArray(), header));
     }
-    JsonObject header = response.getJsonObject("headers", new JsonObject());
-    response.put("headers", header);
-    tranformerHeaders(header, plugin);
-
-    //变量替换
-    replace(apiContext, response);
-
     completeFuture.complete(apiContext);
   }
 
-  private void replace(ApiContext apiContext, JsonObject response) {
-
-    JsonObject newHeaders = new JsonObject();
-    JsonObject headers = response.getJsonObject("headers", new JsonObject());
-    for (String key : headers.fieldNames()) {
-      Object newVal = apiContext.getValueByKeyword(headers.getValue(key));
-      if (newVal != null) {
-        newHeaders.put(key, newVal);
+  private Multimap<String, String> replaceHeader(ApiContext apiContext,
+                                                 Multimap<String, String> headers) {
+    Multimap<String, String> newHeaders = ArrayListMultimap.create();
+    for (String key : headers.keySet()) {
+      List<String> values = new ArrayList<>(headers.get(key));
+      for (String val : values) {
+        Object newVal = apiContext.getValueByKeyword(val);
+        if (newVal != null) {
+          newHeaders.put(key, newVal.toString());
+        }
       }
     }
-    response.put("headers", newHeaders);
+    return newHeaders;
+
+  }
+
+  private JsonObject replaceBody(ApiContext apiContext, JsonObject body) {
     JsonObject newBody = new JsonObject();
-    JsonObject body = response.getJsonObject("body");
-    for (String key : body.fieldNames()) {
-      Object newVal = apiContext.getValueByKeyword(body.getValue(key));
-      if (newVal != null) {
-        newBody.put(key, newVal);
+    if (body != null) {
+      for (String key : body.fieldNames()) {
+        Object newVal = apiContext.getValueByKeyword(body.getValue(key));
+        if (newVal != null) {
+          newBody.put(key, newVal);
+        }
       }
     }
-    response.put("body", newBody);
+    return newBody;
 
   }
 
 
-  private void tranformerHeaders(JsonObject headers,
-                                 ResponseTransformerPlugin transformer) {
-    transformer.headerRemoved().forEach(h -> headers.remove(h));
-    transformer.headerReplaced().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
-    transformer.headerAdded().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
+  private Multimap<String, String> tranformerHeaders(Multimap<String, String> headers,
+                                                     ResponseTransformerPlugin transformer) {
+    Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
+    transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
+    transformer.headerAdded().forEach(
+            entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+    return newHeader;
   }
 
-  private void tranformerBody(final JsonObject body,
-                              ResponseTransformerPlugin transformer) {
-    transformer.bodyRemoved().forEach(b -> body.remove(b));
-    transformer.bodyReplaced().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
-    transformer.bodyAdded().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
+  private JsonObject tranformerBody(final JsonObject body,
+                                    ResponseTransformerPlugin transformer) {
+    JsonObject newBody = body.copy();
+    transformer.bodyRemoved().forEach(b -> newBody.remove(b));
+    transformer.bodyReplaced().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
+    transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
+    return newBody;
   }
 
 }

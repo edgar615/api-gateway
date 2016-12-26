@@ -2,7 +2,9 @@ package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.rpc.Result;
+import com.edgar.direwolves.core.dispatch.Result;
+import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -24,7 +26,7 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class ExtractResultFilterTest extends FilterTest {
+public class ExtractRpcResponseFilterTest extends FilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
   ExtractResultFilter filter;
@@ -53,17 +55,18 @@ public class ExtractResultFilterTest extends FilterTest {
 
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
-    Result result = Result.createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
+    RpcResponse rpcResponse = RpcResponse
+            .createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
 
-    apiContext.addResult(result.toJson());
+    apiContext.addResponse(rpcResponse);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     doFilter(task, filters)
         .andThen(context -> {
-          JsonObject jsonObject = context.response();
-          testContext.assertEquals("bar", jsonObject.getJsonObject("body").getString("foo"));
+          Result result = context.result();
+          testContext.assertEquals("bar", result.responseObject().getString("foo"));
           async.complete();
         }).onFailure(t -> testContext.fail());
   }
@@ -73,24 +76,25 @@ public class ExtractResultFilterTest extends FilterTest {
 
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
-    Result result = Result.createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
-    apiContext.addResult(result.toJson());
-    result = Result.createJsonObject("2", 200, new JsonObject().put("bar", "foo"), 0);
-    apiContext.addResult(result.toJson());
+    RpcResponse rpcResponse = RpcResponse
+            .createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
+    apiContext.addResponse(rpcResponse);
+    rpcResponse = RpcResponse.createJsonObject("2", 200, new JsonObject().put("bar", "foo"), 0);
+    apiContext.addResponse(rpcResponse);
 
-    apiContext.requests().add(new JsonObject().put("id", "1").put("name", "a"));
-    apiContext.requests().add(new JsonObject().put("id", "2").put("name", "b"));
+    apiContext.requests().add(HttpRpcRequest.create("1", "a"));
+    apiContext.requests().add(HttpRpcRequest.create("2", "b"));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     doFilter(task, filters)
         .andThen(context -> {
-          JsonObject jsonObject = context.response();
-          testContext.assertEquals(2, jsonObject.getJsonObject("body").size());
-          testContext.assertEquals("bar", jsonObject.getJsonObject("body").getJsonObject("a")
+          Result result = context.result();
+          testContext.assertEquals(2, result.responseObject().size());
+          testContext.assertEquals("bar", result.responseObject().getJsonObject("a")
               .getString("foo"));
-          testContext.assertEquals("foo", jsonObject.getJsonObject("body").getJsonObject("b")
+          testContext.assertEquals("foo", result.responseObject().getJsonObject("b")
               .getString("bar"));
           async.complete();
         }).onFailure(t -> testContext.fail());
@@ -102,22 +106,23 @@ public class ExtractResultFilterTest extends FilterTest {
 
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
-    Result result = Result.createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
-    apiContext.addResult(result.toJson());
-    result = Result.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
-    apiContext.addResult(result.toJson());
+    RpcResponse rpcResponse = RpcResponse
+            .createJsonObject("1", 200, new JsonObject().put("foo", "bar"), 0);
+    apiContext.addResponse(rpcResponse);
+    rpcResponse = RpcResponse.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
+    apiContext.addResponse(rpcResponse);
 
-    apiContext.requests().add(new JsonObject().put("id", "1").put("name", "a"));
-    apiContext.requests().add(new JsonObject().put("id", "2").put("name", "b"));
+    apiContext.requests().add(HttpRpcRequest.create("1", "a"));
+    apiContext.requests().add(HttpRpcRequest.create("2", "b"));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     doFilter(task, filters)
         .andThen(context -> {
-          JsonObject jsonObject = context.response();
-          testContext.assertEquals(1, jsonObject.getJsonObject("body").size());
-          testContext.assertEquals("foo", jsonObject.getJsonObject("body").getString("bar"));
+          Result result = context.result();
+          testContext.assertEquals(1, result.responseObject().size());
+          testContext.assertEquals("foo", result.responseObject().getString("bar"));
           async.complete();
         }).onFailure(t -> testContext.fail());
   }
@@ -127,22 +132,23 @@ public class ExtractResultFilterTest extends FilterTest {
 
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
-    Result result = Result.createJsonObject("1", 403, new JsonObject().put("foo", "bar"), 0);
-    apiContext.addResult(result.toJson());
-    result = Result.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
-    apiContext.addResult(result.toJson());
+    RpcResponse rpcResponse = RpcResponse
+            .createJsonObject("1", 403, new JsonObject().put("foo", "bar"), 0);
+    apiContext.addResponse(rpcResponse);
+    rpcResponse = RpcResponse.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
+    apiContext.addResponse(rpcResponse);
 
-    apiContext.requests().add(new JsonObject().put("id", "1").put("name", "a"));
-    apiContext.requests().add(new JsonObject().put("id", "2").put("name", "b"));
+    apiContext.requests().add(HttpRpcRequest.create("1", "a"));
+    apiContext.requests().add(HttpRpcRequest.create("2", "b"));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     doFilter(task, filters)
         .andThen(context -> {
-          JsonObject jsonObject = context.response();
-          testContext.assertEquals(1, jsonObject.getJsonObject("body").size());
-          testContext.assertEquals("bar", jsonObject.getJsonObject("body").getString("foo"));
+          Result result = context.result();
+          testContext.assertEquals(1, result.responseObject().size());
+          testContext.assertEquals("foo", result.responseObject().getString("bar"));
           async.complete();
         }).onFailure(t -> testContext.fail());
   }

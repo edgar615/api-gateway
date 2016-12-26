@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -22,6 +23,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -80,20 +82,17 @@ public class ResponseTranformerFilterTest {
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
     apiContext.setApiDefinition(definition);
-    JsonObject response = new JsonObject()
-            .put("name", "add_device")
-            .put("isArray", false)
-            .put("body", new JsonObject().put("foo", "bar"));
-    apiContext.setResponse(response);
+    apiContext.setResult(Result.createJsonObject(UUID.randomUUID().toString(),
+                                                 200, new JsonObject().put("foo", "bar"), null));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              JsonObject jsonObject = context.response();
-              testContext.assertEquals(4, jsonObject.getJsonObject("headers").size());
-              testContext.assertEquals(5, jsonObject.getJsonObject("body").size());
+              Result result = context.result();
+              testContext.assertEquals(4, result.header().size());
+              testContext.assertEquals(5, result.responseObject().size());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

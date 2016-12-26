@@ -1,11 +1,13 @@
 package com.edgar.direwolves.core.rpc;
 
-public class RpcRequest {
+public interface RpcRequest {
 
-  private String requestId;
+  String id();
 
-  private String name;
+  String name();
 
-  private String type = "http";
+  String type();
+
+  RpcRequest copy();
 
 }

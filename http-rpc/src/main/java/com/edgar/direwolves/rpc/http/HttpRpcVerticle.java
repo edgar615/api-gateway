@@ -1,6 +1,6 @@
 package com.edgar.direwolves.rpc.http;
 
-import com.edgar.direwolves.core.rpc.Result;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.EventbusUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -21,7 +21,7 @@ public class HttpRpcVerticle extends AbstractVerticle {
       JsonObject jsonObject = msg.body();
       try {
         HttpRequestOptions options = new HttpRequestOptions(jsonObject);
-        Future<Result> future = Http.request(httpClient, options);
+        Future<RpcResponse> future = Http.request(httpClient, options);
         future.setHandler(ar -> {
           if (ar.succeeded()) {
             msg.reply(ar.result().toJson());

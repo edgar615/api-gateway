@@ -1,6 +1,6 @@
 package com.edgar.direwolves.rpc.http;
 
-import com.edgar.direwolves.core.rpc.Result;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Joiner;
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class Http {
 
-  public static Future<Result> request(HttpClient httpClient, HttpRequestOptions options) {
+  public static Future<RpcResponse> request(HttpClient httpClient, HttpRequestOptions options) {
     if (checkMethod(options)) {
       return Future.failedFuture(
           SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "method")
@@ -31,7 +31,7 @@ public class Http {
           SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
       );
     }
-    Future<Result> future = Future.future();
+    Future<RpcResponse> future = Future.future();
     String path = requestPath(options);
     final long startTime = System.currentTimeMillis();
     HttpClientRequest request =
@@ -39,12 +39,12 @@ public class Http {
             .putHeader("content-type", "application/json");
     request.handler(response -> {
       response.bodyHandler(body -> {
-        Result result =
-            Result.create(options.getId(),
-                response.statusCode(),
-                body,
+        RpcResponse rpcResponse =
+            RpcResponse.create(options.getId(),
+                               response.statusCode(),
+                               body,
                 System.currentTimeMillis() - startTime);
-        future.complete(result);
+        future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
           future.fail(throwable);
@@ -71,7 +71,7 @@ public class Http {
     });
   }
 
-  private static void exceptionHandler(Future<Result> future, HttpClientRequest request) {
+  private static void exceptionHandler(Future<RpcResponse> future, HttpClientRequest request) {
     request.exceptionHandler(throwable -> {
       if (!future.isComplete()) {
         future.fail(throwable);

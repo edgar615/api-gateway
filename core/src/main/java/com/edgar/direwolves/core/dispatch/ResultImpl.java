@@ -1,12 +1,16 @@
-package com.edgar.direwolves.core.rpc;
+package com.edgar.direwolves.core.dispatch;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
  * 单个请求的响应.
- * <p/>
+ * <p>
  * <b>responseObject和responseArray只有一个有效</b>
  * responseArray不为null时，responseObject必为null,isArray必为true.
  *
@@ -26,7 +30,7 @@ class ResultImpl implements Result {
 
   /**
    * 响应是否是数组.
-   * <p/>
+   * <p>
    * responseObject不为null时,isArray必为false.
    * responseArray不为null时，isArray必为true.
    */
@@ -34,7 +38,7 @@ class ResultImpl implements Result {
 
   /**
    * JsonObject格式的响应.
-   * <p/>
+   * <p>
    * <b>responseObject和responseArray只有一个有效</b>
    * responseObject不为null时，responseArray必为null,isArray必为false
    */
@@ -47,27 +51,29 @@ class ResultImpl implements Result {
    */
   private final JsonArray responseArray;
 
-  /**
-   * 耗时.
-   */
-  private final long elapsedTime;
+  private final Multimap<String, String> headers = ArrayListMultimap.create();
 
-  ResultImpl(String id, int statusCode, JsonObject responseObject, long elapsedTime) {
+  ResultImpl(String id, int statusCode, JsonObject responseObject,
+             Multimap<String, String> headers) {
     this.id = id;
     this.statusCode = statusCode;
     this.responseObject = responseObject;
     this.isArray = false;
     this.responseArray = null;
-    this.elapsedTime = elapsedTime;
+    if (headers != null) {
+      this.headers.putAll(headers);
+    }
   }
 
-  ResultImpl(String id, int statusCode, JsonArray responseArray, long elapsedTime) {
+  ResultImpl(String id, int statusCode, JsonArray responseArray, Multimap<String, String> headers) {
     this.id = id;
     this.statusCode = statusCode;
     this.responseArray = responseArray;
     this.isArray = true;
     this.responseObject = null;
-    this.elapsedTime = elapsedTime;
+    if (headers != null) {
+      this.headers.putAll(headers);
+    }
   }
 
   @Override
@@ -87,7 +93,7 @@ class ResultImpl implements Result {
    */
   @Override
   public JsonObject responseObject() {
-    return responseObject;
+    return responseObject == null ? null : responseObject;
   }
 
   /**
@@ -97,13 +103,7 @@ class ResultImpl implements Result {
    */
   @Override
   public JsonArray responseArray() {
-    return responseArray;
-  }
-
-
-  @Override
-  public long elapsedTime() {
-    return elapsedTime;
+    return responseArray == null ? null : responseArray;
   }
 
   @Override
@@ -112,16 +112,21 @@ class ResultImpl implements Result {
   }
 
   @Override
+  public Multimap<String, String> header() {
+    return ImmutableMultimap.copyOf(headers);
+  }
+
+  @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("Result");
     helper.add("id", id)
-        .add("statusCode", statusCode);
+            .add("statusCode", statusCode);
     if (isArray) {
       helper.add("responseArray", responseArray);
     } else {
       helper.add("responseObject", responseObject);
     }
-    helper.add("elapsedTime", elapsedTime);
+    helper.add("headers", headers);
     return helper.toString();
   }
 }

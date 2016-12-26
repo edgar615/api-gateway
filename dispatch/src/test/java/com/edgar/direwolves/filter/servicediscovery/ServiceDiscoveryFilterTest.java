@@ -4,6 +4,7 @@ import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.HttpRpcRequest;
 import com.edgar.direwolves.filter.FilterTest;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -90,7 +91,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     doFilter(task, filters)
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
-          JsonObject request = context.requests().getJsonObject(0);
+          HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
           testContext.assertEquals("localhost", request.getString("host"));
           testContext.assertEquals(8080, request.getInteger("port"));
           testContext.assertEquals(1, request.getJsonObject("params").size());
@@ -119,7 +120,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     doFilter(task, filters)
         .andThen(context -> {
           testContext.assertEquals(2, context.requests().size());
-          JsonObject request = context.requests().getJsonObject(0);
+          HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
           testContext.assertEquals("localhost", request.getString("host"));
           testContext.assertEquals(8080, request.getInteger("port"));
           testContext.assertEquals(1, request.getJsonObject("params").size());
