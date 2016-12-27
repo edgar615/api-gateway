@@ -1,7 +1,5 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -10,6 +8,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -23,7 +22,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -60,7 +58,7 @@ public class ResponseTranformerFilterTest {
   @Test
   public void testResponseTransformer(TestContext testContext) {
     ResponseTransformerPlugin plugin = (ResponseTransformerPlugin) ApiPlugin
-            .create(ResponseTransformerPlugin.class.getSimpleName());
+        .create(ResponseTransformerPlugin.class.getSimpleName());
     plugin.removeHeader("h3");
     plugin.removeHeader("h4");
     plugin.removeBody("p3");
@@ -74,27 +72,27 @@ public class ResponseTranformerFilterTest {
     plugin.addBody("q1", "v2");
     plugin.addBody("q2", "v1");
     apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+        Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+        .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
     apiContext.setApiDefinition(definition);
-    apiContext.setResult(Result.createJsonObject(UUID.randomUUID().toString(),
-                                                 200, new JsonObject().put("foo", "bar"), null));
+    apiContext.setResult(Result.createJsonObject(
+        200, new JsonObject().put("foo", "bar"), null));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-            .andThen(context -> {
-              Result result = context.result();
-              testContext.assertEquals(4, result.header().size());
-              testContext.assertEquals(5, result.responseObject().size());
-              async.complete();
-            }).onFailure(t -> {
+        .andThen(context -> {
+          Result result = context.result();
+          testContext.assertEquals(4, result.header().size());
+          testContext.assertEquals(5, result.responseObject().size());
+          async.complete();
+        }).onFailure(t -> {
       t.printStackTrace();
       testContext.fail();
     });

@@ -2,15 +2,21 @@ package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.dispatch.Result;
+import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
+import java.util.List;
 
 /**
  * Created by edgar on 16-11-5.
  */
 public class ExtractResultFilter implements Filter {
+
+  ExtractResultFilter() {
+  }
 
   //extractValueFromSingleKeyModel
   @Override
@@ -30,65 +36,54 @@ public class ExtractResultFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    JsonArray results = apiContext.results();
-    JsonObject result = new JsonObject();
+    List<RpcResponse> results = apiContext.responses();
+    Result result = null;
     if (results.size() == 1) {
-      result.mergeIn(extractResult(results.getJsonObject(0)));
+      result = extractResult(results.get(0));
     } else {
-      JsonObject failedResult = extractFailedResult(results);
-      if (failedResult != null) {
-        result.mergeIn(failedResult);
-      } else {
-        result.mergeIn(zipResult(apiContext));
+      result = extractFailedResult(results);
+      if (result == null) {
+        result = zipResult(apiContext);
       }
     }
 
-    apiContext.setResponse(result);
+    apiContext.setResult(result);
     completeFuture.complete(apiContext);
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-
-  }
-
   private String getName(String respId, ApiContext apiContext) {
-    JsonArray request = apiContext.requests();
-    for (int i = 0; i < request.size(); i++) {
-      JsonObject req = request.getJsonObject(i);
-      String reqId = req.getString("id");
+    List<RpcRequest> requests = apiContext.requests();
+    for (int i = 0; i < requests.size(); i++) {
+      RpcRequest req = requests.get(i);
+      String reqId = req.id();
       if (respId.equalsIgnoreCase(reqId)) {
-        return req.getString("name", "UNKOWN_NAME");
+        return req.name();
       }
     }
     return "UNKOWN_NAME";
   }
 
-  private JsonObject zipResult(ApiContext apiContext) {
-    JsonArray results = apiContext.results();
-    JsonObject result = new JsonObject();
-    result.put("statusCode", 200);
+  private Result zipResult(ApiContext apiContext) {
+    List<RpcResponse> responses = apiContext.responses();
     JsonObject body = new JsonObject();
-    result.put("body", body);
-    result.put("isArray", false);
-    for (int i = 0; i < results.size(); i++) {
-      JsonObject resp = results.getJsonObject(i);
-      boolean isArray = resp.getBoolean("isArray", false);
+    for (int i = 0; i < responses.size(); i++) {
+      RpcResponse resp = responses.get(i);
+      boolean isArray = resp.isArray();
       //根据ID，从request中取出name
-      String name = getName(resp.getString("id"), apiContext);
+      String name = getName(resp.id(), apiContext);
       if (isArray) {
-        body.put(name, resp.getJsonArray("responseArray"));
+        body.put(name, resp.responseArray());
       } else {
-        body.put(name, resp.getJsonObject("responseBody"));
+        body.put(name, resp.responseObject());
       }
     }
-    return result;
+    return Result.createJsonObject(200, body, null);
   }
 
-  private JsonObject extractFailedResult(JsonArray response) {
-    for (int i = 0; i < response.size(); i++) {
-      JsonObject resp = response.getJsonObject(i);
-      int statusCode = resp.getInteger("statusCode", 200);
+  private Result extractFailedResult(List<RpcResponse> responses) {
+    for (int i = 0; i < responses.size(); i++) {
+      RpcResponse resp = responses.get(i);
+      int statusCode = resp.statusCode();
       if (statusCode >= 300) {
         return extractResult(resp);
       }
@@ -96,16 +91,15 @@ public class ExtractResultFilter implements Filter {
     return null;
   }
 
-  private JsonObject extractResult(JsonObject response) {
+  private Result extractResult(RpcResponse response) {
     JsonObject result = new JsonObject();
-    int statusCode = response.getInteger("statusCode", 200);
+    int statusCode = response.statusCode();
     result.put("statusCode", statusCode);
-    boolean isArray = response.getBoolean("isArray", false);
+    boolean isArray = response.isArray();
     if (isArray) {
-      result.put("body", response.getJsonArray("responseArray"));
+      return Result.createJsonArray(statusCode, response.responseArray(), null);
     } else {
-      result.put("body", response.getJsonObject("responseBody"));
+      return Result.createJsonObject(statusCode, response.responseObject(), null);
     }
-    return result.copy();
   }
 }

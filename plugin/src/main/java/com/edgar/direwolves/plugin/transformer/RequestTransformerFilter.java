@@ -82,7 +82,7 @@ public class RequestTransformerFilter implements Filter {
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
       tranformerParams(request.getParams(), transformer);
-      tranformerHeaders(request.getHeader(), transformer);
+      tranformerHeaders(request.getHeaders(), transformer);
       if (request.getBody() != null) {
         tranformerBody(request.getBody(), transformer);
       }

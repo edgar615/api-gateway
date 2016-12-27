@@ -122,7 +122,7 @@ public class JwtBuildFilter implements Filter {
           try {
             String token = provider.generateToken(claims, new JWTOptions(this.jwtConfig));
             body.put("token", token);
-            apiContext.setResult(Result.createJsonObject(result.id(), result.statusCode(), body,
+            apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
                                                          result.header()));
             completeFuture.complete(apiContext);
           } catch (Exception e) {

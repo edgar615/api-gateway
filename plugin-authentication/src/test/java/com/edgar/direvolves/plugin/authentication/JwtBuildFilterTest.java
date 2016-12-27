@@ -77,7 +77,7 @@ public class JwtBuildFilterTest {
             .put("username", "edgar")
             .put("tel", "123456")
             .put(userKey, 10);
-    apiContext.setResult(Result.createJsonObject("1", 400, body, null));
+    apiContext.setResult(Result.createJsonObject(400, body, null));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -102,7 +102,7 @@ public class JwtBuildFilterTest {
             .put("username", "edgar")
             .put("tel", "123456")
             .put("userId", 10);
-    apiContext.setResult(Result.createJsonObject("1", 200, body, null));
+    apiContext.setResult(Result.createJsonObject(200, body, null));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -127,7 +127,7 @@ public class JwtBuildFilterTest {
             .put("username", "edgar")
             .put("tel", "123456")
             .put(userKey, 1);
-    apiContext.setResult(Result.createJsonObject("1", 200, body, null));
+    apiContext.setResult(Result.createJsonObject(200, body, null));
 
     JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
                                                                       .class

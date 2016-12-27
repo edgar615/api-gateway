@@ -4,13 +4,12 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
  * 单个请求的响应.
- * <p>
+ * <p/>
  * <b>responseObject和responseArray只有一个有效</b>
  * responseArray不为null时，responseObject必为null,isArray必为true.
  *
@@ -19,18 +18,13 @@ import io.vertx.core.json.JsonObject;
 class ResultImpl implements Result {
 
   /**
-   * 请求的唯一id，用来区分多个请求的结果.
-   */
-  private final String id;
-
-  /**
    * 响应码
    */
   private final int statusCode;
 
   /**
    * 响应是否是数组.
-   * <p>
+   * <p/>
    * responseObject不为null时,isArray必为false.
    * responseArray不为null时，isArray必为true.
    */
@@ -38,7 +32,7 @@ class ResultImpl implements Result {
 
   /**
    * JsonObject格式的响应.
-   * <p>
+   * <p/>
    * <b>responseObject和responseArray只有一个有效</b>
    * responseObject不为null时，responseArray必为null,isArray必为false
    */
@@ -53,9 +47,8 @@ class ResultImpl implements Result {
 
   private final Multimap<String, String> headers = ArrayListMultimap.create();
 
-  ResultImpl(String id, int statusCode, JsonObject responseObject,
+  ResultImpl(int statusCode, JsonObject responseObject,
              Multimap<String, String> headers) {
-    this.id = id;
     this.statusCode = statusCode;
     this.responseObject = responseObject;
     this.isArray = false;
@@ -65,8 +58,7 @@ class ResultImpl implements Result {
     }
   }
 
-  ResultImpl(String id, int statusCode, JsonArray responseArray, Multimap<String, String> headers) {
-    this.id = id;
+  ResultImpl(int statusCode, JsonArray responseArray, Multimap<String, String> headers) {
     this.statusCode = statusCode;
     this.responseArray = responseArray;
     this.isArray = true;
@@ -107,11 +99,6 @@ class ResultImpl implements Result {
   }
 
   @Override
-  public String id() {
-    return id;
-  }
-
-  @Override
   public Multimap<String, String> header() {
     return ImmutableMultimap.copyOf(headers);
   }
@@ -119,8 +106,7 @@ class ResultImpl implements Result {
   @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("Result");
-    helper.add("id", id)
-            .add("statusCode", statusCode);
+    helper.add("statusCode", statusCode);
     if (isArray) {
       helper.add("responseArray", responseArray);
     } else {

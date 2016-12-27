@@ -1,10 +1,11 @@
-package com.edgar.direwolves.filter.servicediscovery;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.HttpRpcRequest;
 import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.filter.servicediscovery.RecordSelect;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -64,8 +65,7 @@ public class ServiceDiscoveryFilter implements Filter {
             .onFailure(throwable -> completeFuture.fail(throwable));
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
+  ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     recordSelect.config(vertx, config);
   }

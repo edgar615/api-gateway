@@ -2,13 +2,18 @@ package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
-public class RequestReplaceFilter implements Filter {
+import java.util.ArrayList;
+import java.util.List;
 
-  private Vertx vertx;
+public class RequestReplaceFilter implements Filter {
+  RequestReplaceFilter() {
+  }
 
   @Override
   public String type() {
@@ -21,11 +26,6 @@ public class RequestReplaceFilter implements Filter {
   }
 
   @Override
-  public void config(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-  }
-
-  @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return true;
   }
@@ -33,43 +33,51 @@ public class RequestReplaceFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     for (int i = 0; i < apiContext.requests().size(); i++) {
-      JsonObject request = apiContext.requests().getJsonObject(i);
+      HttpRpcRequest request = (HttpRpcRequest) apiContext.requests().get(i);
       replace(apiContext, request);
     }
     completeFuture.complete(apiContext);
   }
 
-  private void replace(ApiContext apiContext, JsonObject request) {
-    JsonObject newParams = new JsonObject();
-    JsonObject params = request.getJsonObject("params", new JsonObject());
-    for (String key : params.fieldNames()) {
-      Object newVal = apiContext.getValueByKeyword(params.getValue(key));
-      if (newVal != null) {
-        newParams.put(key, newVal);
-      }
+  private void replace(ApiContext apiContext, HttpRpcRequest request) {
+    Multimap<String, String> params = replaceHeader(apiContext, apiContext.params());
+    Multimap<String, String> headers = replaceHeader(apiContext, apiContext.headers());
+    request.clearHeaders().addHeaders(headers);
+    request.clearParams().addParams(params);
+    if (request.getBody() != null) {
+      JsonObject body = replaceBody(apiContext, request.getBody());
+      request.setBody(body);
     }
-    request.put("params", newParams);
 
-    JsonObject newHeaders = new JsonObject();
-    JsonObject headers = request.getJsonObject("headers", new JsonObject());
-    for (String key : headers.fieldNames()) {
-      Object newVal = apiContext.getValueByKeyword(headers.getValue(key));
-      if (newVal != null) {
-        newHeaders.put(key, newVal);
+  }
+
+  private Multimap<String, String> replaceHeader(ApiContext apiContext,
+                                                 Multimap<String, String> headers) {
+    Multimap<String, String> newHeaders = ArrayListMultimap.create();
+    for (String key : headers.keySet()) {
+      List<String> values = new ArrayList<>(headers.get(key));
+      for (String val : values) {
+        Object newVal = apiContext.getValueByKeyword(val);
+        if (newVal != null) {
+          newHeaders.put(key, newVal.toString());
+        }
       }
     }
-    request.put("headers", newHeaders);
-    if (request.containsKey("body")) {
-      JsonObject newBody = new JsonObject();
-      JsonObject body = request.getJsonObject("body");
+    return newHeaders;
+
+  }
+
+  private JsonObject replaceBody(ApiContext apiContext, JsonObject body) {
+    JsonObject newBody = new JsonObject();
+    if (body != null) {
       for (String key : body.fieldNames()) {
         Object newVal = apiContext.getValueByKeyword(body.getValue(key));
         if (newVal != null) {
           newBody.put(key, newVal);
         }
       }
-      request.put("body", newBody);
     }
+    return newBody;
 
   }
 

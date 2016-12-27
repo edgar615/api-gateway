@@ -3,6 +3,9 @@ package com.edgar.direwolves.dispatch.handler;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.dispatch.Result;
+import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ImmutableList;
@@ -44,19 +47,19 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
     task.andThen("Response", apiContext -> {
-      JsonObject response = apiContext.response();
-      int statusCode = response.getInteger("statusCode", 200);
-      boolean isArray = response.getBoolean("isArray", false);
+      Result result = apiContext.result();
+      int statusCode = result.statusCode();
+      boolean isArray = result.isArray();
       if (isArray) {
         rc.response()
             .setStatusCode(statusCode)
             .setChunked(true)
-            .end(response.getJsonArray("body", new JsonArray()).encode());
+            .end(result.responseArray().encode());
       } else {
         rc.response()
             .setStatusCode(statusCode)
             .setChunked(true)
-            .end(response.getJsonObject("body", new JsonObject()).encode());
+            .end(result.responseObject().encode());
       }
     })
         .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
@@ -114,34 +117,34 @@ public class DispatchHandler implements Handler<RoutingContext> {
     }
   }
 
-  private Task<ApiContext> rpc(RoutingContext rc, ApiContext apiContext) {
-    Task<ApiContext> task = Task.create();
-    JsonArray requests = apiContext.requests();
-    List<Future<JsonObject>> reusltsFuture = new ArrayList<>(requests.size());
-    for (int i = 0; i < requests.size(); i++) {
-      JsonObject req = requests.getJsonObject(i);
-      String type = req.getString("type", "http");
-      if ("http".equalsIgnoreCase(type)) {
-        Future<JsonObject> future = Future.future();
-        reusltsFuture.add(future);
-        rc.vertx().eventBus().<JsonObject>send("direwolves.rpc.http.req",
-            requests.getJsonObject(0), ar -> {
-              if (ar.succeeded()) {
-                future.complete(ar.result().body());
-              } else {
-                future.fail(ar.cause());
-              }
-            });
-      }
-    }
-    Task.par(reusltsFuture).andThen(results -> {
-      for (JsonObject result : results) {
-        apiContext.addResult(result.copy());
-      }
-      task.complete(apiContext);
-    }).onFailure(throwable -> task.fail(throwable));
-    return task;
-  }
+//  private Task<ApiContext> rpc(RoutingContext rc, ApiContext apiContext) {
+//    Task<ApiContext> task = Task.create();
+//    List<RpcRequest> requests = apiContext.requests();
+//    List<Future<JsonObject>> reusltsFuture = new ArrayList<>(requests.size());
+//    for (int i = 0; i < requests.size(); i++) {
+//      RpcRequest req = requests.get(i);
+//      String type = req.type();
+//      if ("http".equalsIgnoreCase(type)) {
+//        Future<JsonObject> future = Future.future();
+//        reusltsFuture.add(future);
+//        rc.vertx().eventBus().<JsonObject>send("direwolves.rpc.http.req",
+//            requests.getJsonObject(0), ar -> {
+//              if (ar.succeeded()) {
+//                future.complete(ar.result().body());
+//              } else {
+//                future.fail(ar.cause());
+//              }
+//            });
+//      }
+//    }
+//    Task.par(reusltsFuture).andThen(results -> {
+//      for (JsonObject result : results) {
+//        apiContext.addResult(result.copy());
+//      }
+//      task.complete(apiContext);
+//    }).onFailure(throwable -> task.fail(throwable));
+//    return task;
+//  }
 
   private void getApiDefintion(RoutingContext rc, Future<ApiDefinition> completeFuture) {
     JsonObject matcher = new JsonObject()

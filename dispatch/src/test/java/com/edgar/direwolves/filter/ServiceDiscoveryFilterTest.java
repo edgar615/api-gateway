@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter.servicediscovery;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -6,6 +6,8 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.HttpRpcRequest;
 import com.edgar.direwolves.filter.FilterTest;
+import com.edgar.direwolves.filter.ServiceDiscoveryFilter;
+import com.edgar.direwolves.filter.servicediscovery.MockConsulHttpVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -69,7 +71,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
 
-    filter = new ServiceDiscoveryFilter();
+    filter = null;//new ServiceDiscoveryFilter();
     filter.config(vertx, config);
 
     filters.clear();
@@ -92,11 +94,11 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getString("host"));
-          testContext.assertEquals(8080, request.getInteger("port"));
-          testContext.assertEquals(1, request.getJsonObject("params").size());
-          testContext.assertEquals(1, request.getJsonObject("headers").size());
-          testContext.assertNull(request.getJsonObject("body"));
+          testContext.assertEquals("localhost", request.getHost());
+          testContext.assertEquals(8080, request.getPort());
+          testContext.assertEquals(1, request.getParams().size());
+          testContext.assertEquals(1, request.getHeaders().size());
+          testContext.assertNull(request.getBody());
           testContext.assertEquals(1, context.actions().size());
           async.complete();
         }).onFailure(t -> testContext.fail());
@@ -121,18 +123,18 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
         .andThen(context -> {
           testContext.assertEquals(2, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getString("host"));
-          testContext.assertEquals(8080, request.getInteger("port"));
-          testContext.assertEquals(1, request.getJsonObject("params").size());
-          testContext.assertEquals(1, request.getJsonObject("headers").size());
-          testContext.assertNull(request.getJsonObject("body"));
+          testContext.assertEquals("localhost", request.getHost());
+          testContext.assertEquals(8080, request.getPort());
+          testContext.assertEquals(1, request.getParams().size());
+          testContext.assertEquals(1, request.getHeaders().size());
+          testContext.assertNull(request.getBody());
 
-          request = context.requests().getJsonObject(1);
-          testContext.assertEquals("localhost", request.getString("host"));
-          testContext.assertEquals(8081, request.getInteger("port"));
-          testContext.assertEquals(1, request.getJsonObject("params").size());
-          testContext.assertEquals(1, request.getJsonObject("headers").size());
-          testContext.assertNull(request.getJsonObject("body"));
+          request = (HttpRpcRequest) context.requests().get(1);
+          testContext.assertEquals("localhost", request.getHost());
+          testContext.assertEquals(8081, request.getPort());
+          testContext.assertEquals(1, request.getParams().size());
+          testContext.assertEquals(1, request.getHeaders().size());
+          testContext.assertNull(request.getBody());
 
           testContext.assertEquals(1, context.actions().size());
           async.complete();
@@ -151,7 +153,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
 //      doFilter(task, filters)
 //          .andThen(context -> {
 //            JsonObject request = context.requests().getJsonObject(0);
-//            group.put(request.getInteger("port"), request);
+//            group.put(request.getPort(), request);
 //            async.complete();
 //          }).onFailure(t -> testContext.fail());
 //    }

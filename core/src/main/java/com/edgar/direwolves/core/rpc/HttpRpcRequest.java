@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -16,7 +15,7 @@ import io.vertx.core.json.JsonObject;
  */
 public class HttpRpcRequest implements RpcRequest {
 
-  private final Multimap<String, String> header = ArrayListMultimap.create();
+  private final Multimap<String, String> headers = ArrayListMultimap.create();
 
   private final Multimap<String, String> params = ArrayListMultimap.create();
 
@@ -69,7 +68,7 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.setTimeout(timeout);
     copyReq.setBody(getBody());
     copyReq.addParams(getParams());
-    copyReq.addHeaders(getHeader());
+    copyReq.addHeaders(getHeaders());
     return copyReq;
   }
 
@@ -151,17 +150,27 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public Multimap<String, String> getHeader() {
-    return ImmutableMultimap.copyOf(header);
+  public HttpRpcRequest clearParams() {
+    this.params.clear();
+    return this;
+  }
+
+  public HttpRpcRequest clearHeaders() {
+    this.headers.clear();
+    return this;
+  }
+
+  public Multimap<String, String> getHeaders() {
+    return ImmutableMultimap.copyOf(headers);
   }
 
   public HttpRpcRequest addHeader(String name, String value) {
-    this.header.put(name, value);
+    this.headers.put(name, value);
     return this;
   }
 
   public HttpRpcRequest addHeaders(Multimap<String, String> header) {
-    this.header.putAll(header);
+    this.headers.putAll(header);
     return this;
   }
 
@@ -172,16 +181,16 @@ public class HttpRpcRequest implements RpcRequest {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("HttpRpcRequest")
-            .add("id", id)
-            .add("name", name)
-            .add("host", host)
-            .add("port", port)
-            .add("method", httpMethod)
-            .add("path", path)
-            .add("timeout", timeout)
-            .add("header", header)
-            .add("params", params)
-            .add("body", body == null ? null : body.encode())
-            .toString();
+        .add("id", id)
+        .add("name", name)
+        .add("host", host)
+        .add("port", port)
+        .add("method", httpMethod)
+        .add("path", path)
+        .add("timeout", timeout)
+        .add("headers", headers)
+        .add("params", params)
+        .add("body", body == null ? null : body.encode())
+        .toString();
   }
 }
