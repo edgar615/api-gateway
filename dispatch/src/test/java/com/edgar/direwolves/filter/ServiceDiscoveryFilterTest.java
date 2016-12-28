@@ -71,8 +71,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
 
-    filter = null;//new ServiceDiscoveryFilter();
-    filter.config(vertx, config);
+    filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);
 
     filters.clear();
     filters.add(filter);
@@ -85,7 +84,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
   }
 
   @Test
-  public void testEndpointToRequest(TestContext testContext) {
+  public void singleEndpointShouldReturnSingleRequest(TestContext testContext) {
     add2Servers();
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -96,8 +95,8 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(1, request.getParams().size());
-          testContext.assertEquals(1, request.getHeaders().size());
+          testContext.assertEquals(1, request.getParams().keySet().size());
+          testContext.assertEquals(1, request.getHeaders().keySet().size());
           testContext.assertNull(request.getBody());
           testContext.assertEquals(1, context.actions().size());
           async.complete();
@@ -105,7 +104,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
   }
 
   @Test
-  public void testEndpointToRequest2(TestContext testContext) {
+  public void twoEndpointShouldReturnSingleRequest(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
@@ -125,15 +124,15 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(1, request.getParams().size());
-          testContext.assertEquals(1, request.getHeaders().size());
+          testContext.assertEquals(1, request.getParams().keySet().size());
+          testContext.assertEquals(1, request.getHeaders().keySet().size());
           testContext.assertNull(request.getBody());
 
           request = (HttpRpcRequest) context.requests().get(1);
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8081, request.getPort());
-          testContext.assertEquals(1, request.getParams().size());
-          testContext.assertEquals(1, request.getHeaders().size());
+          testContext.assertEquals(1, request.getParams().keySet().size());
+          testContext.assertEquals(1, request.getHeaders().keySet().size());
           testContext.assertNull(request.getBody());
 
           testContext.assertEquals(1, context.actions().size());
