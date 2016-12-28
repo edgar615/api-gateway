@@ -96,7 +96,8 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
           testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(1, request.getHeaders().keySet().size());
+          testContext.assertEquals(2, request.getHeaders().keySet().size());
+          testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
           testContext.assertNull(request.getBody());
           testContext.assertEquals(1, context.actions().size());
           async.complete();
@@ -104,7 +105,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
   }
 
   @Test
-  public void twoEndpointShouldReturnSingleRequest(TestContext testContext) {
+  public void twoEndpointShouldReturnTwoRequest(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
@@ -125,14 +126,16 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
           testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(1, request.getHeaders().keySet().size());
+          testContext.assertEquals(2, request.getHeaders().keySet().size());
+          testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
           testContext.assertNull(request.getBody());
 
           request = (HttpRpcRequest) context.requests().get(1);
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8081, request.getPort());
           testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(1, request.getHeaders().keySet().size());
+          testContext.assertEquals(2, request.getHeaders().keySet().size());
+          testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
           testContext.assertNull(request.getBody());
 
           testContext.assertEquals(1, context.actions().size());

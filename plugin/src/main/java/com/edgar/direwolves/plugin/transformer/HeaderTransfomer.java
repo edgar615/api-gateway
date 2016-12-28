@@ -9,10 +9,6 @@ import java.util.Map;
  * @author Edgar  Date 2016/10/18
  */
 public interface HeaderTransfomer {
-  /**
-   * @return header的替换规则
-   */
-  List<Map.Entry<String, String>> headerReplaced();
 
   /**
    * @return header的新增规则
@@ -32,15 +28,6 @@ public interface HeaderTransfomer {
    * @return
    */
   HeaderTransfomer addHeader(String key, String value);
-
-  /**
-   * 替换一个header,只有当header存在时才替换;
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HeaderTransfomer replaceHeader(String key, String value);
 
   /**
    * 删除一个header

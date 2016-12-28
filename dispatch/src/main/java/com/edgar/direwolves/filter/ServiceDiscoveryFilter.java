@@ -30,6 +30,11 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private RecordSelect recordSelect = RecordSelect.create();
 
+  ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
+    this.vertx = vertx;
+    recordSelect.config(vertx, config);
+  }
+
   @Override
   public String type() {
     return PRE;
@@ -49,25 +54,20 @@ public class ServiceDiscoveryFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     List<Future<Record>> futures = new ArrayList<>();
     apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof HttpEndpoint)
-            .map(e -> ((HttpEndpoint) e).service())
-            .collect(Collectors.toSet())
-            .forEach(s -> futures.add(serviceFuture(s)));
+        .filter(e -> e instanceof HttpEndpoint)
+        .map(e -> ((HttpEndpoint) e).service())
+        .collect(Collectors.toSet())
+        .forEach(s -> futures.add(serviceFuture(s)));
 
     Task.par(futures)
-            .andThen(records -> {
-              apiContext.apiDefinition().endpoints().stream()
-                      .filter(e -> e instanceof HttpEndpoint)
-                      .map(e -> toRpc(apiContext, (HttpEndpoint) e, records))
-                      .forEach(req -> apiContext.addRequest(req));
-            })
-            .andThen(records -> completeFuture.complete(apiContext))
-            .onFailure(throwable -> completeFuture.fail(throwable));
-  }
-
-  ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    recordSelect.config(vertx, config);
+        .andThen(records -> {
+          apiContext.apiDefinition().endpoints().stream()
+              .filter(e -> e instanceof HttpEndpoint)
+              .map(e -> toRpc(apiContext, (HttpEndpoint) e, records))
+              .forEach(req -> apiContext.addRequest(req));
+        })
+        .andThen(records -> completeFuture.complete(apiContext))
+        .onFailure(throwable -> completeFuture.fail(throwable));
   }
 
   private Future<Record> serviceFuture(String service) {
@@ -92,15 +92,16 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private RpcRequest toRpc(ApiContext apiContext, HttpEndpoint endpoint, List<Record> records) {
     HttpRpcRequest httpRpcRequest =
-            HttpRpcRequest.create(UUID.randomUUID().toString(), endpoint.name());
+        HttpRpcRequest.create(UUID.randomUUID().toString(), endpoint.name());
     httpRpcRequest.setPath(endpoint.path());
     httpRpcRequest.setHttpMethod(endpoint.method());
     httpRpcRequest.addParams(apiContext.params());
     httpRpcRequest.addHeaders(apiContext.headers());
+    httpRpcRequest.addHeader("x-request-id", httpRpcRequest.getId());
     httpRpcRequest.setBody(apiContext.body());
     List<Record> recordList = records.stream()
-            .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
-            .collect(Collectors.toList());
+        .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
+        .collect(Collectors.toList());
     if (recordList.isEmpty()) {
       throw SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
     }

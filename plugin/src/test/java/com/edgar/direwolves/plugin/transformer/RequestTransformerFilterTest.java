@@ -73,8 +73,8 @@ public class RequestTransformerFilterTest {
             .setPort(8080)
             .setHttpMethod(HttpMethod.POST)
             .setPath("/")
-            .addParam("q3", "v3")
-            .addHeader("h3", "v3");
+            .addParam("q3", "q3")
+            .addHeader("h3", "h3");
     apiContext.addRequest(httpRpcRequest);
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -87,14 +87,17 @@ public class RequestTransformerFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.getHost());
               testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(4, request.getParams().size());
-              testContext.assertEquals(4, request.getHeaders().size());
+              testContext.assertEquals(4, request.getParams().keySet().size());
+              testContext.assertEquals(4, request.getHeaders().keySet().size());
               testContext.assertFalse(request.getParams().containsKey("q3"));
               testContext.assertFalse(request.getHeaders().containsKey("h3"));
               testContext.assertNull(request.getBody());
               System.out.println(request);
               async.complete();
-            }).onFailure(t -> testContext.fail());
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
   }
 
   @Test
@@ -213,20 +216,14 @@ public class RequestTransformerFilterTest {
     transformer.removeHeader("h4");
     transformer.removeParam("q3");
     transformer.removeParam("q4");
-    transformer.removeBody("p3");
-    transformer.removeBody("p4");
-    transformer.replaceHeader("h5", "v2");
-    transformer.replaceHeader("h6", "v1");
-    transformer.replaceParam("q5", "v2");
-    transformer.replaceParam("q6", "v1");
-    transformer.replaceBody("p5", "v2");
-    transformer.replaceBody("p6", "v1");
-    transformer.addHeader("h2", "v1");
-    transformer.addHeader("h1", "v2");
-    transformer.addParam("q1", "v2");
-    transformer.addParam("q2", "v1");
-    transformer.addBody("q1", "v2");
-    transformer.addBody("q2", "v1");
+    transformer.removeBody("b3");
+    transformer.removeBody("b4");
+    transformer.addHeader("h2", "h2");
+    transformer.addHeader("h1", "h1");
+    transformer.addParam("q1", "q1");
+    transformer.addParam("q2", "q2");
+    transformer.addBody("b1", "b1");
+    transformer.addBody("b2", "b2");
     return transformer;
   }
 

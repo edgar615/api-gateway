@@ -23,8 +23,6 @@ public class ResponseTransformerPluginTest {
         .decode(new JsonObject().put("response_transformer", request));
     Assert.assertEquals(2, plugin.headerRemoved().size());
     Assert.assertEquals(2, plugin.bodyRemoved().size());
-    Assert.assertEquals(2, plugin.headerReplaced().size());
-    Assert.assertEquals(2, plugin.bodyReplaced().size());
     Assert.assertEquals(2, plugin.headerAdded().size());
     Assert.assertEquals(2, plugin.bodyAdded().size());
   }
@@ -38,11 +36,6 @@ public class ResponseTransformerPluginTest {
     transformer.addBody("p2", "v2");
     transformer.addHeader("h1", "v1");
     transformer.addHeader("h2", "v2");
-
-    transformer.replaceBody("p3", "v3");
-    transformer.replaceBody("p4", "v4");
-    transformer.replaceHeader("h3", "v3");
-    transformer.replaceHeader("h4", "v4");
 
     transformer.removeBody("p5");
     transformer.removeBody("p6");

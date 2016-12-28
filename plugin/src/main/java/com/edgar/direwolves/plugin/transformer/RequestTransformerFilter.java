@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
@@ -81,45 +82,42 @@ public class RequestTransformerFilter implements Filter {
 
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
-      tranformerParams(request.getParams(), transformer);
-      tranformerHeaders(request.getHeaders(), transformer);
+      Multimap<String, String> params =  tranformerParams(request.getParams(), transformer);
+      request.clearParams().addParams(params);
+      Multimap<String, String> headers =tranformerHeaders(request.getHeaders(), transformer);
+      request.clearHeaders().addHeaders(headers);
       if (request.getBody() != null) {
-        tranformerBody(request.getBody(), transformer);
+        JsonObject body = tranformerBody(request.getBody(), transformer);
+        request.setBody(body);
       }
     }
   }
 
-  private void tranformerParams(Multimap params,
-                                RequestTransformer transformer) {
-    transformer.paramRemoved().forEach(p -> params.removeAll(p));
-//    transformer.paramReplaced().forEach(entry -> params.put(entry.getKey(), entry.getValue()));
-//    transformer.paramAdded().forEach(entry -> params.put(entry.getKey(), entry.getValue()));
+  private Multimap<String, String> tranformerParams(Multimap<String, String> params,
+                                                    RequestTransformer transformer) {
+    Multimap<String, String> newParams = ArrayListMultimap.create(params);
+    transformer.paramRemoved().forEach(h -> newParams.removeAll(h));
     transformer.paramAdded().forEach(
-            entry -> params.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+        entry -> newParams.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+    return newParams;
   }
 
-  private void tranformerHeaders(Multimap headers,
-                                 RequestTransformer transformer) {
-    transformer.headerRemoved().forEach(h -> headers.removeAll(h));
+  private Multimap<String, String> tranformerHeaders(Multimap<String, String> headers,
+                                                     RequestTransformer transformer) {
+    Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
+    transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
     transformer.headerAdded().forEach(
-            entry -> headers.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
-//    transformer.headerAdded().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
+        entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+    return newHeader;
   }
 
-  private void tranformerBody(final JsonObject body,
-                              RequestTransformer transformer) {
-    if (body != null) {
-      transformer.bodyRemoved().forEach(b -> body.remove(b));
-    }
-//    //replace
-//    if (body != null) {
-//      transformer.bodyReplaced().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
-//    }
-
-    //add
-    if (body != null) {
-      transformer.bodyAdded().forEach(entry -> body.put(entry.getKey(), entry.getValue()));
-    }
+  private JsonObject tranformerBody(final JsonObject body,
+                                    RequestTransformer transformer) {
+    JsonObject newBody = body.copy();
+    transformer.bodyRemoved().forEach(b -> newBody.remove(b));
+    transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
+    return newBody;
   }
+
 
 }

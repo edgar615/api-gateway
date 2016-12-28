@@ -112,7 +112,6 @@ public class ResponseTransformerFilter implements Filter {
                                     ResponseTransformerPlugin transformer) {
     JsonObject newBody = body.copy();
     transformer.bodyRemoved().forEach(b -> newBody.remove(b));
-    transformer.bodyReplaced().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
     transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
     return newBody;
   }

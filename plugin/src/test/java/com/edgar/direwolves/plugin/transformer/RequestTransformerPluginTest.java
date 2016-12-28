@@ -32,9 +32,6 @@ public class RequestTransformerPluginTest {
     Assert.assertEquals(2, transformer.headerRemoved().size());
     Assert.assertEquals(2, transformer.paramRemoved().size());
     Assert.assertEquals(2, transformer.bodyRemoved().size());
-    Assert.assertEquals(2, transformer.headerReplaced().size());
-    Assert.assertEquals(2, transformer.paramReplaced().size());
-    Assert.assertEquals(2, transformer.bodyReplaced().size());
     Assert.assertEquals(2, transformer.headerAdded().size());
     Assert.assertEquals(2, transformer.paramAdded().size());
     Assert.assertEquals(2, transformer.bodyAdded().size());
@@ -51,13 +48,6 @@ public class RequestTransformerPluginTest {
     transformer.addHeader("h2", "v2");
     transformer.addParam("q1", "v1");
     transformer.addParam("q2", "v2");
-
-    transformer.replaceBody("p3", "v3");
-    transformer.replaceBody("p4", "v4");
-    transformer.replaceHeader("h3", "v3");
-    transformer.replaceHeader("h4", "v4");
-    transformer.replaceParam("q3", "v3");
-    transformer.replaceParam("q4", "v4");
 
     transformer.removeBody("p5");
     transformer.removeBody("p6");
@@ -84,13 +74,6 @@ public class RequestTransformerPluginTest {
     transformer.addParam("q1", "v1");
     transformer.addParam("q2", "v2");
 
-    transformer.replaceBody("p3", "v3");
-    transformer.replaceBody("p4", "v4");
-    transformer.replaceHeader("h3", "v3");
-    transformer.replaceHeader("h4", "v4");
-    transformer.replaceParam("q3", "v3");
-    transformer.replaceParam("q4", "v4");
-
     transformer.removeBody("p5");
     transformer.removeBody("p6");
     transformer.removeHeader("h5");
@@ -107,13 +90,6 @@ public class RequestTransformerPluginTest {
     transformer.addHeader("h2", "v2");
     transformer.addParam("q1", "v1");
     transformer.addParam("q2", "v2");
-
-    transformer.replaceBody("p3", "v3");
-    transformer.replaceBody("p4", "v4");
-    transformer.replaceHeader("h3", "v3");
-    transformer.replaceHeader("h4", "v4");
-    transformer.replaceParam("q3", "v3");
-    transformer.replaceParam("q4", "v4");
 
     transformer.removeBody("p5");
     transformer.removeBody("p6");
@@ -141,13 +117,6 @@ public class RequestTransformerPluginTest {
     transformer.addHeader("h2", "v2");
     transformer.addParam("q1", "v1");
     transformer.addParam("q2", "v2");
-
-    transformer.replaceBody("p3", "v3");
-    transformer.replaceBody("p4", "v4");
-    transformer.replaceHeader("h3", "v3");
-    transformer.replaceHeader("h4", "v4");
-    transformer.replaceParam("q3", "v3");
-    transformer.replaceParam("q4", "v4");
 
     transformer.removeBody("p5");
     transformer.removeBody("p6");

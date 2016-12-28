@@ -8,6 +8,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -61,16 +62,12 @@ public class ResponseTranformerFilterTest {
         .create(ResponseTransformerPlugin.class.getSimpleName());
     plugin.removeHeader("h3");
     plugin.removeHeader("h4");
-    plugin.removeBody("p3");
-    plugin.removeBody("p4");
-    plugin.replaceHeader("h5", "v2");
-    plugin.replaceHeader("h6", "v1");
-    plugin.replaceBody("p5", "v2");
-    plugin.replaceBody("p6", "v1");
-    plugin.addHeader("h2", "v1");
-    plugin.addHeader("h1", "v2");
-    plugin.addBody("q1", "v2");
-    plugin.addBody("q2", "v1");
+    plugin.removeBody("b3");
+    plugin.removeBody("b4");
+    plugin.addHeader("h2", "h2");
+    plugin.addHeader("h1", "h1");
+    plugin.addBody("b1", "b1");
+    plugin.addBody("b2", "b2");
     apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
@@ -81,7 +78,7 @@ public class ResponseTranformerFilterTest {
     definition.addPlugin(plugin);
     apiContext.setApiDefinition(definition);
     apiContext.setResult(Result.createJsonObject(
-        200, new JsonObject().put("foo", "bar"), null));
+        200, new JsonObject().put("foo", "bar").put("b3", "b3"), ImmutableMultimap.of("h3", "h3")));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -89,8 +86,8 @@ public class ResponseTranformerFilterTest {
     Filters.doFilter(task, filters)
         .andThen(context -> {
           Result result = context.result();
-          testContext.assertEquals(4, result.header().size());
-          testContext.assertEquals(5, result.responseObject().size());
+          testContext.assertEquals(2, result.header().keys().size());
+          testContext.assertEquals(3, result.responseObject().size());
           async.complete();
         }).onFailure(t -> {
       t.printStackTrace();

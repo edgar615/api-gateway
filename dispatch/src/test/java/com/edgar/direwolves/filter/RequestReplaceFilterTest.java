@@ -3,7 +3,6 @@ package com.edgar.direwolves.filter;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.HttpRpcRequest;
-import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -31,7 +30,6 @@ import java.util.UUID;
 public class RequestReplaceFilterTest extends FilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
-  RequestReplaceFilter filter;
 
   private Vertx vertx;
 
@@ -39,11 +37,7 @@ public class RequestReplaceFilterTest extends FilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = new RequestReplaceFilter();
-    filter.config(vertx, new JsonObject());
-
     filters.clear();
-    filters.add(filter);
   }
 
   @After
@@ -51,27 +45,22 @@ public class RequestReplaceFilterTest extends FilterTest {
     vertx.close(testContext.asyncAssertSuccess());
   }
 
+
   @Test
-  public void testEndpointToRequest(TestContext testContext) {
+  public void testReplaceParams(TestContext testContext) {
     Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("foo", "query_bar");
-    params.put("q7", "$header.h3");
-    params.put("q8", "$var.foo");
-    params.put("q9", "$body.type");
-    params.put("q10", "$user.userId");
+    params.put("foo", "bar");
+    params.put("q1", "$header.h1");
+    params.put("q2", "$var.foo");
+    params.put("q3", "$body.type");
+    params.put("q4", "$user.userId");
+    params.put("q5", "$var.bar");
+
     Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-    headers.put("h7", "$user.userId");
-    headers.put("h8", "$query.foo");
-    headers.put("h9", "$var.foo");
-    headers.put("h10", "$body.type");
+    headers.put("h1", "h1");
 
     JsonObject jsonObject = new JsonObject()
-        .put("type", 1)
-        .put("p7", "$header.h3")
-        .put("p8", "$var.foo")
-        .put("p9", "$query.foo")
-        .put("p10", "$user.userId");
+        .put("type", 1);
 
     ApiContext apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
@@ -82,11 +71,19 @@ public class RequestReplaceFilterTest extends FilterTest {
         .setPort(8080)
         .setHttpMethod(HttpMethod.POST)
         .setPath("/")
-        .addParam("q3", "v3")
-        .addHeader("h3", "v3");
+        .addParam("q1", "$header.h1")
+        .addParam("q2", "$var.foo")
+        .addParam("q3", "$body.type")
+        .addParam("q4", "$user.userId")
+        .addParam("q5", "$var.bar")
+        .addParam("q6", "bar");
     apiContext.addRequest(httpRpcRequest);
 
     apiContext.addVariable("foo", "var_bar");
+    apiContext.setPrincipal(new JsonObject().put("userId", 1));
+
+    Filter filter = Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -97,24 +94,12 @@ public class RequestReplaceFilterTest extends FilterTest {
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(4, request.getParams());
-          testContext.assertEquals(1, request.getParams().get("q7").size());
-          testContext.assertEquals("var_bar", request.getParams().get("q8").iterator().next());
-          testContext.assertEquals(1, request.getParams().get("q9").iterator().next());
-          testContext.assertNull(request.getParams().get("q10"));
+          testContext.assertEquals(5, request.getParams().keys().size());
+          testContext.assertEquals("var_bar", request.getParams().get("q2").iterator().next());
+          testContext.assertEquals("1", request.getParams().get("q3").iterator().next());
+          testContext.assertEquals("1", request.getParams().get("q4").iterator().next());
+          testContext.assertTrue(request.getParams().get("q5").isEmpty());
 
-          testContext.assertEquals(4, request.getHeaders().size());
-          testContext.assertFalse(request.getHeaders().containsKey("h7"));
-          testContext.assertEquals("var_bar", request.getHeaders().get("h9").iterator().next());
-          testContext.assertEquals("query_bar", request.getHeaders().get("h8").iterator().next());
-          testContext.assertEquals(1, request.getHeaders().get("h10").iterator().next());
-
-          testContext.assertNotNull(request.getBody());
-          testContext.assertEquals(4, request.getBody().size());
-          testContext.assertEquals(2, request.getBody().getJsonArray("p7").size());
-          testContext.assertEquals("1", request.getBody().getString("p10"));
-          testContext.assertEquals("var_bar", request.getBody().getString("p8"));
-          testContext.assertEquals("query_bar", request.getBody().getString("p9"));
           async.complete();
         }).onFailure(t -> {
       t.printStackTrace();
@@ -122,6 +107,129 @@ public class RequestReplaceFilterTest extends FilterTest {
     });
 
   }
+
+  @Test
+  public void testReplaceHeader(TestContext testContext) {
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("foo", "bar");
+    headers.put("h1", "$query.q1");
+    headers.put("h2", "$var.foo");
+    headers.put("h3", "$body.type");
+    headers.put("h4", "$user.userId");
+    headers.put("h5", "$var.bar");
+
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("q1", "q1");
+
+    JsonObject jsonObject = new JsonObject()
+        .put("type", 1);
+
+    ApiContext apiContext =
+        ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+        "add_device")
+        .setHost("localhost")
+        .setPort(8080)
+        .setHttpMethod(HttpMethod.POST)
+        .setPath("/")
+        .addHeader("h1", "$query.q1")
+        .addHeader("h2", "$var.foo")
+        .addHeader("h3", "$body.type")
+        .addHeader("h4", "$user.userId")
+        .addHeader("h5", "$var.bar")
+        .addHeader("h6", "bar");
+    apiContext.addRequest(httpRpcRequest);
+
+    apiContext.addVariable("foo", "var_bar");
+    apiContext.setPrincipal(new JsonObject().put("userId", 1));
+
+    Filter filter = Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> {
+          testContext.assertEquals(1, context.requests().size());
+          HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+          testContext.assertEquals("localhost", request.getHost());
+          testContext.assertEquals(8080, request.getPort());
+          testContext.assertEquals(5, request.getHeaders().keys().size());
+          testContext.assertEquals("q1", request.getHeaders().get("h1").iterator().next());
+          testContext.assertEquals("var_bar", request.getHeaders().get("h2").iterator().next());
+          testContext.assertEquals("1", request.getHeaders().get("h3").iterator().next());
+          testContext.assertEquals("1", request.getHeaders().get("h4").iterator().next());
+          testContext.assertTrue(request.getHeaders().get("h5").isEmpty());
+
+          async.complete();
+        }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
+  @Test
+  public void testReplaceBody(TestContext testContext) {
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("h1", "h1");
+
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("q1", "q1");
+
+    JsonObject jsonObject = new JsonObject()
+        .put("type", 1);
+
+    ApiContext apiContext =
+        ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+        "add_device")
+        .setHost("localhost")
+        .setPort(8080)
+        .setHttpMethod(HttpMethod.POST)
+        .setPath("/")
+        .setBody(new JsonObject()
+            .put("b1", "$header.h1")
+            .put("b2", "$query.q1")
+            .put("b3", "$var.foo")
+            .put("b4", "$user.userId")
+            .put("b5", "$var.bar")
+            .put("b6", "bar"));
+    apiContext.addRequest(httpRpcRequest);
+
+    apiContext.addVariable("foo", "var_bar");
+    apiContext.setPrincipal(new JsonObject().put("userId", 1));
+
+    Filter filter = Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> {
+          testContext.assertEquals(1, context.requests().size());
+          HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+          testContext.assertEquals("localhost", request.getHost());
+          testContext.assertEquals(8080, request.getPort());
+          testContext.assertEquals(5, request.getBody().size());
+          testContext.assertEquals("h1", request.getBody().getString("b1"));
+          testContext.assertEquals("q1", request.getBody().getString("b2"));
+          testContext.assertEquals("var_bar", request.getBody().getString("b3"));
+          testContext.assertEquals(1, request.getBody().getInteger("b4"));
+          testContext.assertFalse(request.getBody().containsKey("b5"));
+
+          async.complete();
+        }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
 
 
 }

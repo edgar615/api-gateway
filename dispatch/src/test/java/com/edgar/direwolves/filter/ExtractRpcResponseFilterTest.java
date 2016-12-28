@@ -52,7 +52,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
 
 
   @Test
-  public void singleValueShouldAlwaysReturnTheValue(TestContext testContext) {
+  public void singleJsonObjectShouldAlwaysReturnTheJsonObject(TestContext testContext) {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
@@ -73,7 +73,28 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
   }
 
   @Test
-  public void twoSucceedResponseShouldReturnAnJsonObject(TestContext testContext) {
+  public void singleJsonArrayShouldAlwaysReturnTheJsonArray(TestContext testContext) {
+
+    ApiContext apiContext =
+        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+    RpcResponse rpcResponse = RpcResponse
+        .createJsonArray("1", 200, new JsonArray().add(1).add(2), 0);
+
+    apiContext.addResponse(rpcResponse);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    doFilter(task, filters)
+        .andThen(context -> {
+          Result result = context.result();
+          testContext.assertEquals(2, result.responseArray().size());
+          async.complete();
+        }).onFailure(t -> testContext.fail());
+  }
+
+  @Test
+  public void twoSucceedResponseShouldReturnJsonObject(TestContext testContext) {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
@@ -103,7 +124,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
   }
 
   @Test
-  public void testOneFailedValue(TestContext testContext) {
+  public void onceFailedResponseShouldReturnTheFailedJsonObject(TestContext testContext) {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
@@ -129,7 +150,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
   }
 
   @Test
-  public void testTwoFailedValue(TestContext testContext) {
+  public void twoFailedResponseShouldReturnTheFirstFailedJsonObject(TestContext testContext) {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
@@ -149,7 +170,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
             .andThen(context -> {
               Result result = context.result();
               testContext.assertEquals(1, result.responseObject().size());
-              testContext.assertEquals("foo", result.responseObject().getString("bar"));
+              testContext.assertEquals("bar", result.responseObject().getString("foo"));
               async.complete();
             }).onFailure(t -> testContext.fail());
   }
