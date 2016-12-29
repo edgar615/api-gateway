@@ -96,7 +96,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
           testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(2, request.getHeaders().keySet().size());
+          testContext.assertEquals(1, request.getHeaders().keySet().size());
           testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
           testContext.assertNull(request.getBody());
           testContext.assertEquals(1, context.actions().size());
@@ -126,7 +126,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8080, request.getPort());
           testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(2, request.getHeaders().keySet().size());
+          testContext.assertEquals(1, request.getHeaders().keySet().size());
           testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
           testContext.assertNull(request.getBody());
 
@@ -134,7 +134,7 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
           testContext.assertEquals("localhost", request.getHost());
           testContext.assertEquals(8081, request.getPort());
           testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(2, request.getHeaders().keySet().size());
+          testContext.assertEquals(1, request.getHeaders().keySet().size());
           testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
           testContext.assertNull(request.getBody());
 

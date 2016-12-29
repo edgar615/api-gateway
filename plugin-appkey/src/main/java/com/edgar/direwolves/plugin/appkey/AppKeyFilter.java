@@ -1,5 +1,10 @@
 package com.edgar.direwolves.plugin.appkey;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -8,10 +13,6 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -29,7 +30,7 @@ import java.util.List;
  *   app_key.code : app编码，默认值0
  *   app_key.scope : app接口范围,默认值default
  * </pre>
- * <p/>
+ * <p>
  * 如果开启了这个过滤器，那么对API的调用必须包含下列参数，如果缺少任意一个，服务端会认为是非法请求。
  * <pre>
  *   appKey	应用key	string	是	服务端每个第三方应用分配的appKey
@@ -40,7 +41,7 @@ import java.util.List;
  * </pre>
  * 默认没有任何appKey，可以通过app_key.secret的配置项来指定appKey，该配置项接收[ { "key" : "1", "secret" : "2", "code" :
  * 0, "scope" : "all" } ]格式的JSON数组
- * <p/>
+ * <p>
  * 签名生成的通用步骤如下：
  * 第一步，设所有发送或者接收到的数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序），使用URL键值对的格式（即key1=value1&key2=value2
  * …）拼接成字符串stringA，如果请求带请求体，将请求体中的JSON对象转换为字符串之后按照body=JSON的格式加入到URL键值中，拼接成字符串stringA。
@@ -90,14 +91,12 @@ import java.util.List;
  * A61C44F04361DE0530F4EF2E363C4A45
  *
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class AppKeyFilter implements Filter {
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
-
-  private Vertx vertx;
 
   private final String namespace;
 
@@ -108,6 +107,8 @@ public class AppKeyFilter implements Filter {
   private final String codeKey;
 
   private final String permissionsKey;
+
+  private Vertx vertx;
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -169,13 +170,18 @@ public class AppKeyFilter implements Filter {
         if (!clientSignValue.equals(serverSignValue)) {
           completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
         } else {
-//          apiContext.params().removeAll("sign");
-//          apiContext.params().removeAll("signMethod");
-//          apiContext.params().removeAll("v");
-//          apiContext.params().removeAll("appKey");
-          apiContext.addVariable("app.code", app.getInteger(codeKey, 0));
-          apiContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
-          completeFuture.complete(apiContext);
+          Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
+          newParams.removeAll("sign");
+          newParams.removeAll("signMethod");
+          newParams.removeAll("v");
+          newParams.removeAll("appKey");
+          ApiContext newContext = ApiContext.create(apiContext.method(), apiContext.path(),
+                                                    apiContext.headers(), newParams, apiContext.body
+                          ());
+          ApiContext.copyProperites(apiContext, newContext);
+          newContext.addVariable("app.code", app.getInteger(codeKey, 0));
+          newContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
+          completeFuture.complete(newContext);
         }
 
       } else {

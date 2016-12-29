@@ -172,7 +172,7 @@ public class AppKeyFilterTest {
   }
 
   @Test
-  public void testSingWithoutBody(TestContext testContext) {
+  public void testSignWithoutBody(TestContext testContext) {
 
     cacheProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
         .put(secretKey, appSecret)
@@ -204,7 +204,10 @@ public class AppKeyFilterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
         .andThen(context -> {
-          testContext.assertTrue(context.params().containsKey("sign"));
+          testContext.assertFalse(context.params().containsKey("sign"));
+          testContext.assertFalse(context.params().containsKey("signMethod"));
+          testContext.assertFalse(context.params().containsKey("v"));
+          testContext.assertFalse(context.params().containsKey("appKey"));
           async.complete();
         })
         .onFailure(t -> {
@@ -215,7 +218,7 @@ public class AppKeyFilterTest {
   }
 
   @Test
-  public void testSingWithBody(TestContext testContext) {
+  public void testSignWithBody(TestContext testContext) {
 
     cacheProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
         .put(secretKey, appSecret)
@@ -252,7 +255,10 @@ public class AppKeyFilterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
         .andThen(context -> {
-          testContext.assertTrue(context.params().containsKey("sign"));
+          testContext.assertFalse(context.params().containsKey("sign"));
+          testContext.assertFalse(context.params().containsKey("signMethod"));
+          testContext.assertFalse(context.params().containsKey("v"));
+          testContext.assertFalse(context.params().containsKey("appKey"));
           async.complete();
         })
         .onFailure(t -> {

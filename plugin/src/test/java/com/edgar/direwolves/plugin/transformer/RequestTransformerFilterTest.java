@@ -87,8 +87,8 @@ public class RequestTransformerFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.getHost());
               testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(4, request.getParams().keySet().size());
-              testContext.assertEquals(4, request.getHeaders().keySet().size());
+              testContext.assertEquals(2, request.getParams().keySet().size());
+              testContext.assertEquals(2, request.getHeaders().keySet().size());
               testContext.assertFalse(request.getParams().containsKey("q3"));
               testContext.assertFalse(request.getHeaders().containsKey("h3"));
               testContext.assertNull(request.getBody());
@@ -139,8 +139,8 @@ public class RequestTransformerFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.getHost());
               testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(4, request.getParams().size());
-              testContext.assertEquals(4, request.getHeaders().size());
+              testContext.assertEquals(2, request.getParams().size());
+              testContext.assertEquals(2, request.getHeaders().size());
               testContext.assertFalse(request.getParams().containsKey("q3"));
               testContext.assertFalse(request.getHeaders().containsKey("h3"));
               testContext.assertNull(request.getBody());
@@ -150,8 +150,8 @@ public class RequestTransformerFilterTest {
               testContext.assertEquals(8080, request.getPort());
               testContext.assertEquals(1, request.getParams().size());
               testContext.assertEquals(1, request.getHeaders().size());
-              testContext.assertFalse(request.getParams().containsKey("q3"));
-              testContext.assertFalse(request.getHeaders().containsKey("h3"));
+              testContext.assertTrue(request.getParams().containsKey("q3"));
+              testContext.assertTrue(request.getHeaders().containsKey("h3"));
               testContext.assertNull(request.getBody());
               async.complete();
             }).onFailure(t -> testContext.fail());
@@ -173,7 +173,8 @@ public class RequestTransformerFilterTest {
             .setHttpMethod(HttpMethod.POST)
             .setPath("/")
             .addParam("q3", "v3")
-            .addHeader("h3", "v3");
+            .addHeader("h3", "v3")
+            .setBody(new JsonObject().put("b3", "b3"));
     apiContext.addRequest(httpRpcRequest);
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -182,18 +183,22 @@ public class RequestTransformerFilterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              testContext.assertEquals(21, context.requests().size());
+              testContext.assertEquals(1, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.getHost());
               testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(4, request.getParams().size());
-              testContext.assertEquals(4, request.getHeaders().size());
+              testContext.assertEquals(2, request.getParams().size());
+              testContext.assertEquals(2, request.getHeaders().size());
               testContext.assertFalse(request.getParams().containsKey("q3"));
               testContext.assertFalse(request.getHeaders().containsKey("h3"));
-              testContext.assertEquals(4, request.getBody().size());
+              testContext.assertEquals(2, request.getBody().size());
+              testContext.assertFalse(request.getBody().containsKey("b3"));
               System.out.println(request);
               async.complete();
-            }).onFailure(t -> testContext.fail());
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
   }
 
   private void createApiContext() {

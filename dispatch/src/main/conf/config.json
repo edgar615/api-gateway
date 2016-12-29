@@ -30,6 +30,9 @@
   "jwt.permissionsClaimKey": "permissions",
   "jwt.user.unique": true,
   "timeout.expires": 300,
+  "strict_arg" : true,
+  "strict_arg.query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
+  "strict_arg.body.excludes" : [],
   "app_key.secret.import": {
     "url": "/secrets",
     "scan_period": 2000,

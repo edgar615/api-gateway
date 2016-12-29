@@ -96,7 +96,7 @@ public class ServiceDiscoveryFilter implements Filter {
     httpRpcRequest.setPath(endpoint.path());
     httpRpcRequest.setHttpMethod(endpoint.method());
     httpRpcRequest.addParams(apiContext.params());
-    httpRpcRequest.addHeaders(apiContext.headers());
+//    httpRpcRequest.addHeaders(apiContext.headers());
     httpRpcRequest.addHeader("x-request-id", httpRpcRequest.getId());
     httpRpcRequest.setBody(apiContext.body());
     List<Record> recordList = records.stream()
