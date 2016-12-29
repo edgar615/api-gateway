@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 

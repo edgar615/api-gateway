@@ -3,7 +3,7 @@ package com.edgar.direwolves.filter;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
-import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;

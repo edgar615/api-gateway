@@ -1,5 +1,6 @@
-package com.edgar.direwolves.core.rpc;
+package com.edgar.direwolves.core.rpc.http;
 
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;

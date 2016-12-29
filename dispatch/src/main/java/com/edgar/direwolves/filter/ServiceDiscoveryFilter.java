@@ -3,7 +3,7 @@ package com.edgar.direwolves.filter;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.rpc.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.filter.servicediscovery.RecordSelect;
 import com.edgar.util.exception.DefaultErrorCode;
