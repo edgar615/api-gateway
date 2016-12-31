@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * api请求的过滤器.
  * Created by edgar on 16-9-18.
  */
-public interface Filter extends Configurable {
+public interface Filter {
 
   List<FilterFactory> factories = ImmutableList.copyOf(ServiceLoader.load(FilterFactory.class));
   String PRE = "PRE";
