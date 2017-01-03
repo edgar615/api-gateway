@@ -4,8 +4,6 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 
@@ -14,7 +12,6 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/9/20
  */
-@RunWith(VertxUnitRunner.class)
 public class FilterTest {
 
   public Task<ApiContext> doFilter(Task<ApiContext> task, List<Filter> filters) {

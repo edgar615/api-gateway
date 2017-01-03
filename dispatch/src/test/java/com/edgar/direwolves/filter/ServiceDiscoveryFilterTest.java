@@ -186,28 +186,6 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
         });
   }
 
-  private void add2Servers2() {
-    mockConsulHttpVerticle.addService(new JsonObject()
-        .put("Node", "u221")
-        .put("Address", "10.4.7.221")
-        .put("ServiceID", "u221:device:8080")
-        .put("ServiceName", "device")
-        .put("ServiceTags", new JsonArray())
-        .put("ServicePort", 32769));
-    mockConsulHttpVerticle.addService((new JsonObject()
-        .put("Node", "u222")
-        .put("Address", "10.4.7.222")
-        .put("ServiceID", "u222:device:8080")
-        .put("ServiceName", "device")
-        .put("ServiceTags", new JsonArray())
-        .put("ServicePort", 32770)));
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
   private void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
         .put("Node", "u221")
@@ -216,13 +194,6 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
         .put("ServiceName", "device")
         .put("ServiceTags", new JsonArray())
         .put("ServicePort", 8080));
-//    mockConsulHttpVerticle.addService((new JsonObject()
-//        .put("Node", "u222")
-//        .put("Address", "localhost")
-//        .put("ServiceID", "u222:device:8080")
-//        .put("ServiceName", "device")
-//        .put("ServiceTags", new JsonArray())
-//        .put("ServicePort", 8000)));
     mockConsulHttpVerticle.addService((new JsonObject()
         .put("Node", "u222")
         .put("Address", "localhost")

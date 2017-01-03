@@ -5,6 +5,8 @@ import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -40,6 +42,21 @@ public class FailureHandler implements Handler<RoutingContext> {
       ex.set("details", vex.getErrorDetail().asMap());
       JsonObject jsonObject = new JsonObject(ex.asMap());
       response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+    } else if (throwable instanceof ReplyException) {
+      ReplyException ex = (ReplyException) throwable;
+      ReplyFailure replyFailure = ex.failureType();
+      JsonObject jsonObject = new JsonObject();
+      if (replyFailure == ReplyFailure.NO_HANDLERS) {
+          jsonObject.put("code", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getNumber())
+          .put("message", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getMessage());
+      } else if (replyFailure == ReplyFailure.TIMEOUT) {
+        jsonObject.put("code", DefaultErrorCode.EVENTBUS_TIMOUT.getNumber())
+                .put("message", DefaultErrorCode.EVENTBUS_TIMOUT.getMessage());
+      } else if (replyFailure == ReplyFailure.RECIPIENT_FAILURE) {
+        jsonObject.put("code", DefaultErrorCode.EVENTBUS_REJECTED.getNumber())
+                .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
+      }
+      response.setStatusCode(400).end(jsonObject.encode());
     } else {
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
           .set("exception", throwable.getMessage());

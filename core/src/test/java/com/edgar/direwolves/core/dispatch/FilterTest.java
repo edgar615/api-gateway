@@ -34,7 +34,6 @@ public class FilterTest {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
 
     MockFilter filter = new MockFilter();
-    filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();
     try {
@@ -51,7 +50,6 @@ public class FilterTest {
     apiContext.variables().put("test", true);
 
     MockFilter filter = new MockFilter();
-    filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();
     filter.doFilter(apiContext, future);
@@ -73,7 +71,6 @@ public class FilterTest {
     apiContext.variables().put("test", false);
 
     MockFilter filter = new MockFilter();
-    filter.config(vertx, new JsonObject());
 
     Future<ApiContext> future = Future.future();
     filter.doFilter(apiContext, future);

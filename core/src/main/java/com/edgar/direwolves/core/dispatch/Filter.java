@@ -33,10 +33,6 @@ public interface Filter {
     return list.get(0).create(vertx, config);
   }
 
-  default void config(Vertx vertx, JsonObject config) {
-
-  }
-
   /**
    * @return filter的类型 pre或者post
    */

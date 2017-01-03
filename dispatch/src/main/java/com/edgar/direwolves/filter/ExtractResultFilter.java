@@ -5,6 +5,8 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
@@ -38,7 +40,9 @@ public class ExtractResultFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     List<RpcResponse> results = apiContext.responses();
     Result result = null;
-    if (results.size() == 1) {
+    if (results.size() == 0) {
+      completeFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN));
+    } else if (results.size() == 1) {
       result = extractResult(results.get(0));
     } else {
       result = extractFailedResult(results);

@@ -65,20 +65,28 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-service-discovery-bridge-consul</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-definition</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>direwolves-http</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>direwolves-plugin</artifactId>
-            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.edgar</groupId>
+                    <artifactId>plugin</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.edgar</groupId>
+                    <artifactId>plugin-appkey</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.edgar</groupId>
+                    <artifactId>plugin-authentication</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

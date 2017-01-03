@@ -1,7 +1,11 @@
 package com.edgar.direwolves.filter.servicediscovery;
 
+import static org.awaitility.Awaitility.await;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -16,8 +20,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 /**
  * Created by Edgar on 2016/10/12.
@@ -35,7 +37,10 @@ public class ConsulRecordSelectTest {
   public void setup(TestContext testContext) {
     vertx = Vertx.vertx();
     mockConsulHttpVerticle = new MockConsulHttpVerticle();
-    vertx.deployVerticle(mockConsulHttpVerticle, testContext.asyncAssertSuccess());
+    vertx.deployVerticle(mockConsulHttpVerticle,
+                         new DeploymentOptions().setConfig(new JsonObject().put("consul.port",
+                                                                                7000)),
+                         testContext.asyncAssertSuccess());
   }
 
   @After
@@ -50,7 +55,7 @@ public class ConsulRecordSelectTest {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
-        .put("service.discovery", "consul://localhost:5601");
+            .put("service.discovery", "consul://localhost:7000");
     recordSelect.config(vertx, config);
     try {
       TimeUnit.SECONDS.sleep(3);
@@ -73,7 +78,7 @@ public class ConsulRecordSelectTest {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
-        .put("service.discovery", "consul://localhost:5601");
+            .put("service.discovery", "consul://localhost:7000");
     recordSelect.config(vertx, config);
 
     Multimap<Integer, Record> group = select100(recordSelect);
@@ -87,7 +92,7 @@ public class ConsulRecordSelectTest {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
-        .put("service.discovery", "consul://localhost:5601");
+            .put("service.discovery", "consul://localhost:7000");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
     strategy.put("device", "round_robin");
@@ -104,7 +109,7 @@ public class ConsulRecordSelectTest {
     add2Servers();
     RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
-        .put("service.discovery", "consul://localhost:5601");
+            .put("service.discovery", "consul://localhost:7000");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
     strategy.put("device", "random");
@@ -112,7 +117,7 @@ public class ConsulRecordSelectTest {
 
 
     Multimap<Integer, Record> group =
-        select100(recordSelect);
+            select100(recordSelect);
     await().until(() -> group.size() == 100);
     Assert.assertFalse(group.get(32769).size() == group.get(32770).size());
   }
@@ -143,19 +148,19 @@ public class ConsulRecordSelectTest {
 
   private void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
-        .put("Node", "u221")
-        .put("Address", "10.4.7.221")
-        .put("ServiceID", "u221:device:8080")
-        .put("ServiceName", "device")
-        .put("ServiceTags", new JsonArray())
-        .put("ServicePort", 32769));
+                                              .put("Node", "u221")
+                                              .put("Address", "10.4.7.221")
+                                              .put("ServiceID", "u221:device:8080")
+                                              .put("ServiceName", "device")
+                                              .put("ServiceTags", new JsonArray())
+                                              .put("ServicePort", 32769));
     mockConsulHttpVerticle.addService((new JsonObject()
-        .put("Node", "u222")
-        .put("Address", "10.4.7.222")
-        .put("ServiceID", "u222:device:8080")
-        .put("ServiceName", "device")
-        .put("ServiceTags", new JsonArray())
-        .put("ServicePort", 32770)));
+            .put("Node", "u222")
+            .put("Address", "10.4.7.222")
+            .put("ServiceID", "u222:device:8080")
+            .put("ServiceName", "device")
+            .put("ServiceTags", new JsonArray())
+            .put("ServicePort", 32770)));
   }
 
 }

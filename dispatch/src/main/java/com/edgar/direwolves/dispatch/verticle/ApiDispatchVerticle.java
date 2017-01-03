@@ -26,9 +26,10 @@ public class ApiDispatchVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) throws Exception {
 
     CacheProvider cacheProvider = CacheProvider.create(vertx, config());
-    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, config().getString("service.cache.address", "cache"));
+    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider,
+                                config().getString("service.cache.address", "cache"));
 
-    DispatchHandler dispatchHandler = new DispatchHandler(vertx, config());
+    DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 
     int port = config().getInteger("http.port", 8080);
 
@@ -40,16 +41,16 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
     //API拦截
     route.handler(dispatchHandler)
-        .failureHandler(FailureHandler.create());
+            .failureHandler(FailureHandler.create());
 
     vertx.createHttpServer()
-        .requestHandler(router::accept)
-        .listen(port, ar -> {
-          if (ar.succeeded()) {
-            startFuture.complete();
-          } else {
-            startFuture.fail(ar.cause());
-          }
-        });
+            .requestHandler(router::accept)
+            .listen(port, ar -> {
+              if (ar.succeeded()) {
+                startFuture.complete();
+              } else {
+                startFuture.fail(ar.cause());
+              }
+            });
   }
 }

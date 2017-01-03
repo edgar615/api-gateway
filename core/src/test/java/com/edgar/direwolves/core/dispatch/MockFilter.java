@@ -34,11 +34,6 @@ public class MockFilter implements Filter {
   }
 
   @Override
-  public void config(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-  }
-
-  @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return true;
   }

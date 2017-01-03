@@ -1,6 +1,5 @@
 package com.edgar.direwolves.core.spi;
 
-import com.edgar.direwolves.core.auth.AuthenticationStrategy;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 

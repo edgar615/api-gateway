@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -20,11 +20,6 @@ public class MockFilter1 implements Filter {
   @Override
   public int order() {
     return 0;
-  }
-
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
   }
 
   @Override
