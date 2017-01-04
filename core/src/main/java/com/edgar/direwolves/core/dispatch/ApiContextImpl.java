@@ -185,20 +185,4 @@ class ApiContextImpl implements ApiContext {
     return helper.toString();
   }
 
-  public ApiContext copy() {
-    ApiContext apiContext;
-    if (body() == null) {
-      apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), null);
-    } else {
-      apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), body().copy());
-    }
-
-    final ApiContext finalApiContext = apiContext;
-    ApiContext.copyProperites(this, finalApiContext);
-    return finalApiContext;
-  }
-
-
 }

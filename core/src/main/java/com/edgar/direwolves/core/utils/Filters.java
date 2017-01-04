@@ -5,6 +5,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,6 +14,18 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 public class Filters {
+
+  public static void sort(List<Filter> filters) {
+    Collections.sort(filters, (Filter o1, Filter o2) -> {
+      if (o1.order() < o2.order()) {
+        return -1;
+      }
+      if (o1.order() > o2.order()) {
+        return 1;
+      }
+      return 0;
+    });
+  }
 
   public static Task<ApiContext> doFilter(Task<ApiContext> task, List<Filter> filters) {
     for (Filter filter : filters) {

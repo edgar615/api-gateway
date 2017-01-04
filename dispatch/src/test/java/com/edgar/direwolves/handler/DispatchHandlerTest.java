@@ -17,7 +17,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,12 +35,12 @@ import java.util.concurrent.TimeUnit;
 @RunWith(VertxUnitRunner.class)
 public class DispatchHandlerTest {
 
-  Vertx vertx;
+  static Vertx vertx;
 
-  MockConsulHttpVerticle mockConsulHttpVerticle;
+  static MockConsulHttpVerticle mockConsulHttpVerticle;
 
-  @Before
-  public void setUp(TestContext testContext) {
+  @BeforeClass
+  public static void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
 
     JsonObject config = new JsonObject()
@@ -86,6 +88,11 @@ public class DispatchHandlerTest {
                          testContext.asyncAssertSuccess());
   }
 
+  @After
+  public void tearDown(TestContext testContext) {
+//    vertx.close();
+  }
+
   @Test
   public void testGetArray(TestContext testContext) {
     Async async = testContext.async();
@@ -128,7 +135,6 @@ public class DispatchHandlerTest {
   @Test
   public void testPostObject(TestContext testContext) {
     Async async = testContext.async();
-    String userId = UUID.randomUUID().toString();
     vertx.createHttpClient()
             .post(8080, "localhost",
                   "/devices?timestamp="
@@ -138,7 +144,7 @@ public class DispatchHandlerTest {
                       System.out.println(body.toString());
                       testContext.assertTrue(resp.statusCode() < 300);
                       JsonObject jsonObject = new JsonObject(body.toString());
-                      testContext.assertEquals(userId, jsonObject.getString("id"));
+                      testContext.assertEquals("bar", jsonObject.getJsonObject("body").getString("foo"));
                       String reqId = resp.getHeader("x-request-id");
                       testContext.assertNotNull(reqId);
                       async.complete();
@@ -147,7 +153,7 @@ public class DispatchHandlerTest {
             .write(new JsonObject().put("foo", "bar").encode()).end();
   }
 
-  private void add2Servers() {
+  private static void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
                                               .put("Node", "u221")
                                               .put("Address", "localhost")
