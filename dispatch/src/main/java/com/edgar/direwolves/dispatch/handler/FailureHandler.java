@@ -13,6 +13,8 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
+
 /**
  * 异常的处理类.
  *
@@ -24,6 +26,13 @@ public class FailureHandler implements Handler<RoutingContext> {
 
   public static Handler<RoutingContext> create() {
     return new FailureHandler();
+  }
+
+  @Override
+  public void handle(RoutingContext rc) {
+    Throwable throwable = rc.failure();
+    LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
+    doHandle(rc, throwable);
   }
 
   public static void doHandle(RoutingContext rc, Throwable throwable) {
@@ -44,32 +53,40 @@ public class FailureHandler implements Handler<RoutingContext> {
       response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     } else if (throwable instanceof ReplyException) {
       ReplyException ex = (ReplyException) throwable;
-      ReplyFailure replyFailure = ex.failureType();
-      JsonObject jsonObject = new JsonObject();
-      if (replyFailure == ReplyFailure.NO_HANDLERS) {
-          jsonObject.put("code", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getNumber())
-          .put("message", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getMessage());
-      } else if (replyFailure == ReplyFailure.TIMEOUT) {
-        jsonObject.put("code", DefaultErrorCode.EVENTBUS_TIMOUT.getNumber())
-                .put("message", DefaultErrorCode.EVENTBUS_TIMOUT.getMessage());
-      } else if (replyFailure == ReplyFailure.RECIPIENT_FAILURE) {
-        jsonObject.put("code", DefaultErrorCode.EVENTBUS_REJECTED.getNumber())
-                .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
-      }
-      response.setStatusCode(400).end(jsonObject.encode());
+      response.setStatusCode(400).end(replyJson(ex).encode());
+    } else if (throwable instanceof ConnectException) {
+      SystemException ex = SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
+      JsonObject jsonObject = new JsonObject(ex.asMap());
+      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     } else {
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
-          .set("exception", throwable.getMessage());
+              .set("exception", throwable.getMessage());
       JsonObject jsonObject = new JsonObject(ex.asMap());
       response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     }
   }
 
-  @Override
-  public void handle(RoutingContext rc) {
-    Throwable throwable = rc.failure();
-    LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
-    doHandle(rc, throwable);
+  private static JsonObject replyJson(ReplyException ex) {
+    JsonObject jsonObject = new JsonObject();
+    String message = ex.getMessage();
+    try {
+      if (message.startsWith("{") && message.endsWith("}")) {
+          return jsonObject.mergeIn(new JsonObject(message));
+      }
+    } catch (Exception e) {
+    }
+    ReplyFailure replyFailure = ex.failureType();
+    if (replyFailure == ReplyFailure.NO_HANDLERS) {
+      jsonObject.put("code", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getNumber())
+              .put("message", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getMessage());
+    } else if (replyFailure == ReplyFailure.TIMEOUT) {
+      jsonObject.put("code", DefaultErrorCode.EVENTBUS_TIMOUT.getNumber())
+              .put("message", DefaultErrorCode.EVENTBUS_TIMOUT.getMessage());
+    } else if (replyFailure == ReplyFailure.RECIPIENT_FAILURE) {
+      jsonObject.put("code", DefaultErrorCode.EVENTBUS_REJECTED.getNumber())
+              .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
+    }
+    return jsonObject;
   }
 
 }

@@ -63,6 +63,7 @@ public class HttpRpcRequest implements RpcRequest {
   @Override
   public RpcRequest copy() {
     HttpRpcRequest copyReq = HttpRpcRequest.create(id, name);
+    copyReq.setPath(path);
     copyReq.setPort(port);
     copyReq.setHost(host);
     copyReq.setHttpMethod(httpMethod);

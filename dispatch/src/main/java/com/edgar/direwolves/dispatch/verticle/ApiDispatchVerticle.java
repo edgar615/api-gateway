@@ -34,13 +34,12 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     int port = config().getInteger("http.port", 8080);
 
     Router router = Router.router(vertx);
-    Route route = router.route();
-    route.handler(BodyHandler.create());
+    router.route().handler(BodyHandler.create());
 
-    route.handler(BaseHandler.create());
+    router.route().handler(BaseHandler.create());
 
     //API拦截
-    route.handler(dispatchHandler)
+    router.route().handler(dispatchHandler)
             .failureHandler(FailureHandler.create());
 
     vertx.createHttpServer()

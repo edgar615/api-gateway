@@ -186,7 +186,7 @@ class ApiContextImpl implements ApiContext {
   }
 
   public ApiContext copy() {
-    ApiContext apiContext = null;
+    ApiContext apiContext;
     if (body() == null) {
       apiContext = new ApiContextImpl(method(), path(), ArrayListMultimap.create(headers()),
                                       ArrayListMultimap.create(params()), null);

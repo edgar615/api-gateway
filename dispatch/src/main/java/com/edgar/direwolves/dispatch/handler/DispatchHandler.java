@@ -1,7 +1,9 @@
 package com.edgar.direwolves.dispatch.handler;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiProvider;
@@ -13,6 +15,7 @@ import com.edgar.direwolves.core.rpc.FailedRpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
@@ -82,6 +85,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
             .andThen(apiContext -> apiContext.addAction("RPC", apiContext));
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
     task.andThen("Response", apiContext -> {
+      rc.response().putHeader("x-request-id", apiContext.id());
       Result result = apiContext.result();
       int statusCode = result.statusCode();
       boolean isArray = result.isArray();
@@ -109,8 +113,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
               ApiContext apiContext = Utils.apiContext(rc);
               apiContext.setApiDefinition(apiDefinition);
               //设置变量
-              matches(apiContext, apiDefinition);
-              return apiContext;
+              return matches(apiContext, apiDefinition);
             });
   }
 
@@ -118,21 +121,11 @@ public class DispatchHandler implements Handler<RoutingContext> {
     List<Filter> postFilters = filters.stream()
             .filter(filterPredicate)
             .collect(Collectors.toList());
-    for (Filter filter : postFilters) {
-      task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
-        if (filter.shouldFilter(apiContext)) {
-          Future<ApiContext> completeFuture = Future.future();
-          filter.doFilter(apiContext.copy(), completeFuture);
-          return completeFuture;
-        } else {
-          return Future.succeededFuture(apiContext);
-        }
-      }).andThen(apiContext -> apiContext.addAction(filter.getClass().getSimpleName(), apiContext));
-    }
-    return task;
+    return Filters.doFilter(task, postFilters);
   }
 
-  private void matches(ApiContext apiContext, ApiDefinition definition) {
+  private ApiContext matches(ApiContext apiContext, ApiDefinition definition) {
+    Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
     Pattern pattern = definition.pattern();
     String path = apiContext.path();
     Matcher matcher = pattern.matcher(path);
@@ -141,15 +134,20 @@ public class DispatchHandler implements Handler<RoutingContext> {
         for (int i = 0; i < matcher.groupCount(); i++) {
           String group = matcher.group(i + 1);
           if (group != null) {
-            final String k = "param" + (i + 1);
+            final String k = "param" + i;
             final String value = URLDecoder.decode(group, "UTF-8");
-            apiContext.params().put(k, value);
+            params.put(k, value);
           }
         }
       } catch (UnsupportedEncodingException e) {
         //TODO 异常处理
       }
     }
+    ApiContext newApiContext =
+            ApiContext.create(apiContext.method(), apiContext.path(),
+                              apiContext.headers(), params, apiContext.body());
+    ApiContext.copyProperites(apiContext, newApiContext);
+    return newApiContext;
   }
 
   private Future<ApiContext> rpc(ApiContext apiContext) {

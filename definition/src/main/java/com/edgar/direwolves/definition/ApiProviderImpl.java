@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Edgar on 2017/1/3.
@@ -35,13 +36,17 @@ public class ApiProviderImpl implements ApiProvider {
         handler.handle(Future.succeededFuture(jsonObject));
       } else {
         LOGGER.error("failed match api, method->{}, path->{}", method, path);
+        Map<String, Object> map =
+                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND).asMap();
         handler.handle(
-                Future.failedFuture(SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)));
+                Future.failedFuture(new JsonObject(map).encode()));
       }
     } catch (Exception e) {
       LOGGER.error("failed match api, method->{}, path->{}", method, path);
+      Map<String, Object> map =
+              SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND).asMap();
       handler.handle(
-              Future.failedFuture(SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)));
+              Future.failedFuture(new JsonObject(map).encode()));
     }
   }
 
