@@ -85,13 +85,13 @@ public class RequestTransformerFilterTest {
             .andThen(context -> {
               testContext.assertEquals(1, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(2, request.getParams().keySet().size());
-              testContext.assertEquals(2, request.getHeaders().keySet().size());
-              testContext.assertFalse(request.getParams().containsKey("q3"));
-              testContext.assertFalse(request.getHeaders().containsKey("h3"));
-              testContext.assertNull(request.getBody());
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(2, request.params().keySet().size());
+              testContext.assertEquals(2, request.headers().keySet().size());
+              testContext.assertFalse(request.params().containsKey("q3"));
+              testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertNull(request.body());
               System.out.println(request);
               async.complete();
             }).onFailure(t -> {
@@ -137,22 +137,22 @@ public class RequestTransformerFilterTest {
             .andThen(context -> {
               testContext.assertEquals(2, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(2, request.getParams().size());
-              testContext.assertEquals(2, request.getHeaders().size());
-              testContext.assertFalse(request.getParams().containsKey("q3"));
-              testContext.assertFalse(request.getHeaders().containsKey("h3"));
-              testContext.assertNull(request.getBody());
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(2, request.params().size());
+              testContext.assertEquals(2, request.headers().size());
+              testContext.assertFalse(request.params().containsKey("q3"));
+              testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertNull(request.body());
 
               request = (HttpRpcRequest) context.requests().get(1);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(1, request.getParams().size());
-              testContext.assertEquals(1, request.getHeaders().size());
-              testContext.assertTrue(request.getParams().containsKey("q3"));
-              testContext.assertTrue(request.getHeaders().containsKey("h3"));
-              testContext.assertNull(request.getBody());
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(1, request.params().size());
+              testContext.assertEquals(1, request.headers().size());
+              testContext.assertTrue(request.params().containsKey("q3"));
+              testContext.assertTrue(request.headers().containsKey("h3"));
+              testContext.assertNull(request.body());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }
@@ -185,14 +185,14 @@ public class RequestTransformerFilterTest {
             .andThen(context -> {
               testContext.assertEquals(1, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(2, request.getParams().size());
-              testContext.assertEquals(2, request.getHeaders().size());
-              testContext.assertFalse(request.getParams().containsKey("q3"));
-              testContext.assertFalse(request.getHeaders().containsKey("h3"));
-              testContext.assertEquals(2, request.getBody().size());
-              testContext.assertFalse(request.getBody().containsKey("b3"));
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(2, request.params().size());
+              testContext.assertEquals(2, request.headers().size());
+              testContext.assertFalse(request.params().containsKey("q3"));
+              testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertEquals(2, request.body().size());
+              testContext.assertFalse(request.body().containsKey("b3"));
               System.out.println(request);
               async.complete();
             }).onFailure(t -> {

@@ -44,8 +44,8 @@ public class RequestReplaceFilter implements Filter {
     Multimap<String, String> headers = replaceHeader(apiContext, apiContext.headers());
     request.clearHeaders().addHeaders(headers);
     request.clearParams().addParams(params);
-    if (request.getBody() != null) {
-      JsonObject body = replaceBody(apiContext, request.getBody());
+    if (request.body() != null) {
+      JsonObject body = replaceBody(apiContext, request.body());
       request.setBody(body);
     }
 

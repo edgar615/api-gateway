@@ -7,7 +7,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
@@ -174,67 +173,104 @@ public interface ApiContext {
     return apiContext;
   }
 
-  default Object getValueByKeyword(Object value) {
-    if (value instanceof String) {
-      String val = (String) value;
-      //路径参数
-      if (val.startsWith("$header.")) {
-        List<String> list =
-            Lists.newArrayList(headers().get(val.substring("$header.".length())));
-        if (list.isEmpty()) {
-          return null;
-        } else if (list.size() == 1) {
-          return list.get(0);
-        } else {
-          return list;
-        }
-      } else if (val.startsWith("$query.")) {
-        List<String> list =
-            Lists.newArrayList(params().get(val.substring("$query.".length())));
-        if (list.isEmpty()) {
-          return null;
-        } else if (list.size() == 1) {
-          return list.get(0);
-        } else {
-          return list;
-        }
-      } else if (val.startsWith("$body.")) {
-        if (body() == null) {
-          return null;
-        }
-        return body().getValue(val.substring("$body.".length()));
-      } else if (val.startsWith("$user.")) {
-        if (principal() == null) {
-          return null;
-        }
-        return principal().getValue(val.substring("$user.".length()));
-      } else if (val.startsWith("$var.")) {
-        return variables().get(val.substring("$var.".length()));
+  //  default Object getValueByKeyword(Object value) {
+//    if (value instanceof String) {
+//      String val = (String) value;
+//      //路径参数
+//      if (val.startsWith("$header.")) {
+//        List<String> list =
+//            Lists.newArrayList(headers().get(val.substring("$header.".length())));
+//        if (list.isEmpty()) {
+//          return null;
+//        } else if (list.size() == 1) {
+//          return list.get(0);
+//        } else {
+//          return list;
+//        }
+//      } else if (val.startsWith("$query.")) {
+//        List<String> list =
+//            Lists.newArrayList(params().get(val.substring("$query.".length())));
+//        if (list.isEmpty()) {
+//          return null;
+//        } else if (list.size() == 1) {
+//          return list.get(0);
+//        } else {
+//          return list;
+//        }
+//      } else if (val.startsWith("$body.")) {
+//        if (body() == null) {
+//          return null;
+//        }
+//        return body().getValue(val.substring("$body.".length()));
+//      } else if (val.startsWith("$user.")) {
+//        if (principal() == null) {
+//          return null;
+//        }
+//        return principal().getValue(val.substring("$user.".length()));
+//      } else if (val.startsWith("$var.")) {
+//        return variables().get(val.substring("$var.".length()));
+//      } else {
+//        return val;
+//      }
+//    } else if (value instanceof JsonArray) {
+//      JsonArray val = (JsonArray) value;
+//      JsonArray replacedArray = new JsonArray();
+//      for (int i = 0; i < val.size(); i++) {
+//        Object newVal = getValueByKeyword(val.getValue(i));
+//        if (newVal != null) {
+//          replacedArray.add(newVal);
+//        }
+//      }
+//      return replacedArray.isEmpty() ? null : replacedArray;
+//    } else if (value instanceof JsonObject) {
+//      JsonObject val = (JsonObject) value;
+//      JsonObject replacedObject = new JsonObject();
+//      for (String key : val.fieldNames()) {
+//        Object newVal = getValueByKeyword(val.getValue(key));
+//        if (newVal != null) {
+//          replacedObject.put(key, newVal);
+//        }
+//      }
+//      return replacedObject.isEmpty() ? null : replacedObject;
+//    } else {
+//      return value;
+//    }
+//  }
+  default Object getValueByKeyword(String val) {
+    if (val.startsWith("$header.")) {
+      List<String> list =
+          Lists.newArrayList(headers().get(val.substring("$header.".length())));
+      if (list.isEmpty()) {
+        return null;
+      } else if (list.size() == 1) {
+        return list.get(0);
       } else {
-        return val;
+        return list;
       }
-    } else if (value instanceof JsonArray) {
-      JsonArray val = (JsonArray) value;
-      JsonArray replacedArray = new JsonArray();
-      for (int i = 0; i < val.size(); i++) {
-        Object newVal = getValueByKeyword(val.getValue(i));
-        if (newVal != null) {
-          replacedArray.add(newVal);
-        }
+    } else if (val.startsWith("$query.")) {
+      List<String> list =
+          Lists.newArrayList(params().get(val.substring("$query.".length())));
+      if (list.isEmpty()) {
+        return null;
+      } else if (list.size() == 1) {
+        return list.get(0);
+      } else {
+        return list;
       }
-      return replacedArray.isEmpty() ? null : replacedArray;
-    } else if (value instanceof JsonObject) {
-      JsonObject val = (JsonObject) value;
-      JsonObject replacedObject = new JsonObject();
-      for (String key : val.fieldNames()) {
-        Object newVal = getValueByKeyword(val.getValue(key));
-        if (newVal != null) {
-          replacedObject.put(key, newVal);
-        }
+    } else if (val.startsWith("$body.")) {
+      if (body() == null) {
+        return null;
       }
-      return replacedObject.isEmpty() ? null : replacedObject;
+      return body().getValue(val.substring("$body.".length()));
+    } else if (val.startsWith("$user.")) {
+      if (principal() == null) {
+        return null;
+      }
+      return principal().getValue(val.substring("$user.".length()));
+    } else if (val.startsWith("$var.")) {
+      return variables().get(val.substring("$var.".length()));
     } else {
-      return value;
+      return val;
     }
   }
 }

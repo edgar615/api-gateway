@@ -31,13 +31,13 @@ public class HttpRpcHandler implements RpcHandler {
   }
 
   private boolean checkBody(HttpRpcRequest request) {
-    return (request.getHttpMethod() == HttpMethod.POST
-        || request.getHttpMethod() == HttpMethod.PUT)
-        && request.getBody() == null;
+    return (request.method() == HttpMethod.POST
+        || request.method() == HttpMethod.PUT)
+        && request.body() == null;
   }
 
   private void header(HttpRpcRequest rpcRequest, HttpClientRequest request) {
-    rpcRequest.getHeaders().asMap().forEach((headerName, headerValues) -> {
+    rpcRequest.headers().asMap().forEach((headerName, headerValues) -> {
       request.putHeader(headerName, headerValues);
     });
   }
@@ -51,42 +51,42 @@ public class HttpRpcHandler implements RpcHandler {
   }
 
   private void timeout(HttpRpcRequest rpcRequest, HttpClientRequest request) {
-    if (rpcRequest.getTimeout() > 100) {
-      request.setTimeout(rpcRequest.getTimeout());
+    if (rpcRequest.timeout() > 100) {
+      request.setTimeout(rpcRequest.timeout());
     }
   }
 
   private void endRequest(HttpRpcRequest rpcRequest, HttpClientRequest request) {
-    if (rpcRequest.getHttpMethod() == HttpMethod.GET) {
+    if (rpcRequest.method() == HttpMethod.GET) {
       request.end();
-    } else if (rpcRequest.getHttpMethod() == HttpMethod.DELETE) {
+    } else if (rpcRequest.method() == HttpMethod.DELETE) {
       request.end();
-    } else if (rpcRequest.getHttpMethod() == HttpMethod.POST) {
+    } else if (rpcRequest.method() == HttpMethod.POST) {
       request.setChunked(true)
-          .end(rpcRequest.getBody().encode());
-    } else if (rpcRequest.getHttpMethod() == HttpMethod.PUT) {
+          .end(rpcRequest.body().encode());
+    } else if (rpcRequest.method() == HttpMethod.PUT) {
       request.setChunked(true)
-          .end(rpcRequest.getBody().encode());
+          .end(rpcRequest.body().encode());
     }
   }
 
   private boolean checkMethod(HttpRpcRequest rpcRequest) {
-    return rpcRequest.getHttpMethod() != HttpMethod.GET
-        && rpcRequest.getHttpMethod() != HttpMethod.DELETE
-        && rpcRequest.getHttpMethod() != HttpMethod.POST
-        && rpcRequest.getHttpMethod() != HttpMethod.PUT;
+    return rpcRequest.method() != HttpMethod.GET
+        && rpcRequest.method() != HttpMethod.DELETE
+        && rpcRequest.method() != HttpMethod.POST
+        && rpcRequest.method() != HttpMethod.PUT;
   }
 
   private String requestPath(HttpRpcRequest rpcRequest) {
-    List<String> query = new ArrayList<>(rpcRequest.getParams().size());
-    for (String key : rpcRequest.getParams().keySet()) {
-      String value = rpcRequest.getParams().get(key).iterator().next();
+    List<String> query = new ArrayList<>(rpcRequest.params().size());
+    for (String key : rpcRequest.params().keySet()) {
+      String value = rpcRequest.params().get(key).iterator().next();
       if (value != null) {
         query.add(key + "=" + value);
       }
     }
     String queryString = Joiner.on("&").join(query);
-    String path = rpcRequest.getPath();
+    String path = rpcRequest.path();
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
@@ -121,7 +121,7 @@ public class HttpRpcHandler implements RpcHandler {
     final long startTime = System.currentTimeMillis();
     HttpClientRequest request =
         httpClient
-            .request(httpRpcRequest.getHttpMethod(), httpRpcRequest.getPort(), httpRpcRequest.getHost(),
+            .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
                 path)
             .putHeader("content-type", "application/json");
     request.handler(response -> {

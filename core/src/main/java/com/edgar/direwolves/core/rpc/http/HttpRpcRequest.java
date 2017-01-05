@@ -68,9 +68,9 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.setHost(host);
     copyReq.setHttpMethod(httpMethod);
     copyReq.setTimeout(timeout);
-    copyReq.setBody(getBody());
-    copyReq.addParams(getParams());
-    copyReq.addHeaders(getHeaders());
+    copyReq.setBody(body());
+    copyReq.addParams(params());
+    copyReq.addHeaders(headers());
     return copyReq;
   }
 
@@ -78,7 +78,7 @@ public class HttpRpcRequest implements RpcRequest {
     return name;
   }
 
-  public int getPort() {
+  public int port() {
     return port;
   }
 
@@ -87,7 +87,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public String getHost() {
+  public String host() {
     return host;
   }
 
@@ -97,7 +97,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public String getPath() {
+  public String path() {
     return path;
   }
 
@@ -107,7 +107,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public HttpMethod getHttpMethod() {
+  public HttpMethod method() {
     return httpMethod;
   }
 
@@ -117,7 +117,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public JsonObject getBody() {
+  public JsonObject body() {
     if (body == null) {
       return null;
     }
@@ -129,7 +129,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public int getTimeout() {
+  public int timeout() {
     return timeout;
   }
 
@@ -138,7 +138,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public Multimap<String, String> getParams() {
+  public Multimap<String, String> params() {
     return ImmutableMultimap.copyOf(params);
   }
 
@@ -162,7 +162,7 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public Multimap<String, String> getHeaders() {
+  public Multimap<String, String> headers() {
     return ImmutableMultimap.copyOf(headers);
   }
 

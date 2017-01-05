@@ -93,13 +93,13 @@ public class RequestReplaceFilterTest  {
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getHost());
-          testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(5, request.getParams().keys().size());
-          testContext.assertEquals("var_bar", request.getParams().get("q2").iterator().next());
-          testContext.assertEquals("1", request.getParams().get("q3").iterator().next());
-          testContext.assertEquals("1", request.getParams().get("q4").iterator().next());
-          testContext.assertTrue(request.getParams().get("q5").isEmpty());
+          testContext.assertEquals("localhost", request.host());
+          testContext.assertEquals(8080, request.port());
+          testContext.assertEquals(5, request.params().keys().size());
+          testContext.assertEquals("var_bar", request.params().get("q2").iterator().next());
+          testContext.assertEquals("1", request.params().get("q3").iterator().next());
+          testContext.assertEquals("1", request.params().get("q4").iterator().next());
+          testContext.assertTrue(request.params().get("q5").isEmpty());
 
           async.complete();
         }).onFailure(t -> {
@@ -155,14 +155,14 @@ public class RequestReplaceFilterTest  {
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getHost());
-          testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(5, request.getHeaders().keys().size());
-          testContext.assertEquals("q1", request.getHeaders().get("h1").iterator().next());
-          testContext.assertEquals("var_bar", request.getHeaders().get("h2").iterator().next());
-          testContext.assertEquals("1", request.getHeaders().get("h3").iterator().next());
-          testContext.assertEquals("1", request.getHeaders().get("h4").iterator().next());
-          testContext.assertTrue(request.getHeaders().get("h5").isEmpty());
+          testContext.assertEquals("localhost", request.host());
+          testContext.assertEquals(8080, request.port());
+          testContext.assertEquals(5, request.headers().keys().size());
+          testContext.assertEquals("q1", request.headers().get("h1").iterator().next());
+          testContext.assertEquals("var_bar", request.headers().get("h2").iterator().next());
+          testContext.assertEquals("1", request.headers().get("h3").iterator().next());
+          testContext.assertEquals("1", request.headers().get("h4").iterator().next());
+          testContext.assertTrue(request.headers().get("h5").isEmpty());
 
           async.complete();
         }).onFailure(t -> {
@@ -214,14 +214,14 @@ public class RequestReplaceFilterTest  {
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getHost());
-          testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(5, request.getBody().size());
-          testContext.assertEquals("h1", request.getBody().getString("b1"));
-          testContext.assertEquals("q1", request.getBody().getString("b2"));
-          testContext.assertEquals("var_bar", request.getBody().getString("b3"));
-          testContext.assertEquals(1, request.getBody().getInteger("b4"));
-          testContext.assertFalse(request.getBody().containsKey("b5"));
+          testContext.assertEquals("localhost", request.host());
+          testContext.assertEquals(8080, request.port());
+          testContext.assertEquals(5, request.body().size());
+          testContext.assertEquals("h1", request.body().getString("b1"));
+          testContext.assertEquals("q1", request.body().getString("b2"));
+          testContext.assertEquals("var_bar", request.body().getString("b3"));
+          testContext.assertEquals(1, request.body().getInteger("b4"));
+          testContext.assertFalse(request.body().containsKey("b5"));
 
           async.complete();
         }).onFailure(t -> {

@@ -82,12 +82,12 @@ public class RequestTransformerFilter implements Filter {
 
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
-      Multimap<String, String> params =  tranformerParams(request.getParams(), transformer);
+      Multimap<String, String> params =  tranformerParams(request.params(), transformer);
       request.clearParams().addParams(params);
-      Multimap<String, String> headers =tranformerHeaders(request.getHeaders(), transformer);
+      Multimap<String, String> headers =tranformerHeaders(request.headers(), transformer);
       request.clearHeaders().addHeaders(headers);
-      if (request.getBody() != null) {
-        JsonObject body = tranformerBody(request.getBody(), transformer);
+      if (request.body() != null) {
+        JsonObject body = tranformerBody(request.body(), transformer);
         request.setBody(body);
       }
     }

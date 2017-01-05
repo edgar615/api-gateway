@@ -98,12 +98,12 @@ public class ServiceDiscoveryFilterTest {
             .andThen(context -> {
               testContext.assertEquals(1, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(1, request.getParams().keySet().size());
-              testContext.assertEquals(1, request.getHeaders().keySet().size());
-              testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
-              testContext.assertNull(request.getBody());
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(1, request.params().keySet().size());
+              testContext.assertEquals(1, request.headers().keySet().size());
+              testContext.assertTrue(request.headers().containsKey("x-request-id"));
+              testContext.assertNull(request.body());
               testContext.assertEquals(1, context.actions().size());
               async.complete();
             }).onFailure(t -> testContext.fail());
@@ -130,20 +130,20 @@ public class ServiceDiscoveryFilterTest {
             .andThen(context -> {
               testContext.assertEquals(2, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8080, request.getPort());
-              testContext.assertEquals(1, request.getParams().keySet().size());
-              testContext.assertEquals(1, request.getHeaders().keySet().size());
-              testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
-              testContext.assertNull(request.getBody());
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(1, request.params().keySet().size());
+              testContext.assertEquals(1, request.headers().keySet().size());
+              testContext.assertTrue(request.headers().containsKey("x-request-id"));
+              testContext.assertNull(request.body());
 
               request = (HttpRpcRequest) context.requests().get(1);
-              testContext.assertEquals("localhost", request.getHost());
-              testContext.assertEquals(8081, request.getPort());
-              testContext.assertEquals(1, request.getParams().keySet().size());
-              testContext.assertEquals(1, request.getHeaders().keySet().size());
-              testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
-              testContext.assertNull(request.getBody());
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8081, request.port());
+              testContext.assertEquals(1, request.params().keySet().size());
+              testContext.assertEquals(1, request.headers().keySet().size());
+              testContext.assertTrue(request.headers().containsKey("x-request-id"));
+              testContext.assertNull(request.body());
 
               testContext.assertEquals(1, context.actions().size());
               async.complete();
@@ -162,7 +162,7 @@ public class ServiceDiscoveryFilterTest {
 //      doFilter(task, filters)
 //          .andThen(context -> {
 //            JsonObject request = context.requests().getJsonObject(0);
-//            group.put(request.getPort(), request);
+//            group.put(request.port(), request);
 //            async.complete();
 //          }).onFailure(t -> testContext.fail());
 //    }
