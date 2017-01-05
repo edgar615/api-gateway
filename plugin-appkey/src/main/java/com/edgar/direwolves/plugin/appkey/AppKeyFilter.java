@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -151,9 +152,9 @@ public class AppKeyFilter implements Filter {
     //校验参数
     Validations.validate(apiContext.params(), commonParamRule);
     Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
-    String clientSignValue = getFirst(params, "sign").toString();
-    String signMethod = getFirst(params, "signMethod").toString();
-    String appKey = getFirst(params, "appKey").toString();
+    String clientSignValue = MultimapUtils.getFirst(params, "sign").toString();
+    String signMethod = MultimapUtils.getFirst(params, "signMethod").toString();
+    String appKey = MultimapUtils.getFirst(params, "appKey").toString();
     params.removeAll("sign");
     if (apiContext.body() != null) {
       params.removeAll("body");
@@ -199,7 +200,7 @@ public class AppKeyFilter implements Filter {
     // 第二步：把所有参数名和参数值串在一起
     List<String> query = new ArrayList<>(params.size());
     for (String key : keys) {
-      String value = getFirst(params, key);
+      String value = MultimapUtils.getFirst(params, key);
       if (!Strings.isNullOrEmpty(value)) {
         query.add(key + "=" + value);
       }

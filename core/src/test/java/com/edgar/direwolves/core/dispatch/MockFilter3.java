@@ -1,15 +1,11 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import com.edgar.util.validation.Rule;
+import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 
-public class MockFilter implements Filter {
-
-  public MockFilter() {
-  }
+public class MockFilter3 implements Filter {
 
   @Override
   public String type() {
@@ -18,7 +14,7 @@ public class MockFilter implements Filter {
 
   @Override
   public int order() {
-    return 0;
+    return -10;
   }
 
   @Override
@@ -29,14 +25,14 @@ public class MockFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
 
-    if (!apiContext.variables().containsKey("test")) {
+    if (!apiContext.variables().containsKey("mock3")) {
       throw new NullPointerException();
     }
-    Boolean test = (Boolean) apiContext.variables().get("test");
+    Boolean test = (Boolean) apiContext.variables().get("mock3");
     if (test) {
       completeFuture.complete(apiContext);
     } else {
-      completeFuture.fail("unkown");
+      completeFuture.fail("mock3 unkown");
     }
   }
 

@@ -3,6 +3,7 @@ package com.edgar.direwolves.filter;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -27,7 +28,7 @@ import java.util.UUID;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class RequestReplaceFilterTest extends FilterTest {
+public class RequestReplaceFilterTest  {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -88,7 +89,7 @@ public class RequestReplaceFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
@@ -150,7 +151,7 @@ public class RequestReplaceFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
@@ -209,7 +210,7 @@ public class RequestReplaceFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           testContext.assertEquals(1, context.requests().size());
           HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);

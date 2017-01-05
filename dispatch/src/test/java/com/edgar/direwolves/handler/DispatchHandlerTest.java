@@ -81,6 +81,18 @@ public class DispatchHandlerTest {
     apiDefinition = ApiDefinition.create("add_device", HttpMethod.POST, "/devices",
                                          Lists.newArrayList(httpEndpoint));
     ApiDefinitionRegistry.create().add(apiDefinition);
+    httpEndpoint = Endpoint.createHttp("update_device", HttpMethod.PUT, "/devices/$param.param0",
+                                       "device");
+    apiDefinition = ApiDefinition.create("update_device", HttpMethod.PUT, "/devices/([\\d+]+)",
+                                         Lists.newArrayList(httpEndpoint));
+    ApiDefinitionRegistry.create().add(apiDefinition);
+
+    httpEndpoint = Endpoint.createHttp("error_device", HttpMethod.GET, "/devices/error",
+                                       "device");
+    apiDefinition = ApiDefinition.create("error_device", HttpMethod.GET, "/devices/failed",
+                                         Lists.newArrayList(httpEndpoint));
+    ApiDefinitionRegistry.create().add(apiDefinition);
+
     vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
                          new DeploymentOptions().setConfig(new JsonObject().put("http.port",
                                                                                 9001)).setWorker
@@ -91,6 +103,22 @@ public class DispatchHandlerTest {
   @After
   public void tearDown(TestContext testContext) {
 //    vertx.close();
+  }
+
+  @Test
+  public void testGetError(TestContext testContext) {
+    Async async = testContext.async();
+    vertx.createHttpClient()
+            .get(8080, "localhost", "/devices/failed?timestamp=" + Instant.now().getEpochSecond(),
+                 resp -> {
+                   resp.bodyHandler(body -> {
+                     System.out.println(body.toString());
+                     testContext.assertTrue(resp.statusCode() == 400);
+                     String reqId = resp.getHeader("x-request-id");
+                     testContext.assertNotNull(reqId);
+                     async.complete();
+                   });
+                 }).end();
   }
 
   @Test
@@ -151,6 +179,28 @@ public class DispatchHandlerTest {
                     });
                   }).setChunked(true)
             .write(new JsonObject().put("foo", "bar").encode()).end();
+  }
+
+  @Test
+  public void testPutObject(TestContext testContext) {
+    Async async = testContext.async();
+    int userId = Integer.parseInt(Randoms.randomNumber(5));
+    vertx.createHttpClient()
+            .put(8080, "localhost",
+                 "/devices/" + userId + "?timestamp="
+                 + Instant.now().getEpochSecond(),
+                 resp -> {
+                   resp.bodyHandler(body -> {
+                     System.out.println(body.toString());
+                     testContext.assertTrue(resp.statusCode() < 300);
+                     JsonObject jsonObject = new JsonObject(body.toString());
+                     testContext.assertEquals("bar", jsonObject.getJsonObject("body").getString("foo"));
+                     String reqId = resp.getHeader("x-request-id");
+                     testContext.assertNotNull(reqId);
+                     async.complete();
+                   });
+                 }).setChunked(true)
+            .end(new JsonObject().put("foo", "bar").encode());
   }
 
   private static void add2Servers() {

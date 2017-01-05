@@ -9,12 +9,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by Edgar on 2016/9/20.
+ * Filter的工具类.
  *
  * @author Edgar  Date 2016/9/20
  */
 public class Filters {
 
+  /**
+   * 将filter按照order()生序排列.
+   *
+   * @param filters filter的列表
+   */
   public static void sort(List<Filter> filters) {
     Collections.sort(filters, (Filter o1, Filter o2) -> {
       if (o1.order() < o2.order()) {
@@ -27,6 +32,13 @@ public class Filters {
     });
   }
 
+  /**
+   * 按顺序执行filter.
+   *
+   * @param task    ApiContext的异步任务
+   * @param filters filter的列表
+   * @return Task ApiContext的异步任务
+   */
   public static Task<ApiContext> doFilter(Task<ApiContext> task, List<Filter> filters) {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {

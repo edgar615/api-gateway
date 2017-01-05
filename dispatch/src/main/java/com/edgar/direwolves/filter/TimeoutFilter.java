@@ -1,13 +1,15 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
@@ -54,7 +56,7 @@ public class TimeoutFilter implements Filter {
     Validations.validate(apiContext.params(), commonParamRule);
     Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
     //检查时间戳
-    Integer timestamp = Integer.parseInt(getFirst(params, "timestamp").toString());
+    Integer timestamp = Integer.parseInt(MultimapUtils.getFirst(params, "timestamp").toString());
     long currentTime = Instant.now().getEpochSecond();
     if ((timestamp > currentTime + timeout)
         || (timestamp < currentTime - timeout)) {

@@ -1,17 +1,19 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.filter.servicediscovery.MockConsulHttpVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -34,11 +36,15 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2016/11/18
  */
 @RunWith(VertxUnitRunner.class)
-public class ServiceDiscoveryFilterTest extends FilterTest {
+public class ServiceDiscoveryFilterTest {
   private final List<Filter> filters = new ArrayList<>();
+
   MockConsulHttpVerticle mockConsulHttpVerticle;
+
   private Vertx vertx;
+
   private Filter filter;
+
   private ApiContext apiContext;
 
   @Before
@@ -57,15 +63,16 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     headers.put("h3", "v3.2");
 
     apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     JsonObject config = new JsonObject()
-        .put("service.discovery", "consul://localhost:5601");
+            .put("service.discovery", "consul://localhost:5601");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
 
@@ -87,58 +94,60 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
-        .andThen(context -> {
-          testContext.assertEquals(1, context.requests().size());
-          HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getHost());
-          testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(1, request.getHeaders().keySet().size());
-          testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
-          testContext.assertNull(request.getBody());
-          testContext.assertEquals(1, context.actions().size());
-          async.complete();
-        }).onFailure(t -> testContext.fail());
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.assertEquals(1, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8080, request.getPort());
+              testContext.assertEquals(1, request.getParams().keySet().size());
+              testContext.assertEquals(1, request.getHeaders().keySet().size());
+              testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
+              testContext.assertNull(request.getBody());
+              testContext.assertEquals(1, context.actions().size());
+              async.complete();
+            }).onFailure(t -> testContext.fail());
   }
 
   @Test
   public void twoEndpointShouldReturnTwoRequest(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint2 =
-        Endpoint.createHttp("get_user", HttpMethod.GET, "users/", "user");
+            Endpoint.createHttp("get_user", HttpMethod.GET, "users/", "user");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, httpEndpoint2));
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",
+                                                    Lists.newArrayList(httpEndpoint,
+                                                                       httpEndpoint2));
     apiContext.setApiDefinition(definition);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
-        .andThen(context -> {
-          testContext.assertEquals(2, context.requests().size());
-          HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
-          testContext.assertEquals("localhost", request.getHost());
-          testContext.assertEquals(8080, request.getPort());
-          testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(1, request.getHeaders().keySet().size());
-          testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
-          testContext.assertNull(request.getBody());
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.assertEquals(2, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8080, request.getPort());
+              testContext.assertEquals(1, request.getParams().keySet().size());
+              testContext.assertEquals(1, request.getHeaders().keySet().size());
+              testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
+              testContext.assertNull(request.getBody());
 
-          request = (HttpRpcRequest) context.requests().get(1);
-          testContext.assertEquals("localhost", request.getHost());
-          testContext.assertEquals(8081, request.getPort());
-          testContext.assertEquals(1, request.getParams().keySet().size());
-          testContext.assertEquals(1, request.getHeaders().keySet().size());
-          testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
-          testContext.assertNull(request.getBody());
+              request = (HttpRpcRequest) context.requests().get(1);
+              testContext.assertEquals("localhost", request.getHost());
+              testContext.assertEquals(8081, request.getPort());
+              testContext.assertEquals(1, request.getParams().keySet().size());
+              testContext.assertEquals(1, request.getHeaders().keySet().size());
+              testContext.assertTrue(request.getHeaders().containsKey("x-request-id"));
+              testContext.assertNull(request.getBody());
 
-          testContext.assertEquals(1, context.actions().size());
-          async.complete();
-        }).onFailure(t -> testContext.fail());
+              testContext.assertEquals(1, context.actions().size());
+              async.complete();
+            }).onFailure(t -> testContext.fail());
   }
 
 //  @Test
@@ -168,39 +177,41 @@ public class ServiceDiscoveryFilterTest extends FilterTest {
   public void testNoService(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "sms");
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "sms");
 
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
-        .andThen(context -> testContext.fail())
-        .onFailure(t -> {
-          testContext.assertTrue(t instanceof SystemException);
-          SystemException ex = (SystemException) t;
-          testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE.getNumber(), ex.getErrorCode().getNumber());
-          async.complete();
-        });
+    Filters.doFilter(task, filters)
+            .andThen(context -> testContext.fail())
+            .onFailure(t -> {
+              testContext.assertTrue(t instanceof SystemException);
+              SystemException ex = (SystemException) t;
+              testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE.getNumber(),
+                                       ex.getErrorCode().getNumber());
+              async.complete();
+            });
   }
 
   private void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
-        .put("Node", "u221")
-        .put("Address", "localhost")
-        .put("ServiceID", "u221:device:8080")
-        .put("ServiceName", "device")
-        .put("ServiceTags", new JsonArray())
-        .put("ServicePort", 8080));
+                                              .put("Node", "u221")
+                                              .put("Address", "localhost")
+                                              .put("ServiceID", "u221:device:8080")
+                                              .put("ServiceName", "device")
+                                              .put("ServiceTags", new JsonArray())
+                                              .put("ServicePort", 8080));
     mockConsulHttpVerticle.addService((new JsonObject()
-        .put("Node", "u222")
-        .put("Address", "localhost")
-        .put("ServiceID", "u222:device:8080")
-        .put("ServiceName", "user")
-        .put("ServiceTags", new JsonArray())
-        .put("ServicePort", 8081)));
+            .put("Node", "u222")
+            .put("Address", "localhost")
+            .put("ServiceID", "u222:device:8080")
+            .put("ServiceName", "user")
+            .put("ServiceTags", new JsonArray())
+            .put("ServicePort", 8081)));
     try {
       TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException e) {

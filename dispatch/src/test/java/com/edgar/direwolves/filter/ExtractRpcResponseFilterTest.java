@@ -5,6 +5,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -27,7 +28,7 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class ExtractRpcResponseFilterTest extends FilterTest {
+public class ExtractRpcResponseFilterTest  {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -64,7 +65,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
               testContext.assertEquals("bar", result.responseObject().getString("foo"));
@@ -85,7 +86,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
         .andThen(context -> {
           Result result = context.result();
           testContext.assertEquals(2, result.responseArray().size());
@@ -110,7 +111,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
               testContext.assertEquals(2, result.responseObject().size());
@@ -140,7 +141,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
               testContext.assertEquals(1, result.responseObject().size());
@@ -166,7 +167,7 @@ public class ExtractRpcResponseFilterTest extends FilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    doFilter(task, filters)
+    Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
               testContext.assertEquals(1, result.responseObject().size());

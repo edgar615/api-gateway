@@ -21,6 +21,12 @@ public class DeviceHttpVerticle extends AbstractVerticle {
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
     router.route().handler(BaseHandler.create());
+    router.get("/devices/error").handler(rc -> {
+      JsonObject device = new JsonObject().put("code", 999)
+              .put("message", "undefined");
+      rc.response().setStatusCode(400)
+              .end(device.encode());
+    });
     router.get("/devices").handler(rc -> {
       JsonArray devices = new JsonArray();
       devices.add(new JsonObject().put("id", 1))

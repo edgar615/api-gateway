@@ -1,19 +1,11 @@
-package com.edgar.direwolves.filter;
+package com.edgar.direwolves.core.dispatch;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 
 public class MockFilter2 implements Filter {
-
-  private static final String NAME = "MockFilter2";
-
-  private Vertx vertx;
-
-  public MockFilter2() {
-  }
 
   @Override
   public String type() {
@@ -22,7 +14,7 @@ public class MockFilter2 implements Filter {
 
   @Override
   public int order() {
-    return 0;
+    return -100;
   }
 
   @Override

@@ -12,6 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
 /**
  * Created by Edgar on 2016/9/20.
  *
@@ -27,6 +30,24 @@ public class FilterTest {
     vertx = Vertx.vertx();
   }
 
+
+  @Test
+  public void testCreateDefinedFilter(TestContext testContext) {
+
+    Filter filter = Filter.create(MockFilter.class.getSimpleName(), vertx, new JsonObject());
+    Assert.assertTrue(filter instanceof MockFilter);
+  }
+
+  @Test
+  public void testUndefinedFilterShouldThrowNoSuchElementException(TestContext testContext) {
+
+    try {
+      Filter.create(UUID.randomUUID().toString(), vertx, new JsonObject());
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof NoSuchElementException);
+    }
+  }
 
   @Test
   public void testException(TestContext testContext) {
