@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 import java.util.List;
 
 /**
- * Created by Edgar on 2017/1/5.
+ * Multimap的工具类.
  *
  * @author Edgar  Date 2017/1/5
  */
@@ -19,8 +19,8 @@ public class MultimapUtils {
   /**
    * 获取Multimap中的第一个参数.
    *
-   * @param multimap    参数列表
-   * @param key 参数名
+   * @param multimap 参数列表
+   * @param key      参数名
    * @return 参数值
    */
   public static String getFirst(Multimap<String, String> multimap, String key) {
