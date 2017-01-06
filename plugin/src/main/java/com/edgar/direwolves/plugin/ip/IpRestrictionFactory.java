@@ -20,9 +20,9 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
+public class IpRestrictionFactory implements ApiPluginFactory {
   @Override
-  public IpRestriction decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("ip_restriction")) {
       return null;
     }
@@ -45,10 +45,11 @@ public class IpRestrictionFactory implements ApiPluginFactory<IpRestriction> {
   }
 
   @Override
-  public JsonObject encode(IpRestriction ipRestriction) {
+  public JsonObject encode(ApiPlugin plugin) {
+    IpRestriction ipRestriction = (IpRestriction) plugin;
     return new JsonObject().put("ip_restriction", new JsonObject()
-        .put("whitelist", new JsonArray(ipRestriction.whitelist()))
-        .put("blacklist", new JsonArray(ipRestriction.blacklist())));
+            .put("whitelist", new JsonArray(ipRestriction.whitelist()))
+            .put("blacklist", new JsonArray(ipRestriction.blacklist())));
   }
 
   @Override

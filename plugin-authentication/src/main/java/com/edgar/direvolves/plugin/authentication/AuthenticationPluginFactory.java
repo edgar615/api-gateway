@@ -2,7 +2,6 @@ package com.edgar.direvolves.plugin.authentication;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -10,7 +9,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class AuthenticationPluginFactory implements ApiPluginFactory<AuthenticationPlugin> {
+public class AuthenticationPluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
     return AuthenticationPlugin.class.getSimpleName();
@@ -22,7 +21,7 @@ public class AuthenticationPluginFactory implements ApiPluginFactory<Authenticat
   }
 
   @Override
-  public AuthenticationPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
 
     if (jsonObject.getBoolean("authentication", true)) {
       return new AuthenticationPluginImpl();
@@ -31,7 +30,7 @@ public class AuthenticationPluginFactory implements ApiPluginFactory<Authenticat
   }
 
   @Override
-  public JsonObject encode(AuthenticationPlugin plugin) {
+  public JsonObject encode(ApiPlugin plugin) {
     if (plugin == null) {
       return new JsonObject();
     }

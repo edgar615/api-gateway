@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class JwtBuildPluginFactory implements ApiPluginFactory<JwtBuildPlugin> {
+public class JwtBuildPluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
     return JwtBuildPlugin.class.getSimpleName();
@@ -21,7 +21,7 @@ public class JwtBuildPluginFactory implements ApiPluginFactory<JwtBuildPlugin> {
   }
 
   @Override
-  public JwtBuildPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (jsonObject.getBoolean("jwt_build", false)) {
       return new JwtBuildPluginImpl();
     }
@@ -29,7 +29,7 @@ public class JwtBuildPluginFactory implements ApiPluginFactory<JwtBuildPlugin> {
   }
 
   @Override
-  public JsonObject encode(JwtBuildPlugin plugin) {
-    return new JsonObject().put("jwt_build",true);
+  public JsonObject encode(ApiPlugin plugin) {
+    return new JsonObject().put("jwt_build", true);
   }
 }

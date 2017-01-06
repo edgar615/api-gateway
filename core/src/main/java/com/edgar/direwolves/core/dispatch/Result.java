@@ -116,16 +116,4 @@ public interface Result {
     return Result.createJsonObject(statusCode(), responseObject(), header());
   }
 
-  default JsonObject toJson() {
-    JsonObject result = new JsonObject()
-            .put("statusCode", statusCode())
-            .put("isArray", isArray())
-            .put("header", header().asMap());
-    if (isArray()) {
-      result.put("responseArray", responseArray());
-    } else {
-      result.put("responseBody", responseObject());
-    }
-    return result;
-  }
 }

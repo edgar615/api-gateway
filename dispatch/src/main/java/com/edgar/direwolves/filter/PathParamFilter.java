@@ -1,9 +1,10 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.dispatch.Filter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.Future;
 
 import java.io.UnsupportedEncodingException;
@@ -51,8 +52,8 @@ public class PathParamFilter implements Filter {
       }
     }
     ApiContext newApiContext =
-        ApiContext.create(apiContext.method(), apiContext.path(),
-            apiContext.headers(), params, apiContext.body());
+            ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
+                              apiContext.headers(), params, apiContext.body());
     ApiContext.copyProperites(apiContext, newApiContext);
     completeFuture.complete(newApiContext);
   }

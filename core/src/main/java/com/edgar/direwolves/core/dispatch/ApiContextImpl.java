@@ -17,11 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 class ApiContextImpl implements ApiContext {
-
-  private final String id = UUID.randomUUID().toString();
 
   private final String path;
 
@@ -39,16 +36,19 @@ class ApiContextImpl implements ApiContext {
 
   private final List<RpcResponse> responses = new ArrayList<>();
 
+  private final String id;
+
+  private final List<Map.Entry<String, ApiContext>> actions = new ArrayList<>();
+
   private JsonObject principal;
 
   private ApiDefinition apiDefinition;
 
   private Result result;
 
-  private List<Map.Entry<String, ApiContext>> actions = new ArrayList<>();
-
-  ApiContextImpl(HttpMethod method, String path, Multimap<String, String> headers,
+  ApiContextImpl(String id, HttpMethod method, String path, Multimap<String, String> headers,
                  Multimap<String, String> params, JsonObject body) {
+    this.id = id;
     this.path = path;
     this.method = method;
     if (headers == null) {
@@ -168,6 +168,7 @@ class ApiContextImpl implements ApiContext {
   @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
+            .add("id", id)
             .add("method", method)
             .add("path", path)
             .add("params", params)

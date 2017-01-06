@@ -35,15 +35,15 @@ class RateLimitImpl implements RateLimit {
   private final long limit;
 
   private final Set<String> optionalTypes =
-      ImmutableSet.of("second", "minute", "hour", "day", "month", "year");
+          ImmutableSet.of("second", "minute", "hour", "day", "month", "year");
 
   private final Set<String> optionalLimits = ImmutableSet.of("ip", "token", "app_key", "user");
 
   RateLimitImpl(String limitBy, String type, long limit) {
     Preconditions.checkArgument(optionalLimits.contains(limitBy),
-        "limitBy must be ip | token | app_key");
+                                "limitBy must be ip | token | app_key");
     Preconditions.checkArgument(optionalTypes.contains(type),
-        "type must be second | minute | hour | day | month | year");
+                                "type must be second | minute | hour | day | month | year");
     Preconditions.checkArgument(limit > 0, "limit must > 0");
     this.limitBy = limitBy;
     this.type = type;
@@ -69,10 +69,10 @@ class RateLimitImpl implements RateLimit {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("RateLimit")
-        .add("limitBy", limitBy)
-        .add("type", type)
-        .add("limit", limit)
-        .toString();
+            .add("limitBy", limitBy)
+            .add("type", type)
+            .add("limit", limit)
+            .toString();
   }
 
 }

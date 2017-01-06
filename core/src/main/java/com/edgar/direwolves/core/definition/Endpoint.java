@@ -10,6 +10,16 @@ import io.vertx.core.http.HttpMethod;
 public interface Endpoint {
 
   /**
+   * @return endpoint的名称
+   */
+  String name();
+
+  /**
+   * @return endpoint的类型
+   */
+  String type();
+
+  /**
    * 创建HTTP类型的Endpoint
    *
    * @param name    名称
@@ -21,14 +31,4 @@ public interface Endpoint {
   static HttpEndpoint createHttp(String name, HttpMethod method, String path, String service) {
     return new HttpEndpointImpl(name, method, path, service);
   }
-
-  /**
-   * @return endpoint的名称
-   */
-  String name();
-
-  /**
-   * @return endpoint的类型
-   */
-  String type();
 }

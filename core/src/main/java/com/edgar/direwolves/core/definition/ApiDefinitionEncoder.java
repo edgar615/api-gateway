@@ -24,10 +24,10 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
   @Override
   public JsonObject apply(ApiDefinition definition) {
     JsonObject jsonObject = new JsonObject()
-        .put("name", definition.name())
-        .put("method", definition.method().name())
-        .put("path", definition.path())
-        .put("endpoints", createEndpointArray(definition.endpoints()));
+            .put("name", definition.name())
+            .put("method", definition.method().name())
+            .put("path", definition.path())
+            .put("endpoints", createEndpointArray(definition.endpoints()));
     definition.plugins().forEach(p -> jsonObject.mergeIn(p.encode()));
     return jsonObject;
 
@@ -45,11 +45,11 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
 
   private JsonObject endpoint(HttpEndpoint httpEndpoint) {
     return new JsonObject()
-        .put("type", httpEndpoint.type())
-        .put("name", httpEndpoint.name())
-        .put("service", httpEndpoint.service())
-        .put("path", httpEndpoint.path())
-        .put("method", httpEndpoint.method());
+            .put("type", httpEndpoint.type())
+            .put("name", httpEndpoint.name())
+            .put("service", httpEndpoint.service())
+            .put("path", httpEndpoint.path())
+            .put("method", httpEndpoint.method());
   }
 
 }

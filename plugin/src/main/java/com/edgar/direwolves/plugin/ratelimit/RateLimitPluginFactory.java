@@ -25,9 +25,9 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class RateLimitPluginFactory implements ApiPluginFactory<RateLimitPlugin> {
+public class RateLimitPluginFactory implements ApiPluginFactory {
   @Override
-  public RateLimitPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("rate_limit")) {
       return null;
     }
@@ -44,13 +44,14 @@ public class RateLimitPluginFactory implements ApiPluginFactory<RateLimitPlugin>
   }
 
   @Override
-  public JsonObject encode(RateLimitPlugin rateLimitPlugin) {
+  public JsonObject encode(ApiPlugin plugin) {
+    RateLimitPlugin rateLimitPlugin = (RateLimitPlugin) plugin;
     JsonArray rateLimtArray = new JsonArray();
     for (RateLimit rateLimit : rateLimitPlugin.rateLimits()) {
       rateLimtArray.add(new JsonObject()
-          .put("limit", rateLimit.limit())
-          .put("limit_by", rateLimit.limitBy())
-          .put("type", rateLimit.type()));
+                                .put("limit", rateLimit.limit())
+                                .put("limit_by", rateLimit.limitBy())
+                                .put("type", rateLimit.type()));
     }
     return new JsonObject().put("rate_limit", rateLimtArray);
   }

@@ -18,13 +18,11 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.Instant;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -100,6 +98,28 @@ public class DispatchHandlerTest {
                          testContext.asyncAssertSuccess());
   }
 
+  private static void add2Servers() {
+    mockConsulHttpVerticle.addService(new JsonObject()
+                                              .put("Node", "u221")
+                                              .put("Address", "localhost")
+                                              .put("ServiceID", "u221:device:9001")
+                                              .put("ServiceName", "device")
+                                              .put("ServiceTags", new JsonArray())
+                                              .put("ServicePort", 9001));
+    mockConsulHttpVerticle.addService((new JsonObject()
+            .put("Node", "u222")
+            .put("Address", "localhost")
+            .put("ServiceID", "u222:device:9002")
+            .put("ServiceName", "user")
+            .put("ServiceTags", new JsonArray())
+            .put("ServicePort", 9002)));
+    try {
+      TimeUnit.SECONDS.sleep(3);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
   @After
   public void tearDown(TestContext testContext) {
 //    vertx.close();
@@ -145,19 +165,19 @@ public class DispatchHandlerTest {
     int userId = Integer.parseInt(Randoms.randomNumber(5));
     vertx.createHttpClient()
             .get(8080, "localhost",
-                  "/devices/" + userId + "?timestamp="
-                  + Instant.now().getEpochSecond(),
-                  resp -> {
-                    resp.bodyHandler(body -> {
-                      System.out.println(body.toString());
-                      testContext.assertTrue(resp.statusCode() < 300);
-                      JsonObject jsonObject = new JsonObject(body.toString());
-                      testContext.assertEquals(userId + "", jsonObject.getString("id"));
-                      String reqId = resp.getHeader("x-request-id");
-                      testContext.assertNotNull(reqId);
-                      async.complete();
-                    });
-                  }).end();
+                 "/devices/" + userId + "?timestamp="
+                 + Instant.now().getEpochSecond(),
+                 resp -> {
+                   resp.bodyHandler(body -> {
+                     System.out.println(body.toString());
+                     testContext.assertTrue(resp.statusCode() < 300);
+                     JsonObject jsonObject = new JsonObject(body.toString());
+                     testContext.assertEquals(userId + "", jsonObject.getString("id"));
+                     String reqId = resp.getHeader("x-request-id");
+                     testContext.assertNotNull(reqId);
+                     async.complete();
+                   });
+                 }).end();
   }
 
   @Test
@@ -172,7 +192,8 @@ public class DispatchHandlerTest {
                       System.out.println(body.toString());
                       testContext.assertTrue(resp.statusCode() < 300);
                       JsonObject jsonObject = new JsonObject(body.toString());
-                      testContext.assertEquals("bar", jsonObject.getJsonObject("body").getString("foo"));
+                      testContext.assertEquals("bar",
+                                               jsonObject.getJsonObject("body").getString("foo"));
                       String reqId = resp.getHeader("x-request-id");
                       testContext.assertNotNull(reqId);
                       async.complete();
@@ -194,34 +215,13 @@ public class DispatchHandlerTest {
                      System.out.println(body.toString());
                      testContext.assertTrue(resp.statusCode() < 300);
                      JsonObject jsonObject = new JsonObject(body.toString());
-                     testContext.assertEquals("bar", jsonObject.getJsonObject("body").getString("foo"));
+                     testContext.assertEquals("bar",
+                                              jsonObject.getJsonObject("body").getString("foo"));
                      String reqId = resp.getHeader("x-request-id");
                      testContext.assertNotNull(reqId);
                      async.complete();
                    });
                  }).setChunked(true)
             .end(new JsonObject().put("foo", "bar").encode());
-  }
-
-  private static void add2Servers() {
-    mockConsulHttpVerticle.addService(new JsonObject()
-                                              .put("Node", "u221")
-                                              .put("Address", "localhost")
-                                              .put("ServiceID", "u221:device:9001")
-                                              .put("ServiceName", "device")
-                                              .put("ServiceTags", new JsonArray())
-                                              .put("ServicePort", 9001));
-    mockConsulHttpVerticle.addService((new JsonObject()
-            .put("Node", "u222")
-            .put("Address", "localhost")
-            .put("ServiceID", "u222:device:9002")
-            .put("ServiceName", "user")
-            .put("ServiceTags", new JsonArray())
-            .put("ServicePort", 9002)));
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
   }
 }

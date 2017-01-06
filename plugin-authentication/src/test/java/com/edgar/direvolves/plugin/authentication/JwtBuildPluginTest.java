@@ -15,17 +15,17 @@ public class JwtBuildPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-        .put("jwt_build", true);
-    ApiPluginFactory<JwtBuildPlugin> factory = new JwtBuildPluginFactory();
-    JwtBuildPlugin plugin = factory.decode(config);
+            .put("jwt_build", true);
+    ApiPluginFactory factory = new JwtBuildPluginFactory();
+    JwtBuildPlugin plugin = (JwtBuildPlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
   }
 
   @Test
   public void testEncode() {
     JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-        .class
-        .getSimpleName());
+                                                                      .class
+                                                                      .getSimpleName());
 
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);

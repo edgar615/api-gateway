@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * 将endpoint转换为json对象.
  * params和header的json均为{"k1", ["v1"]}，{"k1", ["v1", "v2]}格式的json对象.
- * <p/>
+ * <p>
  * <pre>
  *   {
  * "id" : "5bbbe06b-df08-4728-b5e2-166faf912621",
@@ -28,7 +28,7 @@ import io.vertx.core.json.JsonObject;
  * "port" : 8080
  * }
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class RequestTransformerFilterFactory implements FilterFactory {

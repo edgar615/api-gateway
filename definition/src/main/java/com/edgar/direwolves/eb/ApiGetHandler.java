@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class ApiGetHandler implements ApiMessageConsumer<String> {
   public static final String ADDRESS = "eb.api.get";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiGetHandler.class);
 
   @Override
@@ -38,7 +39,7 @@ public class ApiGetHandler implements ApiMessageConsumer<String> {
       } else {
         LOGGER.error("get api, name->{}", name);
         msg.reply(definitions.get(0), new DeliveryOptions().setCodecName
-            (ApiDefinitionCodec.class.getSimpleName()));
+                (ApiDefinitionCodec.class.getSimpleName()));
       }
     } catch (Exception e) {
       LOGGER.error("failed get api, error->{}", e.getMessage(), e);

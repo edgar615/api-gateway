@@ -11,6 +11,13 @@ import java.util.List;
  */
 public interface SelectStrategy {
 
+  /**
+   * 从一组records中取出一个record
+   *
+   * @return
+   */
+  Record select(List<Record> records);
+
   static SelectStrategy random() {
     return new RandomStrategy();
   }
@@ -18,11 +25,4 @@ public interface SelectStrategy {
   static SelectStrategy roundRobin() {
     return new RoundRobinStrategy();
   }
-
-  /**
-   * 从一组records中取出一个record
-   *
-   * @return
-   */
-  Record select(List<Record> records);
 }

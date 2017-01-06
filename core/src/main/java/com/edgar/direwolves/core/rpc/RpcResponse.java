@@ -125,17 +125,4 @@ public interface RpcResponse {
     return RpcResponse.createJsonObject(id(), statusCode(), responseObject().copy(), elapsedTime());
   }
 
-  default JsonObject toJson() {
-    JsonObject result = new JsonObject()
-            .put("id", id())
-            .put("statusCode", statusCode())
-            .put("isArray", isArray())
-            .put("elapsedTime", elapsedTime());
-    if (isArray()) {
-      result.put("responseArray", responseArray());
-    } else {
-      result.put("responseBody", responseObject());
-    }
-    return result;
-  }
 }

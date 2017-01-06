@@ -3,8 +3,8 @@ package com.edgar.direwolves.filter;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -28,7 +28,7 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class ExtractRpcResponseFilterTest  {
+public class ExtractRpcResponseFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -77,9 +77,9 @@ public class ExtractRpcResponseFilterTest  {
   public void singleJsonArrayShouldAlwaysReturnTheJsonArray(TestContext testContext) {
 
     ApiContext apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
     RpcResponse rpcResponse = RpcResponse
-        .createJsonArray("1", 200, new JsonArray().add(1).add(2), 0);
+            .createJsonArray("1", 200, new JsonArray().add(1).add(2), 0);
 
     apiContext.addResponse(rpcResponse);
 
@@ -87,11 +87,11 @@ public class ExtractRpcResponseFilterTest  {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          Result result = context.result();
-          testContext.assertEquals(2, result.responseArray().size());
-          async.complete();
-        }).onFailure(t -> testContext.fail());
+            .andThen(context -> {
+              Result result = context.result();
+              testContext.assertEquals(2, result.responseArray().size());
+              async.complete();
+            }).onFailure(t -> testContext.fail());
   }
 
   @Test

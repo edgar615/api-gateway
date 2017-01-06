@@ -1,9 +1,10 @@
 package com.edgar.direwolves.verticle;
 
+import com.google.common.collect.Lists;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
-import com.google.common.collect.Lists;
 import io.vertx.core.http.HttpMethod;
 import org.junit.After;
 import org.junit.Assert;
@@ -34,14 +35,16 @@ public class ApiDefinitionRegistryTest {
   @Test
   public void testRegister() {
     HttpEndpoint httpEndpoint = Endpoint
-        .createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            .createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     registry.add(apiDefinition);
     Assert.assertEquals(1, registry.getDefinitions().size());
 
-    apiDefinition = ApiDefinition.create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    apiDefinition = ApiDefinition
+            .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     registry.add(apiDefinition);
     Assert.assertEquals(2, registry.getDefinitions().size());
@@ -49,9 +52,11 @@ public class ApiDefinitionRegistryTest {
 
   @Test
   public void testUniqueName() {
-    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+    HttpEndpoint httpEndpoint =
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     registry.add(apiDefinition);
     registry.add(apiDefinition);
@@ -60,14 +65,17 @@ public class ApiDefinitionRegistryTest {
 
   @Test
   public void testFilterByName() {
-    HttpEndpoint httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+    HttpEndpoint httpEndpoint =
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
-    ApiDefinition apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     registry.add(apiDefinition);
     Assert.assertEquals(1, registry.getDefinitions().size());
 
-    apiDefinition = ApiDefinition.create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    apiDefinition = ApiDefinition
+            .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     registry.add(apiDefinition);
     Assert.assertEquals(2, registry.getDefinitions().size());

@@ -14,7 +14,7 @@ public class HttpEndPointTest {
   @Test
   public void testBuild() {
     HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "/devices", "device");
+            Endpoint.createHttp("get_device", HttpMethod.GET, "/devices", "device");
 
     Assert.assertEquals("/devices", httpEndpoint.path());
   }

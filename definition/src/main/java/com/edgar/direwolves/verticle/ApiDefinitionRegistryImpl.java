@@ -1,9 +1,10 @@
 package com.edgar.direwolves.verticle;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

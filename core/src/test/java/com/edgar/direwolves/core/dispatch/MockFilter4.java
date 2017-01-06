@@ -1,7 +1,5 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.Future;
 
 public class MockFilter4 implements Filter {

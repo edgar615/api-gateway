@@ -1,8 +1,9 @@
 package com.edgar.direwolves.plugin.arg;
 
-import com.edgar.util.validation.Rule;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+
+import com.edgar.util.validation.Rule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +57,9 @@ class ParameterImpl implements Parameter {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("Parameter")
-        .add("name", name)
-        .add("defaultValue", defaultValue)
-        .add("rules", rules)
-        .toString();
+            .add("name", name)
+            .add("defaultValue", defaultValue)
+            .add("rules", rules)
+            .toString();
   }
 }

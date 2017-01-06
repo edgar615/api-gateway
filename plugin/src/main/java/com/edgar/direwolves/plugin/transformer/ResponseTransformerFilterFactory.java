@@ -7,9 +7,9 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * response_transfomer.
- * <p/>
+ * <p>
  * </pre>
- * <p/>
+ * <p>
  * Created by edgar on 16-9-20.
  */
 public class ResponseTransformerFilterFactory implements FilterFactory {

@@ -82,9 +82,9 @@ public class RequestTransformerFilter implements Filter {
 
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
-      Multimap<String, String> params =  tranformerParams(request.params(), transformer);
+      Multimap<String, String> params = tranformerParams(request.params(), transformer);
       request.clearParams().addParams(params);
-      Multimap<String, String> headers =tranformerHeaders(request.headers(), transformer);
+      Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
       request.clearHeaders().addHeaders(headers);
       if (request.body() != null) {
         JsonObject body = tranformerBody(request.body(), transformer);
@@ -98,7 +98,7 @@ public class RequestTransformerFilter implements Filter {
     Multimap<String, String> newParams = ArrayListMultimap.create(params);
     transformer.paramRemoved().forEach(h -> newParams.removeAll(h));
     transformer.paramAdded().forEach(
-        entry -> newParams.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+            entry -> newParams.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
     return newParams;
   }
 
@@ -107,7 +107,7 @@ public class RequestTransformerFilter implements Filter {
     Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
     transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
     transformer.headerAdded().forEach(
-        entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+            entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
     return newHeader;
   }
 

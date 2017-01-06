@@ -7,7 +7,7 @@ import com.edgar.direwolves.core.spi.JsonObjectCodec;
  *
  * @author Edgar  Date 2016/10/21
  */
-public interface ApiPluginFactory<T extends ApiPlugin> extends JsonObjectCodec<T> {
+public interface ApiPluginFactory extends JsonObjectCodec<ApiPlugin> {
   /**
    * @return 插件名称
    */

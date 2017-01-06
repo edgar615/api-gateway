@@ -1,10 +1,11 @@
 package com.edgar.direwolves.filter.servicediscovery;
 
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -60,7 +61,7 @@ class RecordSelectImpl implements RecordSelect {
     Integer scanPeriod = config.getInteger("service.discovery.scan-period", 2000);
     if (Strings.isNullOrEmpty(serviceDiscovery)) {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
-          .set("details", "service.discovery cannot be null");
+              .set("details", "service.discovery cannot be null");
     }
     if (serviceDiscovery.startsWith(CONSUL_PREFIX)) {
       String address = serviceDiscovery.substring(CONSUL_PREFIX.length());
@@ -68,26 +69,26 @@ class RecordSelectImpl implements RecordSelect {
       String host = Iterables.get(iterable, 0);
       int port = Integer.parseInt(Iterables.get(iterable, 1));
       discovery
-          .registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
-              .put("host", host)
-              .put("port", port)
-              .put("scan-period", scanPeriod));
+              .registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
+                      .put("host", host)
+                      .put("port", port)
+                      .put("scan-period", scanPeriod));
     } else {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
-          .set("details", "unspport service.discovery:" + serviceDiscovery);
+              .set("details", "unspport service.discovery:" + serviceDiscovery);
     }
 
     JsonObject strategyConfig =
-        config.getJsonObject("service.discovery.select-strategy", new JsonObject());
+            config.getJsonObject("service.discovery.select-strategy", new JsonObject());
     strategyConfig.forEach(entry ->
-        strategyMap.put(entry.getKey(),
-            selectStrategy(entry.getValue().toString())));
+                                   strategyMap.put(entry.getKey(),
+                                                   selectStrategy(entry.getValue().toString())));
 
   }
 
   private void getRecord(String service, Future<Record> competeFuture) {
     SelectStrategy
-        selectStrategy = strategyMap.get(service);
+            selectStrategy = strategyMap.get(service);
 
     discovery.getRecords(r -> service.equals(r.getMetadata().getString("ServiceName")), ar -> {
       if (ar.succeeded()) {

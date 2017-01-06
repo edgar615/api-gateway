@@ -67,7 +67,8 @@
 //    System.out.println(apiDefinition);
 ////    await().until(() -> apiDefinition.filters().contains(filter));
 ////
-////    ApiDefinition apiDefinition2 = ApiDefinitionRegistry.create().filter("update_device").get(0);
+////    ApiDefinition apiDefinition2 = ApiDefinitionRegistry.create().filter("update_device").get
+// (0);
 ////    System.out.println(apiDefinition2);
 ////    await().until(() -> !apiDefinition2.filters().contains(filter));
 //  }
@@ -96,7 +97,8 @@
 //    System.out.println(apiDefinition);
 ////    await().until(() -> apiDefinition.filters().contains(filter));
 ////
-////    ApiDefinition apiDefinition2 = ApiDefinitionRegistry.create().filter("update_device").get(0);
+////    ApiDefinition apiDefinition2 = ApiDefinitionRegistry.create().filter("update_device").get
+// (0);
 ////    System.out.println(apiDefinition2);
 ////    await().until(() -> apiDefinition2.filters().contains(filter));
 //  }
@@ -152,7 +154,8 @@
 ////    System.out.println(apiDefinition2);
 ////    await().until(() -> !apiDefinition2.filters().contains("jwt"));
 ////
-////    ApiDefinition apiDefinition3 = ApiDefinitionRegistry.create().filter("update_device").get(0);
+////    ApiDefinition apiDefinition3 = ApiDefinitionRegistry.create().filter("update_device").get
+// (0);
 ////    System.out.println(apiDefinition3);
 ////    await().until(() -> !apiDefinition3.filters().contains("jwt"));
 //  }

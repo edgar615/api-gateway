@@ -20,9 +20,9 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class AclRestrictionFactory implements ApiPluginFactory<AclRestrictionPlugin> {
+public class AclRestrictionFactory implements ApiPluginFactory {
   @Override
-  public AclRestrictionPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("acl_restriction")) {
       return null;
     }
@@ -45,10 +45,11 @@ public class AclRestrictionFactory implements ApiPluginFactory<AclRestrictionPlu
   }
 
   @Override
-  public JsonObject encode(AclRestrictionPlugin plugin) {
+  public JsonObject encode(ApiPlugin plugin) {
+    AclRestrictionPlugin aclRestrictionPlugin = (AclRestrictionPlugin) plugin;
     return new JsonObject().put("acl_restriction", new JsonObject()
-        .put("whitelist", new JsonArray(plugin.whitelist()))
-        .put("blacklist", new JsonArray(plugin.blacklist())));
+            .put("whitelist", new JsonArray(aclRestrictionPlugin.whitelist()))
+            .put("blacklist", new JsonArray(aclRestrictionPlugin.blacklist())));
   }
 
   @Override

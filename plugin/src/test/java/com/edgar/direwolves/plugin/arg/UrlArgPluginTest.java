@@ -16,20 +16,20 @@ public class UrlArgPluginTest {
   public void testDecode() {
     JsonObject jsonObject = new JsonObject();
     JsonObject arg1 = new JsonObject()
-        .put("name", "macAddress")
-        .put("default_value", "FFFFFFFFFFFF")
-        .put("rules", new JsonObject().put("required", true)
-            .put("regex", "[0-9A-F]{16}"));
+            .put("name", "macAddress")
+            .put("default_value", "FFFFFFFFFFFF")
+            .put("rules", new JsonObject().put("required", true)
+                    .put("regex", "[0-9A-F]{16}"));
     JsonObject arg2 = new JsonObject()
-        .put("name", "type")
-        .put("rules", new JsonObject().put("required", true)
-            .put("integer", true));
+            .put("name", "type")
+            .put("rules", new JsonObject().put("required", true)
+                    .put("integer", true));
     JsonObject arg3 = new JsonObject()
-        .put("name", "barcode");
+            .put("name", "barcode");
     JsonArray urlArgs = new JsonArray()
-        .add(arg1).add(arg2).add(arg3);
+            .add(arg1).add(arg2).add(arg3);
     jsonObject.put("url_arg", urlArgs);
-    UrlArgPlugin plugin = new UrlArgPluginFactory().decode(jsonObject);
+    UrlArgPlugin plugin = (UrlArgPlugin) new UrlArgPluginFactory().decode(jsonObject);
     Assert.assertEquals(3, plugin.parameters().size());
   }
 
@@ -37,10 +37,10 @@ public class UrlArgPluginTest {
   public void testEncode() {
     UrlArgPlugin urlArgPlugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     urlArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
-        .addRule(Rule.regex("[0-9A-F]{16}")));
+                             .addRule(Rule.regex("[0-9A-F]{16}")));
     urlArgPlugin.add(Parameter.create("type", null)
-        .addRule(Rule.required())
-        .addRule(Rule.integer()));
+                             .addRule(Rule.required())
+                             .addRule(Rule.integer()));
     urlArgPlugin.add(Parameter.create("barcode", null));
     JsonObject jsonObject = urlArgPlugin.encode();
     Assert.assertTrue(jsonObject.containsKey("url_arg"));
@@ -53,10 +53,10 @@ public class UrlArgPluginTest {
   public void testRemoveParamter() {
     UrlArgPlugin urlArgPlugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     urlArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
-        .addRule(Rule.regex("[0-9A-F]{16}")));
+                             .addRule(Rule.regex("[0-9A-F]{16}")));
     urlArgPlugin.add(Parameter.create("type", null)
-        .addRule(Rule.required())
-        .addRule(Rule.integer()));
+                             .addRule(Rule.required())
+                             .addRule(Rule.integer()));
     urlArgPlugin.add(Parameter.create("barcode", null));
 
     Assert.assertEquals(3, urlArgPlugin.parameters().size());
@@ -68,10 +68,10 @@ public class UrlArgPluginTest {
   public void testClearParamter() {
     UrlArgPlugin urlArgPlugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     urlArgPlugin.add(Parameter.create("macAddress", "FFFFFFFFFFFF")
-        .addRule(Rule.regex("[0-9A-F]{16}")));
+                             .addRule(Rule.regex("[0-9A-F]{16}")));
     urlArgPlugin.add(Parameter.create("type", null)
-        .addRule(Rule.required())
-        .addRule(Rule.integer()));
+                             .addRule(Rule.required())
+                             .addRule(Rule.integer()));
     urlArgPlugin.add(Parameter.create("barcode", null));
 
     Assert.assertEquals(3, urlArgPlugin.parameters().size());

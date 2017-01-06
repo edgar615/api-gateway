@@ -1,5 +1,9 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -10,9 +14,6 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -56,9 +57,9 @@ public class StrictArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          async.complete();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              async.complete();
+            }).onFailure(t -> {
       testContext.fail();
     });
   }
@@ -66,16 +67,17 @@ public class StrictArgFilterTest {
   @Test
   public void unDefinedUrlArgPluginShouldFailed(TestContext testContext) {
     createApiContext();
-    filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject().put("strict_arg", true));
+    filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(),
+                           new JsonObject().put("strict_arg", true));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertEquals("prohibited", e.getErrorDetail().get("appKey").iterator().next());
@@ -86,40 +88,40 @@ public class StrictArgFilterTest {
 
   @Test
   public void unDefinedUrlArgPluginButExcludeArgShouldSuccess(TestContext
-                                                                  testContext) {
+                                                                      testContext) {
     createApiContext();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.query.excludes", new JsonArray().add("appKey").add("sign"))
-        .put("strict_arg", true));
+            .put("strict_arg.query.excludes", new JsonArray().add("appKey").add("sign"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          async.complete();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              async.complete();
+            }).onFailure(t -> {
       testContext.fail();
     });
   }
 
   @Test
   public void unDefinedUrlArgPluginButNotExcludeArgShouldFailed(TestContext
-                                                                    testContext) {
+                                                                        testContext) {
     createApiContext();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
-        .put("strict_arg", true));
+            .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertFalse(e.getErrorDetail().containsKey("appKey"));
@@ -132,16 +134,16 @@ public class StrictArgFilterTest {
   public void definedUrlArgPluginButExcludeArgShouldSuccess(TestContext testContext) {
     createApiContext();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
-        .put("strict_arg", true));
+            .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
+            .put("strict_arg", true));
     filters.add(filter);
 
 
     UrlArgPlugin plugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("limit", 10)
-        .addRule(Rule.integer())
-        .addRule(Rule.max(100))
-        .addRule(Rule.min(1));
+            .addRule(Rule.integer())
+            .addRule(Rule.max(100))
+            .addRule(Rule.min(1));
     plugin.add(parameter);
     parameter = Parameter.create("q3", 0);
     plugin.add(parameter);
@@ -151,9 +153,9 @@ public class StrictArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertEquals("prohibited", e.getErrorDetail().get("sign").iterator().next());
@@ -168,14 +170,14 @@ public class StrictArgFilterTest {
   public void definedUrlArgPluginShouldFailed(TestContext testContext) {
     createApiContext();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg", true));
+            .put("strict_arg", true));
     filters.add(filter);
 
     UrlArgPlugin plugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("limit", 10)
-        .addRule(Rule.integer())
-        .addRule(Rule.max(100))
-        .addRule(Rule.min(1));
+            .addRule(Rule.integer())
+            .addRule(Rule.max(100))
+            .addRule(Rule.min(1));
     plugin.add(parameter);
     parameter = Parameter.create("sign", 0);
     plugin.add(parameter);
@@ -185,9 +187,9 @@ public class StrictArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertEquals("prohibited", e.getErrorDetail().get("appKey").iterator().next());
@@ -201,15 +203,15 @@ public class StrictArgFilterTest {
   public void definedUrlArgPluginExcludeArgShouldSuccess(TestContext testContext) {
     createApiContext();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
-        .put("strict_arg", true));
+            .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     UrlArgPlugin plugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("limit", 10)
-        .addRule(Rule.integer())
-        .addRule(Rule.max(100))
-        .addRule(Rule.min(1));
+            .addRule(Rule.integer())
+            .addRule(Rule.max(100))
+            .addRule(Rule.min(1));
     plugin.add(parameter);
     parameter = Parameter.create("sign", 0);
     plugin.add(parameter);
@@ -219,9 +221,9 @@ public class StrictArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          async.complete();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              async.complete();
+            }).onFailure(t -> {
       testContext.fail();
     });
   }
@@ -230,16 +232,16 @@ public class StrictArgFilterTest {
   public void unDefinedBodyArgPluginShouldFailed(TestContext testContext) {
     createApiContext2();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg", true));
+            .put("strict_arg", true));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertEquals("prohibited", e.getErrorDetail().get("type").iterator().next());
@@ -250,40 +252,40 @@ public class StrictArgFilterTest {
 
   @Test
   public void unDefinedBodyArgPluginButExcludeArgShouldSuccess(TestContext
-                                                                   testContext) {
+                                                                       testContext) {
     createApiContext2();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.body.excludes", new JsonArray().add("type").add("name"))
-        .put("strict_arg", true));
+            .put("strict_arg.body.excludes", new JsonArray().add("type").add("name"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          async.complete();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              async.complete();
+            }).onFailure(t -> {
       testContext.fail();
     });
   }
 
   @Test
   public void unDefinedBodyArgPluginButNotExcludeArgShouldFailed(TestContext
-                                                                      testContext) {
+                                                                         testContext) {
     createApiContext2();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.body.excludes", new JsonArray().add("type"))
-        .put("strict_arg", true));
+            .put("strict_arg.body.excludes", new JsonArray().add("type"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertFalse(e.getErrorDetail().containsKey("type"));
@@ -297,15 +299,15 @@ public class StrictArgFilterTest {
   public void definedBodyArgPluginButNotExcludeArgShouldFailed(TestContext testContext) {
     createApiContext2();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.body.excludes", new JsonArray().add("name"))
-        .put("strict_arg", true));
+            .put("strict_arg.body.excludes", new JsonArray().add("name"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("limit", 10)
-        .addRule(Rule.integer())
-        .addRule(Rule.max(100))
-        .addRule(Rule.min(1));
+            .addRule(Rule.integer())
+            .addRule(Rule.max(100))
+            .addRule(Rule.min(1));
     plugin.add(parameter);
     parameter = Parameter.create("q3", 0);
     plugin.add(parameter);
@@ -315,9 +317,9 @@ public class StrictArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       testContext.assertTrue(t instanceof ValidationException);
       ValidationException e = (ValidationException) t;
       testContext.assertEquals("prohibited", e.getErrorDetail().get("type").iterator().next());
@@ -332,15 +334,15 @@ public class StrictArgFilterTest {
   public void definedBodyArgPluginButExcludeArgShouldSuccess(TestContext testContext) {
     createApiContext2();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-        .put("strict_arg.body.excludes", new JsonArray().add("name"))
-        .put("strict_arg", true));
+            .put("strict_arg.body.excludes", new JsonArray().add("name"))
+            .put("strict_arg", true));
     filters.add(filter);
 
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("limit", 10)
-        .addRule(Rule.integer())
-        .addRule(Rule.max(100))
-        .addRule(Rule.min(1));
+            .addRule(Rule.integer())
+            .addRule(Rule.max(100))
+            .addRule(Rule.min(1));
     plugin.add(parameter);
     parameter = Parameter.create("type", 0);
     plugin.add(parameter);
@@ -350,9 +352,9 @@ public class StrictArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          async.complete();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              async.complete();
+            }).onFailure(t -> {
       testContext.fail();
     });
   }
@@ -367,12 +369,12 @@ public class StrictArgFilterTest {
     headers.put("h3", "v3.2");
 
     apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition definition = ApiDefinition
-        .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
   }
 
@@ -383,16 +385,16 @@ public class StrictArgFilterTest {
     headers.put("h3", "v3.2");
 
     JsonObject body = new JsonObject()
-        .put("type", 1)
-        .put("name", "edgar");
+            .put("type", 1)
+            .put("name", "edgar");
 
     apiContext =
-        ApiContext.create(HttpMethod.GET, "/devices", headers, params, body);
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, body);
     HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition definition = ApiDefinition
-        .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
   }
 }

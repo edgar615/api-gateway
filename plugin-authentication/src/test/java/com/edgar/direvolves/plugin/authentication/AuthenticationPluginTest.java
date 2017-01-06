@@ -2,7 +2,6 @@ package com.edgar.direvolves.plugin.authentication;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,17 +15,17 @@ public class AuthenticationPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-        .put("authentication", true);
-    ApiPluginFactory<AuthenticationPlugin> factory = new AuthenticationPluginFactory();
-    AuthenticationPlugin plugin = factory.decode(config);
+            .put("authentication", true);
+    ApiPluginFactory factory = new AuthenticationPluginFactory();
+    AuthenticationPlugin plugin = (AuthenticationPlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
   }
 
   @Test
   public void testEncode() {
     AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
-        .class
-        .getSimpleName());
+                                                                                  .class
+                                                                                  .getSimpleName());
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
     Assert.assertTrue(jsonObject.getBoolean("authentication"));

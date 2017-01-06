@@ -7,7 +7,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-12-25.
  */
-public class AuthorisePluginFactory implements ApiPluginFactory<AuthorisePlugin> {
+public class AuthorisePluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
     return AuthorisePlugin.class.getSimpleName();
@@ -19,16 +19,17 @@ public class AuthorisePluginFactory implements ApiPluginFactory<AuthorisePlugin>
   }
 
   @Override
-  public AuthorisePlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     String scope = jsonObject.getString("scope", "default");
     return new AuthorisePluginImpl(scope);
   }
 
   @Override
-  public JsonObject encode(AuthorisePlugin plugin) {
+  public JsonObject encode(ApiPlugin plugin) {
     if (plugin == null) {
       return new JsonObject();
     }
-    return new JsonObject().put("scope", plugin.scope());
+    AuthorisePlugin authorisePlugin = (AuthorisePlugin) plugin;
+    return new JsonObject().put("scope", authorisePlugin.scope());
   }
 }

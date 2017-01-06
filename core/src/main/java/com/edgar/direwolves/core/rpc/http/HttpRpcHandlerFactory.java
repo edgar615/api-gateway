@@ -11,7 +11,7 @@ import io.vertx.core.json.JsonObject;
 public class HttpRpcHandlerFactory implements RpcHandlerFactory {
   @Override
   public String type() {
-    return "http";
+    return "HTTP";
   }
 
   @Override

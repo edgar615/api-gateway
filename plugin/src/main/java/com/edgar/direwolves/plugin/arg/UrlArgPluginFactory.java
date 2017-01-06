@@ -1,9 +1,10 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.google.common.base.Preconditions;
+
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.edgar.util.validation.Rule;
-import com.google.common.base.Preconditions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -34,7 +35,7 @@ import java.util.List;
  * </pre>
  * Created by edgar on 16-10-22.
  */
-public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
+public class UrlArgPluginFactory implements ApiPluginFactory {
 
   @Override
   public String name() {
@@ -47,7 +48,7 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
   }
 
   @Override
-  public UrlArgPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("url_arg")) {
       return null;
     }
@@ -60,7 +61,7 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
       Object defaultValue = parameterJson.getValue("default_value");
       Parameter parameter = Parameter.create(name, defaultValue);
       List<Rule> rules = RulesDecoder.instance().apply(parameterJson.getJsonObject("rules", new
-          JsonObject()));
+              JsonObject()));
       rules.forEach(rule -> parameter.addRule(rule));
       urlArgPlugin.add(parameter);
     }
@@ -70,17 +71,20 @@ public class UrlArgPluginFactory implements ApiPluginFactory<UrlArgPlugin> {
   }
 
   @Override
-  public JsonObject encode(UrlArgPlugin plugin) {
+  public JsonObject encode(ApiPlugin plugin) {
+
+    UrlArgPlugin urlArgPlugin = (UrlArgPlugin) plugin;
+
     return new JsonObject()
-        .put("url_arg", createParamterArray(plugin.parameters()));
+            .put("url_arg", createParamterArray(urlArgPlugin.parameters()));
   }
 
   private JsonArray createParamterArray(List<Parameter> parameters) {
     JsonArray jsonArray = new JsonArray();
     parameters.forEach(parameter -> {
       JsonObject jsonObject = new JsonObject()
-          .put("name", parameter.name())
-          .put("default_value", parameter.defaultValue());
+              .put("name", parameter.name())
+              .put("default_value", parameter.defaultValue());
       jsonArray.add(jsonObject);
       JsonObject rules = new JsonObject();
       jsonObject.put("rules", rules);

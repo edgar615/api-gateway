@@ -32,13 +32,13 @@ class ResponseTransformerPluginImpl implements ResponseTransformerPlugin {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("ResponseTransformer")
-        .add("headerRemove", headerRemove)
-        .add("headerReplace", headerReplace)
-        .add("headerAdd", headerAdd)
-        .add("bodyRemove", bodyRemove)
-        .add("bodyReplace", bodyReplace)
-        .add("bodyAdd", bodyAdd)
-        .toString();
+            .add("headerRemove", headerRemove)
+            .add("headerReplace", headerReplace)
+            .add("headerAdd", headerAdd)
+            .add("bodyRemove", bodyRemove)
+            .add("bodyReplace", bodyReplace)
+            .add("bodyAdd", bodyAdd)
+            .toString();
   }
 
   @Override

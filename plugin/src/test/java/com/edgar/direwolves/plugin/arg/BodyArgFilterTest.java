@@ -35,7 +35,9 @@ import java.util.List;
 public class BodyArgFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
+
   Filter filter;
+
   private ApiContext apiContext;
 
   @Before
@@ -59,7 +61,8 @@ public class BodyArgFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
     HttpEndpoint httpEndpoint =
             Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    ApiDefinition definition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
   }
 
@@ -88,11 +91,11 @@ public class BodyArgFilterTest {
   public void testExistParameterNotAllocateDefaultValue(TestContext testContext) {
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("encryptKey", null)
-        .addRule(Rule.required())
-        .addRule(Rule.regex("[0-9A-F]{16}"));
+            .addRule(Rule.required())
+            .addRule(Rule.regex("[0-9A-F]{16}"));
     plugin.add(parameter);
     parameter = Parameter.create("barcode", 1)
-        .addRule(Rule.required());
+            .addRule(Rule.required());
     plugin.add(parameter);
     apiContext.apiDefinition().addPlugin(plugin);
 //    apiContext.addParam("type", "3");
@@ -100,12 +103,12 @@ public class BodyArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.assertEquals("AAAAAAAAAAAAAAAA", context.body().getString("barcode"));
-          testContext.assertEquals(1, context.actions().size());
-          System.out.println(context.actions());
-          async.complete();
-        }).onFailure(t ->{
+            .andThen(context -> {
+              testContext.assertEquals("AAAAAAAAAAAAAAAA", context.body().getString("barcode"));
+              testContext.assertEquals(1, context.actions().size());
+              System.out.println(context.actions());
+              async.complete();
+            }).onFailure(t -> {
       t.printStackTrace();
       testContext.fail();
     });
@@ -115,12 +118,12 @@ public class BodyArgFilterTest {
   public void testInvalidParameterShouldThrowValidationException(TestContext testContext) {
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("username", null)
-        .addRule(Rule.required())
-        .addRule(Rule.regex("[0-9A-F]{16}"));
+            .addRule(Rule.required())
+            .addRule(Rule.regex("[0-9A-F]{16}"));
     plugin.add(parameter);
     parameter = Parameter.create("type", 1)
-        .addRule(Rule.required())
-        .addRule(Rule.optional(Lists.newArrayList(1, 2, 3)));
+            .addRule(Rule.required())
+            .addRule(Rule.optional(Lists.newArrayList(1, 2, 3)));
     plugin.add(parameter);
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -128,9 +131,9 @@ public class BodyArgFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       Assert.assertTrue(t instanceof ValidationException);
       async.complete();
     });

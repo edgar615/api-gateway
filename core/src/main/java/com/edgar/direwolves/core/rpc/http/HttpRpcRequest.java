@@ -1,39 +1,70 @@
 package com.edgar.direwolves.core.rpc.http;
 
-import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 /**
- * HTTP类型的rpc请求定义.
+ * HTTP类型的rpc请求的定义.
  *
  * @author Edgar  Date 2016/12/26
  */
 public class HttpRpcRequest implements RpcRequest {
 
+  /**
+   * 请求头
+   */
   private final Multimap<String, String> headers = ArrayListMultimap.create();
 
+  /**
+   * 请求参数
+   */
   private final Multimap<String, String> params = ArrayListMultimap.create();
 
+  /**
+   * id
+   */
   private final String id;
 
+  /**
+   * 名称
+   */
   private final String name;
 
+  /**
+   * 服务端端口
+   */
   private int port = 80;
 
+  /**
+   * 服务端地址
+   */
   private String host = "localhost";
 
+  /**
+   * 请求路径
+   */
   private String path = "/";
 
+  /**
+   * HTTP方法
+   */
   private HttpMethod httpMethod = HttpMethod.GET;
 
+  /**
+   * 请求体
+   */
   private JsonObject body;
 
+  /**
+   * 请求超时时间，只有大于100的超时时间才有效
+   */
   private int timeout = 10000;
 
   HttpRpcRequest(String id, String name) {
@@ -41,6 +72,12 @@ public class HttpRpcRequest implements RpcRequest {
     this.name = name;
   }
 
+  /**
+   * 创建HTTP类型的RPC请求
+   * @param id id
+   * @param name 名称
+   * @return HttpRpcRequest
+   */
   public static HttpRpcRequest create(String id, String name) {
     return new HttpRpcRequest(id, name);
   }
@@ -72,10 +109,6 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.addParams(params());
     copyReq.addHeaders(headers());
     return copyReq;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public int port() {
@@ -176,23 +209,19 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
-  public String getId() {
-    return id;
-  }
-
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("HttpRpcRequest")
-        .add("id", id)
-        .add("name", name)
-        .add("host", host)
-        .add("port", port)
-        .add("method", httpMethod)
-        .add("path", path)
-        .add("timeout", timeout)
-        .add("headers", headers)
-        .add("params", params)
-        .add("body", body == null ? null : body.encode())
-        .toString();
+            .add("id", id)
+            .add("name", name)
+            .add("host", host)
+            .add("port", port)
+            .add("method", httpMethod)
+            .add("path", path)
+            .add("timeout", timeout)
+            .add("headers", headers)
+            .add("params", params)
+            .add("body", body == null ? null : body.encode())
+            .toString();
   }
 }

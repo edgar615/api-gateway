@@ -1,6 +1,7 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.Preconditions;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -15,15 +16,6 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2016/9/13
  */
 public interface ApiDefinition {
-
-  static ApiDefinition create(String name, HttpMethod method, String path,
-                              List<Endpoint> endpoints) {
-    return new ApiDefinitionImpl(name, method, path, endpoints);
-  }
-
-  static ApiDefinition fromJson(JsonObject jsonObject) {
-    return ApiDefinitionDecoder.instance().apply(jsonObject);
-  }
 
   /**
    * @return 名称，必填项，全局唯一.
@@ -76,6 +68,15 @@ public interface ApiDefinition {
    */
   ApiDefinition removePlugin(String name);
 
+  static ApiDefinition create(String name, HttpMethod method, String path,
+                              List<Endpoint> endpoints) {
+    return new ApiDefinitionImpl(name, method, path, endpoints);
+  }
+
+  static ApiDefinition fromJson(JsonObject jsonObject) {
+    return ApiDefinitionDecoder.instance().apply(jsonObject);
+  }
+
   /**
    * 根据插件名称返回插件
    *
@@ -85,9 +86,9 @@ public interface ApiDefinition {
   default ApiPlugin plugin(String name) {
     Preconditions.checkNotNull(name, "name cannot be null");
     List<ApiPlugin> apiPlugins =
-        plugins().stream()
-            .filter(p -> name.equalsIgnoreCase(p.name()))
-            .collect(Collectors.toList());
+            plugins().stream()
+                    .filter(p -> name.equalsIgnoreCase(p.name()))
+                    .collect(Collectors.toList());
     if (apiPlugins.isEmpty()) {
       return null;
     }

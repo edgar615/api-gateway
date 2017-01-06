@@ -7,13 +7,13 @@ package com.edgar.direwolves.plugin.transformer;
  */
 public interface RequestTransformer extends BodyTransfomer, HeaderTransfomer, ParamTransfomer {
 
-  static RequestTransformer create(String name) {
-    return new RequestTransformerImpl(name);
-  }
-
   /**
    * @return endpoint的名称
    */
   String name();
+
+  static RequestTransformer create(String name) {
+    return new RequestTransformerImpl(name);
+  }
 
 }

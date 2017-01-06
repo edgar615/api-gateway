@@ -4,12 +4,13 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
  * 单个请求的响应.
- * <p/>
+ * <p>
  * <b>responseObject和responseArray只有一个有效</b>
  * responseArray不为null时，responseObject必为null,isArray必为true.
  *
@@ -24,7 +25,7 @@ class ResultImpl implements Result {
 
   /**
    * 响应是否是数组.
-   * <p/>
+   * <p>
    * responseObject不为null时,isArray必为false.
    * responseArray不为null时，isArray必为true.
    */
@@ -32,7 +33,7 @@ class ResultImpl implements Result {
 
   /**
    * JsonObject格式的响应.
-   * <p/>
+   * <p>
    * <b>responseObject和responseArray只有一个有效</b>
    * responseObject不为null时，responseArray必为null,isArray必为false
    */

@@ -1,9 +1,10 @@
 package com.edgar.direwolves.plugin.arg;
 
+import com.google.common.collect.ArrayListMultimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.validation.ValidationException;
-import com.google.common.collect.ArrayListMultimap;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -52,25 +53,25 @@ public class StrictArgFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     UrlArgPlugin urlArgPlugin =
-        (UrlArgPlugin) apiContext.apiDefinition().plugin(UrlArgPlugin.class.getSimpleName());
+            (UrlArgPlugin) apiContext.apiDefinition().plugin(UrlArgPlugin.class.getSimpleName());
 
     ArrayListMultimap error = ArrayListMultimap.create();
     if (!apiContext.params().isEmpty()) {
       apiContext.params().keySet().stream()
-          .filter(k -> testUrlArg(k, urlArgPlugin))
-          .forEach(k -> error.put(k, "prohibited"));
+              .filter(k -> testUrlArg(k, urlArgPlugin))
+              .forEach(k -> error.put(k, "prohibited"));
     }
     if (!error.isEmpty()) {
       throw new ValidationException(error);
     }
 
     BodyArgPlugin bodyArgPlugin =
-        (BodyArgPlugin) apiContext.apiDefinition().plugin(BodyArgPlugin.class.getSimpleName());
+            (BodyArgPlugin) apiContext.apiDefinition().plugin(BodyArgPlugin.class.getSimpleName());
     ArrayListMultimap bodyError = ArrayListMultimap.create();
     if (apiContext.body() != null) {
       apiContext.body().fieldNames().stream()
-          .filter(k -> testBodyArg(k, bodyArgPlugin))
-          .forEach(k -> bodyError.put(k, "prohibited"));
+              .filter(k -> testBodyArg(k, bodyArgPlugin))
+              .forEach(k -> bodyError.put(k, "prohibited"));
     }
     if (!bodyError.isEmpty()) {
       throw new ValidationException(bodyError);

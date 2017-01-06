@@ -14,6 +14,9 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 public class Filters {
+  private Filters() {
+    throw new AssertionError("Not instantiable: " + Filters.class);
+  }
 
   /**
    * 将filter按照order()生序排列.

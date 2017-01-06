@@ -1,12 +1,13 @@
 package com.edgar.direwolves.core.rpc;
 
 import com.google.common.base.MoreObjects;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
  * 单个请求的响应.
- * <p/>
+ * <p>
  * <b>responseObject和responseArray只有一个有效</b>
  * responseArray不为null时，responseObject必为null,isArray必为true.
  *
@@ -26,7 +27,7 @@ class RpcResponseImpl implements RpcResponse {
 
   /**
    * 响应是否是数组.
-   * <p/>
+   * <p>
    * responseObject不为null时,isArray必为false.
    * responseArray不为null时，isArray必为true.
    */
@@ -34,7 +35,7 @@ class RpcResponseImpl implements RpcResponse {
 
   /**
    * JsonObject格式的响应.
-   * <p/>
+   * <p>
    * <b>responseObject和responseArray只有一个有效</b>
    * responseObject不为null时，responseArray必为null,isArray必为false
    */
@@ -115,7 +116,7 @@ class RpcResponseImpl implements RpcResponse {
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("RpcResponse");
     helper.add("id", id)
-        .add("statusCode", statusCode);
+            .add("statusCode", statusCode);
     if (isArray) {
       helper.add("responseArray", responseArray);
     } else {

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApiDeleteHandler implements ApiMessageConsumer<String> {
   public static final String ADDRESS = "eb.api.delete";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDeleteHandler.class);
 
   @Override

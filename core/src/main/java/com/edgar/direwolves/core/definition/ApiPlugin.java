@@ -2,6 +2,7 @@ package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
@@ -16,7 +17,12 @@ import java.util.stream.Collectors;
  */
 public interface ApiPlugin {
   List<ApiPluginFactory> factories = Lists.newArrayList(
-      ServiceLoader.load(ApiPluginFactory.class));
+          ServiceLoader.load(ApiPluginFactory.class));
+
+  /**
+   * @return 插件名称
+   */
+  String name();
 
   static ApiPlugin create(String name) {
     return factory(name).create();
@@ -25,18 +31,13 @@ public interface ApiPlugin {
   static ApiPluginFactory factory(String name) {
     Preconditions.checkNotNull(name, "name cannot null");
     List<ApiPluginFactory> apiPluginFactories =
-        factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
-            .collect(Collectors.toList());
+            factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
+                    .collect(Collectors.toList());
     if (apiPluginFactories.isEmpty()) {
       throw new NoSuchElementException("no such factory->" + name);
     }
     return apiPluginFactories.get(0);
   }
-
-  /**
-   * @return 插件名称
-   */
-  String name();
 
   default JsonObject encode() {
     return factory(this.name()).encode(this);

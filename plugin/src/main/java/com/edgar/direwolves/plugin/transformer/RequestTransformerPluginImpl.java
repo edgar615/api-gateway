@@ -28,8 +28,8 @@ public class RequestTransformerPluginImpl implements RequestTransformerPlugin {
   @Override
   public RequestTransformer transformer(String name) {
     List<RequestTransformer> list = this.transformers.stream()
-        .filter(t -> t.name().equalsIgnoreCase(name))
-        .collect(Collectors.toList());
+            .filter(t -> t.name().equalsIgnoreCase(name))
+            .collect(Collectors.toList());
     if (list.isEmpty()) {
       return null;
     }

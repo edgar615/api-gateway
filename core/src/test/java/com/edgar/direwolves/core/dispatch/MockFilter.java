@@ -1,9 +1,5 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import com.edgar.util.validation.Rule;
 import io.vertx.core.Future;
 
 public class MockFilter implements Filter {

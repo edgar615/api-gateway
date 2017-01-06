@@ -30,10 +30,58 @@ public class HttpRpcHandler implements RpcHandler {
     this.httpClient = vertx.createHttpClient();
   }
 
+  @Override
+  public String type() {
+    return "HTTP";
+  }
+
+  @Override
+  public Future<RpcResponse> handle(RpcRequest rpcRequest) {
+    HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
+    if (checkMethod(httpRpcRequest)) {
+      return Future.failedFuture(
+              SystemException.create(DefaultErrorCode.INVALID_ARGS).set("details", "method")
+      );
+    }
+    if (checkBody(httpRpcRequest)) {
+      return Future.failedFuture(
+              SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
+      );
+    }
+    Future<RpcResponse> future = Future.future();
+    String path = requestPath(httpRpcRequest);
+    final long startTime = System.currentTimeMillis();
+    HttpClientRequest request =
+            httpClient
+                    .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
+                             path)
+                    .putHeader("content-type", "application/json");
+    request.handler(response -> {
+      response.bodyHandler(body -> {
+        RpcResponse rpcResponse =
+                RpcResponse.create(httpRpcRequest.id(),
+                                   response.statusCode(),
+                                   body,
+                                   System.currentTimeMillis() - startTime);
+        future.complete(rpcResponse);
+      }).exceptionHandler(throwable -> {
+        if (!future.isComplete()) {
+          future.fail(throwable);
+        }
+      });
+    });
+    header(httpRpcRequest, request);
+    exceptionHandler(future, request);
+    timeout(httpRpcRequest, request);
+
+    endRequest(httpRpcRequest, request);
+    return future;
+  }
+
   private boolean checkBody(HttpRpcRequest request) {
     return (request.method() == HttpMethod.POST
-        || request.method() == HttpMethod.PUT)
-        && request.body() == null;
+            || request.method() == HttpMethod.PUT)
+           && request.body() == null;
   }
 
   private void header(HttpRpcRequest rpcRequest, HttpClientRequest request) {
@@ -63,18 +111,18 @@ public class HttpRpcHandler implements RpcHandler {
       request.end();
     } else if (rpcRequest.method() == HttpMethod.POST) {
       request.setChunked(true)
-          .end(rpcRequest.body().encode());
+              .end(rpcRequest.body().encode());
     } else if (rpcRequest.method() == HttpMethod.PUT) {
       request.setChunked(true)
-          .end(rpcRequest.body().encode());
+              .end(rpcRequest.body().encode());
     }
   }
 
   private boolean checkMethod(HttpRpcRequest rpcRequest) {
     return rpcRequest.method() != HttpMethod.GET
-        && rpcRequest.method() != HttpMethod.DELETE
-        && rpcRequest.method() != HttpMethod.POST
-        && rpcRequest.method() != HttpMethod.PUT;
+           && rpcRequest.method() != HttpMethod.DELETE
+           && rpcRequest.method() != HttpMethod.POST
+           && rpcRequest.method() != HttpMethod.PUT;
   }
 
   private String requestPath(HttpRpcRequest rpcRequest) {
@@ -96,53 +144,5 @@ public class HttpRpcHandler implements RpcHandler {
       path += "?" + queryString;
     }
     return path;
-  }
-
-  @Override
-  public String type() {
-    return "http";
-  }
-
-  @Override
-  public Future<RpcResponse> handle(RpcRequest rpcRequest) {
-    HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
-    if (checkMethod(httpRpcRequest)) {
-      return Future.failedFuture(
-          SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "method")
-      );
-    }
-    if (checkBody(httpRpcRequest)) {
-      return Future.failedFuture(
-          SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
-      );
-    }
-    Future<RpcResponse> future = Future.future();
-    String path = requestPath(httpRpcRequest);
-    final long startTime = System.currentTimeMillis();
-    HttpClientRequest request =
-        httpClient
-            .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
-                path)
-            .putHeader("content-type", "application/json");
-    request.handler(response -> {
-      response.bodyHandler(body -> {
-        RpcResponse rpcResponse =
-            RpcResponse.create(httpRpcRequest.getId(),
-                response.statusCode(),
-                body,
-                System.currentTimeMillis() - startTime);
-        future.complete(rpcResponse);
-      }).exceptionHandler(throwable -> {
-        if (!future.isComplete()) {
-          future.fail(throwable);
-        }
-      });
-    });
-    header(httpRpcRequest, request);
-    exceptionHandler(future, request);
-    timeout(httpRpcRequest, request);
-
-    endRequest(httpRpcRequest, request);
-    return future;
   }
 }

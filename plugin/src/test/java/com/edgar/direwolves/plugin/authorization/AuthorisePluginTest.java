@@ -15,9 +15,9 @@ public class AuthorisePluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-        .put("scope", "user.read");
-    ApiPluginFactory<AuthorisePlugin> factory = new AuthorisePluginFactory();
-    AuthorisePlugin plugin = factory.decode(config);
+            .put("scope", "user.read");
+    ApiPluginFactory factory = new AuthorisePluginFactory();
+    AuthorisePlugin plugin = (AuthorisePlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
     Assert.assertEquals("user.read", plugin.scope());
   }
@@ -25,8 +25,8 @@ public class AuthorisePluginTest {
   @Test
   public void testEncode() {
     AuthorisePluginImpl plugin = (AuthorisePluginImpl) ApiPlugin.create(AuthorisePlugin
-        .class
-        .getSimpleName());
+                                                                                .class
+                                                                                .getSimpleName());
     plugin.setScope("user.read");
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);

@@ -7,7 +7,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-10-31.
  */
-public class AppKeyPluginFactory implements ApiPluginFactory<AppKeyPlugin> {
+public class AppKeyPluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
     return AppKeyPlugin.class.getSimpleName();
@@ -19,7 +19,7 @@ public class AppKeyPluginFactory implements ApiPluginFactory<AppKeyPlugin> {
   }
 
   @Override
-  public AppKeyPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (jsonObject.getBoolean("appkey", false)) {
       return new AppKeyPluginImpl();
     }
@@ -27,7 +27,7 @@ public class AppKeyPluginFactory implements ApiPluginFactory<AppKeyPlugin> {
   }
 
   @Override
-  public JsonObject encode(AppKeyPlugin plugin) {
+  public JsonObject encode(ApiPlugin plugin) {
     if (plugin == null) {
       return new JsonObject();
     }

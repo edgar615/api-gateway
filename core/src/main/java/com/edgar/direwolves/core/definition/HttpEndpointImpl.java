@@ -2,6 +2,7 @@ package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+
 import io.vertx.core.http.HttpMethod;
 
 /**
@@ -79,11 +80,11 @@ class HttpEndpointImpl implements HttpEndpoint {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("HttpEndpoint")
-        .add("name", name)
-        .add("service", service)
-        .add("path", path)
-        .add("method", method.name())
-        .toString();
+            .add("name", name)
+            .add("service", service)
+            .add("path", path)
+            .add("method", method.name())
+            .toString();
   }
 
 

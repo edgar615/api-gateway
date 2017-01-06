@@ -4,18 +4,10 @@ import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.serviceproxy.ProxyHelper;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by edgar on 17-1-4.
@@ -52,7 +44,7 @@ public class ApiFindFilter implements Filter {
     apiProvider.match(apiContext.method().name(), apiContext.path(), ar -> {
       if (ar.succeeded()) {
         try {
-          ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result());
+          ApiDefinition apiDefinition = ApiDefinition.fromJson(ar.result());
           apiContext.setApiDefinition(apiDefinition);
           completeFuture.complete(apiContext);
         } catch (Exception e) {

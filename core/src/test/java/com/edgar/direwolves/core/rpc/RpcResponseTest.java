@@ -53,7 +53,7 @@ public class RpcResponseTest {
   @Test
   public void testJsonArray() {
     JsonArray jsonArray = new JsonArray()
-        .add(new JsonObject().put("foo", "bar"));
+            .add(new JsonObject().put("foo", "bar"));
     Buffer buffer = Buffer.buffer();
     jsonArray.writeToBuffer(buffer);
     RpcResponse rpcResponse = RpcResponse.create("test", 200, buffer, 0);
@@ -66,6 +66,32 @@ public class RpcResponseTest {
   @Test
   public void testInvalidJson() {
     Buffer buffer = Buffer.buffer("foo");
+    try {
+      RpcResponse.create("test", 200, buffer, 0);
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof SystemException);
+      SystemException ex = (SystemException) e;
+      Assert.assertEquals(1024, ex.getErrorCode().getNumber());
+    }
+  }
+
+  @Test
+  public void testInvalidJsonObject() {
+    Buffer buffer = Buffer.buffer("{foo}");
+    try {
+      RpcResponse.create("test", 200, buffer, 0);
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof SystemException);
+      SystemException ex = (SystemException) e;
+      Assert.assertEquals(1024, ex.getErrorCode().getNumber());
+    }
+  }
+
+  @Test
+  public void testInvalidJsonArray() {
+    Buffer buffer = Buffer.buffer("[{]");
     try {
       RpcResponse.create("test", 200, buffer, 0);
       Assert.fail();

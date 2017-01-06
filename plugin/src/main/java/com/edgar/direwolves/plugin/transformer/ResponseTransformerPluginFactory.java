@@ -1,9 +1,10 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+
+import com.edgar.direwolves.core.definition.ApiPlugin;
+import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -30,8 +31,7 @@ import java.util.stream.Collectors;
  * </pre>
  * Created by edgar on 16-10-23.
  */
-public class ResponseTransformerPluginFactory implements
-    ApiPluginFactory<ResponseTransformerPlugin> {
+public class ResponseTransformerPluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
     return ResponseTransformerPlugin.class.getSimpleName();
@@ -43,7 +43,7 @@ public class ResponseTransformerPluginFactory implements
   }
 
   @Override
-  public ResponseTransformerPlugin decode(JsonObject jsonObject) {
+  public ApiPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("response_transformer")) {
       return null;
     }
@@ -58,22 +58,23 @@ public class ResponseTransformerPluginFactory implements
   }
 
   @Override
-  public JsonObject encode(ResponseTransformerPlugin plugin) {
-    return new JsonObject().put("response_transformer", toJson(plugin));
+  public JsonObject encode(ApiPlugin plugin) {
+    ResponseTransformerPlugin transformerPlugin = (ResponseTransformerPlugin) plugin;
+    return new JsonObject().put("response_transformer", toJson(transformerPlugin));
   }
 
   private JsonObject toJson(ResponseTransformerPlugin transformer) {
     return new JsonObject()
-        .put("header.remove", transformer.headerRemoved())
-        .put("body.remove", transformer.bodyRemoved())
-        .put("header.add", transformer.headerAdded()
-            .stream()
-            .map(entry -> entry.getKey() + ":" + entry.getValue())
-            .collect(Collectors.toList()))
-        .put("body.add", transformer.bodyAdded()
-            .stream()
-            .map(entry -> entry.getKey() + ":" + entry.getValue())
-            .collect(Collectors.toList()));
+            .put("header.remove", transformer.headerRemoved())
+            .put("body.remove", transformer.bodyRemoved())
+            .put("header.add", transformer.headerAdded()
+                    .stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.toList()))
+            .put("body.add", transformer.bodyAdded()
+                    .stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.toList()));
   }
 
   private void removeHeader(JsonObject endpoint, ResponseTransformerPlugin transformer) {
@@ -95,7 +96,7 @@ public class ResponseTransformerPluginFactory implements
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =
-          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer.addHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
@@ -105,7 +106,7 @@ public class ResponseTransformerPluginFactory implements
     for (int j = 0; j < adds.size(); j++) {
       String value = adds.getString(j);
       Iterable<String> iterable =
-          Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
       transformer.addBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }

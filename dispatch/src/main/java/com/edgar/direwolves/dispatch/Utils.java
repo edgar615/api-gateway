@@ -1,11 +1,13 @@
 package com.edgar.direwolves.dispatch;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.utils.MultiMapToMultimap;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.base.Strings;
-import com.google.common.collect.Multimap;
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.DecodeException;
@@ -14,6 +16,7 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Edgar on 2016/10/14.
@@ -22,13 +25,20 @@ import java.util.Map;
  */
 public class Utils {
 
+  public static Multimap<String, String> toMultimap(MultiMap multiMap) {
+    Multimap<String, String> guavaMultimap = ArrayListMultimap.create();
+    Set<String> names = multiMap.names();
+    for (String paramName : names) {
+      guavaMultimap.putAll(paramName, multiMap.getAll(paramName));
+    }
+    return guavaMultimap;
+  }
+
   public static ApiContext apiContext(RoutingContext rc) {
     String path = rc.normalisedPath();
     HttpMethod method = rc.request().method();
-    Multimap<String, String> headers =
-        MultiMapToMultimap.instance().apply(rc.request().headers());
-    Multimap<String, String> params =
-        MultiMapToMultimap.instance().apply(rc.request().params());
+    Multimap<String, String> headers = toMultimap(rc.request().headers());
+    Multimap<String, String> params = toMultimap(rc.request().params());
     JsonObject body = null;
     if (rc.getBody() != null && rc.getBody().length() > 0) {
       try {

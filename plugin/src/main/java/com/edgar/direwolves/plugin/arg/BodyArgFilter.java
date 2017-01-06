@@ -59,8 +59,9 @@ public class BodyArgFilter implements Filter {
     defaultMap.forEach((k, v) -> {
       body.put(k, v);
     });
-    ApiContext context = ApiContext.create(apiContext.method(), apiContext.path(), apiContext
-            .headers(), apiContext.params(), body);
+    ApiContext context =
+            ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(), apiContext
+                    .headers(), apiContext.params(), body);
     ApiContext.copyProperites(apiContext, context);
     return context;
   }

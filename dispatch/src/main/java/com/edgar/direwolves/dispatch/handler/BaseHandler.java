@@ -18,7 +18,7 @@ public class BaseHandler implements Handler<RoutingContext> {
   @Override
   public void handle(RoutingContext rc) {
     rc.response().setChunked(true)
-        .putHeader("content-type", "application/json;charset=utf-8");
+            .putHeader("content-type", "application/json;charset=utf-8");
     rc.next();
   }
 

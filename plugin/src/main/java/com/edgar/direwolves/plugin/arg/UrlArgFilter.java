@@ -54,8 +54,9 @@ public class UrlArgFilter implements Filter {
     defaultMap.forEach((k, v) -> {
       params.put(k, v);
     });
-    ApiContext context = ApiContext.create(apiContext.method(), apiContext.path(), apiContext
-            .headers(), params, apiContext.body());
+    ApiContext context =
+            ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(), apiContext
+                    .headers(), params, apiContext.body());
     ApiContext.copyProperites(apiContext, context);
     return context;
   }

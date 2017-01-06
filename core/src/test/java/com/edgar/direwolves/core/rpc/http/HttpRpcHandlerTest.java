@@ -12,10 +12,13 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/4/8.
@@ -37,8 +40,8 @@ public class HttpRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-//    rpcHandler = RpcHandler.create("http", vertx, new JsonObject());
-    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
+    rpcHandler = new HttpRpcHandlerFactory().create(vertx, new JsonObject());
+//    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
   }
 
   @After
@@ -46,14 +49,36 @@ public class HttpRpcHandlerTest {
 //    vertx.close(context.asyncAssertSuccess());
   }
 
+  @Test
+  public void undefinedMethodShouldThrowInvalidArg(TestContext context) {
+    HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
+            .setPath("devices")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.OPTIONS);
+
+    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        context.fail();
+      } else {
+        Throwable t = ar.cause();
+        context.assertTrue(t instanceof SystemException);
+        SystemException ex = (SystemException) t;
+        context.assertEquals(DefaultErrorCode.INVALID_ARGS, ex.getErrorCode());
+        async.complete();
+      }
+    });
+  }
 
   @Test
   public void postMissBodyShouldThrowMissArg(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("devices")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.POST);
+            .setPath("devices")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.POST);
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -73,10 +98,10 @@ public class HttpRpcHandlerTest {
   @Test
   public void putMissBodyShouldThrowMissArg(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("devices")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.PUT);
+            .setPath("devices")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.PUT);
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -96,12 +121,15 @@ public class HttpRpcHandlerTest {
   @Test
   public void testGet(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("devices/1?type=2")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.GET)
-        .addParam("userId", "2")
-        .addParam("userId", "1");
+            .setPath("devices/1?type=2")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.GET)
+            .addHeader("x-req-id", UUID.randomUUID().toString())
+            .addParam("userId", "2")
+            .addParam("userId", "1");
+
+    Assert.assertEquals("HTTP", rpcRequest.type());
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
     future.setHandler(ar -> {
@@ -110,7 +138,7 @@ public class HttpRpcHandlerTest {
         context.assertFalse(rpcResponse.isArray());
         context.assertEquals("1", rpcResponse.responseObject().getString("id"));
         context.assertEquals("type=2&userId=2",
-            rpcResponse.responseObject().getString("query"));
+                             rpcResponse.responseObject().getString("query"));
         async.complete();
       } else {
         context.fail();
@@ -121,10 +149,10 @@ public class HttpRpcHandlerTest {
   @Test
   public void testGetArray(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("/devices")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.GET);
+            .setPath("/devices")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.GET);
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -143,11 +171,11 @@ public class HttpRpcHandlerTest {
   @Test
   public void testDelete(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("devices")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.DELETE)
-        .addParam("userId", "2");
+            .setPath("devices")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.DELETE)
+            .addParam("userId", "2");
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -167,12 +195,12 @@ public class HttpRpcHandlerTest {
   @Test
   public void testPost(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("devices?type=2")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.POST)
-        .setBody(new JsonObject().put("foo", "bar"))
-        .addParam("userId", "2");
+            .setPath("devices?type=2")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.POST)
+            .setBody(new JsonObject().put("foo", "bar"))
+            .addParam("userId", "2");
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
 
@@ -193,12 +221,12 @@ public class HttpRpcHandlerTest {
   @Test
   public void testPut(TestContext context) {
     HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
-        .setPath("devices?type=2")
-        .setPort(8080)
-        .setHost("localhost")
-        .setHttpMethod(HttpMethod.PUT)
-        .setBody(new JsonObject().put("foo", "bar"))
-        .addParam("userId", "2");
+            .setPath("devices?type=2")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.PUT)
+            .setBody(new JsonObject().put("foo", "bar"))
+            .addParam("userId", "2");
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();

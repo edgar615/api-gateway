@@ -14,10 +14,6 @@ import io.vertx.core.json.JsonObject;
 public interface CacheProvider {
   CacheFactory factory = ServiceHelper.loadFactory(CacheFactory.class);
 
-  static CacheProvider create(Vertx vertx, JsonObject config) {
-    return factory.create(vertx, config);
-  }
-
   /**
    * 从缓存中获取值.
    *
@@ -52,5 +48,9 @@ public interface CacheProvider {
    * @param handler 回调函数.
    */
   void delete(String key, Handler<AsyncResult<Void>> handler);
+
+  static CacheProvider create(Vertx vertx, JsonObject config) {
+    return factory.create(vertx, config);
+  }
 
 }

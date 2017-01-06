@@ -1,11 +1,12 @@
 package com.edgar.direvolves.plugin.authentication;
 
+import com.google.common.base.Strings;
+
 import com.edgar.direwolves.core.cache.CacheProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.base.Strings;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -41,9 +42,9 @@ public class AuthenticationFilter implements Filter {
   private final CacheProvider cacheProvider;
 
   private JsonObject jwtConfig = new JsonObject()
-      .put("path", "keystore.jceks")
-      .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-      .put("password", "secret");
+          .put("path", "keystore.jceks")
+          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+          .put("password", "secret");
 
   private Vertx vertx;
 
@@ -79,7 +80,7 @@ public class AuthenticationFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition()
-        .plugin(AuthenticationPlugin.class.getSimpleName()) != null;
+                   .plugin(AuthenticationPlugin.class.getSimpleName()) != null;
   }
 
   @Override
@@ -88,15 +89,15 @@ public class AuthenticationFilter implements Filter {
       String token = extractToken(apiContext);
       Future<JsonObject> authFuture = auth(token);
       authFuture.compose(this::userCheck)
-          .setHandler(ar -> {
-            if (ar.succeeded()) {
-              JsonObject principal = ar.result();
-              apiContext.setPrincipal(principal);
-              completeFuture.complete(apiContext);
-            } else {
-              completeFuture.fail(ar.cause());
-            }
-          });
+              .setHandler(ar -> {
+                if (ar.succeeded()) {
+                  JsonObject principal = ar.result();
+                  apiContext.setPrincipal(principal);
+                  completeFuture.complete(apiContext);
+                } else {
+                  completeFuture.fail(ar.cause());
+                }
+              });
     } catch (Exception e) {
       completeFuture.fail(e);
     }

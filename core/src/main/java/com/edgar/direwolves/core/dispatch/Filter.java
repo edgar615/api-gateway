@@ -1,8 +1,6 @@
 package com.edgar.direwolves.core.dispatch;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

@@ -28,13 +28,6 @@ public class FailureHandler implements Handler<RoutingContext> {
     return new FailureHandler();
   }
 
-  @Override
-  public void handle(RoutingContext rc) {
-    Throwable throwable = rc.failure();
-    LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
-    doHandle(rc, throwable);
-  }
-
   public static void doHandle(RoutingContext rc, Throwable throwable) {
     LOGGER.error("ex", throwable);
     int statusCode = rc.statusCode();
@@ -71,7 +64,7 @@ public class FailureHandler implements Handler<RoutingContext> {
     String message = ex.getMessage();
     try {
       if (message.startsWith("{") && message.endsWith("}")) {
-          return jsonObject.mergeIn(new JsonObject(message));
+        return jsonObject.mergeIn(new JsonObject(message));
       }
     } catch (Exception e) {
     }
@@ -87,6 +80,13 @@ public class FailureHandler implements Handler<RoutingContext> {
               .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
     }
     return jsonObject;
+  }
+
+  @Override
+  public void handle(RoutingContext rc) {
+    Throwable throwable = rc.failure();
+    LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
+    doHandle(rc, throwable);
   }
 
 }

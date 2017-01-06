@@ -1,7 +1,6 @@
 package com.edgar.direwolves.definition;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.utils.JsonUtils;
 import com.edgar.direwolves.eb.ApiDefinitionCodec;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -43,10 +42,10 @@ public class ApiDefinitionCodecTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
             .add(new JsonObject().put("type", "http")
-            .put("name", "add_device")
-            .put("service", "device")
-            .put("method", "POST")
-            .put("path", "/devices"));
+                         .put("name", "add_device")
+                         .put("service", "device")
+                         .put("method", "POST")
+                         .put("path", "/devices"));
     jsonObject.put("endpoints", endpoints);
 
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);

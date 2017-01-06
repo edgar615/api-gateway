@@ -25,9 +25,9 @@ public class RateLimitPluginImpl implements RateLimitPlugin {
   @Override
   public void addRateLimit(RateLimit definition) {
     List<RateLimit> filterDefintions = rateLimits.stream()
-        .filter(d -> definition.limitBy().equalsIgnoreCase(d.limitBy())
-            && definition.type().equalsIgnoreCase(d.type()))
-        .collect(Collectors.toList());
+            .filter(d -> definition.limitBy().equalsIgnoreCase(d.limitBy())
+                         && definition.type().equalsIgnoreCase(d.type()))
+            .collect(Collectors.toList());
     rateLimits.add(definition);
     rateLimits.removeAll(filterDefintions);
   }

@@ -1,8 +1,9 @@
 package com.edgar.direwolves.eb;
 
+import com.google.common.collect.Lists;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
-import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 public class ApiMatchHandler implements ApiMessageConsumer<JsonObject> {
   public static final String ADDRESS = "eb.api.match";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiMatchHandler.class);
 
   @Override
@@ -38,8 +40,8 @@ public class ApiMatchHandler implements ApiMessageConsumer<JsonObject> {
       List<ApiDefinition> definitions = ApiDefinitionRegistry.create().match(method, path);
       LOGGER.error("match api, method->{}, path->{}", method, path);
       msg.reply(Lists.newArrayList(definitions),
-          new DeliveryOptions().setCodecName
-              (ApiDefinitionListCodec.class.getSimpleName()));
+                new DeliveryOptions().setCodecName
+                        (ApiDefinitionListCodec.class.getSimpleName()));
     } catch (Exception e) {
       LOGGER.error("failed match api, params->{}", msg.body());
       msg.fail(-1, e.getMessage());

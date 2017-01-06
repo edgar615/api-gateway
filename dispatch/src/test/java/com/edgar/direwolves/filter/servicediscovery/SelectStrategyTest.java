@@ -2,6 +2,7 @@ package com.edgar.direwolves.filter.servicediscovery;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.After;

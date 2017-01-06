@@ -1,5 +1,9 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
@@ -7,10 +11,6 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -43,7 +43,9 @@ public class TImeoutFilterTest {
   @Test
   public void missTimestampShouldThrowValidationException(TestContext testContext) {
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap.create(), ArrayListMultimap.create(), null);
+    ApiContext apiContext = ApiContext
+            .create(HttpMethod.GET, "/devices", ArrayListMultimap.create(),
+                    ArrayListMultimap.create(), null);
 
     Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
 
@@ -54,10 +56,10 @@ public class TImeoutFilterTest {
 
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-          ;
-        }).onFailure(e -> {
+            .andThen(context -> {
+              testContext.fail();
+              ;
+            }).onFailure(e -> {
       testContext.assertTrue(e instanceof ValidationException);
       async.complete();
     });
@@ -79,14 +81,14 @@ public class TImeoutFilterTest {
 
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-          ;
-        }).onFailure(e -> {
+            .andThen(context -> {
+              testContext.fail();
+              ;
+            }).onFailure(e -> {
       testContext.assertTrue(e instanceof SystemException);
       SystemException ex = (SystemException) e;
       testContext
-          .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
+              .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
 
       async.complete();
     });
@@ -109,14 +111,14 @@ public class TImeoutFilterTest {
 
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-          ;
-        }).onFailure(e -> {
+            .andThen(context -> {
+              testContext.fail();
+              ;
+            }).onFailure(e -> {
       testContext.assertTrue(e instanceof SystemException);
       SystemException ex = (SystemException) e;
       testContext
-          .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
+              .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
 
       async.complete();
     });
@@ -139,10 +141,11 @@ public class TImeoutFilterTest {
 
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.assertTrue(context.params().containsKey("timestamp"));
-          async.complete();          ;
-        }).onFailure(e -> {
+            .andThen(context -> {
+              testContext.assertTrue(context.params().containsKey("timestamp"));
+              async.complete();
+              ;
+            }).onFailure(e -> {
       testContext.fail();
     });
 
@@ -156,7 +159,8 @@ public class TImeoutFilterTest {
 
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject().put("timeout.expires", 600));
+    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx,
+                                  new JsonObject().put("timeout.expires", 600));
 
     List<Filter> filters = Lists.newArrayList(filter);
     Task<ApiContext> task = Task.create();
@@ -164,10 +168,11 @@ public class TImeoutFilterTest {
 
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.assertTrue(context.params().containsKey("timestamp"));
-          async.complete();          ;
-        }).onFailure(e -> {
+            .andThen(context -> {
+              testContext.assertTrue(context.params().containsKey("timestamp"));
+              async.complete();
+              ;
+            }).onFailure(e -> {
       testContext.fail();
     });
 

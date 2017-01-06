@@ -21,7 +21,8 @@ public class AddAuthCliCommand extends DefaultCommand {
     this.name = name;
   }
 
-  @Option(shortName = "t", longName = "type", choices = {"jwt", "oauth", "app_key"}, required = true)
+  @Option(shortName = "t", longName = "type", choices = {"jwt", "oauth",
+          "app_key"}, required = true)
   public void setType(String type) {
     this.type = type;
   }

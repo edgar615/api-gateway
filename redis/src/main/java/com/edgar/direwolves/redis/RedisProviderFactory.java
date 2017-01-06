@@ -1,8 +1,9 @@
 package com.edgar.direwolves.redis;
 
+import com.google.common.base.Strings;
+
 import com.edgar.direwolves.core.cache.CacheFactory;
 import com.edgar.direwolves.core.cache.CacheProvider;
-import com.google.common.base.Strings;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
@@ -20,8 +21,8 @@ public class RedisProviderFactory implements CacheFactory {
     String redisAuth = config.getString("redis.auth", "");
 
     RedisOptions options = new RedisOptions()
-        .setHost(redisHost)
-        .setPort(redisPort);
+            .setHost(redisHost)
+            .setPort(redisPort);
     if (!Strings.isNullOrEmpty(redisAuth)) {
       options.setAuth(redisAuth);
     }

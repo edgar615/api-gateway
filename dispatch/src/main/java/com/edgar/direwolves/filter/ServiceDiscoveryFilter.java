@@ -102,7 +102,7 @@ public class ServiceDiscoveryFilter implements Filter {
       httpRpcRequest.setHttpMethod(httpEndpoint.method());
       httpRpcRequest.addParams(apiContext.params());
 //    httpRpcRequest.addHeaders(apiContext.headers());
-      httpRpcRequest.addHeader("x-request-id", httpRpcRequest.getId());
+      httpRpcRequest.addHeader("x-request-id", httpRpcRequest.id());
       httpRpcRequest.setBody(apiContext.body());
       List<Record> recordList = records.stream()
               .filter(r -> httpEndpoint.service().equalsIgnoreCase(r.getName()))

@@ -1,8 +1,9 @@
 package com.edgar.direwolves.eb;
 
+import com.google.common.collect.Lists;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
-import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class ApiListHandler implements ApiMessageConsumer<JsonObject> {
   public static final String ADDRESS = "eb.api.list";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiListHandler.class);
 
   @Override
@@ -41,8 +43,9 @@ public class ApiListHandler implements ApiMessageConsumer<JsonObject> {
         toIndex = definitions.size();
       }
       LOGGER.error("list api, params->{}", jsonObject);
-      msg.reply(Lists.newArrayList(definitions.subList(start, toIndex)), new DeliveryOptions().setCodecName
-          (ApiDefinitionListCodec.class.getSimpleName()));
+      msg.reply(Lists.newArrayList(definitions.subList(start, toIndex)),
+                new DeliveryOptions().setCodecName
+                        (ApiDefinitionListCodec.class.getSimpleName()));
     } catch (Exception e) {
       LOGGER.error("failed list api, error->{}", e.getMessage(), e);
       msg.fail(-1, e.getMessage());

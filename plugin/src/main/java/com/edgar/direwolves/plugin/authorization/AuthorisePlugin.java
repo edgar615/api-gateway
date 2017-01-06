@@ -7,10 +7,10 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
  */
 public interface AuthorisePlugin extends ApiPlugin {
 
+  String scope();
+
   @Override
   default String name() {
     return AuthorisePlugin.class.getSimpleName();
   }
-
-  String scope();
 }

@@ -176,9 +176,10 @@ public class AppKeyFilter implements Filter {
           newParams.removeAll("signMethod");
           newParams.removeAll("v");
           newParams.removeAll("appKey");
-          ApiContext newContext = ApiContext.create(apiContext.method(), apiContext.path(),
-                                                    apiContext.headers(), newParams, apiContext.body
-                          ());
+          ApiContext newContext =
+                  ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
+                                    apiContext.headers(), newParams, apiContext.body
+                                  ());
           ApiContext.copyProperites(apiContext, newContext);
           newContext.addVariable("app.code", app.getInteger(codeKey, 0));
           newContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));

@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 public class MockCacheProvider implements CacheProvider {
 
   private Cache<String, JsonObject> cache = new ExpiringCache<>(
-      LRUCache.<String, JsonObject>builder().build());
+          LRUCache.<String, JsonObject>builder().build());
 
 
   @Override

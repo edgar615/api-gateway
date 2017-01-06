@@ -1,11 +1,13 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -71,15 +73,41 @@ public class RequestReplaceFilter implements Filter {
     JsonObject newBody = new JsonObject();
     if (body != null) {
       for (String key : body.fieldNames()) {
-        Object newVal = apiContext.getValueByKeyword(body.getValue(key));
+        Object newVal = getNewVal(apiContext, body.getValue(key));
         if (newVal != null) {
           newBody.put(key, newVal);
         }
       }
     }
     return newBody;
-
   }
 
-
+  private Object getNewVal(ApiContext apiContext, Object value) {
+    if (value instanceof String) {
+      String val = (String) value;
+      return apiContext.getValueByKeyword(val);
+    } else if (value instanceof JsonArray) {
+      JsonArray val = (JsonArray) value;
+      JsonArray replacedArray = new JsonArray();
+      for (int i = 0; i < val.size(); i++) {
+        Object newVal = getNewVal(apiContext, val.getValue(i));
+        if (newVal != null) {
+          replacedArray.add(newVal);
+        }
+      }
+      return replacedArray.isEmpty() ? null : replacedArray;
+    } else if (value instanceof JsonObject) {
+      JsonObject val = (JsonObject) value;
+      JsonObject replacedObject = new JsonObject();
+      for (String key : val.fieldNames()) {
+        Object newVal = getNewVal(apiContext, val.getValue(key));
+        if (newVal != null) {
+          replacedObject.put(key, newVal);
+        }
+      }
+      return replacedObject.isEmpty() ? null : replacedObject;
+    } else {
+      return value;
+    }
+  }
 }
