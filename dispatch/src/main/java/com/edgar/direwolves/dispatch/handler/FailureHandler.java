@@ -4,7 +4,6 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.core.http.HttpServerResponse;
@@ -29,19 +28,17 @@ public class FailureHandler implements Handler<RoutingContext> {
   }
 
   public static void doHandle(RoutingContext rc, Throwable throwable) {
-    LOGGER.error("ex", throwable);
-    int statusCode = rc.statusCode();
     HttpServerResponse response = rc.response();
-    if (throwable == null) {
-      response.setStatusCode(statusCode).end(Buffer.buffer());
-    } else if (throwable instanceof SystemException) {
+    if (throwable instanceof SystemException) {
       SystemException ex = (SystemException) throwable;
       JsonObject jsonObject = new JsonObject(ex.asMap());
       response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     } else if (throwable instanceof ValidationException) {
       SystemException ex = SystemException.create(DefaultErrorCode.INVALID_ARGS);
       ValidationException vex = (ValidationException) throwable;
-      ex.set("details", vex.getErrorDetail().asMap());
+      if (!vex.getErrorDetail().isEmpty()) {
+        ex.set("details", vex.getErrorDetail().asMap());
+      }
       JsonObject jsonObject = new JsonObject(ex.asMap());
       response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     } else if (throwable instanceof ReplyException) {
@@ -52,6 +49,7 @@ public class FailureHandler implements Handler<RoutingContext> {
       JsonObject jsonObject = new JsonObject(ex.asMap());
       response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
     } else {
+      LOGGER.error("Undefined exception", throwable);
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
               .set("exception", throwable.getMessage());
       JsonObject jsonObject = new JsonObject(ex.asMap());
@@ -61,23 +59,25 @@ public class FailureHandler implements Handler<RoutingContext> {
 
   private static JsonObject replyJson(ReplyException ex) {
     JsonObject jsonObject = new JsonObject();
-    String message = ex.getMessage();
-    try {
-      if (message.startsWith("{") && message.endsWith("}")) {
-        return jsonObject.mergeIn(new JsonObject(message));
+    DefaultErrorCode errorCode = DefaultErrorCode.getCode(ex.failureCode());
+    if (errorCode != null) {
+      jsonObject.put("code", errorCode.getNumber())
+              .put("message", errorCode.getStatusCode());
+    } else {
+      ReplyFailure replyFailure = ex.failureType();
+      if (replyFailure == ReplyFailure.NO_HANDLERS) {
+        jsonObject.put("code", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getNumber())
+                .put("message", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getMessage());
+      } else if (replyFailure == ReplyFailure.TIMEOUT) {
+        jsonObject.put("code", DefaultErrorCode.EVENTBUS_TIMOUT.getNumber())
+                .put("message", DefaultErrorCode.EVENTBUS_TIMOUT.getMessage());
+      } else if (replyFailure == ReplyFailure.RECIPIENT_FAILURE) {
+        jsonObject.put("code", DefaultErrorCode.EVENTBUS_REJECTED.getNumber())
+                .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
+      } else {
+        jsonObject.put("code", DefaultErrorCode.UNKOWN.getNumber())
+                .put("message", DefaultErrorCode.UNKOWN.getMessage());
       }
-    } catch (Exception e) {
-    }
-    ReplyFailure replyFailure = ex.failureType();
-    if (replyFailure == ReplyFailure.NO_HANDLERS) {
-      jsonObject.put("code", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getNumber())
-              .put("message", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getMessage());
-    } else if (replyFailure == ReplyFailure.TIMEOUT) {
-      jsonObject.put("code", DefaultErrorCode.EVENTBUS_TIMOUT.getNumber())
-              .put("message", DefaultErrorCode.EVENTBUS_TIMOUT.getMessage());
-    } else if (replyFailure == ReplyFailure.RECIPIENT_FAILURE) {
-      jsonObject.put("code", DefaultErrorCode.EVENTBUS_REJECTED.getNumber())
-              .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
     }
     return jsonObject;
   }

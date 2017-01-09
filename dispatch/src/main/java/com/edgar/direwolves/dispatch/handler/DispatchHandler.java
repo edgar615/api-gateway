@@ -12,7 +12,6 @@ import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.dispatch.Utils;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -30,15 +29,38 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ * API请求的处理类.
+ * 该类是整个网关和核心逻辑，所有的请求都会被这个处理类处理 .
+ * 实际上DispatchHandler作为一个中心大脑来指导并驱动整个请求的处理，请求的处理逻辑被分散在各个filter中.
+ * Filter分为两种：PRE和POST
+ * PRE类型的filter会在RPC调用前处理，比如API路由的匹配，服务发现，参数校验等Filter都属于PRE类型.
+ * POST类型的filter会在RPC调用之后处理，比如结果提取、日志等filter都属于POST类型.
+ * <p>
+ * 一次请求的调用过程如下描述
+ * <p>
+ * <pre>
+ *                -> PRE Filter -> PRE Filter -> PRE Filter
+ * 调用方                                                                            RPC -> 微服务
+ *               <- POST Filter <- POST Filter <- POST Filter
+ * </pre>
  * Created by edgar on 16-9-12.
  */
 public class DispatchHandler implements Handler<RoutingContext> {
   private static final Logger LOGGER = LoggerFactory.getLogger(DispatchHandler.class);
 
+  /**
+   * 过滤器集合
+   */
   private final List<Filter> filters;
 
+  /**
+   * RPC处理类的MAP对象，key为RPC的类型，value为RPC的处理类.
+   */
   private final Map<String, RpcHandler> handlers = new ConcurrentHashMap();
 
+  /**
+   * 未定义的RPC类型直接返回异常
+   */
   private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
 
   private DispatchHandler(Vertx vertx, JsonObject config) {
@@ -56,6 +78,13 @@ public class DispatchHandler implements Handler<RoutingContext> {
     });
   }
 
+  /**
+   * 创建DispatchHandler
+   *
+   * @param vertx  Vertx对象
+   * @param config 配置JSON
+   * @return DispatchHandler
+   */
   public static DispatchHandler create(Vertx vertx, JsonObject config) {
     return new DispatchHandler(vertx, config);
   }
@@ -65,28 +94,12 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
     //创建上下文
     Task<ApiContext> task = Task.create();
-    task.complete(Utils.apiContext(rc));
+    task.complete(ApiContextUtils.apiContext(rc));
     task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()));
     task = task.flatMap("RPC", apiContext -> rpc(apiContext))
             .andThen(apiContext -> apiContext.addAction("RPC", apiContext));
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
-    task.andThen("Response", apiContext -> {
-      rc.response().putHeader("x-request-id", apiContext.id());
-      Result result = apiContext.result();
-      int statusCode = result.statusCode();
-      boolean isArray = result.isArray();
-      if (isArray) {
-        rc.response()
-                .setStatusCode(statusCode)
-                .setChunked(true)
-                .end(result.responseArray().encode());
-      } else {
-        rc.response()
-                .setStatusCode(statusCode)
-                .setChunked(true)
-                .end(result.responseObject().encode());
-      }
-    })
+    task.andThen("Response", apiContext -> response(rc, apiContext))
             .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
   }
 
@@ -95,6 +108,24 @@ public class DispatchHandler implements Handler<RoutingContext> {
             .filter(filterPredicate)
             .collect(Collectors.toList());
     return Filters.doFilter(task, postFilters);
+  }
+
+  private void response(RoutingContext rc, ApiContext apiContext) {
+    rc.response().putHeader("x-request-id", apiContext.id());
+    Result result = apiContext.result();
+    int statusCode = result.statusCode();
+    boolean isArray = result.isArray();
+    if (isArray) {
+      rc.response()
+              .setStatusCode(statusCode)
+              .setChunked(true)
+              .end(result.responseArray().encode());
+    } else {
+      rc.response()
+              .setStatusCode(statusCode)
+              .setChunked(true)
+              .end(result.responseObject().encode());
+    }
   }
 
   private Future<ApiContext> rpc(ApiContext apiContext) {

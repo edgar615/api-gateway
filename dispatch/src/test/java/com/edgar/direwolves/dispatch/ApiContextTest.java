@@ -1,6 +1,7 @@
 package com.edgar.direwolves.dispatch;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.dispatch.handler.ApiContextUtils;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -38,7 +39,7 @@ public class ApiContextTest {
 
     router.route()
             .handler(rc -> {
-              ApiContext apiContext = Utils.apiContext(rc);
+              ApiContext apiContext = ApiContextUtils.apiContext(rc);
               context.assertNotNull(apiContext);
               assertGetNoParam(context, rc, apiContext);
               assertGetTwoParam(context, rc, apiContext);

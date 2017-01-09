@@ -10,6 +10,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.serviceproxy.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,17 +37,17 @@ public class ApiProviderImpl implements ApiProvider {
         handler.handle(Future.succeededFuture(jsonObject));
       } else {
         LOGGER.error("failed match api, method->{}, path->{}", method, path);
-        Map<String, Object> map =
-                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND).asMap();
         handler.handle(
-                Future.failedFuture(new JsonObject(map).encode()));
+                Future.failedFuture(new ServiceException(DefaultErrorCode.RESOURCE_NOT_FOUND
+                                                                 .getNumber(), DefaultErrorCode
+                                                                 .RESOURCE_NOT_FOUND.getMessage())));
       }
     } catch (Exception e) {
       LOGGER.error("failed match api, method->{}, path->{}", method, path);
-      Map<String, Object> map =
-              SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND).asMap();
       handler.handle(
-              Future.failedFuture(new JsonObject(map).encode()));
+              Future.failedFuture(new ServiceException(DefaultErrorCode.RESOURCE_NOT_FOUND
+                                                               .getNumber(), DefaultErrorCode
+                      .RESOURCE_NOT_FOUND.getMessage())));
     }
   }
 

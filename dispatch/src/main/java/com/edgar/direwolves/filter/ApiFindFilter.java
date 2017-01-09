@@ -10,6 +10,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
 /**
+ * 该filter根据请求从API路由注册表中读取到对应的API定义.
+ * <p>
+ * 该filter需要从配置中读取<b>api.provider.address</b>属性用于创建ApiProvider的代理对象
  * Created by edgar on 17-1-4.
  */
 public class ApiFindFilter implements Filter {

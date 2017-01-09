@@ -4,8 +4,9 @@ import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * http的基础处理类.
- * 设置响应对content-type
+ * http请求的辅助类.所有的请求都可以接受这个处理类，该类主要做一下通用的设置然后就会将请求传递给下一个处理类.
+ * <p>
+ * 设置响应的content-type为application/json;charset=utf-8
  *
  * @author Edgar  Date 2016/2/18
  */

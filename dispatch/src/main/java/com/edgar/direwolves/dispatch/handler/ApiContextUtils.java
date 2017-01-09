@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch;
+package com.edgar.direwolves.dispatch.handler;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -23,9 +23,12 @@ import java.util.Set;
  *
  * @author Edgar  Date 2016/10/14
  */
-public class Utils {
+public class ApiContextUtils {
+  private ApiContextUtils() {
+    throw new AssertionError("Not instantiable: " + ApiContextUtils.class);
+  }
 
-  public static Multimap<String, String> toMultimap(MultiMap multiMap) {
+  private static Multimap<String, String> toMultimap(MultiMap multiMap) {
     Multimap<String, String> guavaMultimap = ArrayListMultimap.create();
     Set<String> names = multiMap.names();
     for (String paramName : names) {
@@ -65,7 +68,7 @@ public class Utils {
     return variables;
   }
 
-  public static String getClientIp(HttpServerRequest request) {
+  private static String getClientIp(HttpServerRequest request) {
     String ip = request.getHeader("X-Forwarded-For");
     if (!Strings.isNullOrEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
       //多次反向代理后会有多个ip值，第一个ip才是真实ip
