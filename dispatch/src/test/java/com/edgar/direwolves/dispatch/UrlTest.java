@@ -1,6 +1,7 @@
 package com.edgar.direwolves.dispatch;
 
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.vertx.core.json.JsonArray;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class UrlTest {
 
   @Test
   public void test() {
+    System.out.println(new JsonArray().add("1").add(
+            "$header.h1").encode());
     System.out.println(matchValue("devices/new/$param.param0/test/$param.param1", "[\\w./$]*([\\w$"
                                                                                   + ".]+)"));
     String url = "devices/new/$param.param0/test/$param.param0";

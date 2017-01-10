@@ -10,6 +10,7 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -52,17 +53,18 @@ public class RequestReplaceFilterTest {
   public void testReplaceParams(TestContext testContext) {
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("foo", "bar");
-    params.put("q1", "$header.h1");
-    params.put("q2", "$var.foo");
-    params.put("q3", "$body.type");
-    params.put("q4", "$user.userId");
-    params.put("q5", "$var.bar");
 
     Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h1", "h1");
+    headers.put("h1", "h1.1");
+    headers.put("h1", "h1.2");
 
     JsonObject jsonObject = new JsonObject()
-            .put("type", 1);
+            .put("type", 1)
+            .put("obj", new JsonObject()
+                    .put("userId", 1)
+                    .put("username", "edgar")
+                    .put("h1", "$header.h1"))
+            .put("arr", new JsonArray().add(1).add("2"));
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
@@ -73,12 +75,14 @@ public class RequestReplaceFilterTest {
             .setPort(8080)
             .setHttpMethod(HttpMethod.POST)
             .setPath("/")
-            .addParam("q1", "$header.h1")
-            .addParam("q2", "$var.foo")
-            .addParam("q3", "$body.type")
-            .addParam("q4", "$user.userId")
-            .addParam("q5", "$var.bar")
-            .addParam("q6", "bar");
+    .addParam("foo", "bar")
+    .addParam("q1", "$header.h1")
+    .addParam("q2", "$var.foo")
+    .addParam("q3", "$body.type")
+    .addParam("q4", "$user.userId")
+    .addParam("q5", "$var.bar")
+    .addParam("q6", "$body.obj")
+    .addParam("q7", "$body.arr");
     apiContext.addRequest(httpRpcRequest);
 
     apiContext.addVariable("foo", "var_bar");
@@ -97,12 +101,15 @@ public class RequestReplaceFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.host());
               testContext.assertEquals(8080, request.port());
-              testContext.assertEquals(5, request.params().keys().size());
+              System.out.println(request.params());
+              testContext.assertEquals(7, request.params().keySet().size());
+              testContext.assertEquals("h1.1", request.params().get("q1").iterator().next());
               testContext.assertEquals("var_bar", request.params().get("q2").iterator().next());
               testContext.assertEquals("1", request.params().get("q3").iterator().next());
               testContext.assertEquals("1", request.params().get("q4").iterator().next());
               testContext.assertTrue(request.params().get("q5").isEmpty());
-
+              testContext.assertEquals(1, request.params().get("q6").size());
+              testContext.assertEquals("1", request.params().get("q7").iterator().next());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

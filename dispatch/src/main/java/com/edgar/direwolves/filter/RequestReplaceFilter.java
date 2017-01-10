@@ -13,6 +13,17 @@ import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 该filter用于将请求参数中的带变量用真实值替换.
+ * 该filter的order=2147483647，int的最大值.
+ * <p>
+ * 仅支持单层替换，即如果body.obj的属性为<code>{"userId":1,"h1":"$header.h1"}</code>
+ * 那么$body.obj属性仅会返回<code>{"userId":1,"h1":"$header.h1"}</code>，不会继续对<code>$header.h1</code>处理
+ * <p>
+ *   <b>params和headers中的所有值都是String</b>
+ * 对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.
+ * 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
+ */
 public class RequestReplaceFilter implements Filter {
   RequestReplaceFilter() {
   }
@@ -24,7 +35,7 @@ public class RequestReplaceFilter implements Filter {
 
   @Override
   public int order() {
-    return 10000;
+    return Integer.MAX_VALUE;
   }
 
   @Override
@@ -42,8 +53,8 @@ public class RequestReplaceFilter implements Filter {
   }
 
   private void replace(ApiContext apiContext, HttpRpcRequest request) {
-    Multimap<String, String> params = replaceHeader(apiContext, apiContext.params());
-    Multimap<String, String> headers = replaceHeader(apiContext, apiContext.headers());
+    Multimap<String, String> params = replaceHeader(apiContext, request.params());
+    Multimap<String, String> headers = replaceHeader(apiContext, request.headers());
     request.clearHeaders().addHeaders(headers);
     request.clearParams().addParams(params);
     if (request.body() != null) {
@@ -61,7 +72,21 @@ public class RequestReplaceFilter implements Filter {
       for (String val : values) {
         Object newVal = apiContext.getValueByKeyword(val);
         if (newVal != null) {
-          newHeaders.put(key, newVal.toString());
+          if (newVal instanceof List) {
+            List valList = (List) newVal;
+            for (int i = 0; i < valList.size(); i ++) {
+              newHeaders.put(key, valList.get(i).toString());
+            }
+          }
+          if (newVal instanceof JsonArray) {
+            JsonArray valList = (JsonArray) newVal;
+//            newHeaders.putAll(key, valList.getList());
+            for (int i = 0; i < valList.size(); i ++) {
+              newHeaders.put(key, valList.getValue(i).toString());
+            }
+          } else {
+            newHeaders.put(key, newVal.toString());
+          }
         }
       }
     }

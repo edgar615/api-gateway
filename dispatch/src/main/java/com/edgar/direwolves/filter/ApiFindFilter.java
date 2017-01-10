@@ -13,6 +13,9 @@ import io.vertx.serviceproxy.ProxyHelper;
  * 该filter根据请求从API路由注册表中读取到对应的API定义.
  * <p>
  * 该filter需要从配置中读取<b>api.provider.address</b>属性用于创建ApiProvider的代理对象
+ * <p>
+ * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回异常。
+ * 该filter的order=-2147483648, int的最小值
  * Created by edgar on 17-1-4.
  */
 public class ApiFindFilter implements Filter {

@@ -13,6 +13,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * 该filter将API定义中的正则表达式与请求路径做匹配，将API定义中的正则表达式所对应的值转换为对应的参数.
+ * 参数名为param0  0表示第几个正则表达式，从0开始计算
+ * 参数值为正则表达式在请求路径中的值
+ * <p>
+ * 示例:API定义的路径为/devices/([\d+]+)，请求的路径为/devices/1，那么对应的参数名为param0，参数值为1
+ * <p>
  * Created by edgar on 17-1-4.
  */
 public class PathParamFilter implements Filter {
