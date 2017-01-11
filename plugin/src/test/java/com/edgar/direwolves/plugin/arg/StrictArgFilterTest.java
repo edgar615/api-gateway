@@ -21,6 +21,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +46,14 @@ public class StrictArgFilterTest {
   public void setUp() {
     filters.clear();
 
+  }
+
+  @Test
+  public void testOrderAndType(TestContext testContext) {
+    filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(),
+                           new JsonObject().put("strict_arg", true));
+    Assert.assertEquals(99, filter.order());
+    Assert.assertEquals(Filter.PRE, filter.type());
   }
 
   @Test

@@ -21,6 +21,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +62,12 @@ public class UrlArgFilterTest {
 
     filters.clear();
     filters.add(filter);
+  }
+
+  @Test
+  public void testOrderAndType(TestContext testContext) {
+    Assert.assertEquals(100, filter.order());
+    Assert.assertEquals(Filter.PRE, filter.type());
   }
 
   @Test

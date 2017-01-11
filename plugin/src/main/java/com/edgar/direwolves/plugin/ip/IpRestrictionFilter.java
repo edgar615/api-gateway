@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * IP限制的filter.
+ * 该filter从API上下文中读取读取调用方的IP，<code>request
+ * .client_ip</code>变量，如果这个IP属于白名单，直接允许访问（不在考虑黑名单）；如果这个IP属于黑名单，直接返回1004的错误.
+ * <p>
+ *
+ *   该filter的order=100
  * Created by edgar on 16-12-24.
  */
 public class IpRestrictionFilter implements Filter {
@@ -23,7 +29,7 @@ public class IpRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 10;
+    return 100;
   }
 
   @Override

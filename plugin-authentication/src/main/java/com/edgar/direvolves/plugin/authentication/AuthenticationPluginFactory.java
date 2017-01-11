@@ -5,7 +5,7 @@ import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import io.vertx.core.json.JsonObject;
 
 /**
- * Created by Edgar on 2016/10/31.
+ * AuthenticationPlugin的工厂类.
  *
  * @author Edgar  Date 2016/10/31
  */

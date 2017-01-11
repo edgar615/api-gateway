@@ -15,10 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * response_transfomer.
+ * 将Result中的请求头，请求参数，请求体按照ResponseTransformerPlugin中的配置处理.
+ * 目前body只考虑JsonObject类型的result修改，对JsonArray暂不支持.
  * <p>
- * </pre>
- * <p>
+ * 执行的顺序为: remove add
+ * 该filter的order=1000
  * Created by edgar on 16-9-20.
  */
 public class ResponseTransformerFilter implements Filter {
@@ -33,7 +34,7 @@ public class ResponseTransformerFilter implements Filter {
 
   @Override
   public int order() {
-    return 100;
+    return 1000;
   }
 
   @Override

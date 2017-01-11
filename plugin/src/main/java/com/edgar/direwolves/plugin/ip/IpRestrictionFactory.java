@@ -10,13 +10,6 @@ import java.util.List;
 
 /**
  * IP控制策略的工厂类.
- * json配置:
- * <pre>
- * "ip_restriction" : {
- *    "whitelist" : ["192.168.0.1", "10.4.7.*"],
- *    "blacklist" : ["192.168.0.100"]
- * }
- * </pre>
  *
  * @author Edgar  Date 2016/10/21
  */

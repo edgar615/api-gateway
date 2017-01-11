@@ -1,6 +1,5 @@
 com.edgar.direwolves.plugin.acl.AclRestrictionFactory
 com.edgar.direwolves.plugin.ip.IpRestrictionFactory
-com.edgar.direwolves.plugin.ratelimit.RateLimitPluginFactory
 com.edgar.direwolves.plugin.arg.UrlArgPluginFactory
 com.edgar.direwolves.plugin.arg.BodyArgPluginFactory
 com.edgar.direwolves.plugin.transformer.RequestTransformerPluginFactory

@@ -22,7 +22,20 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Created by Edgar on 2016/10/31.
+ *  身份认证.
+ *  目前仅支持JWT类型的认证
+ * 在校验通过之后，会在上下文中存入用户信息:
+ * * 该filter可以接受下列的配置参数
+ * <pre>
+ *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ *   service.cache.address 缓存的地址，默认值direwolves.cache.provider
+ *   keystore.path 证书的路径，默认值keystore.jceks
+ *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
+ *   keystore.password 证书的密码，默认值secret
+ *   jwt.userClaimKey token中的用户主键，默认值userId
+ *   jwt.user.unique 每个用户的token是否必须唯一，默认值false
+ * </pre>
+ * 该filter的order=1000
  *
  * @author Edgar  Date 2016/10/31
  */
@@ -63,7 +76,7 @@ public class AuthenticationFilter implements Filter {
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("project.namespace", "");
     this.uniqueToken = config.getBoolean("jwt.user.unique", false);
-    String address = config.getString("service.cache.address", "direwolves.cache");
+    String address = config.getString("service.cache.address", "direwolves.cache.provider");
     this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
   }
 
@@ -74,7 +87,7 @@ public class AuthenticationFilter implements Filter {
 
   @Override
   public int order() {
-    return 100;
+    return 1000;
   }
 
   @Override

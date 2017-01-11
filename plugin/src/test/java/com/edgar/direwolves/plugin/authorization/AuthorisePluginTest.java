@@ -33,4 +33,11 @@ public class AuthorisePluginTest {
     Assert.assertEquals("user.read", jsonObject.getString("scope"));
   }
 
+  @Test
+  public void testNullShoudReturnEmptyJson() {
+    ApiPluginFactory factory = new AuthorisePluginFactory();
+    JsonObject jsonObject = factory.encode(null);
+    Assert.assertTrue(jsonObject.isEmpty());
+  }
+
 }

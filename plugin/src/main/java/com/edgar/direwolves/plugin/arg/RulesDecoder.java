@@ -12,7 +12,24 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * 从JsonObject转换为Parameter对象
+ * 从JsonObject转换为Parameter对象.
+ * <p>
+ * <pre>
+ *   required : true 必填项
+ *   max_length : 整数 最大长度
+ *   min_length : 整数 最小长度
+ *   max : 整数 最大值
+ *   min : 整数 最小值
+ *    regex : 正则表达式 正则校验
+ *    prohibited : true 非法参数
+ *    email : true 邮箱
+ *    integer : true 整数
+ *    bool : true bool值
+ *    list : true 数组
+ *    map : true map
+ *    optional : 数组 可选的值
+ *    equals : 字符串 必须相等
+ * </pre>
  *
  * @author Edgar  Date 2016/9/30
  */

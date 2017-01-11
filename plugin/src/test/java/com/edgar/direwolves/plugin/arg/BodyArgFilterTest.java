@@ -67,6 +67,12 @@ public class BodyArgFilterTest {
   }
 
   @Test
+  public void testOrderAndType(TestContext testContext) {
+    Assert.assertEquals(100, filter.order());
+    Assert.assertEquals(Filter.PRE, filter.type());
+  }
+
+  @Test
   public void testMissParameterAllocateDefaultValue(TestContext testContext) {
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("type", 1)

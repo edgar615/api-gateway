@@ -17,6 +17,7 @@
         <module>redis</module>
         <module>plugin-authentication</module>
         <module>plugin-appkey</module>
+        <module>plugin-ratelimit</module>
     </modules>
 
     <properties>

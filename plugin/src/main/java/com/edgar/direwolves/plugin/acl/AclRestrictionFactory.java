@@ -10,13 +10,6 @@ import java.util.List;
 
 /**
  * ACL控制策略的工厂类.
- * json配置:
- * <pre>
- * "acl_restriction" : {
- *    "whitelist" : ["group1", "group2"],
- *    "blacklist" : ["guest"]
- * }
- * </pre>
  *
  * @author Edgar  Date 2016/10/21
  */

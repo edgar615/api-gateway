@@ -19,6 +19,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +59,13 @@ public class RequestTransformerFilterTest {
   @After
   public void tearDown(TestContext testContext) {
     vertx.close(testContext.asyncAssertSuccess());
+  }
+
+
+  @Test
+  public void testOrderAndType(TestContext testContext) {
+    Assert.assertEquals(10000, filter.order());
+    Assert.assertEquals(Filter.PRE, filter.type());
   }
 
   @Test

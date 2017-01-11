@@ -28,9 +28,18 @@ import java.util.List;
  * AppKey的校验.
  * 在校验通过之后，会在上下文中存入变量:
  * <pre>
- *   app_key.code : app编码，默认值0
- *   app_key.scope : app接口范围,默认值default
+ *   app.code : appKey对应的编码，默认值0
+ *   app.permissions : appKey的权限范围
  * </pre>
+ * * 该filter可以接受下列的配置参数
+ * <pre>
+ *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ *   service.cache.address 缓存的地址，默认值direwolves.cache.provider
+ *   app.secretKey 密钥的键值，默认值appSecret
+ *   app.codeKey 编码的键值，默认值appCode
+ *   app.permissionKey 权限的键值，默认值permissions
+ * </pre>
+ * 该filter的order=10
  * <p>
  * 如果开启了这个过滤器，那么对API的调用必须包含下列参数，如果缺少任意一个，服务端会认为是非法请求。
  * <pre>
@@ -40,8 +49,6 @@ import java.util.List;
  *    signMethod	签名的摘要算法	string	是	可选值MD5、HMACSHA256、HMACSHA512、 HMACMD5
  *    sign	签名	string	是	根据签名算法生成的签名，详细内容参考签名章节
  * </pre>
- * 默认没有任何appKey，可以通过app_key.secret的配置项来指定appKey，该配置项接收[ { "key" : "1", "secret" : "2", "code" :
- * 0, "scope" : "all" } ]格式的JSON数组
  * <p>
  * 签名生成的通用步骤如下：
  * 第一步，设所有发送或者接收到的数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序），使用URL键值对的格式（即key1=value1&key2=value2
@@ -125,7 +132,7 @@ public class AppKeyFilter implements Filter {
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
     this.namespace = config.getString("project.namespace", "");
-    String address = config.getString("service.cache.address", "direwolves.cache");
+    String address = config.getString("service.cache.address", "direwolves.cache.provider");
     this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
     this.secretKey = config.getString("app.secretKey", "appSecret");
     this.codeKey = config.getString("app.codeKey", "appCode");
@@ -139,7 +146,7 @@ public class AppKeyFilter implements Filter {
 
   @Override
   public int order() {
-    return 0;
+    return 10;
   }
 
   @Override

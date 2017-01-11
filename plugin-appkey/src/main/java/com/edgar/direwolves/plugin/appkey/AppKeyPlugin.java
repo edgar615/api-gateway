@@ -3,7 +3,16 @@ package com.edgar.direwolves.plugin.appkey;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 
 /**
- * Created by edgar on 16-10-31.
+ * APPKEY校验的.
+ * <p>
+ * 该插件对应的JSON配置的key为<b>appkey</b>，它对应的值是一个bool值:
+ * <pre>
+ *   true 开启appKey的校验
+ *   false 关闭appKey的校验
+ * </pre>
+ * </pre>
+ *
+ * @author Edgar  Date 2016/9/14
  */
 public interface AppKeyPlugin extends ApiPlugin {
   @Override

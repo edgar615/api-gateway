@@ -6,6 +6,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 /**
+ * AuthenticationFilter的工厂类.
  * Created by edgar on 16-12-11.
  */
 public class AuthenticationFilterFactory implements FilterFactory {

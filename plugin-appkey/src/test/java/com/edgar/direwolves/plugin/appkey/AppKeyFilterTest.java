@@ -27,6 +27,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.serviceproxy.ProxyHelper;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,6 +94,12 @@ public class AppKeyFilterTest {
   }
 
   @Test
+  public void testOrderAndType(TestContext testContext) {
+    Assert.assertEquals(10, filter.order());
+    Assert.assertEquals(Filter.PRE, filter.type());
+  }
+
+  @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
 
     createContext();
@@ -135,6 +142,11 @@ public class AppKeyFilterTest {
 
   @Test
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
+    cacheProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode), ar -> {
+
+    });
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);

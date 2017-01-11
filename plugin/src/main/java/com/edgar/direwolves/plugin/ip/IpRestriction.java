@@ -6,6 +6,18 @@ import java.util.List;
 
 /**
  * IP限制策略.
+ * 该插件对应的JSON配置的key为<b>ip_restriction</b>，它有两个属性:
+ * <pre>
+ *   whitelist 白名单列表
+ *   blacklist 黑名单列表
+ * </pre>
+ * json配置:
+ * <pre>
+ * "ip_restriction" : {
+ *    "whitelist" : ["192.168.0.1", "10.4.7.*"],
+ *    "blacklist" : ["192.168.0.100"]
+ * }
+ * </pre>
  *
  * @author Edgar  Date 2016/9/14
  */

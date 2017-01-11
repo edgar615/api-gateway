@@ -5,6 +5,7 @@ import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import io.vertx.core.json.JsonObject;
 
 /**
+ * 权限校验的工厂类.
  * Created by edgar on 16-12-25.
  */
 public class AuthorisePluginFactory implements ApiPluginFactory {

@@ -13,6 +13,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * 严格校验参数.
+ * 如果请求体或者请求参数中包括了未定义的参数，直接抛出ValidationException
+ * 该filter可以接受下列的配置参数
+ * <pre>
+ *   strict_arg bool值是否启用，默认值false
+ *   strict_arg.query.excludes 数组，请求参数中允许的例外
+ *   strict_arg.body.excludes 数组，请求体中允许的例外
+ * </pre>
+ * 该filter的order=99
  * Created by edgar on 16-10-28.
  */
 public class StrictArgFilter implements Filter {
@@ -42,7 +51,7 @@ public class StrictArgFilter implements Filter {
 
   @Override
   public int order() {
-    return 90;
+    return 99;
   }
 
   @Override

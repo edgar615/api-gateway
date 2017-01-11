@@ -13,11 +13,13 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,12 @@ public class ResponseTranformerFilterTest {
     vertx.close(testContext.asyncAssertSuccess());
   }
 
+  @Test
+  public void testOrderAndType(TestContext testContext) {
+    Assert.assertEquals(1000, filter.order());
+    Assert.assertEquals(Filter.POST, filter.type());
+  }
+
 
   @Test
   public void testResponseTransformer(TestContext testContext) {
@@ -90,6 +98,46 @@ public class ResponseTranformerFilterTest {
               Result result = context.result();
               testContext.assertEquals(2, result.header().keys().size());
               testContext.assertEquals(3, result.responseObject().size());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testJsonArrayIncludeBody(TestContext testContext) {
+    ResponseTransformerPlugin plugin = (ResponseTransformerPlugin) ApiPlugin
+            .create(ResponseTransformerPlugin.class.getSimpleName());
+    plugin.removeHeader("h3");
+    plugin.removeHeader("h4");
+    plugin.removeBody("b3");
+    plugin.removeBody("b4");
+    plugin.addHeader("h2", "h2");
+    plugin.addHeader("h1", "h1");
+    plugin.addBody("b1", "b1");
+    plugin.addBody("b2", "b2");
+    apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition
+            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    definition.addPlugin(plugin);
+    apiContext.setApiDefinition(definition);
+    apiContext.setResult(Result.createJsonArray(
+            200, new JsonArray().add(1),
+            ImmutableMultimap.of("h3", "h3")));
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              Result result = context.result();
+              testContext.assertEquals(2, result.header().keys().size());
+              testContext.assertEquals(1, result.responseArray().size());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

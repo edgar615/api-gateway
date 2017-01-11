@@ -11,29 +11,11 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
 /**
- * 将endpoint转换为json对象.
- * params和header的json均为{"k1", ["v1"]}，{"k1", ["v1", "v2]}格式的json对象.
- * <p>
- * <pre>
- *   {
- * "id" : "5bbbe06b-df08-4728-b5e2-166faf912621",
- * "type" : "http",
- * "path" : "/devices",
- * "method" : "POST",
- * "params" : {
- * "q3" : [ "v3" ]
- * },
- * "headers" : {
- * "h3" : [ "v3", "v3.2" ]
- * },
- * "body" : {
- * "foo" : "bar"
- * },
- * "host" : "localhost",
- * "port" : 8080
- * }
- * </pre>
- * <p>
+ * 将RpcRequest中的请求头，请求参数，请求体按照RequestTransformerPlugin中的配置处理.
+ *
+ * 执行的顺序为: remove add
+ *
+ * 该filter的order=10000
  * Created by edgar on 16-9-20.
  */
 public class RequestTransformerFilter implements Filter {
@@ -48,7 +30,7 @@ public class RequestTransformerFilter implements Filter {
 
   @Override
   public int order() {
-    return 9500;
+    return 10000;
   }
 
   @Override
@@ -76,10 +58,6 @@ public class RequestTransformerFilter implements Filter {
     RequestTransformerPlugin plugin =
             (RequestTransformerPlugin) apiContext.apiDefinition()
                     .plugin(RequestTransformerPlugin.class.getSimpleName());
-    if (plugin == null) {
-      return;
-    }
-
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
       Multimap<String, String> params = tranformerParams(request.params(), transformer);

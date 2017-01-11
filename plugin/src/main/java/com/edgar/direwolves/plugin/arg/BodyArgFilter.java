@@ -16,6 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 请求体校验的filter.
+ * 如果未通过校验，直接抛出ValidationException异常
+ * <p>
+ * 该filter的order=100
  * Created by edgar on 16-10-28.
  */
 public class BodyArgFilter implements Filter {

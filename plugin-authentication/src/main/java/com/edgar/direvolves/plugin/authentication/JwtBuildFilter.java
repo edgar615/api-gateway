@@ -14,6 +14,26 @@ import io.vertx.serviceproxy.ProxyHelper;
 import java.util.UUID;
 
 /**
+ * 创建JWT类型的TOKEN.
+ * 目前仅支持JWT类型的认证
+ * 在校验通过之后，会在上下文中存入用户信息:
+ * * 该filter可以接受下列的配置参数
+ * <pre>
+ *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ *   service.cache.address 缓存的地址，默认值direwolves.cache.provider
+ *   keystore.path 证书的路径，默认值keystore.jceks
+ *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
+ *   keystore.password 证书的密码，默认值secret
+ *   jwt.alg 证书的算法，默认值HS512
+ *   jwt.audience string token的客户aud
+ *   jwt.issuer string token的发行者iss
+ *  jwt.subject string token的主题sub
+ *  jwt.expires int token的过期时间exp，单位秒，默认值1800
+ *
+ *  jwt.userClaimKey token中的用户主键，默认值userId
+ *   jwt.permissionKey 用户权限字段 默认值permissions
+ * </pre>
+ * 该filter的order=10000
  * Created by edgar on 16-11-26.
  */
 public class JwtBuildFilter implements Filter {
@@ -26,6 +46,8 @@ public class JwtBuildFilter implements Filter {
   private final CacheProvider cacheProvider;
 
   private final String namespace;
+
+  private final String permissionsKey;
 
   private final JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
@@ -78,7 +100,8 @@ public class JwtBuildFilter implements Filter {
     this.expires = config.getInteger("jwt.expires", 1800);
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("project.namespace", "");
-    String address = config.getString("service.cache.address", "direwolves.cache");
+    String address = config.getString("service.cache.address", "direwolves.cache.provider");
+    this.permissionsKey = config.getString("jwt.permissionKey", "permissions");
     this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
   }
 
@@ -89,7 +112,7 @@ public class JwtBuildFilter implements Filter {
 
   @Override
   public int order() {
-    return 1000;
+    return 10000;
   }
 
   @Override
@@ -117,6 +140,8 @@ public class JwtBuildFilter implements Filter {
               .put(userKey, userId);
       String userCacheKey = namespace + ":user:" + userId;
       JsonObject user = body.copy().put("jti", jti);
+      String permissions = user.getString(permissionsKey, "all");
+      user.put("permissions", permissions);
       cacheProvider.setex(userCacheKey, user, expires, ar -> {
         if (ar.succeeded()) {
           try {

@@ -13,12 +13,19 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.Set;
 
+/**
+ * 权限校验的filter.
+ *
+ * 如果接口包括AppKeyPlugin插件，那么在AppKeyFilter调用之后会在上下文中存入<b>app.permissions</b>变量
+ * 如果接口包括Authentication插件，那么在AuthenticationFilter调用之后会在用户属性中存入<b>permissions</b>变量
+ * 如果调用方或者用户没有对应的权限，直接返回1004的错误.
+ * <p>
+ *
+ *   该filter的order=1100
+ */
 public class AuthoriseFilter implements Filter {
 
-  private Vertx vertx;
-
   AuthoriseFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
   }
 
   @Override
@@ -28,7 +35,7 @@ public class AuthoriseFilter implements Filter {
 
   @Override
   public int order() {
-    return 110;
+    return 1100;
   }
 
   @Override
