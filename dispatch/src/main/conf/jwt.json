@@ -1,0 +1,13 @@
+{
+  "keystore.path": "keystore.jceks",
+  "keystore.type": "jceks",
+  "keystore.password": "secret",
+  "jwt.algorithm": "HS512",
+  "jwt.audience": "",
+  "jwt.issuer": "",
+  "jwt.subject": "",
+  "jwt.expires": 1800,
+  "jwt.userClaimKey": "userId",
+  "jwt.permissionsClaimKey": "permissions",
+  "jwt.user.unique": true
+}

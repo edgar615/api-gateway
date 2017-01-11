@@ -17,22 +17,34 @@ import java.time.Instant;
 
 /**
  * 客户端调用时间的校验.
- * 如果开启了这个过滤器，那么对API的调用必须包含下列参数，如果缺少任意一个，服务端会认为是非法请求。
+ * 如果开启了这个过滤器，那么对API的调用必须包含下列参数.
  * <pre>
  *   timestamp	时间戳	int	是	unix时间戳
  * </pre>
- * 默认允许客户端和服务端有5分钟的误差，可以通过timeout.expires配置项来配置误差范围.
+ * 如果参数不全或者客户端时间与服务端时间相差太久，服务端会认为是非法请求，返回1023的错误。
+ * <p>
+ * 该filter可以接受下列的配置参数
+ * <pre>
+ *   timeout.enable 是否启用filter，默认值true
+ *   timeout.expires 系统允许客户端或服务端之间的时间误差，单位秒，默认值300
+ * </pre>
+ * <p>
+ * 该filter的order=0
  * Created by edgar on 16-9-20.
  */
 public class TimeoutFilter implements Filter {
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
-  private int timeout = 5 * 60;
+  private final int timeout;
+
+  private final boolean enabled;
 
   TimeoutFilter(JsonObject config) {
-    this.timeout = config.getInteger("timeout.expires", timeout);
+    this.timeout = config.getInteger("timeout.expires", 5 * 60);
     commonParamRule.put("timestamp", Rule.required());
+
+    this.enabled = config.getBoolean("timeout.enable", true);
   }
 
   @Override
@@ -47,7 +59,7 @@ public class TimeoutFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return true;
+    return enabled;
   }
 
   @Override

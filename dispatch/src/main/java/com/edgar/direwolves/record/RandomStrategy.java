@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter.servicediscovery;
+package com.edgar.direwolves.record;
 
 import io.vertx.servicediscovery.Record;
 

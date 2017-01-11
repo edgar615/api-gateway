@@ -12,9 +12,12 @@ import io.vertx.serviceproxy.ProxyHelper;
 /**
  * 该filter根据请求从API路由注册表中读取到对应的API定义.
  * <p>
- * 该filter需要从配置中读取<b>api.provider.address</b>属性用于创建ApiProvider的代理对象
+ * 该filter可以接受下列的配置参数
+ * <pre>
+ *   api.provider.address API接口的地址，默认值direwolves.api.provider
+ * </pre>
  * <p>
- * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回异常。
+ * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回对应的异常。
  * 该filter的order=-2147483648, int的最小值
  * Created by edgar on 17-1-4.
  */
@@ -26,7 +29,7 @@ public class ApiFindFilter implements Filter {
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    String address = config.getString("api.provider.address", "direwolves.api");
+    String address = config.getString("api.provider.address", "direwolves.api.provider");
     this.apiProvider = ProxyHelper.createProxy(ApiProvider.class, vertx, address);
   }
 

@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter.servicediscovery;
+package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.spi.Configurable;
 import io.vertx.core.Future;

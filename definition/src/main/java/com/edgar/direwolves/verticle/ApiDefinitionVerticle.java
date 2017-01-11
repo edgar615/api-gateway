@@ -36,7 +36,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     EventBus eb = vertx.eventBus();
     eb.registerCodec(new ApiDefinitionCodec())
             .registerCodec(new ApiDefinitionListCodec());
-    String address = config().getString("api.provider.address", "direwolves.api");
+    String address = config().getString("api.provider.address", "direwolves.api.provider");
     ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
   }
 

@@ -40,7 +40,7 @@ public class ApiFindFilterTest {
 
   private JsonObject config = new JsonObject();
 
-  private String address = "direwolves.api";
+  private String address = "direwolves.api.provider";
 
   @Before
   public void setUp(TestContext testContext) {

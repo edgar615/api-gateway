@@ -1,0 +1,4 @@
+{
+   "timeout.enable" : true,
+   "timeout.expires": 300
+}

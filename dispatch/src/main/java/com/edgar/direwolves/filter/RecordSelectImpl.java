@@ -1,9 +1,10 @@
-package com.edgar.direwolves.filter.servicediscovery;
+package com.edgar.direwolves.filter;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
+import com.edgar.direwolves.record.SelectStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -43,7 +44,7 @@ class RecordSelectImpl implements RecordSelect {
     synchronized (this) {
       SelectStrategy selectStrategy = strategyMap.get(service);
       if (selectStrategy == null) {
-        selectStrategy = SelectStrategy.roundRobin();
+        selectStrategy = SelectStrategy.create("round_robin");
         strategyMap.put(service, selectStrategy);
       }
     }
@@ -82,7 +83,9 @@ class RecordSelectImpl implements RecordSelect {
             config.getJsonObject("service.discovery.select-strategy", new JsonObject());
     strategyConfig.forEach(entry ->
                                    strategyMap.put(entry.getKey(),
-                                                   selectStrategy(entry.getValue().toString())));
+                                                   SelectStrategy
+                                                           .create(entry.getValue().toString())
+                                   ));
 
   }
 
@@ -100,18 +103,4 @@ class RecordSelectImpl implements RecordSelect {
     });
   }
 
-  private SelectStrategy selectStrategy(String type) {
-    SelectStrategy selectStrategy = null;
-    switch (type) {
-      case "random":
-        selectStrategy = SelectStrategy.random();
-        break;
-      case "round_robin":
-        selectStrategy = SelectStrategy.roundRobin();
-        break;
-      default:
-        selectStrategy = SelectStrategy.roundRobin();
-    }
-    return selectStrategy;
-  }
 }
