@@ -21,6 +21,7 @@ import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -250,6 +251,62 @@ public class AppKeyFilterTest {
     params.removeAll("body");
 
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, body);
+
+
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition
+            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    apiContext.setApiDefinition(definition);
+    definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.assertFalse(context.params().containsKey("sign"));
+              testContext.assertFalse(context.params().containsKey("signMethod"));
+              testContext.assertFalse(context.params().containsKey("v"));
+              testContext.assertFalse(context.params().containsKey("appKey"));
+              async.complete();
+            })
+            .onFailure(t -> {
+              t.printStackTrace();
+              testContext.fail();
+            });
+
+  }
+
+  @Test
+  public void testSignOrigin(TestContext testContext) {
+
+    JsonObject origin = new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode)
+            .put("appKey", appKey);
+
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("app.secretKey", secretKey)
+            .put("app.codeKey", codeKey)
+            .put("service.cache.address", cacheAddress)
+            .put("project.namespace", namespace)
+            .put("app.origin", new JsonArray()
+                    .add(origin)));
+    filters.clear();
+    filters.add(filter);
+
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("appKey", appKey);
+    params.put("nonce", Randoms.randomAlphabetAndNum(10));
+    params.put("signMethod", signMethod);
+    params.put("v", "1.0");
+    params.put("deviceId", "1");
+
+    params.put("sign", signTopRequest(params, appSecret, signMethod));
+    params.removeAll("body");
+
+    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =

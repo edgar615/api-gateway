@@ -16,13 +16,16 @@ import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * AppKey的校验.
@@ -38,6 +41,7 @@ import java.util.List;
  *   app.secretKey 密钥的键值，默认值appSecret
  *   app.codeKey 编码的键值，默认值appCode
  *   app.permissionKey 权限的键值，默认值permissions
+ *   app.origin 初始值，数组
  * </pre>
  * 该filter的order=10
  * <p>
@@ -116,6 +120,8 @@ public class AppKeyFilter implements Filter {
 
   private final String permissionsKey;
 
+  private final Map<String, JsonObject> origins = new HashMap<>();
+
   private Vertx vertx;
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
@@ -137,6 +143,14 @@ public class AppKeyFilter implements Filter {
     this.secretKey = config.getString("app.secretKey", "appSecret");
     this.codeKey = config.getString("app.codeKey", "appCode");
     this.permissionsKey = config.getString("app.permissionKey", "permissions");
+
+    JsonArray appKeys = config.getJsonArray("app.origin", new JsonArray());
+    for (int i = 0; i < appKeys.size(); i++) {
+      String appKey = appKeys.getJsonObject(i).getString("appKey");
+      if (appKey != null) {
+        origins.put(appKey, appKeys.getJsonObject(i));
+      }
+    }
   }
 
   @Override
@@ -167,37 +181,44 @@ public class AppKeyFilter implements Filter {
       params.removeAll("body");
       params.put("body", apiContext.body().encode());
     }
-
-    String appCacheKey = namespace + ":appKey:" + appKey;
-
-    redisProvider.get(appCacheKey, ar -> {
-      if (ar.succeeded()) {
-        JsonObject app = ar.result();
-        String secret = app.getString(secretKey, "UNKOWNSECRET");
-        String serverSignValue = signTopRequest(params, secret, signMethod);
-        if (!clientSignValue.equals(serverSignValue)) {
-          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+    if (origins.containsKey(appKey)) {
+      JsonObject app = origins.get(appKey);
+      checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
+    } else {
+      String appCacheKey = namespace + ":appKey:" + appKey;
+      redisProvider.get(appCacheKey, ar -> {
+        if (ar.succeeded()) {
+          JsonObject app = ar.result();
+          checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
         } else {
-          Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
-          newParams.removeAll("sign");
-          newParams.removeAll("signMethod");
-          newParams.removeAll("v");
-          newParams.removeAll("appKey");
-          ApiContext newContext =
-                  ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
-                                    apiContext.headers(), newParams, apiContext.body
-                                  ());
-          ApiContext.copyProperites(apiContext, newContext);
-          newContext.addVariable("app.code", app.getInteger(codeKey, 0));
-          newContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
-          completeFuture.complete(newContext);
+          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
         }
+      });
+    }
+  }
 
-      } else {
-        completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
-      }
-    });
-
+  private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
+                         Multimap<String, String> params, String clientSignValue, String signMethod,
+                         JsonObject app) {
+    String secret = app.getString(secretKey, "UNKOWNSECRET");
+    String serverSignValue = signTopRequest(params, secret, signMethod);
+    if (!clientSignValue.equals(serverSignValue)) {
+      completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+    } else {
+      Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
+      newParams.removeAll("sign");
+      newParams.removeAll("signMethod");
+      newParams.removeAll("v");
+      newParams.removeAll("appKey");
+      ApiContext newContext =
+              ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
+                                apiContext.headers(), newParams, apiContext.body
+                              ());
+      ApiContext.copyProperites(apiContext, newContext);
+      newContext.addVariable("app.code", app.getInteger(codeKey, 0));
+      newContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
+      completeFuture.complete(newContext);
+    }
   }
 
   private String signTopRequest(Multimap<String, String> params, String secret, String signMethod) {
