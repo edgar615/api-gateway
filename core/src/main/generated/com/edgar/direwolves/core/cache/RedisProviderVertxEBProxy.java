@@ -16,6 +16,7 @@
 
 package com.edgar.direwolves.core.cache;
 
+import com.edgar.direwolves.core.cache.RedisProvider;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.Future;
@@ -28,29 +29,32 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.function.Function;
-
+import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import com.edgar.direwolves.core.cache.RedisProvider;
 
 /*
   Generated Proxy code - DO NOT EDIT
   @author Roger the Robot
 */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class CacheProviderVertxEBProxy implements RedisProvider {
+public class RedisProviderVertxEBProxy implements RedisProvider {
 
   private Vertx _vertx;
   private String _address;
   private DeliveryOptions _options;
   private boolean closed;
 
-  public CacheProviderVertxEBProxy(Vertx vertx, String address) {
+  public RedisProviderVertxEBProxy(Vertx vertx, String address) {
     this(vertx, address, null);
   }
 
-  public CacheProviderVertxEBProxy(Vertx vertx, String address, DeliveryOptions options) {
+  public RedisProviderVertxEBProxy(Vertx vertx, String address, DeliveryOptions options) {
     this._vertx = vertx;
     this._address = address;
     this._options = options;

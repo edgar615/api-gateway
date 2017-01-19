@@ -3,7 +3,7 @@ package com.edgar.direwolves.redis;
 import com.google.common.base.Strings;
 
 import com.edgar.direwolves.core.cache.CacheFactory;
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
@@ -15,7 +15,7 @@ import io.vertx.redis.RedisOptions;
 public class RedisProviderFactory implements CacheFactory {
 
   @Override
-  public CacheProvider create(Vertx vertx, JsonObject config) {
+  public RedisProvider create(Vertx vertx, JsonObject config) {
     String redisHost = config.getString("redis.host", "localhost");
     int redisPort = config.getInteger("redis.port", 6379);
     String redisAuth = config.getString("redis.auth", "");
@@ -29,6 +29,6 @@ public class RedisProviderFactory implements CacheFactory {
     String namespace = config.getString("project.namespace", "");
     options.setAddress(namespace + options.getAddress());
     RedisClient redisClient = RedisClient.create(vertx, options);
-    return new RedisProvider(redisClient);
+    return new RedisProviderImpl(redisClient);
   }
 }

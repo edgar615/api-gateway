@@ -1,6 +1,6 @@
 package com.edgar.direwolves.redis;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -10,11 +10,11 @@ import io.vertx.redis.RedisClient;
 /**
  * Created by edgar on 16-12-9.
  */
-public class RedisProvider implements CacheProvider {
+public class RedisProviderImpl implements RedisProvider {
 
   private final RedisClient redisClient;
 
-  RedisProvider(RedisClient redisClient) {
+  RedisProviderImpl(RedisClient redisClient) {
     this.redisClient = redisClient;
 //    redisClient
 //        .subscribeMany(Arrays.asList(EXPIRED_SUB, DEL_SUB), res -> {

@@ -11,5 +11,5 @@ public interface CacheFactory {
   /**
    * @return 创建一个缓存
    */
-  CacheProvider create(Vertx vertx, JsonObject config);
+  RedisProvider create(Vertx vertx, JsonObject config);
 }

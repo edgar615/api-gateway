@@ -6,7 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -56,7 +56,7 @@ public class AppKeyFilterTest {
 
   String signMethod = "HMACMD5";
 
-  CacheProvider cacheProvider = new MockCacheProvider();
+  RedisProvider redisProvider = new MockRedisProvider();
 
   private String namespace = UUID.randomUUID().toString();
 
@@ -84,7 +84,7 @@ public class AppKeyFilterTest {
     filters.clear();
     filters.add(filter);
 
-    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, cacheAddress);
+    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
   }
 
@@ -142,7 +142,7 @@ public class AppKeyFilterTest {
 
   @Test
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
-    cacheProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
+    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
             .put(secretKey, appSecret)
             .put(codeKey, appCode), ar -> {
 
@@ -181,7 +181,7 @@ public class AppKeyFilterTest {
   @Test
   public void testSignWithoutBody(TestContext testContext) {
 
-    cacheProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
+    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
             .put(secretKey, appSecret)
             .put(codeKey, appCode), ar -> {
 
@@ -228,7 +228,7 @@ public class AppKeyFilterTest {
   @Test
   public void testSignWithBody(TestContext testContext) {
 
-    cacheProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
+    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
             .put(secretKey, appSecret)
             .put(codeKey, appCode), ar -> {
 

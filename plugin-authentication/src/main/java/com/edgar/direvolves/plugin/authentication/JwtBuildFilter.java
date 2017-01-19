@@ -1,6 +1,6 @@
 package com.edgar.direvolves.plugin.authentication;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
@@ -43,7 +43,7 @@ public class JwtBuildFilter implements Filter {
 
   private final String userKey;
 
-  private final CacheProvider cacheProvider;
+  private final RedisProvider redisProvider;
 
   private final String namespace;
 
@@ -102,7 +102,7 @@ public class JwtBuildFilter implements Filter {
     this.namespace = config.getString("project.namespace", "");
     String address = config.getString("service.cache.address", "direwolves.cache.provider");
     this.permissionsKey = config.getString("jwt.permissionKey", "permissions");
-    this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
+    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 
   @Override
@@ -142,7 +142,7 @@ public class JwtBuildFilter implements Filter {
       JsonObject user = body.copy().put("jti", jti);
       String permissions = user.getString(permissionsKey, "all");
       user.put("permissions", permissions);
-      cacheProvider.setex(userCacheKey, user, expires, ar -> {
+      redisProvider.setex(userCacheKey, user, expires, ar -> {
         if (ar.succeeded()) {
           try {
             String token = provider.generateToken(claims, new JWTOptions(this.jwtConfig));

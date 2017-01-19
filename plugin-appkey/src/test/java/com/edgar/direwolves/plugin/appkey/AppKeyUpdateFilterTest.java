@@ -1,4 +1,4 @@
-package com.edgar.direvolves.plugin.authentication;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
@@ -14,6 +14,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.util.base.Randoms;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -38,7 +40,7 @@ import java.util.UUID;
  * @author Edgar  Date 2016/10/31
  */
 @RunWith(VertxUnitRunner.class)
-public class JwtBuildFilterTest {
+public class AppKeyUpdateFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -59,7 +61,7 @@ public class JwtBuildFilterTest {
     vertx = Vertx.vertx();
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
-    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
+    filter = Filter.create(AppKeyUpdateFilter.class.getSimpleName(), vertx,
                            new JsonObject().put("service.cache.address", cacheAddress)
                                    .put("project.namespace", namespace)
                                    .put("jwt.userClaimKey", userKey));
@@ -70,13 +72,14 @@ public class JwtBuildFilterTest {
   }
 
   @Test
-  public void badRequestShouldNotContainToken(TestContext testContext) {
+  public void badRequestShouldNotUpdateAppKey(TestContext testContext) {
     ApiContext apiContext = createContext();
 
+    String appKey = Randoms.randomAlphabet(20);
     JsonObject body = new JsonObject()
-            .put("username", "edgar")
-            .put("tel", "123456")
-            .put(userKey, 10);
+            .put("appKey", appKey)
+            .put("appSecret", "123456")
+            .put("appCode", 0);
     apiContext.setResult(Result.createJsonObject(400, body, null));
 
     Task<ApiContext> task = Task.create();
@@ -84,9 +87,15 @@ public class JwtBuildFilterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              Result result = context.result();
-              testContext.assertFalse(result.responseObject().containsKey("token"));
-              async.complete();
+              redisProvider.get(namespace + ":appKey:" + appKey, ar -> {
+                if (ar.succeeded()) {
+                  System.out.println(ar.result());
+                  testContext.fail();
+                } else {
+                  testContext.assertTrue(ar.cause() instanceof NoSuchElementException);
+                  async.complete();
+                }
+              });
             })
             .onFailure(throwable -> {
               throwable.printStackTrace();
@@ -95,13 +104,13 @@ public class JwtBuildFilterTest {
   }
 
   @Test
-  public void missUserKeyShouldNotContainToken(TestContext testContext) {
+  public void missUserKeyShouldNotUpdateAppKey(TestContext testContext) {
     ApiContext apiContext = createContext();
 
+    String appKey = Randoms.randomAlphabet(20);
     JsonObject body = new JsonObject()
-            .put("username", "edgar")
-            .put("tel", "123456")
-            .put("userId", 10);
+            .put("appSecret", "123456")
+            .put("appCode", 0);
     apiContext.setResult(Result.createJsonObject(200, body, null));
 
     Task<ApiContext> task = Task.create();
@@ -109,9 +118,15 @@ public class JwtBuildFilterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              Result result = context.result();
-              testContext.assertFalse(result.responseObject().containsKey("token"));
-              async.complete();
+              redisProvider.get(namespace + ":appKey:" + appKey, ar -> {
+                if (ar.succeeded()) {
+                  System.out.println(ar.result());
+                  testContext.fail();
+                } else {
+                  testContext.assertTrue(ar.cause() instanceof NoSuchElementException);
+                  async.complete();
+                }
+              });
             })
             .onFailure(throwable -> {
               throwable.printStackTrace();
@@ -120,18 +135,19 @@ public class JwtBuildFilterTest {
   }
 
   @Test
-  public void validUserShouldContainToken(TestContext testContext) {
+  public void validAppKeyShouldUpdateCache(TestContext testContext) {
     ApiContext apiContext = createContext();
 
+    String appKey = Randoms.randomAlphabet(20);
     JsonObject body = new JsonObject()
-            .put("username", "edgar")
-            .put("tel", "123456")
-            .put(userKey, 1);
+            .put("appKey", appKey)
+            .put("appSecret", "123456")
+            .put("appCode", 5656);
     apiContext.setResult(Result.createJsonObject(200, body, null));
 
-    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-                                                                      .class
-                                                                      .getSimpleName());
+    AppKeyUpdatePlugin plugin = (AppKeyUpdatePlugin)
+            ApiPlugin.create(AppKeyUpdatePlugin.class
+                                     .getSimpleName());
     apiContext.apiDefinition().addPlugin(plugin);
 
     Task<ApiContext> task = Task.create();
@@ -140,17 +156,11 @@ public class JwtBuildFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
-              testContext.assertTrue(result.responseObject().containsKey("token"));
-              String token = result.responseObject().getString("token");
-              String token2 = Iterables.get(Splitter.on(".").split(token), 1);
-              JsonObject chaim = new JsonObject(new String(Base64.getDecoder().decode(token2)));
-              System.out.println(chaim);
-              System.out.println(new Date(chaim.getLong("exp") * 1000));
-              testContext.assertTrue(chaim.containsKey("jti"));
-
-              redisProvider.get(namespace + ":user:" + 1, ar -> {
+              testContext.assertTrue(result.responseObject().containsKey("appKey"));
+              redisProvider.get(namespace + ":appKey:" + appKey, ar -> {
                 if (ar.succeeded()) {
-                  System.out.println(ar.result());
+                  testContext.assertEquals(body.getString("appKey"), appKey);
+                  testContext.assertEquals(body.getString("appSecret"), ar.result().getString("appSecret"));
                   async.complete();
                 } else {
                   testContext.fail();
@@ -177,10 +187,6 @@ public class JwtBuildFilterTest {
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-                                                                      .class
-                                                                      .getSimpleName());
-    apiContext.apiDefinition().addPlugin(plugin);
     return apiContext;
   }
 

@@ -2,7 +2,7 @@ package com.edgar.direvolves.plugin.authentication;
 
 import com.google.common.base.Strings;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -52,7 +52,7 @@ public class AuthenticationFilter implements Filter {
 
   private final String namespace;
 
-  private final CacheProvider cacheProvider;
+  private final RedisProvider redisProvider;
 
   private JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
@@ -77,7 +77,7 @@ public class AuthenticationFilter implements Filter {
     this.namespace = config.getString("project.namespace", "");
     this.uniqueToken = config.getBoolean("jwt.user.unique", false);
     String address = config.getString("service.cache.address", "direwolves.cache.provider");
-    this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
+    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 
   @Override
@@ -141,7 +141,7 @@ public class AuthenticationFilter implements Filter {
       userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
     } else {
       String userCacheKey = namespace + ":user:" + userId;
-      cacheProvider.get(userCacheKey, ar -> {
+      redisProvider.get(userCacheKey, ar -> {
         if (ar.succeeded()) {
           if (uniqueToken) {
             String serverJti = ar.result().getString("jti", UUID.randomUUID().toString());

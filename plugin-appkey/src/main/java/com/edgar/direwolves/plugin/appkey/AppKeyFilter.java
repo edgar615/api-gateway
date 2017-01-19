@@ -5,7 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.MultimapUtils;
@@ -108,7 +108,7 @@ public class AppKeyFilter implements Filter {
 
   private final String namespace;
 
-  private final CacheProvider cacheProvider;
+  private final RedisProvider redisProvider;
 
   private final String secretKey;
 
@@ -133,7 +133,7 @@ public class AppKeyFilter implements Filter {
     commonParamRule.put("sign", Rule.required());
     this.namespace = config.getString("project.namespace", "");
     String address = config.getString("service.cache.address", "direwolves.cache.provider");
-    this.cacheProvider = ProxyHelper.createProxy(CacheProvider.class, vertx, address);
+    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
     this.secretKey = config.getString("app.secretKey", "appSecret");
     this.codeKey = config.getString("app.codeKey", "appCode");
     this.permissionsKey = config.getString("app.permissionKey", "permissions");
@@ -170,7 +170,7 @@ public class AppKeyFilter implements Filter {
 
     String appCacheKey = namespace + ":appKey:" + appKey;
 
-    cacheProvider.get(appCacheKey, ar -> {
+    redisProvider.get(appCacheKey, ar -> {
       if (ar.succeeded()) {
         JsonObject app = ar.result();
         String secret = app.getString(secretKey, "UNKOWNSECRET");

@@ -1,6 +1,6 @@
 package com.edgar.direwolves.dispatch.verticle;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
@@ -24,8 +24,8 @@ public class ApiDispatchVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
-    CacheProvider cacheProvider = CacheProvider.create(vertx, config());
-    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider,
+    RedisProvider redisProvider = RedisProvider.create(vertx, config());
+    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
                                 config().getString("service.cache.address", "cache"));
 
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());

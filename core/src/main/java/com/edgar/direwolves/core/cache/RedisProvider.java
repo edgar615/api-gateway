@@ -11,7 +11,7 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-7.
  */
 @ProxyGen
-public interface CacheProvider {
+public interface RedisProvider {
   CacheFactory factory = ServiceHelper.loadFactory(CacheFactory.class);
 
   /**
@@ -49,7 +49,7 @@ public interface CacheProvider {
    */
   void delete(String key, Handler<AsyncResult<Void>> handler);
 
-  static CacheProvider create(Vertx vertx, JsonObject config) {
+  static RedisProvider create(Vertx vertx, JsonObject config) {
     return factory.create(vertx, config);
   }
 

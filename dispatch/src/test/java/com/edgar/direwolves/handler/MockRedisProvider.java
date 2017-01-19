@@ -1,6 +1,6 @@
 package com.edgar.direwolves.handler;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.util.cache.Cache;
 import com.edgar.util.cache.ExpiringCache;
 import com.edgar.util.cache.LRUCache;
@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 /**
  * Created by edgar on 16-12-11.
  */
-public class MockCacheProvider implements CacheProvider {
+public class MockRedisProvider implements RedisProvider {
 
   private Cache<String, JsonObject> cache = new ExpiringCache<>(
           LRUCache.<String, JsonObject>builder().build());

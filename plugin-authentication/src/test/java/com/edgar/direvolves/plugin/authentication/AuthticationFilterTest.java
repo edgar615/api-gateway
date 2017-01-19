@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.CacheProvider;
+import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.Endpoint;
@@ -45,7 +45,7 @@ public class AuthticationFilterTest {
 
   String jti = UUID.randomUUID().toString();
 
-  CacheProvider cacheProvider = new MockCacheProvider();
+  RedisProvider redisProvider = new MockRedisProvider();
 
   JWTAuth provider;
 
@@ -62,7 +62,7 @@ public class AuthticationFilterTest {
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-    ProxyHelper.registerService(CacheProvider.class, vertx, cacheProvider, cacheAddress);
+    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
     filters.clear();
     JsonObject config = new JsonObject().put("keyStore", new JsonObject()
             .put("path", "keystore.jceks")
@@ -147,7 +147,7 @@ public class AuthticationFilterTest {
 
   @Test
   public void unequalJtiShouldThrowExpiredTokenWhenRestrictedUniqueUser(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+    redisProvider.set(namespace + ":user:" + userId, new JsonObject()
             .put("userId", userId)
             .put("username", "password")
             .put("jti", jti), ar -> {
@@ -189,7 +189,7 @@ public class AuthticationFilterTest {
 
   @Test
   public void unequalJtiShouldSuccessWhenUnrestrictedUniqueUser(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+    redisProvider.set(namespace + ":user:" + userId, new JsonObject()
             .put("userId", userId)
             .put("username", "edgar")
             .put("jti", jti), ar -> {
@@ -231,7 +231,7 @@ public class AuthticationFilterTest {
 
   @Test
   public void equalJtiShouldSuccessWhenRestrictedUniqueUser(TestContext testContext) {
-    cacheProvider.set(namespace + ":user:" + userId, new JsonObject()
+    redisProvider.set(namespace + ":user:" + userId, new JsonObject()
             .put("userId", userId)
             .put("username", "edgar")
             .put("jti", jti), ar -> {
@@ -274,7 +274,7 @@ public class AuthticationFilterTest {
   @Test
   public void unSavedJtiShouldThrownInvalidToken(TestContext testContext) {
 
-    cacheProvider
+    redisProvider
             .set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
                     .put("userId", userId)
                     .put("username", "password")
