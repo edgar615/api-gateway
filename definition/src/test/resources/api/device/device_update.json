@@ -1,0 +1,14 @@
+{
+  "name" : "update_device",
+  "method": "POST",
+  "path": "/devices",
+  "endpoints": [
+    {
+      "type" : "http",
+      "name" : "add_device",
+      "service": "device",
+      "method": "POST",
+      "path": "/devices"
+    }
+  ]
+}
