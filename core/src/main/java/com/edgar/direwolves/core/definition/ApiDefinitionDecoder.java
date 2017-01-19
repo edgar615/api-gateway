@@ -69,17 +69,17 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
   private HttpEndpoint endpoint(JsonObject jsonObject) {
     String type = jsonObject.getString("type");
     String name = jsonObject.getString("name");
-    Preconditions.checkNotNull(name, "arg name cannot be null");
+    Preconditions.checkNotNull(name, "endpoint name cannot be null");
     String service = jsonObject.getString("service");
-    Preconditions.checkNotNull(service, "arg service cannot be null");
+    Preconditions.checkNotNull(service, "endpoint service cannot be null");
     String path = jsonObject.getString("path");
-    Preconditions.checkNotNull(path, "arg path cannot be null");
+    Preconditions.checkNotNull(path, "endpoint path cannot be null");
     if ("http".equalsIgnoreCase(type)) {
       HttpMethod method = method(jsonObject.getString("method", "get"));
       HttpEndpoint httpEndpoint = Endpoint.createHttp(name, method, path, service);
       return httpEndpoint;
     } else {
-      throw new UnsupportedOperationException("unsupport type:" + type);
+      throw new UnsupportedOperationException("unsupport endpoint type:" + type);
     }
   }
 

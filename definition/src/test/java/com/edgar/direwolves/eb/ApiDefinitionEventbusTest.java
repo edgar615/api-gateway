@@ -50,50 +50,6 @@ public class ApiDefinitionEventbusTest {
   }
 
   @Test
-  public void testAddSuccess(TestContext context) {
-    add(context);
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
-    Assert.assertEquals(1, ApiDefinitionRegistry.create().filter("add_device").size());
-
-    ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
-    Assert.assertEquals("/devices", apiDefinition.path());
-
-    Assert.assertEquals(0, apiDefinition.plugins().size());
-//    Assert.assertNull(apiDefinition.plugin(AclRestriction.NAME));
-//    Assert.assertNotNull(apiDefinition.plugin(IpRestriction.NAME));
-//    Assert.assertNotNull(apiDefinition.plugin(UrlArgPlugin.NAME));
-//    Assert.assertNotNull(apiDefinition.plugin(BodyArgPlugin.NAME));
-//    Assert.assertNotNull(apiDefinition.plugin(RateLimitPlugin.NAME));
-//    Assert.assertNotNull(apiDefinition.plugin(RequestTransformerPlugin.NAME));
-//    Assert.assertNotNull(apiDefinition.plugin(ResponseTransformerPlugin.NAME));
-
-  }
-
-  @Test
-  public void testAddSameName(TestContext context) {
-    add("src/test/resources/device_add.json", context);
-
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
-    await().until(() -> ApiDefinitionRegistry.create().filter("add_device").get(0)
-            .method().equals(HttpMethod.POST));
-
-    Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
-    ApiDefinition apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
-    Assert.assertEquals(0, apiDefinition.plugins().size());
-    Assert.assertEquals(1, apiDefinition.endpoints().size());
-
-    add("src/test/resources/device_add2.json", context);
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
-    await().until(() -> ApiDefinitionRegistry.create().filter("add_device").get(0)
-            .method().equals(HttpMethod.PUT));
-
-    Assert.assertEquals(1, ApiDefinitionRegistry.create().filter(null).size());
-    apiDefinition = ApiDefinitionRegistry.create().filter("add_device").get(0);
-    Assert.assertEquals(0, apiDefinition.plugins().size());
-    Assert.assertEquals(2, apiDefinition.endpoints().size());
-  }
-
-  @Test
   public void testListAll(TestContext context) {
     add(context);
     add("src/test/resources/device_update.json", context);
@@ -213,92 +169,6 @@ public class ApiDefinitionEventbusTest {
   }
 
   @Test
-  public void testGet(TestContext context) {
-    add(context);
-
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
-
-    Async async = context.async();
-
-    eb.<ApiDefinition>send(ApiGetHandler.ADDRESS, "add_device", ar -> {
-      if (ar.succeeded()) {
-        ApiDefinition apiDefinition = ar.result().body();
-        context.assertEquals("add_device", apiDefinition.name());
-      } else {
-        ar.cause().printStackTrace();
-        System.out.println(ar.cause());
-        context.fail();
-      }
-      async.complete();
-    });
-
-    Async async2 = context.async();
-
-    eb.<ApiDefinition>send(ApiGetHandler.ADDRESS, "*device", ar -> {
-      if (ar.succeeded()) {
-        ApiDefinition apiDefinition = ar.result().body();
-        context.assertEquals("add_device", apiDefinition.name());
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-      async2.complete();
-    });
-  }
-
-  @Test
-  public void testGet404(TestContext context) {
-    add(context);
-
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() > 0);
-
-    Async async = context.async();
-
-    eb.<JsonObject>send(ApiGetHandler.ADDRESS, Randoms.randomAlphabet(10), ar -> {
-      if (ar.succeeded()) {
-        context.fail();
-      } else {
-        System.out.println(ar.cause());
-      }
-      async.complete();
-    });
-  }
-
-  @Test
-  public void testDelete(TestContext context) {
-    add(context);
-    eb.<JsonObject>send(ApiDeleteHandler.ADDRESS, "*device", ar -> {
-      if (ar.succeeded()) {
-        JsonObject jsonObject = ar.result().body();
-        context.assertEquals("OK", jsonObject.getString("result"));
-        context.assertEquals(0, ApiDefinitionRegistry.create().getDefinitions()
-                .size());
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-    });
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 0);
-  }
-
-  @Test
-  public void testDeleteAll(TestContext context) {
-    add(context);
-    eb.<JsonObject>send(ApiDeleteHandler.ADDRESS, "*", ar -> {
-      if (ar.succeeded()) {
-        JsonObject jsonObject = ar.result().body();
-        context.assertEquals("OK", jsonObject.getString("result"));
-        context.assertEquals(0, ApiDefinitionRegistry.create().getDefinitions()
-                .size());
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-    });
-    await().until(() -> ApiDefinitionRegistry.create().filter(null).size() == 0);
-  }
-
-  @Test
   public void testMatch(TestContext context) {
     add(context);
     List<ApiDefinition> copyApiDefinition = new ArrayList<>();
@@ -350,16 +220,6 @@ public class ApiDefinitionEventbusTest {
   private void add(String file, TestContext context) {
     JsonObject
             addDeviceJson = new JsonObject();// JsonUtils.getJsonFromFile(file);
-    eb.<JsonObject>send(ApiAddHandler.ADDRESS, addDeviceJson, ar -> {
-      if (ar.succeeded()) {
-        JsonObject jsonObject = ar.result().body();
-        System.out.println(jsonObject);
-        context.assertEquals("OK", jsonObject.getString("result"));
-      } else {
-        System.out.println(ar.cause());
-        context.fail();
-      }
-    });
   }
 
   private void add(TestContext context) {

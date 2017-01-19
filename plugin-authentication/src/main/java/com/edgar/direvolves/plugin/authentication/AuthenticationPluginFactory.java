@@ -23,7 +23,7 @@ public class AuthenticationPluginFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
 
-    if (jsonObject.getBoolean("authentication", true)) {
+    if (jsonObject.getBoolean("authentication", false)) {
       return new AuthenticationPluginImpl();
     }
     return null;

@@ -1,4 +1,3 @@
-com.edgar.direwolves.eb.ApiAddHandler
 com.edgar.direwolves.eb.ApiListHandler
 com.edgar.direwolves.eb.ApiGetHandler
 com.edgar.direwolves.eb.ApiDeleteHandler

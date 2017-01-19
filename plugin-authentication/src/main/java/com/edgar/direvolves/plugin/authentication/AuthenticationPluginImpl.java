@@ -10,4 +10,8 @@ class AuthenticationPluginImpl implements AuthenticationPlugin {
   AuthenticationPluginImpl() {
   }
 
+  @Override
+  public String toString() {
+    return "AuthenticationPlugin{}";
+  }
 }
