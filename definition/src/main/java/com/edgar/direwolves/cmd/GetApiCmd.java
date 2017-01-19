@@ -1,8 +1,5 @@
 package com.edgar.direwolves.cmd;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
@@ -10,6 +7,8 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
@@ -44,6 +43,7 @@ class GetApiCmd implements ApiCmd {
     if (definitions.isEmpty()) {
       throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
     }
-    return Future.succeededFuture(definitions.get(0).toJson());
+    return Future.succeededFuture(new JsonObject()
+        .put("result", definitions.get(0).toJson()));
   }
 }

@@ -39,6 +39,6 @@ public interface ApiCmd {
 
   default JsonObject succeedResult() {
     return new JsonObject()
-            .put("result", 1);
+        .put("result", 1);
   }
 }

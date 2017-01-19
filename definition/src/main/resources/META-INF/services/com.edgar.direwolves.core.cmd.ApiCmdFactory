@@ -1,3 +1,4 @@
 com.edgar.direwolves.cmd.AddApiCmdFactory
 com.edgar.direwolves.cmd.DeleteApiCmdFactory
 com.edgar.direwolves.cmd.GetApiCmdFactory
+com.edgar.direwolves.cmd.ListApiCmdFactory
