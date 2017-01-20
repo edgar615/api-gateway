@@ -1,10 +1,10 @@
 package com.edgar.direwolves.definition;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Edgar on 2017/1/3.
@@ -40,15 +40,35 @@ public class ApiProviderImpl implements ApiProvider {
         handler.handle(
                 Future.failedFuture(new ServiceException(DefaultErrorCode.RESOURCE_NOT_FOUND
                                                                  .getNumber(), DefaultErrorCode
-                                                                 .RESOURCE_NOT_FOUND.getMessage())));
+                                                                 .RESOURCE_NOT_FOUND
+                                                                 .getMessage())));
       }
     } catch (Exception e) {
       LOGGER.error("failed match api, method->{}, path->{}", method, path);
       handler.handle(
               Future.failedFuture(new ServiceException(DefaultErrorCode.RESOURCE_NOT_FOUND
                                                                .getNumber(), DefaultErrorCode
-                      .RESOURCE_NOT_FOUND.getMessage())));
+                                                               .RESOURCE_NOT_FOUND.getMessage())));
     }
+  }
+
+  @Override
+  public void list(String name, Handler<AsyncResult<List<JsonObject>>> handler) {
+    List<JsonObject> results = ApiDefinitionRegistry.create().filter(name)
+            .stream().map(d -> d.toJson())
+            .collect(Collectors.toList());
+    handler.handle(Future.succeededFuture(results));
+  }
+
+  @Override
+  public void addPlugin(String name, JsonObject pluginJson,
+                        Handler<AsyncResult<JsonObject>> handler) {
+    ApiDefinitionRegistry.create().filter(name).
+            forEach(d ->
+                            ApiPlugin.factories
+                                    .forEach(f -> d.addPlugin((ApiPlugin) f.decode(pluginJson)))
+            );
+    handler.handle(Future.succeededFuture(new JsonObject().put("result", 1)));
   }
 
   private HttpMethod method(String method) {

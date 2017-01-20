@@ -39,6 +39,7 @@ import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ProxyHandler;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
+import java.util.List;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -122,6 +123,10 @@ public class ApiProviderVertxProxyHandler extends ProxyHandler {
       switch (action) {
         case "match": {
           service.match((java.lang.String)json.getValue("method"), (java.lang.String)json.getValue("path"), createHandler(msg));
+          break;
+        }
+        case "list": {
+          service.list((java.lang.String)json.getValue("name"), createListHandler(msg));
           break;
         }
         default: {

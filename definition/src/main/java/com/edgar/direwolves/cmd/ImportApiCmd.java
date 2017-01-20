@@ -1,12 +1,13 @@
 package com.edgar.direwolves.cmd;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -41,6 +42,19 @@ class ImportApiCmd implements ApiCmd {
     return "api.import";
   }
 
+  @Override
+  public Future<JsonObject> doHandle(JsonObject jsonObject) {
+    Validations.validate(jsonObject.getMap(), rules);
+    String path = jsonObject.getString("path");
+    List<ApiDefinition> definitions = readFromFile(path)
+            .stream().map(json -> ApiDefinition.fromJson(json))
+            .collect(Collectors.toList());
+    for (ApiDefinition definition : definitions) {
+      ApiDefinitionRegistry.create().add(definition);
+    }
+    return Future.succeededFuture(succeedResult());
+  }
+
   private List<JsonObject> readFromFile(String path) {
     List<JsonObject> datas = new ArrayList<>();
     if (Files.isDirectory(new File(path).toPath())) {
@@ -60,18 +74,5 @@ class ImportApiCmd implements ApiCmd {
       datas.add(defineJson);
     }
     return datas;
-  }
-
-  @Override
-  public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    Validations.validate(jsonObject.getMap(), rules);
-    String path = jsonObject.getString("path");
-    List<ApiDefinition> definitions = readFromFile(path)
-        .stream().map(json -> ApiDefinition.fromJson(json))
-        .collect(Collectors.toList());
-    for (ApiDefinition definition : definitions) {
-      ApiDefinitionRegistry.create().add(definition);
-    }
-    return Future.succeededFuture(succeedResult());
   }
 }

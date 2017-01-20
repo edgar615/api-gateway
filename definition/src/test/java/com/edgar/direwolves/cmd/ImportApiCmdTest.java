@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 /**
  * Created by Edgar on 2017/1/19.
  *
@@ -39,9 +41,8 @@ public class ImportApiCmdTest {
 
   @Test
   public void testImportDirSuccess(TestContext testContext) {
-
     JsonObject jsonObject = new JsonObject()
-        .put("path", "/home/edgar/dev/workspace/direwolves/definition/src/test/resources/api");
+        .put("path", "src/test/resources/api");
     Async async = testContext.async();
     cmd.handle(jsonObject)
             .setHandler(ar -> {
@@ -65,7 +66,7 @@ public class ImportApiCmdTest {
   public void testImportFileSuccess(TestContext testContext) {
 
     JsonObject jsonObject = new JsonObject()
-        .put("path", "/home/edgar/dev/workspace/direwolves/definition/src/test/resources/api/device_add.json");
+        .put("path", "src/test/resources/api/device_add.json");
     Async async = testContext.async();
     cmd.handle(jsonObject)
         .setHandler(ar -> {
@@ -89,7 +90,7 @@ public class ImportApiCmdTest {
   public void testInvalidJsonShouldNotAddAnyApi(TestContext testContext) {
 
     JsonObject jsonObject = new JsonObject()
-        .put("path", "/home/edgar/dev/workspace/direwolves/definition/src/test/resources/invalid");
+        .put("path", "src/test/resources/invalid");
     Async async = testContext.async();
     cmd.handle(jsonObject)
         .setHandler(ar -> {
