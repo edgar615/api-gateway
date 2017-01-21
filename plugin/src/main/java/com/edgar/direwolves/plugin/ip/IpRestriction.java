@@ -83,6 +83,10 @@ public interface IpRestriction extends ApiPlugin {
    */
   List<String> blacklist();
 
+  static IpRestriction create() {
+    return new IpRestrictionImpl();
+  }
+
   @Override
   default String name() {
     return IpRestriction.class.getSimpleName();

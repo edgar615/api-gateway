@@ -1,0 +1,67 @@
+package com.edgar.direwolves.cmd;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.cmd.ApiCmd;
+import com.edgar.direwolves.core.cmd.ApiSubCmd;
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
+import com.edgar.util.validation.Rule;
+import com.edgar.util.validation.Validations;
+import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
+
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
+
+/**
+ * 根据名称获取某个API定义，
+ * 参数: api的JSON配置文件.
+ * 命令字: api.get
+ * 参数 {name : 要删除的API名称}
+ *
+ * @author Edgar  Date 2017/1/19
+ */
+class ApiPluginCmd implements ApiCmd {
+
+  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+
+  private final List<ApiSubCmd> subCmdList
+          = Lists.newArrayList(ServiceLoader.load(ApiSubCmd.class));
+
+  ApiPluginCmd() {
+    rules.put("name", Rule.required());
+    rules.put("subcmd", Rule.required());
+  }
+
+  @Override
+  public String cmd() {
+    return "api.plugin";
+  }
+
+  @Override
+  public Future<JsonObject> doHandle(JsonObject jsonObject) {
+    Validations.validate(jsonObject.getMap(), rules);
+    String name = jsonObject.getString("name");
+    List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
+    if (definitions.isEmpty()) {
+      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+    }
+    String subCmd = jsonObject.getString("subcmd");
+    jsonObject.remove("name");
+    jsonObject.remove("subcmd");
+    List<ApiSubCmd> filterCmdList = subCmdList.stream()
+            .filter(s -> subCmd.equalsIgnoreCase(s.cmd()))
+            .collect(Collectors.toList());
+    definitions.forEach(d -> {
+      filterCmdList.forEach(s -> s.handle(d, jsonObject));
+    });
+    return Future.succeededFuture(new JsonObject()
+                                          .put("result", definitions.get(0).toJson()));
+  }
+}

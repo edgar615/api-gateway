@@ -62,6 +62,12 @@
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
+            <artifactId>direwolves-plugin</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.edgar</groupId>
             <artifactId>plugin-authentication</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>

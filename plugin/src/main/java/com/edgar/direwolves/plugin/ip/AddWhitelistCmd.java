@@ -10,21 +10,21 @@ import com.edgar.util.validation.Validations;
 import io.vertx.core.json.JsonObject;
 
 /**
- * 增加IP黑名单的命令
+ * 增加IP白名单的命令
  *
  * @author Edgar  Date 2017/1/20
  */
-public class AddBlacklistCmd implements ApiSubCmd {
+public class AddWhitelistCmd implements ApiSubCmd {
 
   private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  public AddBlacklistCmd() {
+  public AddWhitelistCmd() {
     rules.put("ip", Rule.required());
   }
 
   @Override
   public String cmd() {
-    return "ip.blacklist.add";
+    return "ip.whitelist.add";
   }
 
   @Override
@@ -34,10 +34,10 @@ public class AddBlacklistCmd implements ApiSubCmd {
     IpRestriction ipRestriction =
             (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
     if (ipRestriction != null) {
-      ipRestriction.addBlacklist(ip);
+      ipRestriction.addWhitelist(ip);
     } else {
       ipRestriction = IpRestriction.create();
-      ipRestriction.addBlacklist(ip);
+      ipRestriction.addWhitelist(ip);
       definition.addPlugin(ipRestriction);
     }
 
