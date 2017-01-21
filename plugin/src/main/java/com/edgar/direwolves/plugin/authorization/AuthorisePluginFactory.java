@@ -21,8 +21,11 @@ public class AuthorisePluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    String scope = jsonObject.getString("scope", "default");
-    return new AuthorisePluginImpl(scope);
+    if (jsonObject.containsKey("scope")) {
+      String scope = jsonObject.getString("scope", "default");
+      return new AuthorisePluginImpl(scope);
+    }
+    return null;
   }
 
   @Override

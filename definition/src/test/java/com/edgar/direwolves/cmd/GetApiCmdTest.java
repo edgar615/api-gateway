@@ -84,7 +84,7 @@ public class GetApiCmdTest {
     cmd.handle(jsonObject)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                ApiDefinition definition = ApiDefinition.fromJson(ar.result());
+                ApiDefinition definition = ApiDefinition.fromJson(ar.result().getJsonObject("result"));
                 testContext.assertEquals("add_device", definition.name());
                 testContext.assertEquals(1, definition.plugins().size());
                 testContext.assertNotNull(definition.plugin(
@@ -106,7 +106,7 @@ public class GetApiCmdTest {
     cmd.handle(jsonObject)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                ApiDefinition definition = ApiDefinition.fromJson(ar.result());
+                ApiDefinition definition = ApiDefinition.fromJson(ar.result().getJsonObject("result"));
                 testContext.assertEquals("add_device", definition.name());
                 testContext.assertEquals(1, definition.plugins().size());
                 testContext.assertNotNull(definition.plugin(

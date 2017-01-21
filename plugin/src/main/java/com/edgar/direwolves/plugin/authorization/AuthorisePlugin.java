@@ -13,6 +13,10 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
  */
 public interface AuthorisePlugin extends ApiPlugin {
 
+  static AuthorisePlugin create(String scope) {
+    return new AuthorisePluginImpl(scope);
+  }
+
   String scope();
 
   @Override

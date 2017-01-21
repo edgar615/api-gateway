@@ -129,6 +129,10 @@ public class ApiProviderVertxProxyHandler extends ProxyHandler {
           service.list((java.lang.String)json.getValue("name"), createListHandler(msg));
           break;
         }
+        case "addPlugin": {
+          service.addPlugin((java.lang.String)json.getValue("name"), (io.vertx.core.json.JsonObject)json.getValue("pluginJson"), createHandler(msg));
+          break;
+        }
         default: {
           throw new IllegalStateException("Invalid action: " + action);
         }
