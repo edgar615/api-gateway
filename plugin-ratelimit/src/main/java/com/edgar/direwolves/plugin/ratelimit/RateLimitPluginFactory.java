@@ -50,7 +50,7 @@ public class RateLimitPluginFactory implements ApiPluginFactory {
     for (RateLimit rateLimit : rateLimitPlugin.rateLimits()) {
       rateLimtArray.add(new JsonObject()
                                 .put("limit", rateLimit.limit())
-                                .put("limit_by", rateLimit.limitBy())
+                                .put("limit_by", rateLimit.key())
                                 .put("type", rateLimit.type()));
     }
     return new JsonObject().put("rate_limit", rateLimtArray);

@@ -4,8 +4,11 @@ import com.edgar.direwolves.core.cache.RedisProvider;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
+
+import java.util.List;
 
 /**
  * Created by edgar on 16-12-9.
@@ -70,5 +73,21 @@ public class RedisProviderImpl implements RedisProvider {
         handler.handle(Future.failedFuture(ar.cause()));
       }
     });
+  }
+
+  @Override
+  public void scriptLoad(String script, Handler<AsyncResult<String>> handler) {
+    redisClient.scriptLoad(script, handler);
+  }
+
+  @Override
+  public void evalsha(String sha1, List<String> keys, List<String> args,
+                      Handler<AsyncResult<JsonArray>> handler) {
+    redisClient.evalsha(sha1, keys, args, handler);
+  }
+
+  @Override
+  public void eval(String script, List<String> keys, List<String> args, Handler<AsyncResult<JsonArray>> handler) {
+    redisClient.evalsha(script, keys, args, handler);
   }
 }

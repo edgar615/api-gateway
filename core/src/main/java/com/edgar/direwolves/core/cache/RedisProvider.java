@@ -5,7 +5,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.ServiceHelper;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
+import java.util.List;
 
 /**
  * Created by edgar on 16-12-7.
@@ -48,6 +51,35 @@ public interface RedisProvider {
    * @param handler 回调函数.
    */
   void delete(String key, Handler<AsyncResult<Void>> handler);
+
+  /**
+   * 载入lua脚本.
+   * @param script 脚本
+   * @param handler 回调函数
+   */
+  void scriptLoad(String script, Handler<AsyncResult<String>> handler);
+
+  /**
+   * 运行lua脚本.
+   * @param sha1 脚本的sha值
+   * @param keys 键值列表
+   * @param args 参数列表
+   * @param handler 回调函数
+   */
+  void evalsha(String sha1, List<String> keys, List<String> args,
+               Handler<AsyncResult<JsonArray>> handler);
+
+  /**
+   * 运行lua脚本.
+   * @param script 脚本
+   * @param keys 键值列表
+   * @param args 参数列表
+   * @param handler 回调函数
+   */
+  void eval(String script, List<String> keys, List<String> args,
+            Handler<AsyncResult<JsonArray>> handler);
+
+
 
   static RedisProvider create(Vertx vertx, JsonObject config) {
     return factory.create(vertx, config);

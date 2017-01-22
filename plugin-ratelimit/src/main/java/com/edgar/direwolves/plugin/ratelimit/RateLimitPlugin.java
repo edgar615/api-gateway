@@ -29,10 +29,14 @@ public interface RateLimitPlugin extends ApiPlugin {
   /**
    * 根据组合条件查询映射.
    *
-   * @param limitBy 限流分类
+   * @param key 限流分类
    * @param type    限流类型
    */
-  void removeRateLimit(String limitBy, String type);
+  void removeRateLimit(String key, String type);
+
+  static RateLimitPlugin create() {
+    return new RateLimitPluginImpl();
+  }
 
   @Override
   default String name() {

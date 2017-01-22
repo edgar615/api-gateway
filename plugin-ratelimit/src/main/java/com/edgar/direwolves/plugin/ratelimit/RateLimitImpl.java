@@ -22,7 +22,7 @@ class RateLimitImpl implements RateLimit {
   /**
    * 限制条件
    */
-  private final String limitBy;
+  private final String key;
 
   /**
    * 限制类型
@@ -39,21 +39,21 @@ class RateLimitImpl implements RateLimit {
 
   private final Set<String> optionalLimits = ImmutableSet.of("ip", "token", "app_key", "user");
 
-  RateLimitImpl(String limitBy, String type, long limit) {
-    Preconditions.checkArgument(optionalLimits.contains(limitBy),
-                                "limitBy must be ip | token | app_key");
+  RateLimitImpl(String key, String type, long limit) {
+    Preconditions.checkArgument(optionalLimits.contains(key),
+                                "key must be ip | token | app_key");
     Preconditions.checkArgument(optionalTypes.contains(type),
                                 "type must be second | minute | hour | day | month | year");
     Preconditions.checkArgument(limit > 0, "limit must > 0");
-    this.limitBy = limitBy;
+    this.key = key;
     this.type = type;
     this.limit = limit;
   }
 
 
   @Override
-  public String limitBy() {
-    return limitBy;
+  public String key() {
+    return key;
   }
 
   @Override
@@ -69,7 +69,7 @@ class RateLimitImpl implements RateLimit {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("RateLimit")
-            .add("limitBy", limitBy)
+            .add("key", key)
             .add("type", type)
             .add("limit", limit)
             .toString();

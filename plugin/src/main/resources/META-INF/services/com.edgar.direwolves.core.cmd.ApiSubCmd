@@ -1,4 +1,6 @@
 com.edgar.direwolves.plugin.ip.AddBlacklistCmd
 com.edgar.direwolves.plugin.ip.DeleteBlacklistCmd
+com.edgar.direwolves.plugin.ip.AddWhitelistCmd
+com.edgar.direwolves.plugin.ip.DeleteWhitelistCmd
 com.edgar.direwolves.plugin.authorization.AddAuthoriseCmd
 com.edgar.direwolves.plugin.authorization.DeleteAuthoriseCmd

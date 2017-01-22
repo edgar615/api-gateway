@@ -122,7 +122,7 @@ public class AppKeyFilter implements Filter {
 
   private final Map<String, JsonObject> origins = new HashMap<>();
 
-  private Vertx vertx;
+  private final Vertx vertx;
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;

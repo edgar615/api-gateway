@@ -25,7 +25,7 @@ public class RateLimitPluginImpl implements RateLimitPlugin {
   @Override
   public void addRateLimit(RateLimit definition) {
     List<RateLimit> filterDefintions = rateLimits.stream()
-            .filter(d -> definition.limitBy().equalsIgnoreCase(d.limitBy())
+            .filter(d -> definition.key().equalsIgnoreCase(d.key())
                          && definition.type().equalsIgnoreCase(d.type()))
             .collect(Collectors.toList());
     rateLimits.add(definition);
@@ -35,14 +35,14 @@ public class RateLimitPluginImpl implements RateLimitPlugin {
   /**
    * 根据组合条件查询映射.
    *
-   * @param limitBy 限流分类
+   * @param key 限流分类
    * @param type    限流类型
    */
   @Override
-  public void removeRateLimit(String limitBy, String type) {
+  public void removeRateLimit(String key, String type) {
     Predicate<RateLimit> predicate = rateLimit -> true;
-    if (limitBy != null) {
-      predicate = predicate.and(rateLimit -> limitBy.equalsIgnoreCase(rateLimit.limitBy()));
+    if (key != null) {
+      predicate = predicate.and(rateLimit -> key.equalsIgnoreCase(rateLimit.key()));
     }
     if (type != null) {
       predicate = predicate.and(rateLimit -> type.equalsIgnoreCase(rateLimit.type()));

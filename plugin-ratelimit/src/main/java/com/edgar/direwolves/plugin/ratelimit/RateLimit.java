@@ -6,24 +6,21 @@ package com.edgar.direwolves.plugin.ratelimit;
  * minute
  * hour
  * day
- * month
- * year
- * limit_by 限制条件：ip、token、app_key
- * policy 缓存策略，默认local，还支持cluster，redis，如果开启redis需要检查redis是否可以连接
+ * limit_by 限制条件：ip、app_key
  *
  * @author Edgar  Date 2016/9/8
  */
 public interface RateLimit {
 
   /**
-   * 限制条件,user_rate | app_key_rate
+   * 限制条件,user | appkey | ip
    *
    * @return 限制条件
    */
-  String limitBy();
+  String key();
 
   /**
-   * 限制类型  second | minute | hour | day | month | year
+   * 限制类型  second | minute | hour | day
    *
    * @return 限制类型
    */
@@ -36,8 +33,8 @@ public interface RateLimit {
    */
   long limit();
 
-  static RateLimit create(String limitBy, String type, long limit) {
-    return new RateLimitImpl(limitBy, type, limit);
+  static RateLimit create(String key, String type, long limit) {
+    return new RateLimitImpl(key, type, limit);
   }
 
 }

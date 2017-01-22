@@ -57,7 +57,7 @@ public class RateLimitPluginTest {
     Assert.assertEquals(2, rateLimitPlugin.rateLimits().size());
 
     RateLimit rateLimit = rateLimitPlugin.rateLimits().stream()
-            .filter(r -> "token".equalsIgnoreCase(r.limitBy()))
+            .filter(r -> "token".equalsIgnoreCase(r.key()))
             .findAny().get();
     Assert.assertEquals(1000, rateLimit.limit());
 
@@ -94,7 +94,7 @@ public class RateLimitPluginTest {
     Assert.assertEquals(3, rateLimitPlugin.rateLimits().size());
 
     List<RateLimit> filterDefintions = rateLimitPlugin.rateLimits().stream()
-            .filter(d -> "token".equalsIgnoreCase(d.limitBy())
+            .filter(d -> "token".equalsIgnoreCase(d.key())
                          && "day".equalsIgnoreCase(d.type()))
             .collect(Collectors.toList());
     RateLimit rateLimit = filterDefintions.get(0);
