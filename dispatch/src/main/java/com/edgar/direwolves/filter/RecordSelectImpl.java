@@ -12,7 +12,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.consul.ConsulServiceImporter;
+import io.vertx.servicediscovery.spi.ServiceImporter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +25,14 @@ import java.util.Map;
  */
 class RecordSelectImpl implements RecordSelect {
 
-  private static final String CONSUL_PREFIX = "consul://";
+  private final String CONSUL_PREFIX = "consul://";
+
+  private final String ZOOKEEPER_PREFIX = "zookeeper://";
+
+  private final String consulImportClass = "io.vertx.servicediscovery.consul.ConsulServiceImporter";
+
+  private final String zookeeperImportClass =
+          "com.edgar.direwolves.servicediscovery.zookeeper.ZookeeperServiceImporter";
 
 
   private final Map<String, SelectStrategy> strategyMap = new HashMap<>();
@@ -59,21 +66,14 @@ class RecordSelectImpl implements RecordSelect {
     }
     discovery = ServiceDiscovery.create(vertx);
     String serviceDiscovery = config.getString("service.discovery");
-    Integer scanPeriod = config.getInteger("service.discovery.scan-period", 2000);
     if (Strings.isNullOrEmpty(serviceDiscovery)) {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
               .set("details", "service.discovery cannot be null");
     }
     if (serviceDiscovery.startsWith(CONSUL_PREFIX)) {
-      String address = serviceDiscovery.substring(CONSUL_PREFIX.length());
-      Iterable<String> iterable = Splitter.on(":").split(address);
-      String host = Iterables.get(iterable, 0);
-      int port = Integer.parseInt(Iterables.get(iterable, 1));
-      discovery
-              .registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
-                      .put("host", host)
-                      .put("port", port)
-                      .put("scan-period", scanPeriod));
+      registerConsul(serviceDiscovery, config);
+    } else if (serviceDiscovery.startsWith(ZOOKEEPER_PREFIX)) {
+      registerZookeeper(serviceDiscovery, config);
     } else {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
               .set("details", "unspport service.discovery:" + serviceDiscovery);
@@ -87,6 +87,48 @@ class RecordSelectImpl implements RecordSelect {
                                                            .create(entry.getValue().toString())
                                    ));
 
+  }
+
+  private void registerZookeeper(String serviceDiscovery, JsonObject config) {
+    String address = serviceDiscovery.substring(ZOOKEEPER_PREFIX.length());
+    JsonObject zkConfig = new JsonObject()
+            .put("zookeeper.connect", address);
+    if (config.containsKey("zookeeper.retry.times")) {
+      zkConfig.put("zookeeper.retry.times", config.getValue("zookeeper.retry.times"));
+    }
+    if (config.containsKey("zookeeper.retry.sleep")) {
+      zkConfig.put("zookeeper.retry.sleep", config.getValue("zookeeper.retry.sleep"));
+    }
+    if (config.containsKey("zookeeper.path")) {
+      zkConfig.put("zookeeper.path", config.getValue("zookeeper.path"));
+    }
+    try {
+      ServiceImporter serviceImporter =
+              (ServiceImporter) Class.forName(consulImportClass).newInstance();
+      discovery
+              .registerServiceImporter(serviceImporter, zkConfig);
+    } catch (Exception e) {
+      throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
+    }
+  }
+
+  private void registerConsul(String serviceDiscovery, JsonObject config) {
+    String address = serviceDiscovery.substring(CONSUL_PREFIX.length());
+    Iterable<String> iterable = Splitter.on(":").split(address);
+    String host = Iterables.get(iterable, 0);
+    int port = Integer.parseInt(Iterables.get(iterable, 1));
+    Integer scanPeriod = config.getInteger("service.discovery.scan-period", 2000);
+    try {
+      ServiceImporter serviceImporter =
+              (ServiceImporter) Class.forName(consulImportClass).newInstance();
+      discovery
+              .registerServiceImporter(serviceImporter, new JsonObject()
+                      .put("host", host)
+                      .put("port", port)
+                      .put("scan-period", scanPeriod));
+    } catch (Exception e) {
+      throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
+    }
   }
 
   private void getRecord(String service, Future<Record> competeFuture) {
