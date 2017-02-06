@@ -8,6 +8,7 @@ import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -65,9 +66,9 @@ public class ApiProviderTest {
         testContext.fail();
       } else {
         Throwable throwable = ar.cause();
-        testContext.assertTrue(throwable instanceof SystemException);
-        SystemException ex = (SystemException) throwable;
-        testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, ex.getErrorCode());
+        testContext.assertTrue(throwable instanceof ReplyException);
+        ReplyException ex = (ReplyException) throwable;
+        testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND.getNumber(), ex.failureCode());
         async.complete();
       }
     });
@@ -81,9 +82,9 @@ public class ApiProviderTest {
         testContext.fail();
       } else {
         Throwable throwable = ar.cause();
-        testContext.assertTrue(throwable instanceof SystemException);
-        SystemException ex = (SystemException) throwable;
-        testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, ex.getErrorCode());
+        testContext.assertTrue(throwable instanceof ReplyException);
+        ReplyException ex = (ReplyException) throwable;
+        testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND.getNumber(), ex.failureCode());
         async.complete();
       }
     });

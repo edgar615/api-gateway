@@ -25,6 +25,7 @@ public class ApiDefinitionRegistryTest {
   @Before
   public void setUp() {
     registry = ApiDefinitionRegistry.create();
+    registry.remove(null);
   }
 
   @After
