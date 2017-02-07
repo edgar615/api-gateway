@@ -39,6 +39,8 @@ import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ProxyHandler;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
+import io.vertx.core.json.JsonArray;
+import java.util.List;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
@@ -136,6 +138,18 @@ public class RedisProviderVertxProxyHandler extends ProxyHandler {
         }
         case "delete": {
           service.delete((java.lang.String)json.getValue("key"), createHandler(msg));
+          break;
+        }
+        case "scriptLoad": {
+          service.scriptLoad((java.lang.String)json.getValue("script"), createHandler(msg));
+          break;
+        }
+        case "evalsha": {
+          service.evalsha((java.lang.String)json.getValue("sha1"), convertList(json.getJsonArray("keys").getList()), convertList(json.getJsonArray("args").getList()), createHandler(msg));
+          break;
+        }
+        case "eval": {
+          service.eval((java.lang.String)json.getValue("script"), convertList(json.getJsonArray("keys").getList()), convertList(json.getJsonArray("args").getList()), createHandler(msg));
           break;
         }
 

@@ -1,0 +1,53 @@
+{
+  "name": "user_login",
+  "method": "POST",
+  "path": "/login",
+  "scope": "user:write",
+  "endpoints": [
+    {
+      "type": "http",
+      "name": "user_login",
+      "service": "user",
+      "method": "POST",
+      "path": "/login"
+    }
+  ],
+  "body_arg": [
+    {
+      "name": "username",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "password",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "channelId",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "deviceType",
+      "rules": {
+        "optional": [
+          3,
+          4
+        ]
+      }
+    }
+  ],
+  "request_transformer": [
+    {
+      "name": "user_login",
+      "body.add": [
+        "type:1"
+      ]
+    }
+  ],
+  "jwt_build": true
+}

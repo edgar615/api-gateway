@@ -24,6 +24,16 @@ public class ApiDispatchVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
+    LOGGER.info("                _  _                             _                  \n"
+                       + "               | |(_)                           | |                 \n"
+                       + "             __| | _  _ __  ___ __      __ ___  | |__   __ ___  ___ \n"
+                       + "            / _` || || '__|/ _ \\\\ \\ /\\ / // _ \\ | |\\ \\ / // _ "
+                       + "\\/ __|\n"
+                       + "           | (_| || || |  |  __/ \\ V  V /| (_) || | \\ V /|  __/\\__ "
+                       + "\\\n"
+                       + "            \\__,_||_||_|   \\___|  \\_/\\_/  \\___/ |_|  \\_/  "
+                       + "\\___||___/");
+
     RedisProvider redisProvider = RedisProvider.create(vertx, config());
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
                                 config().getString("service.cache.address", "cache"));

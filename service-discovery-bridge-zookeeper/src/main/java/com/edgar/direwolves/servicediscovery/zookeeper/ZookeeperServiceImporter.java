@@ -300,7 +300,7 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
     String payload = instance.getPayload();
     record.getMetadata().put("zookeeper-payload", payload);
     record.getMetadata().put("zookeeper-service-type", instance.getServiceType().toString());
-    record.getMetadata().put("zookeeper-address", instance.getAddress());
+    record.getMetadata().put("zookeeper-host", instance.getAddress());
     record.getMetadata().put("zookeeper-registration-time",
                              instance.getRegistrationTimeUTC());
     record.getMetadata().put("zookeeper-port", instance.getPort());
@@ -329,7 +329,7 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
       record.getLocation().put("ssl-port", instance.getSslPort());
     }
     if (instance.getAddress() != null) {
-      record.getLocation().put("address", instance.getAddress());
+      record.getLocation().put("host", instance.getAddress());
     }
     record.setType("http-endpoint");
 //    record.setType(payload.getString("service-type", ServiceType.UNKNOWN));

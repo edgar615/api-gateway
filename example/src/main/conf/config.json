@@ -1,0 +1,46 @@
+{
+  "http.port": 9000,
+  "project.namespace": "example",
+  "service.cache.address": "direwolves.cache.provider",
+  "redis.host": "10.11.0.31",
+  "redis.port": 6379,
+  "redis.password": "",
+  "redis.sub.keys": [
+    "__keyevent@0__:expired",
+    "__keyevent@0__:del"
+  ],
+  "token.expires": 3600,
+  "api.config.dir": "example/src/main/resources/router",
+  "api.config.auto_refresh": false,
+  "service.discovery": "zookeeper://10.11.0.31:2181",
+  "zookeeper.path": "/csst-microservice",
+  "service.discovery.scan-period": 2000,
+  "service.discovery.select-strategy": {
+    "user": "random",
+    "device": "round_robin"
+  },
+  "keystore.path": "keystore.jceks",
+  "keystore.type": "jceks",
+  "keystore.password": "secret",
+  "jwt.algorithm": "HS512",
+  "jwt.audience": "",
+  "jwt.issuer": "",
+  "jwt.subject": "",
+  "jwt.expires": 1800,
+  "jwt.userClaimKey": "userId",
+  "jwt.permissionsClaimKey": "permissions",
+  "jwt.user.unique": true,
+  "timeout.expires": 300,
+  "timeout.enable" : false,
+  "strict_arg" : true,
+  "strict_arg.query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
+  "strict_arg.body.excludes" : [],
+  "app.origin": [
+    {
+      "appKey": "RmOI7jCvDtfZ1RcAkea1",
+      "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
+      "appCode": 0,
+      "scope": "all"
+    }
+  ]
+}

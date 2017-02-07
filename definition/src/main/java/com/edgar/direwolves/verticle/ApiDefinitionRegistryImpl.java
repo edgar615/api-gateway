@@ -74,7 +74,7 @@ class ApiDefinitionRegistryImpl implements ApiDefinitionRegistry {
     } finally {
       wl.unlock();
     }
-    LOGGER.debug("add ApiDefinition {}", apiDefinition);
+    LOGGER.debug("Add ApiDefinition {}", apiDefinition);
   }
 
   /**
@@ -96,7 +96,7 @@ class ApiDefinitionRegistryImpl implements ApiDefinitionRegistry {
       } finally {
         wl.unlock();
       }
-      LOGGER.debug("remove ApiDefinition {}", apiDefinitions);
+      LOGGER.debug("Remove ApiDefinition {}", apiDefinitions);
     }
   }
 

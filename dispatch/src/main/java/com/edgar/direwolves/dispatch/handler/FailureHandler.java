@@ -62,7 +62,7 @@ public class FailureHandler implements Handler<RoutingContext> {
     DefaultErrorCode errorCode = DefaultErrorCode.getCode(ex.failureCode());
     if (errorCode != null) {
       jsonObject.put("code", errorCode.getNumber())
-              .put("message", errorCode.getStatusCode());
+              .put("message", errorCode.getMessage());
     } else {
       ReplyFailure replyFailure = ex.failureType();
       if (replyFailure == ReplyFailure.NO_HANDLERS) {

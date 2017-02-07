@@ -104,7 +104,7 @@ class RecordSelectImpl implements RecordSelect {
     }
     try {
       ServiceImporter serviceImporter =
-              (ServiceImporter) Class.forName(consulImportClass).newInstance();
+              (ServiceImporter) Class.forName(zookeeperImportClass).newInstance();
       discovery
               .registerServiceImporter(serviceImporter, zkConfig);
     } catch (Exception e) {
@@ -135,7 +135,7 @@ class RecordSelectImpl implements RecordSelect {
     SelectStrategy
             selectStrategy = strategyMap.get(service);
 
-    discovery.getRecords(r -> service.equals(r.getMetadata().getString("ServiceName")), ar -> {
+    discovery.getRecords(r -> service.equals(r.getName()), ar -> {
       if (ar.succeeded()) {
         List<Record> records = ar.result();
         competeFuture.complete(selectStrategy.select(records));

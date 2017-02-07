@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
 import com.edgar.util.validation.Rule;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -101,7 +102,10 @@ class RulesDecoder implements Function<JsonObject, List<Rule>> {
       if ("optional".equals(key)) {
         if (value instanceof Collection) {
           rules.add(Rule.optional(ImmutableList.copyOf((Collection) value)));
-        } else {
+        } else if (value instanceof JsonArray) {
+          JsonArray array = (JsonArray) value;
+          rules.add(Rule.optional(ImmutableList.copyOf(array.getList())));
+        }else {
           Iterable<String> iterable =
                   Splitter.on(",").trimResults().omitEmptyStrings().split(value.toString());
           rules.add(Rule.optional(ImmutableList.copyOf(iterable)));
