@@ -42,12 +42,17 @@
     }
   ],
   "request_transformer": [
-    {
-      "name": "user_login",
-      "body.add": [
-        "type:1"
-      ]
-    }
-  ],
+  {
+    "name": "user_login",
+    "body.add": [
+      "type:1"
+    ]
+  }
+],
+  "response_transformer": {
+    "body.add": [
+      "role:user"
+    ]
+  },
   "jwt_build": true
 }

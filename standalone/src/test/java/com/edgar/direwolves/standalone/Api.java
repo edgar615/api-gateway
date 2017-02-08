@@ -1,9 +1,10 @@
-package com.edgar.direwolves.example;
+package com.edgar.direwolves.standalone;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.time.Instant;

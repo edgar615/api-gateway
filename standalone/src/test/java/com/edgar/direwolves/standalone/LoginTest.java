@@ -1,4 +1,4 @@
-package com.edgar.direwolves.example;
+package com.edgar.direwolves.standalone;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

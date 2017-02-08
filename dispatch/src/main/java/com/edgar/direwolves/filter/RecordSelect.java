@@ -1,7 +1,8 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.spi.Configurable;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 
 /**
@@ -11,7 +12,7 @@ import io.vertx.servicediscovery.Record;
  *
  * @author Edgar  Date 2016/10/12
  */
-public interface RecordSelect extends Configurable {
+public interface RecordSelect {
 
   /**
    * 根据服务名获取一个服务实例.
@@ -21,7 +22,7 @@ public interface RecordSelect extends Configurable {
    */
   Future<Record> select(String service);
 
-  static RecordSelect create() {
-    return new RecordSelectImpl();
+  static RecordSelect create(Vertx vertx, JsonObject config) {
+    return new RecordSelectImpl(vertx, config);
   }
 }

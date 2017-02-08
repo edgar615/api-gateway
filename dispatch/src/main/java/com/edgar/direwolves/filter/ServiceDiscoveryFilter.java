@@ -28,11 +28,11 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private Vertx vertx;
 
-  private RecordSelect recordSelect = RecordSelect.create();
+  private RecordSelect recordSelect;
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    recordSelect.config(vertx, config);
+    recordSelect = RecordSelect.create(vertx, config);
   }
 
   @Override

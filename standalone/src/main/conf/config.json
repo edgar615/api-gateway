@@ -10,7 +10,7 @@
     "__keyevent@0__:del"
   ],
   "token.expires": 3600,
-  "api.config.dir": "example/src/main/resources/router",
+  "api.config.dir": "standalone/src/test/resources/router",
   "api.config.auto_refresh": false,
   "service.discovery": "zookeeper://10.11.0.31:2181",
   "zookeeper.path": "/csst-microservice",
@@ -40,7 +40,7 @@
       "appKey": "RmOI7jCvDtfZ1RcAkea1",
       "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
       "appCode": 0,
-      "scope": "all"
+      "permissions": "all"
     }
   ]
 }

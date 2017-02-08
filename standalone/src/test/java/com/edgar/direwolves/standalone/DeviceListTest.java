@@ -1,7 +1,6 @@
-package com.edgar.direwolves.example;
+package com.edgar.direwolves.standalone;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 
 /**
  * Created by Edgar on 2017/2/7.
@@ -11,7 +10,7 @@ import io.vertx.core.json.JsonObject;
 public class DeviceListTest {
   public static void main(String[] args) {
     String token =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiIiLCJzdWIiOiIiLCJpc3MiOiIiLCJleHAiOjE0ODY0NjEyNDUsInVzZXJJZCI6NjksImlhdCI6MTQ4NjQ1OTQ0NSwianRpIjoiMGYyN2JmYmItNmU4ZC00OTAxLTk4NDUtODgxNmI4OTNmMTI0In0=.aP2AIO3W28gLaITfHJvw4M11kic5BAx_W7iGshgFKm50YlJNupGdIlxRDy_noxw2bbQLVo2VjOU5enG4d4c1ag==";
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiIiLCJzdWIiOiIiLCJpc3MiOiIiLCJleHAiOjE0ODY1NDc0MTIsInVzZXJJZCI6NjksImlhdCI6MTQ4NjU0NTYxMiwianRpIjoiZjkzYTFiMjItNzg0Ny00ZGZmLTliYmMtMTY1YWNlNzA2YjFiIn0=.c52uaniWbM0TDn28Hs63DhL2-zJAaF9yljQZN7PO4v4Ib6yYVVfBklK5IVdvHHiorA-6i19x079xvj_rBN2DKw==";
 
     Api api = new Api();
     Vertx.vertx().createHttpClient().get(9000, "localhost", "/devices?"+ api.signTopRequest())

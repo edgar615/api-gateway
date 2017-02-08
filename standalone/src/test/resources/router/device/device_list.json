@@ -1,0 +1,59 @@
+{
+  "name" : "device_list",
+  "method" : "GET",
+  "path" : "/devices",
+  "authentication" : true,
+  "scope" : "device:read",
+  "appkey" : true,
+  "url_arg" : [ {
+    "name" : "limit",
+    "default_value" : 10,
+    "rules" : {
+      "integer" : true,
+      "max" : 100,
+      "min" : 1
+    }
+  }, {
+    "name" : "start",
+    "default_value" : 0,
+    "rules" : {
+      "integer" : true
+    }
+  }, {
+    "name" : "type",
+    "rules" : {
+      "integer" : true
+    }
+  }, {
+    "name" : "isVirtual",
+    "rules" : {
+      "optional" : [ "true", "false" ]
+    }
+  }, {
+    "name" : "isOnline",
+    "rules" : {
+      "optional" : [ "true", "false" ]
+    }
+  }, {
+    "name" : "addOnStart",
+    "rules" : {
+      "integer" : true
+    }
+  }, {
+    "name" : "addOnEnd",
+    "rules" : {
+      "integer" : true
+    }
+  } ],
+  "endpoints" : [ {
+    "service" : "device",
+    "method" : "GET",
+    "name" : "query_device",
+    "type" : "http",
+    "path" : "/devices"
+  } ],
+  "request_transformer" : [ {
+    "name" : "query_device",
+    "query.add" : [ "userId:$user.userId" ]
+  } ]
+}

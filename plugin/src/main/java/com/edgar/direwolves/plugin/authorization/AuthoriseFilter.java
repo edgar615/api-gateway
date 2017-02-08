@@ -48,23 +48,23 @@ public class AuthoriseFilter implements Filter {
     AuthorisePlugin plugin = (AuthorisePlugin) apiContext.apiDefinition()
             .plugin(AuthorisePlugin.class.getSimpleName());
     String appScope = plugin.scope();
-    boolean match = true;
+    boolean appMatch = true;
     if (apiContext.variables().containsKey("app.permissions")) {
       Set<String> permissions = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults()
                                                         .split((String) apiContext.variables()
                                                                 .get("app.permissions")));
-      match = permissions.contains("all") || permissions.contains(appScope);
+      appMatch = permissions.contains("all") || permissions.contains(appScope);
     }
-
+    boolean userMatch = true;
     if (apiContext.principal() != null) {
       Set<String> permissions = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults()
                                                         .split(apiContext.principal()
                                                                        .getString("permissions",
                                                                                   "all")));
-      match = permissions.contains("all") || permissions.contains(appScope);
+      userMatch = permissions.contains("all") || permissions.contains(appScope);
     }
 
-    if (match) {
+    if (userMatch && appMatch) {
       completeFuture.complete(apiContext);
     } else {
       completeFuture.fail(SystemException.create(DefaultErrorCode.NO_AUTHORITY));

@@ -54,10 +54,9 @@ public class ConsulRecordSelectTest {
   @Test
   public void testUnRegisterService(TestContext testContext) {
     add2Servers();
-    RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
             .put("service.discovery", "consul://localhost:7000");
-    recordSelect.config(vertx, config);
+    RecordSelect recordSelect = RecordSelect.create(vertx, config);
     try {
       TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException e) {
@@ -77,10 +76,9 @@ public class ConsulRecordSelectTest {
   @Test
   public void testDefaultStrategy(TestContext testContext) {
     add2Servers();
-    RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
             .put("service.discovery", "consul://localhost:7000");
-    recordSelect.config(vertx, config);
+    RecordSelect recordSelect = RecordSelect.create(vertx, config);
 
     Multimap<Integer, Record> group = select100(recordSelect);
     await().until(() -> group.size() == 100);
@@ -91,13 +89,12 @@ public class ConsulRecordSelectTest {
   @Test
   public void testRoundRobin(TestContext testContext) {
     add2Servers();
-    RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
             .put("service.discovery", "consul://localhost:7000");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
     strategy.put("device", "round_robin");
-    recordSelect.config(vertx, config);
+    RecordSelect recordSelect = RecordSelect.create(vertx, config);
 
     Multimap<Integer, Record> group = select100(recordSelect);
     await().until(() -> group.size() == 100);
@@ -108,13 +105,12 @@ public class ConsulRecordSelectTest {
   @Test
   public void testRandom(TestContext testContext) {
     add2Servers();
-    RecordSelect recordSelect = RecordSelect.create();
     JsonObject config = new JsonObject()
             .put("service.discovery", "consul://localhost:7000");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
     strategy.put("device", "random");
-    recordSelect.config(vertx, config);
+    RecordSelect recordSelect = RecordSelect.create(vertx, config);
 
 
     Multimap<Integer, Record> group =

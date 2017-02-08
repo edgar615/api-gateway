@@ -39,8 +39,6 @@ class RecordSelectImpl implements RecordSelect {
 
   ServiceDiscovery discovery;
 
-  private volatile boolean configed = false;
-
   @Override
   public Future<Record> select(final String service) {
     Future<Record> competeFuture = Future.future();
@@ -59,11 +57,7 @@ class RecordSelectImpl implements RecordSelect {
     return competeFuture;
   }
 
-  @Override
-  public void config(Vertx vertx, JsonObject config) {
-    if (configed) {
-      throw new UnsupportedOperationException("RecordSelect has been config");
-    }
+  public RecordSelectImpl(Vertx vertx, JsonObject config) {
     discovery = ServiceDiscovery.create(vertx);
     String serviceDiscovery = config.getString("service.discovery");
     if (Strings.isNullOrEmpty(serviceDiscovery)) {

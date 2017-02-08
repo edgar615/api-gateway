@@ -107,7 +107,8 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
     importService(instances, future);
     future.setHandler(ar -> {
       if (ar.failed()) {
-        completed.fail(ar.cause());
+        //completed.fail(ar.cause());
+        unregisterAllServices(completed);
       } else {
         List<ImportedZookeeperService> services = future.result();
         List<String> retrievedIds =

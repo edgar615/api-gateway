@@ -19,7 +19,7 @@
         <module>plugin-appkey</module>
         <module>plugin-ratelimit</module>
         <module>service-discovery-bridge-zookeeper</module>
-        <module>example</module>
+        <module>standalone</module>
     </modules>
 
     <properties>
@@ -190,45 +190,6 @@
                         <argLine>-noverify</argLine>
                     </configuration>
                 </plugin>
-                <!--<plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.1</version>
-                    <executions>
-                        <execution>
-                            <id>copy-dependencies</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>copy-dependencies</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <includeScope>runtime</includeScope>
-                        <includeTypes>jar</includeTypes>
-                        <overWriteSnapshots>true</overWriteSnapshots>
-                        <limitBy>jar</limitBy>
-                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.6</version>
-                    <configuration>
-                        <archive>
-                            <manifest>
-                                <addClasspath>true</addClasspath>
-                                <classpathPrefix>lib/</classpathPrefix>
-                                <mainClass>io.vertx.core.Launcher</mainClass>
-                            </manifest>
-                            <manifestEntries>
-                                <Main-Verticle>${main.verticle}</Main-Verticle>
-                            </manifestEntries>
-                        </archive>
-                    </configuration>
-                </plugin>-->
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

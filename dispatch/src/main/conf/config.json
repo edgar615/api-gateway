@@ -33,20 +33,12 @@
   "strict_arg" : true,
   "strict_arg.query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
   "strict_arg.body.excludes" : [],
-  "app_key.secret.import": {
-    "url": "/secrets",
-    "scan_period": 2000,
-    "service": "user"
-  },
-  "app_key.secret.dir": "",
-  "app_key.secret.type": "memory",
-  "app_key.secret.req": "app_key.fetch",
-  "app_key.secret": [
+  "app.origin": [
     {
-      "key": "1",
-      "secret": "2",
-      "code": 0,
-      "scope": "all"
+      "appKey": "RmOI7jCvDtfZ1RcAkea1",
+      "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
+      "appCode": 0,
+      "permissions": "all"
     }
   ]
 }

@@ -1,11 +1,11 @@
-package com.edgar.direwolves.example;
+package com.edgar.direwolves.standalone;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptUtils {
     public static final String CHARSET_UTF8 = "UTF-8";
