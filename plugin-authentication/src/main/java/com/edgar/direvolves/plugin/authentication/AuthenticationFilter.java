@@ -59,7 +59,7 @@ public class AuthenticationFilter implements Filter {
           .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
           .put("password", "secret");
 
-  private Vertx vertx;
+  private final Vertx vertx;
 
   AuthenticationFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;

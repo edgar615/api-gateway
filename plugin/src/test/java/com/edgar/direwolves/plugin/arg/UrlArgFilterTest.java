@@ -90,8 +90,6 @@ public class UrlArgFilterTest {
               testContext.assertTrue(context.params().containsKey("limit"));
               testContext.assertEquals("10", Iterables.get(context.params().get("limit"), 0));
               testContext.assertEquals("0", Iterables.get(context.params().get("start"), 0));
-              testContext.assertEquals(1, context.actions().size());
-              System.out.println(context.actions());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();
@@ -119,8 +117,6 @@ public class UrlArgFilterTest {
               testContext.assertTrue(context.params().containsKey("limit"));
               testContext.assertEquals("10", Iterables.get(context.params().get("limit"), 0));
               testContext.assertEquals("v3", Iterables.get(context.params().get("q3"), 0));
-              testContext.assertEquals(1, context.actions().size());
-              System.out.println(context.actions());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

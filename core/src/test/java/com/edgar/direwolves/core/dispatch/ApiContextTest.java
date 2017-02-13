@@ -299,19 +299,6 @@ public class ApiContextTest {
   }
 
   @Test
-  public void testCopyAction() {
-    ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
-
-    String key = UUID.randomUUID().toString();
-    apiContext.addAction(key, apiContext);
-
-    ApiContext copyContext = apiContext.copy();
-    Assert.assertEquals(1, copyContext.actions().size());
-    Assert.assertEquals(key, copyContext.actions().get(0).getKey());
-  }
-
-  @Test
   public void testGetValueByKeywordFromHeader() {
     Multimap<String, String> header = ArrayListMultimap.create();
     header.put("h1", "h1.1");

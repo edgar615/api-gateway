@@ -10,7 +10,7 @@ import io.vertx.core.Vertx;
 public class DeviceListTest {
   public static void main(String[] args) {
     String token =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiIiLCJzdWIiOiIiLCJpc3MiOiIiLCJleHAiOjE0ODY1NDc0MTIsInVzZXJJZCI6NjksImlhdCI6MTQ4NjU0NTYxMiwianRpIjoiZjkzYTFiMjItNzg0Ny00ZGZmLTliYmMtMTY1YWNlNzA2YjFiIn0=.c52uaniWbM0TDn28Hs63DhL2-zJAaF9yljQZN7PO4v4Ib6yYVVfBklK5IVdvHHiorA-6i19x079xvj_rBN2DKw==";
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiIiLCJzdWIiOiIiLCJpc3MiOiIiLCJleHAiOjE0ODY5NTMxMDEsInVzZXJJZCI6NjksImlhdCI6MTQ4Njk1MTMwMSwianRpIjoiOTIzM2UxMmYtNmFiNy00ZjNlLWIzYzctZTc5Y2U1NGEzOWI1In0=.UUc6D4FlKoGV_U3tBqZjtXG3kygSWGWLoHTSZcRUIRpWonnXuAlG8wlKRBe-97ycJkfYL2fH_gyM1LKAkxiTCg==";
 
     Api api = new Api();
     Vertx.vertx().createHttpClient().get(9000, "localhost", "/devices?"+ api.signTopRequest())

@@ -95,11 +95,21 @@ public class DispatchHandler implements Handler<RoutingContext> {
     //创建上下文
     Task<ApiContext> task = Task.create();
     task.complete(ApiContextUtils.apiContext(rc));
+    task.andThen(apiContext -> rc.data().put("x-request-id", apiContext.id()));
     task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()));
-    task = task.flatMap("RPC", apiContext -> rpc(apiContext))
-            .andThen(apiContext -> apiContext.addAction("RPC", apiContext));
+    task = task.flatMap("RPC", apiContext -> rpc(apiContext));
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
     task.andThen("Response", apiContext -> response(rc, apiContext))
+            .andThen("log", apiContext -> {
+              long started = (long) apiContext.variables()
+                      .getOrDefault("request.time", System.currentTimeMillis());
+              long ended = System.currentTimeMillis();
+              long duration = ended - started;
+              LOGGER.info("Request succeed, id->{},duration->{}, context->{}",
+                          apiContext.id(),
+                          duration,
+                          apiContext);
+            })
             .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
   }
 

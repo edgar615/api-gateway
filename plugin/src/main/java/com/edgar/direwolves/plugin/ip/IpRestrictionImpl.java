@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.ip;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -79,4 +80,12 @@ class IpRestrictionImpl implements IpRestriction {
     return ImmutableList.copyOf(blacklist);
   }
 
+  @Override
+  public String toString() {
+    return MoreObjects
+            .toStringHelper("IpRestriction")
+            .add("whitelist", whitelist)
+            .add("blacklist", blacklist)
+            .toString();
+  }
 }

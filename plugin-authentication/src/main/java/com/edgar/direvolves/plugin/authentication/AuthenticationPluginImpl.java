@@ -1,5 +1,7 @@
 package com.edgar.direvolves.plugin.authentication;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * Created by Edgar on 2016/10/31.
  *
@@ -12,6 +14,8 @@ class AuthenticationPluginImpl implements AuthenticationPlugin {
 
   @Override
   public String toString() {
-    return "AuthenticationPlugin{}";
+    return MoreObjects
+            .toStringHelper("AuthenticationPlugin")
+            .toString();
   }
 }

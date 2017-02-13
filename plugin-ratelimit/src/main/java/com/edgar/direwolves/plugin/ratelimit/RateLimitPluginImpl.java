@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.ratelimit;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 import java.util.HashSet;
@@ -49,4 +50,13 @@ public class RateLimitPluginImpl implements RateLimitPlugin {
     }
     this.rateLimits.removeIf(predicate);
   }
+
+  @Override
+  public String toString() {
+    return MoreObjects
+            .toStringHelper("RateLimitPlugin")
+            .add("rateLimits", rateLimits)
+            .toString();
+  }
+
 }

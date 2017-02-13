@@ -52,7 +52,7 @@ public class Filters {
         } else {
           return Future.succeededFuture(apiContext);
         }
-      }).andThen(apiContext -> apiContext.addAction(filter.getClass().getSimpleName(), apiContext));
+      });
     }
     return task;
   }

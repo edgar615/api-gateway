@@ -119,19 +119,6 @@ public interface ApiContext {
   void setResult(Result result);
 
   /**
-   * 添加一个动作，主要记录每次动作对ApiContext的改变，用来做日志跟踪.
-   *
-   * @param action     动作名称
-   * @param apiContext
-   */
-  void addAction(String action, ApiContext apiContext);
-
-  /**
-   * @return 返回所有的动作.
-   */
-  List<Map.Entry<String, ApiContext>> actions();
-
-  /**
    * 创建ApiContext对象.
    *
    * @param id      上下文ID，该值应该使用一个全局唯一ID
@@ -183,9 +170,6 @@ public interface ApiContext {
     }
     if (source.apiDefinition() != null) {
       target.setApiDefinition(source.apiDefinition().copy());
-    }
-    for (Map.Entry<String, ApiContext> action : source.actions()) {
-      target.addAction(action.getKey(), action.getValue());
     }
   }
 

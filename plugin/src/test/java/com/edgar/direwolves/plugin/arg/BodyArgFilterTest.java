@@ -87,8 +87,6 @@ public class BodyArgFilterTest {
             .andThen(context -> {
               testContext.assertTrue(context.body().containsKey("type"));
               testContext.assertEquals("1", context.body().getString("type"));
-              testContext.assertEquals(1, context.actions().size());
-              System.out.println(context.actions());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }
@@ -111,8 +109,6 @@ public class BodyArgFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               testContext.assertEquals("AAAAAAAAAAAAAAAA", context.body().getString("barcode"));
-              testContext.assertEquals(1, context.actions().size());
-              System.out.println(context.actions());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

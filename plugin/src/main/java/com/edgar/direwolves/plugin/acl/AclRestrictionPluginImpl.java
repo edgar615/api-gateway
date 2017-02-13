@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.acl;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -80,4 +81,12 @@ class AclRestrictionPluginImpl implements AclRestrictionPlugin {
     return ImmutableList.copyOf(blacklist);
   }
 
+  @Override
+  public String toString() {
+    return MoreObjects
+            .toStringHelper("AclRestrictionPlugin")
+            .add("whitelist", whitelist)
+            .add("blacklist", blacklist)
+            .toString();
+  }
 }

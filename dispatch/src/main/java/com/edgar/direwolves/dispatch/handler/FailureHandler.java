@@ -28,33 +28,42 @@ public class FailureHandler implements Handler<RoutingContext> {
   }
 
   public static void doHandle(RoutingContext rc, Throwable throwable) {
+    String id = (String) rc.data().getOrDefault("x-request-id", "undefined");
+    int statusCode = 400;
+    JsonObject failureMsg = new JsonObject();
     HttpServerResponse response = rc.response();
     if (throwable instanceof SystemException) {
       SystemException ex = (SystemException) throwable;
-      JsonObject jsonObject = new JsonObject(ex.asMap());
-      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+      statusCode = ex.getErrorCode().getStatusCode();
+      failureMsg.mergeIn(new JsonObject(ex.asMap()));
+
     } else if (throwable instanceof ValidationException) {
       SystemException ex = SystemException.create(DefaultErrorCode.INVALID_ARGS);
       ValidationException vex = (ValidationException) throwable;
       if (!vex.getErrorDetail().isEmpty()) {
         ex.set("details", vex.getErrorDetail().asMap());
       }
-      JsonObject jsonObject = new JsonObject(ex.asMap());
-      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+      statusCode = ex.getErrorCode().getStatusCode();
+      failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else if (throwable instanceof ReplyException) {
       ReplyException ex = (ReplyException) throwable;
-      response.setStatusCode(400).end(replyJson(ex).encode());
+      JsonObject jsonObject = replyJson(ex);
+      statusCode = 400;
+      failureMsg.mergeIn(jsonObject);
     } else if (throwable instanceof ConnectException) {
       SystemException ex = SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
-      JsonObject jsonObject = new JsonObject(ex.asMap());
-      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+      statusCode = ex.getErrorCode().getStatusCode();
+      failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
       LOGGER.error("Undefined exception", throwable);
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
               .set("exception", throwable.getMessage());
-      JsonObject jsonObject = new JsonObject(ex.asMap());
-      response.setStatusCode(ex.getErrorCode().getStatusCode()).end(jsonObject.encode());
+      statusCode = ex.getErrorCode().getStatusCode();
+      failureMsg.mergeIn(new JsonObject(ex.asMap()));
     }
+    response.setStatusCode(statusCode).end(failureMsg.encode());
+    LOGGER.warn("Request failed, id->{}, error->{}",
+                id, failureMsg.encode());
   }
 
   private static JsonObject replyJson(ReplyException ex) {
@@ -85,7 +94,6 @@ public class FailureHandler implements Handler<RoutingContext> {
   @Override
   public void handle(RoutingContext rc) {
     Throwable throwable = rc.failure();
-    LOGGER.warn("error: {}, {}", throwable.getClass(), throwable.getMessage());
     doHandle(rc, throwable);
   }
 

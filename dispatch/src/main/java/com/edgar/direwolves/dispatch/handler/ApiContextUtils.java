@@ -51,14 +51,15 @@ public class ApiContextUtils {
       }
     }
     ApiContext apiContext = ApiContext.create(method, path, headers, params, body);
-    Map<String, String> variables = getVariables(rc);
+    Map<String, Object> variables = getVariables(rc);
     variables.forEach((key, value) -> apiContext.addVariable(key, value));
     return apiContext;
   }
 
-  private static Map<String, String> getVariables(RoutingContext rc) {
-    Map<String, String> variables = new HashMap<>();
+  private static Map<String, Object> getVariables(RoutingContext rc) {
+    Map<String, Object> variables = new HashMap<>();
     HttpServerRequest req = rc.request();
+    variables.put("request.time", System.currentTimeMillis());
     variables.put("request.scheme", req.scheme());
     variables.put("request.method", req.method().name());
     variables.put("request.query_string", req.query());

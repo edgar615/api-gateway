@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -49,5 +50,13 @@ public class RequestTransformerPluginImpl implements RequestTransformerPlugin {
   public RequestTransformerPlugin clear() {
     this.transformers.clear();
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects
+            .toStringHelper("RequestTransformerPlugin")
+            .add("transformers", transformers)
+            .toString();
   }
 }

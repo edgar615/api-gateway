@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -128,13 +129,16 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
           }
         });
 
-        imports.forEach(svc -> {
+        //使用foreach删除会出现ConcurrentModificationException
+        Iterator<ImportedZookeeperService> iterator = imports.iterator();
+        while (iterator.hasNext()) {
+          ImportedZookeeperService svc = iterator.next();
           if (!retrievedIds.contains(svc.id())) {
             LOGGER.info("Unregistering " + svc.id());
-            imports.remove(svc);
+            iterator.remove();
             svc.unregister(publisher, null);
           }
-        });
+        }
 
         completed.complete();
       }

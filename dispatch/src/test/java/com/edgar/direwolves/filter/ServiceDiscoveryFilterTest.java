@@ -104,7 +104,6 @@ public class ServiceDiscoveryFilterTest {
               testContext.assertEquals(1, request.headers().keySet().size());
               testContext.assertTrue(request.headers().containsKey("x-request-id"));
               testContext.assertNull(request.body());
-              testContext.assertEquals(1, context.actions().size());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }
@@ -145,7 +144,6 @@ public class ServiceDiscoveryFilterTest {
               testContext.assertTrue(request.headers().containsKey("x-request-id"));
               testContext.assertNull(request.body());
 
-              testContext.assertEquals(1, context.actions().size());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }

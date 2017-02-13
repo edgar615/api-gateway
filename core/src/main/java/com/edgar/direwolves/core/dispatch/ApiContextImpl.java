@@ -2,9 +2,7 @@ package com.edgar.direwolves.core.dispatch;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
@@ -37,8 +35,6 @@ class ApiContextImpl implements ApiContext {
   private final List<RpcResponse> responses = new ArrayList<>();
 
   private final String id;
-
-  private final List<Map.Entry<String, ApiContext>> actions = new ArrayList<>();
 
   private JsonObject principal;
 
@@ -153,16 +149,6 @@ class ApiContextImpl implements ApiContext {
   @Override
   public void setResult(Result result) {
     this.result = result;
-  }
-
-  @Override
-  public void addAction(String action, ApiContext apiContext) {
-    this.actions.add(Maps.immutableEntry(action, apiContext));
-  }
-
-  @Override
-  public List<Map.Entry<String, ApiContext>> actions() {
-    return ImmutableList.copyOf(actions);
   }
 
   @Override
