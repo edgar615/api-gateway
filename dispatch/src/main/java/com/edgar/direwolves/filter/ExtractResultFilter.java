@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * 该filter将RpcResponse返回的值聚合为一个result.
- *
+ * <p>
  * 该filter的order=-2147483638
  * <p>
  * 如果RpcResponse为空，直接抛出异常.
@@ -23,12 +23,11 @@ import java.util.List;
  * 如果有RpcResponse的statusCode>300，则我们认为该RpcResponse请求返回了错误，这个错误可能是网络问题，也可能是参数不符合接口定义，也可能是RPC
  * 服务的BUG导致。此时直接返回该错误.<b>未来我们可以针对这种错误在增加处理策略</b>,
  * 如果所有的RPC请求都是成功的请求，那么将所有的RpcResponse按照他们的name属性组合成一个JsonObject对象，而statusCode默认为200
- *
+ * <p>
  * 该filter的order=0
  * Created by edgar on 16-11-5.
  */
 public class ExtractResultFilter implements Filter {
-
   ExtractResultFilter() {
   }
 

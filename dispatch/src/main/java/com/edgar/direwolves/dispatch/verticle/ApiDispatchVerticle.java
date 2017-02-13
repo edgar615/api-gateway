@@ -60,10 +60,10 @@ public class ApiDispatchVerticle extends AbstractVerticle {
             .requestHandler(router::accept)
             .listen(port, ar -> {
               if (ar.succeeded()) {
-                LOGGER.info("http server start succeeded, port->{}", port);
+                LOGGER.info("Start http server succeeded, port->{}", port);
                 startFuture.complete();
               } else {
-                LOGGER.error("http server start failed, port->{}", port, ar.cause());
+                LOGGER.error("Start http server failed, port->{}", port, ar.cause());
                 startFuture.fail(ar.cause());
               }
             });

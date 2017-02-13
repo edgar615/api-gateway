@@ -63,6 +63,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
    */
   private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
 
+  private final long longReqTime;
+
   private DispatchHandler(Vertx vertx, JsonObject config) {
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
             .stream().map(f -> f.create(vertx, config))
@@ -76,6 +78,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
       LOGGER.info("filter loaded,name->{}, type->{}, order->{}", filter.getClass().getSimpleName(),
                   filter.type(), filter.order());
     });
+    this.longReqTime = config.getLong("long_req_time", 1000l);
   }
 
   /**
@@ -105,10 +108,18 @@ public class DispatchHandler implements Handler<RoutingContext> {
                       .getOrDefault("request.time", System.currentTimeMillis());
               long ended = System.currentTimeMillis();
               long duration = ended - started;
-              LOGGER.info("Request succeed, id->{},duration->{}, context->{}",
-                          apiContext.id(),
-                          duration,
-                          apiContext);
+              if (duration > longReqTime) {
+                LOGGER.warn("Request succeed, id->{},duration->{}, context->{}",
+                            apiContext.id(),
+                            duration,
+                            apiContext);
+              } else {
+                LOGGER.info("Request succeed, id->{},duration->{}, context->{}",
+                            apiContext.id(),
+                            duration,
+                            apiContext);
+              }
+
             })
             .onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
   }

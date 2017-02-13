@@ -4,6 +4,8 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.List;
  * @author Edgar  Date 2016/9/20
  */
 public class Filters {
+  private static final Logger LOGGER = LoggerFactory.getLogger(Filters.class);
+
   private Filters() {
     throw new AssertionError("Not instantiable: " + Filters.class);
   }
@@ -46,13 +50,21 @@ public class Filters {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
+          LOGGER.debug("Execute  filter, id->{},Filter->{}, context->{}",
+                       apiContext.id(),
+                       filter.getClass().getName(),
+                       apiContext);
           Future<ApiContext> completeFuture = Future.future();
           filter.doFilter(apiContext.copy(), completeFuture);
           return completeFuture;
         } else {
           return Future.succeededFuture(apiContext);
         }
-      });
+      }).andThen(apiContext ->
+                         LOGGER.debug("Execute  filter succeed, id->{},Filter->{}, context->{}",
+                                     apiContext.id(),
+                                     filter.getClass().getName(),
+                                     apiContext));
     }
     return task;
   }

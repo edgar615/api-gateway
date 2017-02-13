@@ -22,7 +22,6 @@ import io.vertx.serviceproxy.ProxyHelper;
  * Created by edgar on 17-1-4.
  */
 public class ApiFindFilter implements Filter {
-
   private final Vertx vertx;
 
   private final ApiProvider apiProvider;
