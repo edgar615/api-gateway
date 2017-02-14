@@ -41,5 +41,9 @@
       "appCode": 0,
       "permissions": "all"
     }
-  ]
+  ],
+  "app.importer" : {
+    "scan-period": 5000,
+    "url": "/appkey/import"
+  }
 }

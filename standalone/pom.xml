@@ -77,7 +77,6 @@
                     <includeScope>runtime</includeScope>
                     <includeTypes>jar</includeTypes>
                     <overWriteSnapshots>true</overWriteSnapshots>
-                    <limitBy>jar</limitBy>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                 </configuration>
             </plugin>

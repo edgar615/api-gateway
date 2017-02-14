@@ -14,7 +14,9 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -106,7 +108,7 @@ import java.util.Map;
  * <p>
  * Created by edgar on 16-9-20.
  */
-public class AppKeyFilter implements Filter {
+public class AppKeyFilter implements Filter, AppKeyPublisher {
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
@@ -150,6 +152,12 @@ public class AppKeyFilter implements Filter {
       if (appKey != null) {
         origins.put(appKey, appKeys.getJsonObject(i));
       }
+    }
+    if (config.containsKey("app.importer")) {
+      JsonObject importedConfig = config.getJsonObject("app.importer");
+      importedConfig.put("http.port", config.getInteger("http.port", 9000));
+      AppKeyImporter importer = new AppKeyImporter(vertx, this, importedConfig);
+      importer.start();
     }
   }
 
@@ -195,6 +203,34 @@ public class AppKeyFilter implements Filter {
         }
       });
     }
+  }
+
+  @Override
+  public void publish(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
+    if (!jsonObject.containsKey("appKey")) {
+      resultHandler.handle(Future.failedFuture("undefined appKey"));
+      return;
+    }
+    if (!jsonObject.containsKey("secretKey")) {
+      resultHandler.handle(Future.failedFuture("undefined " + secretKey));
+      return;
+    }
+    if (!jsonObject.containsKey("codeKey")) {
+      resultHandler.handle(Future.failedFuture("undefined " + codeKey));
+      return;
+    }
+    if (!jsonObject.containsKey("permissionsKey")) {
+      resultHandler.handle(Future.failedFuture("undefined " + permissionsKey));
+      return;
+    }
+    origins.put(jsonObject.getString("appKey"), jsonObject);
+    resultHandler.handle(Future.succeededFuture());
+  }
+
+  @Override
+  public void unpublish(String appKey, Handler<AsyncResult<Void>> resultHandler) {
+    origins.remove(appKey);
+    resultHandler.handle(Future.succeededFuture());
   }
 
   private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,

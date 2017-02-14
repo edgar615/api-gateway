@@ -1,0 +1,35 @@
+{
+  "name" : "appkey_list",
+  "method" : "GET",
+  "path" : "/companies",
+  "url_arg" : [ {
+    "name" : "limit",
+    "default_value" : 100,
+    "rules" : {
+      "integer" : true,
+      "max" : 100,
+      "min" : 1
+    }
+  }, {
+    "name" : "start",
+    "default_value" : 0,
+    "rules" : {
+      "integer" : true
+    }
+  } ],
+  "endpoints" : [ {
+    "service" : "user",
+    "method" : "GET",
+    "name" : "companies",
+    "type" : "http",
+    "path" : "/companies"
+  } ],
+  "request_transformer" : [ {
+    "name" : "companies",
+    "query.add" : [ "state:1" ]
+  } ],
+  "ip_restriction" : {
+      "whitelist" : ["127.0.0.1"],
+      "blacklist" : ["*"]
+   }
+}
