@@ -4,3 +4,4 @@ com.edgar.direwolves.filter.ServiceDiscoveryFilterFactory
 com.edgar.direwolves.filter.RequestReplaceFilterFactory
 com.edgar.direwolves.filter.TimeoutFilterFactory
 com.edgar.direwolves.filter.ExtractResultFilterFactory
+com.edgar.direwolves.filter.LogFilterFactory

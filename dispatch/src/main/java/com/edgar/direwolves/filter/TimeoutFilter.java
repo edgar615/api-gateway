@@ -72,7 +72,8 @@ public class TimeoutFilter implements Filter {
     long currentTime = Instant.now().getEpochSecond();
     if ((timestamp > currentTime + timeout)
         || (timestamp < currentTime - timeout)) {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE));
+      completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE)
+      .set("details", "timestamp:" + timestamp + " is incorrect"));
     } else {
       completeFuture.complete(apiContext);
     }

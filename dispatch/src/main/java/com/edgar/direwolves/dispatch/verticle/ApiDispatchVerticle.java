@@ -27,15 +27,17 @@ public class ApiDispatchVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
-    LOGGER.info("                _  _                             _                  \n"
-                       + "               | |(_)                           | |                 \n"
-                       + "             __| | _  _ __  ___ __      __ ___  | |__   __ ___  ___ \n"
-                       + "            / _` || || '__|/ _ \\\\ \\ /\\ / // _ \\ | |\\ \\ / // _ "
-                       + "\\/ __|\n"
-                       + "           | (_| || || |  |  __/ \\ V  V /| (_) || | \\ V /|  __/\\__ "
-                       + "\\\n"
-                       + "            \\__,_||_||_|   \\___|  \\_/\\_/  \\___/ |_|  \\_/  "
-                       + "\\___||___/");
+    LOGGER.info("\n"
+                + "                    _ _                 _       _               \n"
+                + "                   | (_)               | |     | |              \n"
+                + "                 __| |_ ___ _ __   __ _| |_ ___| |__   ___ _ __ \n"
+                + "                / _` | / __| '_ \\ / _` | __/ __| '_ \\ / _ \\ '__|\n"
+                + "               | (_| | \\__ \\ |_) | (_| | || (__| | | |  __/ |   \n"
+                + "                \\__,_|_|___/ .__/ \\__,_|\\__\\___|_| |_|\\___|_|   \n"
+                + "                           | |                                  \n"
+                + "                           |_|                              ");
+
+    LOGGER.info("config->{}", config().encodePrettily());
 
     RedisProvider redisProvider = RedisProvider.create(vertx, config());
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
@@ -49,7 +51,7 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     router.route().handler(BodyHandler.create());
 
     router.route().handler(BaseHandler.create());
-    router.route().handler(LoggerHandler.create(true, LoggerFormat.DEFAULT));
+//    router.route().handler(LoggerHandler.create(true, LoggerFormat.DEFAULT));
     router.route().handler(ResponseTimeHandler.create());
 
     //API拦截

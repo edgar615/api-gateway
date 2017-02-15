@@ -44,6 +44,8 @@ import java.util.Map;
  *   app.codeKey 编码的键值，默认值appCode
  *   app.permissionKey 权限的键值，默认值permissions
  *   app.origin 初始值，数组
+ *   app.importer AppKey的导入,JsonObject，两个属性：scan-period导入周期，默认5000毫秒，url地址，默认值/appkey/import
+ *   ，注意需要在路由中配置/appkey/import路由，并限制只有127.0.0.1的IP才允许访问
  * </pre>
  * 该filter的order=10
  * <p>
@@ -199,7 +201,8 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
           JsonObject app = ar.result();
           checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
         } else {
-          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
+                                      .set("details", "Undefined AppKey->" + appKey));
         }
       });
     }
@@ -211,15 +214,15 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
       resultHandler.handle(Future.failedFuture("undefined appKey"));
       return;
     }
-    if (!jsonObject.containsKey("secretKey")) {
+    if (!jsonObject.containsKey(secretKey)) {
       resultHandler.handle(Future.failedFuture("undefined " + secretKey));
       return;
     }
-    if (!jsonObject.containsKey("codeKey")) {
+    if (!jsonObject.containsKey(codeKey)) {
       resultHandler.handle(Future.failedFuture("undefined " + codeKey));
       return;
     }
-    if (!jsonObject.containsKey("permissionsKey")) {
+    if (!jsonObject.containsKey(permissionsKey)) {
       resultHandler.handle(Future.failedFuture("undefined " + permissionsKey));
       return;
     }
@@ -239,7 +242,9 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     String secret = app.getString(secretKey, "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
     if (!clientSignValue.equals(serverSignValue)) {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ));
+      completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
+                                  .set("details", "The sign is incorrect, baseString->"
+                                                  + baseString(params)));
     } else {
       Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
       newParams.removeAll("sign");
@@ -258,19 +263,8 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
   }
 
   private String signTopRequest(Multimap<String, String> params, String secret, String signMethod) {
-    // 第一步：检查参数是否已经排序
-    String[] keys = params.keySet().toArray(new String[0]);
-    Arrays.sort(keys);
+    String queryString = baseString(params);
 
-    // 第二步：把所有参数名和参数值串在一起
-    List<String> query = new ArrayList<>(params.size());
-    for (String key : keys) {
-      String value = MultimapUtils.getFirst(params, key);
-      if (!Strings.isNullOrEmpty(value)) {
-        query.add(key + "=" + value);
-      }
-    }
-    String queryString = Joiner.on("&").join(query);
     String sign = null;
     try {
       if (EncryptUtils.HMACMD5.equalsIgnoreCase(signMethod)) {
@@ -286,5 +280,20 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
 
     }
     return sign;
+  }
+
+  private String baseString(Multimap<String, String> params) {// 第一步：检查参数是否已经排序
+    String[] keys = params.keySet().toArray(new String[0]);
+    Arrays.sort(keys);
+
+    // 第二步：把所有参数名和参数值串在一起
+    List<String> query = new ArrayList<>(params.size());
+    for (String key : keys) {
+      String value = MultimapUtils.getFirst(params, key);
+      if (!Strings.isNullOrEmpty(value)) {
+        query.add(key + "=" + value);
+      }
+    }
+    return Joiner.on("&").join(query);
   }
 }

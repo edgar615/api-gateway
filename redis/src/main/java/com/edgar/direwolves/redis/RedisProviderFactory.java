@@ -18,7 +18,7 @@ public class RedisProviderFactory implements CacheFactory {
   public RedisProvider create(Vertx vertx, JsonObject config) {
     String redisHost = config.getString("redis.host", "localhost");
     int redisPort = config.getInteger("redis.port", 6379);
-    String redisAuth = config.getString("redis.auth", "");
+    String redisAuth = config.getString("redis.password", "");
 
     RedisOptions options = new RedisOptions()
             .setHost(redisHost)

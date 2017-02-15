@@ -26,6 +26,20 @@ import java.util.UUID;
 public class ApiContextTest {
 
   @Test
+  public void testJsonCopy() {
+    JsonObject jsonObject = new JsonObject("{\"accountType\":1,\"username\":\"57516243616\",\n"
+                                           + "            \"password\":\"111111\"}");
+    System.out.println(jsonObject.encode());
+    System.out.println(jsonObject.copy());
+    JsonObject copyJson = new JsonObject();
+    for (String key : jsonObject.fieldNames()) {
+      copyJson.put(key, jsonObject.getValue(key));
+    }
+    System.out.println(copyJson.encode());
+
+  }
+
+  @Test
   public void testCopyWithoutBody() {
     Multimap<String, String> headers = ArrayListMultimap.create();
     headers.put("h1", "h1.1");
@@ -60,7 +74,8 @@ public class ApiContextTest {
     params.put("p2", "p2");
     ApiContext apiContext = ApiContext
             .create(HttpMethod.GET, "/devices", headers,
-                    params, new JsonObject().put("foo", "bar"));
+                    params, new JsonObject("{\"accountType\":1,\"username\":\"57516243616\",\n"
+                                           + "            \"password\":\"111111\"}"));
 
     ApiContext copyContext = apiContext.copy();
     Assert.assertEquals(apiContext.id(), copyContext.id());
@@ -70,7 +85,8 @@ public class ApiContextTest {
     Assert.assertEquals("p1.1", copyContext.params().get("p1").iterator().next());
     Assert.assertEquals("p2", copyContext.params().get("p2").iterator().next());
     Assert.assertNotNull(copyContext.body());
-    Assert.assertEquals("bar", copyContext.body().getString("foo"));
+    Assert.assertEquals("111111", copyContext.body().getString("password"));
+    Assert.assertEquals("accountType", copyContext.body().fieldNames().iterator().next());
 
     System.out.println(copyContext);
 

@@ -47,7 +47,8 @@ public class BodyArgFilter implements Filter {
     BodyArgPlugin plugin =
             (BodyArgPlugin) apiContext.apiDefinition().plugin(BodyArgPlugin.class.getSimpleName());
     if (apiContext.body() == null) {
-      throw SystemException.create(DefaultErrorCode.INVALID_JSON);
+      throw SystemException.create(DefaultErrorCode.INVALID_JSON)
+              .set("details", "Request body must be JSON Object");
     }
     ApiContext newContext = checkDefaultValue(apiContext, plugin);
     //校验

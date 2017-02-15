@@ -23,6 +23,8 @@ public interface Filter {
 
   String POST = "POST";
 
+  String AFTER_RESP = "AFTER_RESP";
+
   /**
    * @return filter的类型 pre或者post
    */

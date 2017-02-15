@@ -45,5 +45,6 @@
   "app.importer" : {
     "scan-period": 5000,
     "url": "/appkey/import"
-  }
+  },
+  "log.ignore": ["oem_list"]
 }

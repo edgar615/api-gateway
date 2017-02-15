@@ -49,7 +49,8 @@ public class IpRestrictionFilter implements Filter {
             .filter(r -> checkIp(r, clientIp))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.NO_AUTHORITY));
+      completeFuture.fail(SystemException.create(DefaultErrorCode.NO_AUTHORITY)
+      .set("details", "The ip is forbidden"));
     } else {
       completeFuture.complete(apiContext);
     }

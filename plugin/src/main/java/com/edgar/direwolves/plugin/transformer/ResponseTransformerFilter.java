@@ -60,9 +60,14 @@ public class ResponseTransformerFilter implements Filter {
             replaceHeader(apiContext, tranformerHeaders(result.header(), plugin));
 
     if (!isArray) {
-      JsonObject body = replaceBody(apiContext, tranformerBody(result.responseObject(), plugin));
-      apiContext.setResult(Result.createJsonObject(result.statusCode(),
-                                                   body, header));
+      if (result.statusCode() < 300) {
+        JsonObject body = replaceBody(apiContext, tranformerBody(result.responseObject(), plugin));
+        apiContext.setResult(Result.createJsonObject(result.statusCode(),
+                                                     body, header));
+      } else {
+        apiContext.setResult(Result.createJsonObject(result.statusCode(),
+                                                     result.responseObject(), header));
+      }
     } else {
       apiContext.setResult(Result.createJsonArray(result.statusCode(),
                                                   result.responseArray(), header));

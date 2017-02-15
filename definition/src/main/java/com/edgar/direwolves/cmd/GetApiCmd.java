@@ -41,7 +41,8 @@ class GetApiCmd implements ApiCmd {
     String name = jsonObject.getString("name");
     List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
     if (definitions.isEmpty()) {
-      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
+              .set("details", "Api->" + name);
     }
     return Future.succeededFuture(new JsonObject()
         .put("result", definitions.get(0).toJson()));

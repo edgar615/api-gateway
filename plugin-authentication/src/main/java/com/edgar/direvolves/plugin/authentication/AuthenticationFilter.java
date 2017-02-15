@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *  身份认证.
- *  目前仅支持JWT类型的认证
+ * 身份认证.
+ * 目前仅支持JWT类型的认证
  * 在校验通过之后，会在上下文中存入用户信息:
  * * 该filter可以接受下列的配置参数
  * <pre>
@@ -54,12 +54,12 @@ public class AuthenticationFilter implements Filter {
 
   private final RedisProvider redisProvider;
 
+  private final Vertx vertx;
+
   private JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
           .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
           .put("password", "secret");
-
-  private final Vertx vertx;
 
   AuthenticationFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -129,7 +129,8 @@ public class AuthenticationFilter implements Filter {
         return authorization.substring(AUTH_PREFIX.length());
       }
     }
-    throw SystemException.create(DefaultErrorCode.INVALID_TOKEN);
+    throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+            .set("details", "Request header: Authorization is undefined");
   }
 
   private Future<JsonObject> userCheck(JsonObject principal) {
@@ -138,7 +139,8 @@ public class AuthenticationFilter implements Filter {
     Integer userId = principal.getInteger(userKey);
     if (userId == null) {
       LOGGER.debug("jwt failed, error->userId not found");
-      userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
+      userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+                              .set("details", "Token must contain " + userKey));
     } else {
       String userCacheKey = namespace + ":user:" + userId;
       redisProvider.get(userCacheKey, ar -> {
@@ -148,14 +150,16 @@ public class AuthenticationFilter implements Filter {
             if (serverJti.equalsIgnoreCase(clientJti)) {
               userFuture.complete(ar.result());
             } else {
-              userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN));
+              userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
+                                      .set("details", "The token has been kicked out"));
             }
           } else {
             userFuture.complete(ar.result());
           }
 
         } else {
-          userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN));
+          userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+                                  .set("details", "User not found"));
         }
       });
     }
@@ -184,14 +188,18 @@ public class AuthenticationFilter implements Filter {
     String errorMessage = ar.cause().getMessage();
     if (errorMessage != null) {
       if (errorMessage.startsWith("Expired JWT token")) {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.EXPIRE_TOKEN, ar.cause()));
+        completeFuture.fail(SystemException.wrap(DefaultErrorCode.EXPIRE_TOKEN, ar.cause())
+                                    .set("details", "Expired JWT token"));
       } else if (errorMessage.startsWith("Invalid JWT token")) {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause()));
+        completeFuture.fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause())
+                                    .set("details", "Invalid JWT token"));
       } else {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause()));
+        completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause())
+                                    .set("details", ar.cause().getMessage()));
       }
     } else {
-      completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause()));
+      completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause())
+                                  .set("details", ar.cause().getMessage()));
     }
   }
 

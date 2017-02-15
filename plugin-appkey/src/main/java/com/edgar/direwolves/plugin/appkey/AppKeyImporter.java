@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Edgar on 2016/8/25.
@@ -35,7 +36,7 @@ public class AppKeyImporter {
 
   private final AppKeyPublisher publisher;
 
-  private final Map<String, JsonObject> imports = new HashMap<>();
+  private final Map<String, JsonObject> imports = new ConcurrentHashMap<>();
 
 
   public AppKeyImporter(Vertx vertx, AppKeyPublisher publisher, JsonObject configuration) {

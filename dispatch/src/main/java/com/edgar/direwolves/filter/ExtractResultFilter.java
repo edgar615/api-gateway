@@ -52,7 +52,8 @@ public class ExtractResultFilter implements Filter {
     List<RpcResponse> results = apiContext.responses();
     Result result = null;
     if (results.size() == 0) {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN));
+      completeFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN)
+                                  .set("details", "The result of RPC was not found"));
     } else if (results.size() == 1) {
       result = extractResult(results.get(0));
     } else {

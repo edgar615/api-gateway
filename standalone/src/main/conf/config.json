@@ -43,5 +43,12 @@
       "appCode": 0,
       "permissions": "all"
     }
-  ]
+  ],
+  "app.codeKey" : "companyCode",
+  "app.permissionKey" : "scope",
+  "app.importer" : {
+    "scan-period": 5000,
+    "url": "/appkey/import"
+  },
+  "log.ignore": ["appkey_list"]
 }

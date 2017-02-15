@@ -43,11 +43,17 @@ public class ApiContextUtils {
     Multimap<String, String> headers = toMultimap(rc.request().headers());
     Multimap<String, String> params = toMultimap(rc.request().params());
     JsonObject body = null;
-    if (rc.getBody() != null && rc.getBody().length() > 0) {
-      try {
-        body = rc.getBodyAsJson();
-      } catch (DecodeException e) {
-        throw SystemException.create(DefaultErrorCode.INVALID_JSON);
+    if (method == HttpMethod.POST || method == HttpMethod.PUT) {
+      if (rc.getBody() != null && rc.getBody().length() > 0) {
+        try {
+          body = rc.getBodyAsJson();
+        } catch (DecodeException e) {
+          throw SystemException.create(DefaultErrorCode.INVALID_JSON)
+                  .set("details", "Request body must be JSON Object");
+        }
+      } else {
+        throw SystemException.create(DefaultErrorCode.INVALID_JSON)
+                .set("details", "Request body must be JSON Object");
       }
     }
     ApiContext apiContext = ApiContext.create(method, path, headers, params, body);

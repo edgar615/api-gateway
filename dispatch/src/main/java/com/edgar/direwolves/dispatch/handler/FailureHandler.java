@@ -6,7 +6,9 @@ import com.edgar.util.validation.ValidationException;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -51,19 +53,39 @@ public class FailureHandler implements Handler<RoutingContext> {
       statusCode = 400;
       failureMsg.mergeIn(jsonObject);
     } else if (throwable instanceof ConnectException) {
-      SystemException ex = SystemException.create(DefaultErrorCode.UNKOWN_REMOTE);
+      ConnectException connectException = (ConnectException) throwable;
+      SystemException ex = SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
+              .set("details", connectException.getMessage());
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
       LOGGER.error("Undefined exception", throwable);
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
-              .set("exception", throwable.getMessage());
+              .set("details", throwable.getMessage());
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     }
     response.setStatusCode(statusCode).end(failureMsg.encode());
-    LOGGER.warn("Request failed, id->{}, error->{}",
-                id, failureMsg.encode());
+    log(rc, id, failureMsg);
+  }
+
+  private static void log(RoutingContext rc, String id, JsonObject failureMsg) {HttpServerRequest
+          req = rc.request();
+    JsonObject requestInfo = new JsonObject()
+            .put("request.scheme", req.scheme())
+            .put("request.method", req.method().name())
+            .put("request.query_string", req.query())
+            .put("request.uri", req.uri())
+            .put("request.path_info", req.path());
+    JsonObject body = null;
+    if (rc.getBody() != null && rc.getBody().length() > 0) {
+      try {
+        requestInfo.put("request.body", rc.getBody().toString());
+      } catch (Exception e) {
+      }
+    }
+    LOGGER.warn("Request failed, id->{}, error->{}, request->{}",
+                id, failureMsg.encode(), requestInfo.encode());
   }
 
   private static JsonObject replyJson(ReplyException ex) {

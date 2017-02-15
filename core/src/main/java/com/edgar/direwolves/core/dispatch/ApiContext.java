@@ -184,12 +184,21 @@ public interface ApiContext {
       apiContext = new ApiContextImpl(id(), method(), path(), ArrayListMultimap.create(headers()),
                                       ArrayListMultimap.create(params()), null);
     } else {
+      JsonObject copyJson = copyJson(body());
       apiContext = new ApiContextImpl(id(), method(), path(), ArrayListMultimap.create(headers()),
-                                      ArrayListMultimap.create(params()), body().copy());
+                                      ArrayListMultimap.create(params()), copyJson);
     }
 
     ApiContext.copyProperites(this, apiContext);
     return apiContext;
+  }
+
+  default JsonObject copyJson(JsonObject jsonObject) {//直接使用原生的JsonObject.copy方法，会导致JSON的KEY顺序错乱，校验签名的算法会失效
+    JsonObject copyJson = new JsonObject();
+    for (String key : jsonObject.fieldNames()) {
+      copyJson.put(key, jsonObject.getValue(key));
+    }
+    return copyJson;
   }
 
   /**
@@ -209,7 +218,7 @@ public interface ApiContext {
   default Object getValueByKeyword(String key) {
     if (key.startsWith("$header.")) {
       List<String> list =
-              Lists.newArrayList(headers().get(key.substring("$header.".length())));
+              Lists.newArrayList(headers().get(key.substring("$header." .length())));
       if (list.isEmpty()) {
         return null;
       } else if (list.size() == 1) {
@@ -219,7 +228,7 @@ public interface ApiContext {
       }
     } else if (key.startsWith("$query.")) {
       List<String> list =
-              Lists.newArrayList(params().get(key.substring("$query.".length())));
+              Lists.newArrayList(params().get(key.substring("$query." .length())));
       if (list.isEmpty()) {
         return null;
       } else if (list.size() == 1) {
@@ -231,14 +240,14 @@ public interface ApiContext {
       if (body() == null) {
         return null;
       }
-      return body().getValue(key.substring("$body.".length()));
+      return body().getValue(key.substring("$body." .length()));
     } else if (key.startsWith("$user.")) {
       if (principal() == null) {
         return null;
       }
-      return principal().getValue(key.substring("$user.".length()));
+      return principal().getValue(key.substring("$user." .length()));
     } else if (key.startsWith("$var.")) {
-      return variables().get(key.substring("$var.".length()));
+      return variables().get(key.substring("$var." .length()));
     } else {
       return key;
     }

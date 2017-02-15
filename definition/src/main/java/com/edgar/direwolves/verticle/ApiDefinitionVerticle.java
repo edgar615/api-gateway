@@ -48,6 +48,17 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
+    LOGGER.info("\n"
+                + "                       _       __ _       _ _   _             \n"
+                + "                      | |     / _(_)     (_) | (_)            \n"
+                + "                    __| | ___| |_ _ _ __  _| |_ _  ___  _ __  \n"
+                + "                   / _` |/ _ \\  _| | '_ \\| | __| |/ _ \\| '_ \\ \n"
+                + "                  | (_| |  __/ | | | | | | | |_| | (_) | | | |\n"
+                + "                   \\__,_|\\___|_| |_|_| |_|_|\\__|_|\\___/|_| |_|");
+
+    LOGGER.info("config->{}", config().encodePrettily());
+
+
     registerEventBusConsumer();
 
     String address = config().getString("api.provider.address", "direwolves.api.provider");

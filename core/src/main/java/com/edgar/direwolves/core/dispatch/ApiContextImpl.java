@@ -76,7 +76,7 @@ class ApiContextImpl implements ApiContext {
   @Override
   public JsonObject body() {
     if (body != null) {
-      return body.copy();
+      return copyJson(body);
     }
     return null;
   }

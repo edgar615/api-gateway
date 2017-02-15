@@ -40,12 +40,14 @@ public class HttpRpcHandler implements RpcHandler {
     HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
     if (checkMethod(httpRpcRequest)) {
       return Future.failedFuture(
-              SystemException.create(DefaultErrorCode.INVALID_ARGS).set("details", "method")
+              SystemException.create(DefaultErrorCode.INVALID_ARGS)
+                      .set("details", "Method must be GET | POST | PUT | DELETE")
       );
     }
     if (checkBody(httpRpcRequest)) {
       return Future.failedFuture(
-              SystemException.create(DefaultErrorCode.MISSING_ARGS).set("details", "body")
+              SystemException.create(DefaultErrorCode.MISSING_ARGS)
+                      .set("details", "POST or PUT method must contains request body")
       );
     }
     Future<RpcResponse> future = Future.future();

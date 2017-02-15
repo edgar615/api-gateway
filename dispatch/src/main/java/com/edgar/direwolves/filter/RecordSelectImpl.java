@@ -62,7 +62,7 @@ class RecordSelectImpl implements RecordSelect {
     String serviceDiscovery = config.getString("service.discovery");
     if (Strings.isNullOrEmpty(serviceDiscovery)) {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
-              .set("details", "service.discovery cannot be null");
+              .set("details", "Config : service.discovery cannot be null");
     }
     if (serviceDiscovery.startsWith(CONSUL_PREFIX)) {
       registerConsul(serviceDiscovery, config);
@@ -70,7 +70,7 @@ class RecordSelectImpl implements RecordSelect {
       registerZookeeper(serviceDiscovery, config);
     } else {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
-              .set("details", "unspport service.discovery:" + serviceDiscovery);
+              .set("details", "Config : service.discovery:" + serviceDiscovery + " unsupported");
     }
 
     JsonObject strategyConfig =
@@ -102,7 +102,8 @@ class RecordSelectImpl implements RecordSelect {
       discovery
               .registerServiceImporter(serviceImporter, zkConfig);
     } catch (Exception e) {
-      throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
+      throw SystemException.wrap(DefaultErrorCode.UNKOWN, e)
+              .set("details", e.getMessage());
     }
   }
 
