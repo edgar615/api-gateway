@@ -10,7 +10,6 @@
     "__keyevent@0__:expired",
     "__keyevent@0__:del"
   ],
-  "token.expires": 3600,
   "api.config.dir": "standalone/src/test/resources/router",
   "api.config.auto_refresh": false,
   "service.discovery": "zookeeper://10.11.0.31:2181",
@@ -27,7 +26,7 @@
   "jwt.audience": "",
   "jwt.issuer": "",
   "jwt.subject": "",
-  "jwt.expires": 1800,
+  "token.expires": 1800,
   "jwt.userClaimKey": "userId",
   "jwt.permissionsClaimKey": "permissions",
   "jwt.user.unique": true,

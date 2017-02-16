@@ -17,8 +17,9 @@ import java.util.function.Function;
  * <p>
  * <pre>
  *   required : true 必填项
- *   max_length : 整数 最大长度
- *   min_length : 整数 最小长度
+ *   maxLength : 整数 最大长度
+ *   minLength : 整数 最小长度
+ *   fixLength : 整数 固定长度
  *   max : 整数 最大值
  *   min : 整数 最小值
  *    regex : 正则表达式 正则校验
@@ -57,11 +58,14 @@ class RulesDecoder implements Function<JsonObject, List<Rule>> {
           "true".equals(value.toString())) {
         rules.add(Rule.required());
       }
-      if ("max_length".equals(key)) {
+      if ("maxLength".equals(key)) {
         rules.add(Rule.maxLength((Integer) value));
       }
-      if ("min_length".equals(key)) {
+      if ("minLength".equals(key)) {
         rules.add(Rule.minLength((Integer) value));
+      }
+      if ("fixLength".equals(key)) {
+        rules.add(Rule.fixLength((Integer) value));
       }
       if ("max".equals(key)) {
         rules.add(Rule.max((Integer) value));

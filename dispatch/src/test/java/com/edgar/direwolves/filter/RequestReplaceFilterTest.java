@@ -268,5 +268,59 @@ public class RequestReplaceFilterTest {
 
   }
 
+  @Test
+  public void testReplacePath(TestContext testContext) {
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("foo", "bar");
+
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("q1", "q1.1");
+    params.put("q1", "q1.2");
+
+    JsonObject jsonObject = new JsonObject()
+            .put("type", 1)
+            .put("obj", new JsonObject()
+                    .put("userId", 1)
+                    .put("username", "edgar")
+                    .put("q1", "$query.q1"))
+            .put("arr", new JsonArray().add(1).add("2"));
+
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                                          "add_device")
+            .setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/test/$var.foo/$body.type/$user.userId/$header.foo/$query.q1");
+    apiContext.addRequest(httpRpcRequest);
+
+    apiContext.addVariable("foo", "var_bar");
+    apiContext.setPrincipal(new JsonObject().put("userId", 1));
+
+    Filter filter =
+            Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.assertEquals(1, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals("/test/var_bar/1/1/bar/q1.1", request.path());
+
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
 
 }

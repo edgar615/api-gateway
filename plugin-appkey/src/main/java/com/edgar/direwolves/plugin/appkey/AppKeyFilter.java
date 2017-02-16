@@ -289,9 +289,11 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     // 第二步：把所有参数名和参数值串在一起
     List<String> query = new ArrayList<>(params.size());
     for (String key : keys) {
-      String value = MultimapUtils.getFirst(params, key);
-      if (!Strings.isNullOrEmpty(value)) {
-        query.add(key + "=" + value);
+      if (!key.startsWith("$param")) {
+        String value = MultimapUtils.getFirst(params, key);
+        if (!Strings.isNullOrEmpty(value)) {
+          query.add(key + "=" + value);
+        }
       }
     }
     return Joiner.on("&").join(query);

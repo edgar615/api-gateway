@@ -36,14 +36,14 @@ public class DeviceHttpVerticle extends AbstractVerticle {
     });
 
     router.get("/devices/:id").handler(rc -> {
-      String id = rc.request().getParam("param0");
+      String id = rc.request().getParam("id");
       rc.response()
               .end(new JsonObject().put("id", id)
                            .put("query", rc.request().query()).encode());
     });
 
     router.delete("/devices/:id").handler(rc -> {
-      String id = rc.request().getParam("param0");
+      String id = rc.request().getParam("id");
       rc.response()
               .end(new JsonObject().put("id", id).encode());
     });
@@ -55,7 +55,7 @@ public class DeviceHttpVerticle extends AbstractVerticle {
     });
 
     router.put("/devices/:id").handler(rc -> {
-      String id = rc.request().getParam("param0");
+      String id = rc.request().getParam("id");
       rc.response()
               .end(new JsonObject().put("id", id)
                            .put("result", 1)

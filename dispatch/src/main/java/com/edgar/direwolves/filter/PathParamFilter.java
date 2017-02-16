@@ -1,8 +1,5 @@
 package com.edgar.direwolves.filter;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.Future;
@@ -39,7 +36,6 @@ public class PathParamFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
     Pattern pattern = apiContext.apiDefinition().pattern();
     String path = apiContext.path();
     Matcher matcher = pattern.matcher(path);
@@ -50,18 +46,14 @@ public class PathParamFilter implements Filter {
           if (group != null) {
             final String k = "param" + i;
             final String value = URLDecoder.decode(group, "UTF-8");
-            params.put(k, value);
+            apiContext.addVariable(k, value);
           }
         }
       } catch (UnsupportedEncodingException e) {
         //TODO 异常处理
       }
     }
-    ApiContext newApiContext =
-            ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
-                              apiContext.headers(), params, apiContext.body());
-    ApiContext.copyProperites(apiContext, newApiContext);
-    completeFuture.complete(newApiContext);
+    completeFuture.complete(apiContext);
   }
 
 }

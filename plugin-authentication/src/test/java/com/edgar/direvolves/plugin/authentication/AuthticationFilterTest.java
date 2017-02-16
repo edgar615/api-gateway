@@ -167,7 +167,7 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("jwt.expires", 60 * 30)
+                                          .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
                                           .put("jwt.user.unique", true)
                                           .put("service.cache.address", cacheAddress)
@@ -209,7 +209,7 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("jwt.expires", 60 * 30)
+                                          .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
                                           .put("service.cache.address", cacheAddress)
                                           .put("project.namespace", namespace));
@@ -251,7 +251,7 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("jwt.expires", 60 * 30)
+                                          .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
                                           .put("service.cache.address", cacheAddress)
                                           .put("project.namespace", namespace));
@@ -297,7 +297,7 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("jwt.expires", 60 * 30)
+                                          .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
                                           .put("service.cache.address", cacheAddress)
                                           .put("project.namespace", namespace));

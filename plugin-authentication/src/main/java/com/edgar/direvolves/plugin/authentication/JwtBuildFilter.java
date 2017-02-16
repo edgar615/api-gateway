@@ -28,7 +28,7 @@ import java.util.UUID;
  *   jwt.audience string token的客户aud
  *   jwt.issuer string token的发行者iss
  *  jwt.subject string token的主题sub
- *  jwt.expires int token的过期时间exp，单位秒，默认值1800
+ *  token.expires int token的过期时间exp，单位秒，默认值1800
  *
  *  jwt.userClaimKey token中的用户主键，默认值userId
  *   jwt.permissionKey 用户权限字段 默认值permissions
@@ -65,7 +65,7 @@ public class JwtBuildFilter implements Filter {
    *     - jwt.audience string token的客户aud
    *     - jwt.issuer string token的发行者iss
    *     - jwt.subject string token的主题sub
-   *     - jwt.expires int 过期时间exp，单位秒，默认值1800
+   *     - token.expires int 过期时间exp，单位秒，默认值1800
    * </pre>
    *
    * @param vertx  Vertx
@@ -94,10 +94,10 @@ public class JwtBuildFilter implements Filter {
     if (config.containsKey("jwt.subject")) {
       this.jwtConfig.put("subject", config.getString("jwt.subject"));
     }
-    if (config.containsKey("jwt.expires")) {
-      this.jwtConfig.put("expiresInSeconds", config.getInteger("jwt.expires"));
+    if (config.containsKey("token.expires")) {
+      this.jwtConfig.put("expiresInSeconds", config.getInteger("token.expires"));
     }
-    this.expires = config.getInteger("jwt.expires", 1800);
+    this.expires = config.getInteger("token.expires", 1800);
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("project.namespace", "");
     String address = config.getString("service.cache.address", "direwolves.cache.provider");

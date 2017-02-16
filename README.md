@@ -27,5 +27,5 @@ API网关,准备造的一个轮子
 - jwt.audience string token的客户aud
 - jwt.issuer string token的发行者iss
 - jwt.subject string token的主题sub
-- jwt.expires int 过期时间exp，单位秒，默认值1800
+- token.expires int 过期时间exp，单位秒，默认值1800
 - timestamp_check.expires int 请求的过期时间,单位秒，默认值300

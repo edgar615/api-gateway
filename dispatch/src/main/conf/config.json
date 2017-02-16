@@ -26,7 +26,7 @@
   "jwt.audience": "",
   "jwt.issuer": "",
   "jwt.subject": "",
-  "jwt.expires": 1800,
+  "token.expires": 1800,
   "jwt.userClaimKey": "userId",
   "jwt.permissionsClaimKey": "permissions",
   "jwt.user.unique": true,

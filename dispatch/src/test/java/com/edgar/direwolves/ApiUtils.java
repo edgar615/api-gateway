@@ -26,7 +26,7 @@ public class ApiUtils {
                                          Lists.newArrayList(httpEndpoint));
     ApiDefinitionRegistry.create().add(apiDefinition);
 
-    httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "/devices/$param.param0",
+    httpEndpoint = Endpoint.createHttp("get_device", HttpMethod.GET, "/devices/$var.param0",
                                        "device");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "/devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
@@ -37,7 +37,7 @@ public class ApiUtils {
     apiDefinition = ApiDefinition.create("add_device", HttpMethod.POST, "/devices",
                                          Lists.newArrayList(httpEndpoint));
     ApiDefinitionRegistry.create().add(apiDefinition);
-    httpEndpoint = Endpoint.createHttp("update_device", HttpMethod.PUT, "/devices/$param.param0",
+    httpEndpoint = Endpoint.createHttp("update_device", HttpMethod.PUT, "/devices/$var.param0",
                                        "device");
     apiDefinition = ApiDefinition.create("update_device", HttpMethod.PUT, "/devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));

@@ -76,7 +76,8 @@ public class FailureHandler implements Handler<RoutingContext> {
             .put("request.method", req.method().name())
             .put("request.query_string", req.query())
             .put("request.uri", req.uri())
-            .put("request.path_info", req.path());
+            .put("request.path_info", req.path())
+            .put("request.header", req.headers().entries());
     JsonObject body = null;
     if (rc.getBody() != null && rc.getBody().length() > 0) {
       try {
