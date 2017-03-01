@@ -8,13 +8,13 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
+import java.util.UUID;
 
 /**
  * 异常的处理类.
@@ -30,7 +30,7 @@ public class FailureHandler implements Handler<RoutingContext> {
   }
 
   public static void doHandle(RoutingContext rc, Throwable throwable) {
-    String id = (String) rc.data().getOrDefault("x-request-id", "undefined");
+    String id = (String) rc.data().getOrDefault("x-request-id", UUID.randomUUID().toString());
     int statusCode = 400;
     JsonObject failureMsg = new JsonObject();
     HttpServerResponse response = rc.response();
@@ -65,12 +65,14 @@ public class FailureHandler implements Handler<RoutingContext> {
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     }
-    response.setStatusCode(statusCode).end(failureMsg.encode());
+    response.putHeader("x-request-id", id)
+            .setStatusCode(statusCode).end(failureMsg.encode());
     log(rc, id, failureMsg);
   }
 
-  private static void log(RoutingContext rc, String id, JsonObject failureMsg) {HttpServerRequest
-          req = rc.request();
+  private static void log(RoutingContext rc, String id, JsonObject failureMsg) {
+    HttpServerRequest
+            req = rc.request();
     JsonObject requestInfo = new JsonObject()
             .put("request.scheme", req.scheme())
             .put("request.method", req.method().name())
