@@ -47,7 +47,8 @@ public class ServiceDiscoveryFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.requests().size() == 0;
+    return apiContext.apiDefinition().endpoints().stream()
+        .anyMatch(e -> e instanceof HttpEndpoint);
   }
 
   @Override
