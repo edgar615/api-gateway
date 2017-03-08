@@ -1,8 +1,6 @@
 package com.edgar.direwolves.plugin.appkey;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
@@ -28,8 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -183,7 +179,7 @@ public class AppKeyUpdateFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.rpc.http;
 
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import io.vertx.core.Vertx;
@@ -11,7 +12,7 @@ import io.vertx.core.json.JsonObject;
 public class HttpRpcHandlerFactory implements RpcHandlerFactory {
   @Override
   public String type() {
-    return "HTTP";
+    return HttpEndpoint.TYPE;
   }
 
   @Override

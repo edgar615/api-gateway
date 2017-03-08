@@ -14,12 +14,9 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.List;
 
 /**
  * Created by Edgar on 2016/4/11.
@@ -37,7 +34,7 @@ public class ApiDefinitionVerticleTest {
   public void setUp(TestContext testContext) {
     registry = ApiDefinitionRegistry.create();
     HttpEndpoint httpEndpoint = Endpoint
-        .createHttp("get_device", HttpMethod.GET, "devices/", "device");
+        .http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
         .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
     registry.add(apiDefinition);

@@ -65,7 +65,7 @@ public class ServiceDiscoveryFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -112,10 +112,10 @@ public class ServiceDiscoveryFilterTest {
   public void twoEndpointShouldReturnTwoRequest(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint2 =
-            Endpoint.createHttp("get_user", HttpMethod.GET, "users/", "user");
+            Endpoint.http("get_user", HttpMethod.GET, "users/", "user");
 
     ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",
                                                     Lists.newArrayList(httpEndpoint,
@@ -175,7 +175,7 @@ public class ServiceDiscoveryFilterTest {
   public void testNoService(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "sms");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "sms");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

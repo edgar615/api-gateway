@@ -124,7 +124,7 @@ public class AppKeyFilterTest {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -158,7 +158,7 @@ public class AppKeyFilterTest {
 
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -202,7 +202,7 @@ public class AppKeyFilterTest {
 
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -254,7 +254,7 @@ public class AppKeyFilterTest {
 
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -310,7 +310,7 @@ public class AppKeyFilterTest {
 
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -345,7 +345,7 @@ public class AppKeyFilterTest {
     apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

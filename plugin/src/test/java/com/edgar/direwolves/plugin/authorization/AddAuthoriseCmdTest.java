@@ -3,8 +3,6 @@ package com.edgar.direwolves.plugin.authorization;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
-import com.edgar.direwolves.plugin.ip.AddBlacklistCmd;
-import com.edgar.direwolves.plugin.ip.IpRestriction;
 import com.edgar.util.validation.ValidationException;
 import com.google.common.collect.Lists;
 import io.vertx.core.http.HttpMethod;
@@ -25,7 +23,7 @@ public class AddAuthoriseCmdTest {
   @Before
   public void setUp() {
     HttpEndpoint httpEndpoint =
-        Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+        Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

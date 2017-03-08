@@ -68,6 +68,8 @@ public class HttpRpcRequest implements RpcRequest {
   private int timeout = 10000;
 
   HttpRpcRequest(String id, String name) {
+    Preconditions.checkNotNull(id);
+    Preconditions.checkNotNull(name);
     this.id = id;
     this.name = name;
   }

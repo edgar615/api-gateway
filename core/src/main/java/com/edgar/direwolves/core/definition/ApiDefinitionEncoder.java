@@ -37,19 +37,11 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
     JsonArray jsonArray = new JsonArray();
     endpoints.forEach(endpoint -> {
       if ("http".equals(endpoint.type())) {
-        jsonArray.add(endpoint((HttpEndpoint) endpoint));
+        jsonArray.add(Endpoints.toJson(endpoint));
       }
     });
     return jsonArray;
   }
 
-  private JsonObject endpoint(HttpEndpoint httpEndpoint) {
-    return new JsonObject()
-            .put("type", httpEndpoint.type())
-            .put("name", httpEndpoint.name())
-            .put("service", httpEndpoint.service())
-            .put("path", httpEndpoint.path())
-            .put("method", httpEndpoint.method());
-  }
 
 }

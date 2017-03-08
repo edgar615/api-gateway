@@ -2,21 +2,15 @@ package com.edgar.direwolves.cmd;
 
 import com.google.common.collect.Lists;
 
-import com.edgar.direvolves.plugin.authentication.AuthenticationPlugin;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.plugin.authorization.AuthorisePlugin;
-import com.edgar.direwolves.plugin.ip.IpRestriction;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
-import com.edgar.util.base.Randoms;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -44,7 +38,7 @@ public class DeletePluginCmdTest {
   @Before
   public void setUp() {
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

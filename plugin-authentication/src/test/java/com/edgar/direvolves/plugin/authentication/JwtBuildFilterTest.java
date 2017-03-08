@@ -173,7 +173,7 @@ public class JwtBuildFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

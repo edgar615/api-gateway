@@ -1,0 +1,4 @@
+com.edgar.direwolves.core.definition.HttpEndpointCodec
+com.edgar.direwolves.core.definition.PublishEndpointCodec
+com.edgar.direwolves.core.definition.PointToPointEndpointCodec
+com.edgar.direwolves.core.definition.ReqRespEndpointCodec

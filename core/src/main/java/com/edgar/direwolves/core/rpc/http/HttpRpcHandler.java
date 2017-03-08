@@ -2,6 +2,7 @@ package com.edgar.direwolves.core.rpc.http;
 
 import com.google.common.base.Joiner;
 
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
@@ -32,7 +33,7 @@ public class HttpRpcHandler implements RpcHandler {
 
   @Override
   public String type() {
-    return "HTTP";
+    return HttpEndpoint.TYPE;
   }
 
   @Override

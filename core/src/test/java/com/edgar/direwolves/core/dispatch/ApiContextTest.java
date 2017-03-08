@@ -297,8 +297,8 @@ public class ApiContextTest {
     ApiContext apiContext = ApiContext
             .create(HttpMethod.GET, "/devices", null, null, null);
 
-    Endpoint httpEndpoint = Endpoint.createHttp("add_device", HttpMethod.POST, "/devices",
-                                                "device");
+    Endpoint httpEndpoint = Endpoint.http("add_device", HttpMethod.POST, "/devices",
+                                          "device");
     ApiDefinition apiDefinition = ApiDefinition.create("add_device", HttpMethod.POST, "/devices",
                                                        Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(apiDefinition);

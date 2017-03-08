@@ -380,7 +380,7 @@ public class StrictArgFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -400,7 +400,7 @@ public class StrictArgFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, body);
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

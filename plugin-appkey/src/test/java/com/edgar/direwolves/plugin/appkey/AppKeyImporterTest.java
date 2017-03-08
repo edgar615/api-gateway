@@ -15,9 +15,6 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
-import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -29,7 +26,6 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.serviceproxy.ProxyHelper;
 import org.awaitility.Awaitility;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -151,7 +146,7 @@ public class AppKeyImporterTest {
 
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

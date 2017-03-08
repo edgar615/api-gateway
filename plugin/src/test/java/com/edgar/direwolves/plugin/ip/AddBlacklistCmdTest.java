@@ -24,7 +24,7 @@ public class AddBlacklistCmdTest {
   @Before
   public void setUp() {
     HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("get_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

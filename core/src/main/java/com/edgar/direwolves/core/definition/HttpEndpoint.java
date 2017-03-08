@@ -12,11 +12,6 @@ public interface HttpEndpoint extends Endpoint {
   String TYPE = "http";
 
   /**
-   * @return 名称，必填项，全局唯一.
-   */
-  String name();
-
-  /**
    * @return 请求方法 GET | POST | DELETE | PUT.
    */
   HttpMethod method();

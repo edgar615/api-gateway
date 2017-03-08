@@ -81,7 +81,7 @@ public class ResponseTranformerFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
@@ -121,7 +121,7 @@ public class ResponseTranformerFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.createHttp("add_device", HttpMethod.GET, "devices/", "device");
+            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
