@@ -37,7 +37,10 @@ public class RateLimitFilter implements Filter {
     this.vertx = vertx;
     this.ratelimitScriptPath = config.getString("lua.ratelimit.path", "ratelimit.lua");
     this.namespace = config.getString("project.namespace", "");
-    String address = config.getString("service.cache.address", "direwolves.cache.provider");
+    String address = RedisProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
     String script = vertx.fileSystem().readFileBlocking(ratelimitScriptPath).toString();
     redisProvider.scriptLoad(script, ar -> {

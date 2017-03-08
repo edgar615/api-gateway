@@ -61,7 +61,11 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
     registerEventBusConsumer();
 
-    String address = config().getString("api.provider.address", "direwolves.api.provider");
+    String namespace = config().getString("project.namespace", "");
+    String address = ApiProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
     LOGGER.info("register ApiProvider, address->{}", address);
     //读取路由

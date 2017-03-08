@@ -1,4 +1,4 @@
-package com.edgar.direwolves.core.rpc.http;
+package com.edgar.direwolves.core.rpc;
 
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
@@ -18,6 +18,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/4/8.
@@ -61,6 +63,35 @@ public class PointToPointRpcHandlerTest {
         context.assertFalse(rpcResponse.isArray());
         context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
         async.complete();
+      } else {
+        context.fail();
+      }
+    });
+  }
+
+  @Test
+  public void testSend(TestContext context) {
+
+    String id = UUID.randomUUID().toString();
+    Async async = context.async();
+    vertx.eventBus().<JsonObject>consumer("device.get", ar -> {
+      String eventId = ar.headers().get("id");
+      context.assertEquals(id, eventId);
+      System.out.println(eventId);
+      async.complete();
+    });
+
+    RpcRequest rpcRequest = PointToPointRpcRequest.create(id, "device", "device.get", new
+        JsonObject().put("id", 1));
+
+    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+    Async async2 = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
+        async2.complete();
       } else {
         context.fail();
       }

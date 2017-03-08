@@ -1,4 +1,4 @@
-package com.edgar.direwolves.core.rpc.http;
+package com.edgar.direwolves.core.rpc;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;

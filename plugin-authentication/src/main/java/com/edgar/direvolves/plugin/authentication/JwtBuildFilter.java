@@ -4,6 +4,7 @@ import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -20,7 +21,6 @@ import java.util.UUID;
  * * 该filter可以接受下列的配置参数
  * <pre>
  *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
- *   service.cache.address 缓存的地址，默认值direwolves.cache.provider
  *   keystore.path 证书的路径，默认值keystore.jceks
  *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
  *   keystore.password 证书的密码，默认值secret
@@ -100,7 +100,10 @@ public class JwtBuildFilter implements Filter {
     this.expires = config.getInteger("token.expires", 1800);
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("project.namespace", "");
-    String address = config.getString("service.cache.address", "direwolves.cache.provider");
+    String address = RedisProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     this.permissionsKey = config.getString("jwt.permissionKey", "permissions");
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }

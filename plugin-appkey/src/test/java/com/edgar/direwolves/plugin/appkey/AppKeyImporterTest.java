@@ -70,7 +70,7 @@ public class AppKeyImporterTest {
 
   private Vertx vertx;
 
-  private String cacheAddress = UUID.randomUUID().toString();
+  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
 
   AtomicInteger reqCount;
 
@@ -81,7 +81,6 @@ public class AppKeyImporterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("app.secretKey", secretKey)
             .put("app.codeKey", codeKey)
-            .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace)
             .put("app.importer", new JsonObject()
                     .put("scan-period", 2000)

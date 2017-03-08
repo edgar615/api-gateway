@@ -4,6 +4,7 @@ import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -17,7 +18,6 @@ import java.util.UUID;
  * <p>
  * <pre>
  *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
- *   service.cache.address 缓存的地址，默认值direwolves.cache.provider
  *
  *  app.key 激活信息中appKey的键值，默认值appKey
  * </pre>
@@ -36,7 +36,11 @@ public class AppKeyUpdateFilter implements Filter {
   AppKeyUpdateFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.namespace = config.getString("project.namespace", "");
-    String address = config.getString("service.cache.address", "direwolves.cache.provider");
+    String namespace = config.getString("project.namespace", "");
+    String address = RedisProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
     this.appKey = config.getString("app.key", "appKey");
   }

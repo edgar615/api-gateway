@@ -28,7 +28,6 @@ import java.util.UUID;
  * * 该filter可以接受下列的配置参数
  * <pre>
  *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
- *   service.cache.address 缓存的地址，默认值direwolves.cache.provider
  *   keystore.path 证书的路径，默认值keystore.jceks
  *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
  *   keystore.password 证书的密码，默认值secret
@@ -76,7 +75,10 @@ public class AuthenticationFilter implements Filter {
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("project.namespace", "");
     this.uniqueToken = config.getBoolean("jwt.user.unique", false);
-    String address = config.getString("service.cache.address", "direwolves.cache.provider");
+    String address = RedisProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 

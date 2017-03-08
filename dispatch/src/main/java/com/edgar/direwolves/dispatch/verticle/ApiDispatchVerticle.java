@@ -4,12 +4,11 @@ import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
+import com.google.common.base.Strings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.LoggerFormat;
-import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.ResponseTimeHandler;
 import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
@@ -40,8 +39,15 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     LOGGER.info("config->{}", config().encodePrettily());
 
     RedisProvider redisProvider = RedisProvider.create(vertx, config());
+
+    String namespace = config().getString("project.namespace", "");
+    String address = RedisProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
+
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
-                                config().getString("service.cache.address", "cache"));
+                                address);
 
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 

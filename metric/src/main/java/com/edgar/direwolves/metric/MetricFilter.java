@@ -3,6 +3,7 @@ package com.edgar.direwolves.metric;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -21,7 +22,11 @@ public class MetricFilter implements Filter {
 
   MetricFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    String address = config.getString("service.cache.address", "direwolves.cache.provider");
+    String namespace = config.getString("project.namespace", "");
+    String address = RedisProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 

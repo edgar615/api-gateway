@@ -48,9 +48,9 @@ public class AppKeyUpdateFilterTest {
 
   private String userKey = UUID.randomUUID().toString();
 
-  private String cacheAddress = UUID.randomUUID().toString();
-
   private String namespace = UUID.randomUUID().toString();
+
+  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
 
   @Before
   public void setUp() {
@@ -58,7 +58,7 @@ public class AppKeyUpdateFilterTest {
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
     filter = Filter.create(AppKeyUpdateFilter.class.getSimpleName(), vertx,
-                           new JsonObject().put("service.cache.address", cacheAddress)
+                           new JsonObject()
                                    .put("project.namespace", namespace)
                                    .put("jwt.userClaimKey", userKey));
 

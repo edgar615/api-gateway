@@ -1,22 +1,14 @@
-package com.edgar.direwolves.core.rpc.http;
+package com.edgar.direwolves.core.rpc;
 
-import com.edgar.direwolves.core.rpc.RpcHandler;
-import com.edgar.direwolves.core.rpc.RpcRequest;
-import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.eventbus.PublishHandlerFactory;
-import com.edgar.direwolves.core.rpc.eventbus.PublishRpcHandler;
 import com.edgar.direwolves.core.rpc.eventbus.PublishRpcRequest;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,7 +48,7 @@ public class PublishRpcHandlerTest {
   @Test
   public void publishShouldAlwaysReturn200(TestContext context) {
     RpcRequest rpcRequest = PublishRpcRequest.create("abc", "device", "device.get", new
-            JsonObject().put("id", 1));
+        JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -66,6 +58,35 @@ public class PublishRpcHandlerTest {
         context.assertFalse(rpcResponse.isArray());
         context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
         async.complete();
+      } else {
+        context.fail();
+      }
+    });
+  }
+
+  @Test
+  public void testPublish(TestContext context) {
+
+    String id = UUID.randomUUID().toString();
+    Async async = context.async();
+    vertx.eventBus().<JsonObject>consumer("device.get", ar -> {
+      String eventId = ar.headers().get("id");
+      context.assertEquals(id, eventId);
+      System.out.println(eventId);
+      async.complete();
+    });
+
+    RpcRequest rpcRequest = PublishRpcRequest.create(id, "device", "device.get", new
+        JsonObject().put("id", 1));
+
+    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+    Async async2 = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
+        async2.complete();
       } else {
         context.fail();
       }

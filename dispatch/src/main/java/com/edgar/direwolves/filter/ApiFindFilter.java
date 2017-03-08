@@ -4,6 +4,7 @@ import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -14,7 +15,6 @@ import io.vertx.serviceproxy.ProxyHelper;
  * <p>
  * 该filter可以接受下列的配置参数
  * <pre>
- *   api.provider.address API接口的地址，默认值direwolves.api.provider
  * </pre>
  * <p>
  * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回对应的异常。
@@ -28,7 +28,11 @@ public class ApiFindFilter implements Filter {
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    String address = config.getString("api.provider.address", "direwolves.api.provider");
+    String namespace = config.getString("project.namespace", "");
+    String address = ApiProvider.class.getName();
+    if (!Strings.isNullOrEmpty(namespace)) {
+      address = namespace + ":" + address;
+    }
     this.apiProvider = ProxyHelper.createProxy(ApiProvider.class, vertx, address);
   }
 

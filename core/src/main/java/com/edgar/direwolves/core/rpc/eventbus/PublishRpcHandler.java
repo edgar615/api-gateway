@@ -4,8 +4,10 @@ import com.edgar.direwolves.core.definition.PublishEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -30,7 +32,9 @@ public class PublishRpcHandler implements RpcHandler {
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     PublishRpcRequest request = (PublishRpcRequest) rpcRequest;
     Future<RpcResponse> future = Future.future();
-    vertx.eventBus().publish(request.address(), request.message());
+    DeliveryOptions deliveryOptions = new DeliveryOptions()
+        .addHeader("id", request.id());
+    vertx.eventBus().publish(request.address(), request.message(), deliveryOptions);
     JsonObject result = new JsonObject()
             .put("result", 1);
     future.complete(RpcResponse.createJsonObject(request.id(), 200, result, 0));

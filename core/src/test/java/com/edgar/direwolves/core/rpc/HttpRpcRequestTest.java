@@ -1,5 +1,6 @@
-package com.edgar.direwolves.core.rpc.http;
+package com.edgar.direwolves.core.rpc;
 
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;

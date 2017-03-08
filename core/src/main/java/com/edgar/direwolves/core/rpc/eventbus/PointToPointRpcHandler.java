@@ -1,12 +1,12 @@
 package com.edgar.direwolves.core.rpc.eventbus;
 
 import com.edgar.direwolves.core.definition.PointToPointEndpoint;
-import com.edgar.direwolves.core.definition.PublishEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -31,9 +31,11 @@ public class PointToPointRpcHandler implements RpcHandler {
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     PointToPointRpcRequest request = (PointToPointRpcRequest) rpcRequest;
     Future<RpcResponse> future = Future.future();
-    vertx.eventBus().send(request.address(), request.message());
+    DeliveryOptions deliveryOptions = new DeliveryOptions()
+        .addHeader("id", request.id());
+    vertx.eventBus().send(request.address(), request.message(), deliveryOptions);
     JsonObject result = new JsonObject()
-            .put("result", 1);
+        .put("result", 1);
     future.complete(RpcResponse.createJsonObject(request.id(), 200, result, 0));
     return future;
   }

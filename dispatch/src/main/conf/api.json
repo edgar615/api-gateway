@@ -1,5 +1,4 @@
 {
-  "api.provider.address": "direwolves.api.provider",
   "api.config.dir": "/",
   "api.config.auto_refresh": false
 }

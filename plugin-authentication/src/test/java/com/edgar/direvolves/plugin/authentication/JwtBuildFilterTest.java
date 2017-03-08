@@ -50,9 +50,9 @@ public class JwtBuildFilterTest {
 
   private String userKey = UUID.randomUUID().toString();
 
-  private String cacheAddress = UUID.randomUUID().toString();
-
   private String namespace = UUID.randomUUID().toString();
+
+  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
 
   @Before
   public void setUp() {
@@ -60,7 +60,7 @@ public class JwtBuildFilterTest {
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-                           new JsonObject().put("service.cache.address", cacheAddress)
+                           new JsonObject()
                                    .put("project.namespace", namespace)
                                    .put("jwt.userClaimKey", userKey));
 

@@ -40,14 +40,12 @@ public class ApiFindFilterTest {
 
   private JsonObject config = new JsonObject();
 
-  private String address = "direwolves.api.provider";
+  private String address = ApiProvider.class.getName();
 
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
 
-    config.clear()
-            .put("api.provider.address", address);
     ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
 
     ApiUtils.registerApi();

@@ -71,7 +71,7 @@ public class AppKeyFilterTest {
 
   private Vertx vertx;
 
-  private String cacheAddress = UUID.randomUUID().toString();
+  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
 
   @Before
   public void setUp() {
@@ -80,7 +80,6 @@ public class AppKeyFilterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("app.secretKey", secretKey)
             .put("app.codeKey", codeKey)
-            .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace));
     filters.clear();
     filters.add(filter);
@@ -289,7 +288,6 @@ public class AppKeyFilterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("app.secretKey", secretKey)
             .put("app.codeKey", codeKey)
-            .put("service.cache.address", cacheAddress)
             .put("project.namespace", namespace)
             .put("app.origin", new JsonArray()
                     .add(origin)));
