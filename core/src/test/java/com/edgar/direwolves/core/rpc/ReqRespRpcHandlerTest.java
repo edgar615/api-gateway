@@ -47,7 +47,8 @@ public class ReqRespRpcHandlerTest {
 
   @Test
   public void reqShouldAlwaysReturnThrowResourceNotFound(TestContext context) {
-    RpcRequest rpcRequest = ReqRespRpcRequest.create("abc", "device", "device.get",
+    String address = UUID.randomUUID().toString();
+    RpcRequest rpcRequest = ReqRespRpcRequest.create("abc", "device", address,
         "get",
         new JsonObject().put("id", 1));
 
@@ -68,9 +69,10 @@ public class ReqRespRpcHandlerTest {
   @Test
   public void testSendNoAction(TestContext context) {
 
+    String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<JsonObject>consumer("device.get", msg -> {
+    vertx.eventBus().<JsonObject>consumer(address, msg -> {
       String eventId = msg.headers().get("id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
@@ -80,7 +82,7 @@ public class ReqRespRpcHandlerTest {
       async.complete();
     });
 
-    RpcRequest rpcRequest = ReqRespRpcRequest.create(id, "device", "device.get",
+    RpcRequest rpcRequest = ReqRespRpcRequest.create(id, "device", address,
         null,
         new
             JsonObject().put("id", 1));
@@ -102,9 +104,10 @@ public class ReqRespRpcHandlerTest {
   @Test
   public void testSendWithAction(TestContext context) {
 
+    String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<JsonObject>consumer("device.get", msg -> {
+    vertx.eventBus().<JsonObject>consumer(address, msg -> {
       String eventId = msg.headers().get("id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
@@ -114,7 +117,7 @@ public class ReqRespRpcHandlerTest {
       async.complete();
     });
 
-    RpcRequest rpcRequest = ReqRespRpcRequest.create(id, "device", "device.get",
+    RpcRequest rpcRequest = ReqRespRpcRequest.create(id, "device", address,
         "abcdefg",
         new
             JsonObject().put("id", 1));
