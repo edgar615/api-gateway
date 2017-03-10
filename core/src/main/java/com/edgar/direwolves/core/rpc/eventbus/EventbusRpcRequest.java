@@ -3,7 +3,7 @@ package com.edgar.direwolves.core.rpc.eventbus;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
-import com.edgar.direwolves.core.definition.PublishEndpoint;
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import io.vertx.core.json.JsonObject;
 
@@ -69,7 +69,7 @@ public class EventbusRpcRequest implements RpcRequest {
    * @param message 消息内容
    * @return ReqRespRpcRequest
    */
-  public static EventbusRpcRequest create(String id, String name, String address,  String policy,
+  public static EventbusRpcRequest create(String id, String name, String address, String policy,
                                           String action,
                                           JsonObject message) {
     return new EventbusRpcRequest(id, name, address, policy, action, message);
@@ -99,7 +99,7 @@ public class EventbusRpcRequest implements RpcRequest {
 
   @Override
   public String type() {
-    return PublishEndpoint.TYPE;
+    return EventbusEndpoint.TYPE;
   }
 
   public String policy() {
@@ -109,7 +109,7 @@ public class EventbusRpcRequest implements RpcRequest {
 
   @Override
   public RpcRequest copy() {
-    return EventbusRpcRequest.create(id, name, address, policy,  action, message.copy());
+    return EventbusRpcRequest.create(id, name, address, policy, action, message.copy());
   }
 
   @Override
