@@ -48,7 +48,8 @@ public class PublishRpcHandlerTest {
 
   @Test
   public void publishShouldAlwaysReturn200(TestContext context) {
-    RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", "device.get",
+    String address = UUID.randomUUID().toString();
+    RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
                                                       EventbusEndpoint.PUB_SUB, null, new
                                                               JsonObject().put("id", 1));
 
@@ -68,10 +69,10 @@ public class PublishRpcHandlerTest {
 
   @Test
   public void testPublish(TestContext context) {
-
+    String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<JsonObject>consumer("device.get", ar -> {
+    vertx.eventBus().<JsonObject>consumer(address, ar -> {
       String eventId = ar.headers().get("id");
       context.assertEquals(id, eventId);
       System.out.println(eventId);
@@ -79,7 +80,7 @@ public class PublishRpcHandlerTest {
     });
 
     RpcRequest rpcRequest = EventbusRpcRequest
-            .create(id, "device", "device.get", EventbusEndpoint.PUB_SUB, null, new
+            .create(id, "device", address, EventbusEndpoint.PUB_SUB, null, new
                     JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);

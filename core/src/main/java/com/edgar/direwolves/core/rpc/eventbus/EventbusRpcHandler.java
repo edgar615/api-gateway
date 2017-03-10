@@ -1,14 +1,12 @@
 package com.edgar.direwolves.core.rpc.eventbus;
 
-import com.google.common.base.Strings;
-
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
-import com.edgar.direwolves.core.definition.PublishEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -32,7 +30,7 @@ public class EventbusRpcHandler implements RpcHandler {
 
   @Override
   public String type() {
-    return PublishEndpoint.TYPE;
+    return EventbusEndpoint.TYPE;
   }
 
   @Override
