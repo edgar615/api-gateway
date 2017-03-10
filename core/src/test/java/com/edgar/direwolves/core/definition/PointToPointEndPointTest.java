@@ -13,13 +13,14 @@ public class PointToPointEndPointTest {
 
   @Test
   public void testToJson() {
-    PointToPointEndpoint endpoint =
+    EventbusEndpoint endpoint =
             Endpoint.pointToPoint("get_device", "service.device.get");
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 
-    Assert.assertEquals("point", jsonObject.getString("type"));
+    Assert.assertEquals("eventbus", jsonObject.getString("type"));
     Assert.assertEquals("get_device", jsonObject.getString("name"));
+    Assert.assertEquals("point-point", jsonObject.getString("policy"));
     Assert.assertEquals("service.device.get", jsonObject.getString("address"));
   }
 
@@ -27,14 +28,16 @@ public class PointToPointEndPointTest {
   public void testFromJson() {
 
     JsonObject jsonObject = new JsonObject()
-            .put("type", "point")
+            .put("type", "eventbus")
             .put("name", "device.delete.1.2.0")
+            .put("policy", "point-point")
             .put("address", "service.device.delete");
 
-    PointToPointEndpoint endpoint = (PointToPointEndpoint) Endpoints.fromJson(jsonObject);
+    EventbusEndpoint endpoint = (EventbusEndpoint) Endpoints.fromJson(jsonObject);
 
     Assert.assertEquals("service.device.delete", endpoint.address());
     Assert.assertEquals("device.delete.1.2.0", endpoint.name());
+    Assert.assertEquals("point-point", endpoint.policy());
   }
 
 }

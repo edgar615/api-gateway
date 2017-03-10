@@ -20,19 +20,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * HTTP类型的endpoint需要经过这个Filter进行服务发现，找到对应的服务地址，并转换为RpcRequest.
+ * EventBus类型的endpoint需要经过这个Filter转换为RpcRequest.
  *
  * @author Edgar  Date 2016/11/18
  */
-public class ServiceDiscoveryFilter implements Filter {
+public class EventBusRequestFilter implements Filter {
 
   private Vertx vertx;
 
-  private RecordSelect recordSelect;
-
-  ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
+  EventBusRequestFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    recordSelect = RecordSelect.create(vertx, config);
   }
 
   @Override
@@ -53,48 +50,26 @@ public class ServiceDiscoveryFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    List<Future<Record>> futures = new ArrayList<>();
-    apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof HttpEndpoint)
-            .map(e -> ((HttpEndpoint) e).service())
-            .collect(Collectors.toSet())
-            .forEach(s -> futures.add(serviceFuture(s)));
-
-    Task.par(futures)
-            .andThen(records -> {
-              apiContext.apiDefinition().endpoints().stream()
-//              .filter(e -> e instanceof HttpEndpoint)
-                      .map(e -> toRpc(apiContext, e, records))
-                      .forEach(req -> apiContext.addRequest(req));
-            })
-            .andThen(records -> {
-              completeFuture.complete(apiContext);
-            })
-            .onFailure(throwable -> completeFuture.fail(throwable));
+//    List<Future<Record>> futures = new ArrayList<>();
+//    apiContext.apiDefinition().endpoints().stream()
+//            .filter(e -> e instanceof HttpEndpoint)
+//            .map(e -> ((HttpEndpoint) e).service())
+//            .collect(Collectors.toSet())
+//            .forEach(s -> futures.add(serviceFuture(s)));
+//
+//    Task.par(futures)
+//            .andThen(records -> {
+//              apiContext.apiDefinition().endpoints().stream()
+////              .filter(e -> e instanceof HttpEndpoint)
+//                      .map(e -> toRpc(apiContext, e, records))
+//                      .forEach(req -> apiContext.addRequest(req));
+//            })
+//            .andThen(records -> {
+//              completeFuture.complete(apiContext);
+//            })
+//            .onFailure(throwable -> completeFuture.fail(throwable));
   }
 
-  private Future<Record> serviceFuture(String service) {
-    //服务发现
-    Future<Record> serviceFuture = Future.future();
-
-    Future<Record> future = recordSelect.select(service);
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        Record record = ar.result();
-        if (record == null) {
-          serviceFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
-                                     .set("details", "Service not found: " + service));
-        } else {
-          serviceFuture.complete(record);
-        }
-      } else {
-        serviceFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
-                                   .set("details", "Service not found: " + service + ", "
-                                                   + ar.cause().getMessage()));
-      }
-    });
-    return serviceFuture;
-  }
 
   private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint, List<Record> records) {
     if (endpoint instanceof HttpEndpoint) {

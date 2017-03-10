@@ -1,12 +1,8 @@
 package com.edgar.direwolves.core.rpc;
 
-import com.edgar.direwolves.core.rpc.RpcHandler;
-import com.edgar.direwolves.core.rpc.RpcRequest;
-import com.edgar.direwolves.core.rpc.RpcResponse;
-import com.edgar.direwolves.core.rpc.eventbus.PointToPointHandlerFactory;
-import com.edgar.direwolves.core.rpc.eventbus.PointToPointRpcRequest;
-import com.edgar.direwolves.core.rpc.eventbus.PublishHandlerFactory;
-import com.edgar.direwolves.core.rpc.eventbus.PublishRpcRequest;
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
+import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -41,7 +37,7 @@ public class PointToPointRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new PointToPointHandlerFactory().create(vertx, new JsonObject());
+    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
 //    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
   }
 
@@ -52,8 +48,9 @@ public class PointToPointRpcHandlerTest {
 
   @Test
   public void pointToPointShouldAlwaysReturn200(TestContext context) {
-    RpcRequest rpcRequest = PointToPointRpcRequest.create("abc", "device", "device.get", new
-            JsonObject().put("id", 1));
+    RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", "device.get",
+                                                      EventbusEndpoint.POINT_POINT, null, new
+                                                              JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -81,8 +78,9 @@ public class PointToPointRpcHandlerTest {
       async.complete();
     });
 
-    RpcRequest rpcRequest = PointToPointRpcRequest.create(id, "device", "device.get", new
-        JsonObject().put("id", 1));
+    RpcRequest rpcRequest = EventbusRpcRequest
+            .create(id, "device", "device.get", EventbusEndpoint.POINT_POINT, null, new
+                    JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async2 = context.async();

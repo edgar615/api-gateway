@@ -1,7 +1,8 @@
 package com.edgar.direwolves.core.rpc;
 
-import com.edgar.direwolves.core.rpc.eventbus.PublishHandlerFactory;
-import com.edgar.direwolves.core.rpc.eventbus.PublishRpcRequest;
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
+import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -36,7 +37,7 @@ public class PublishRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new PublishHandlerFactory().create(vertx, new JsonObject());
+    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
 //    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
   }
 
@@ -47,8 +48,9 @@ public class PublishRpcHandlerTest {
 
   @Test
   public void publishShouldAlwaysReturn200(TestContext context) {
-    RpcRequest rpcRequest = PublishRpcRequest.create("abc", "device", "device.get", new
-        JsonObject().put("id", 1));
+    RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", "device.get",
+                                                      EventbusEndpoint.PUB_SUB, null, new
+                                                              JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -76,8 +78,9 @@ public class PublishRpcHandlerTest {
       async.complete();
     });
 
-    RpcRequest rpcRequest = PublishRpcRequest.create(id, "device", "device.get", new
-        JsonObject().put("id", 1));
+    RpcRequest rpcRequest = EventbusRpcRequest
+            .create(id, "device", "device.get", EventbusEndpoint.PUB_SUB, null, new
+                    JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async2 = context.async();

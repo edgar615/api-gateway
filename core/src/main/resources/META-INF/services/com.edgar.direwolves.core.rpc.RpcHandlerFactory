@@ -1,4 +1,2 @@
 com.edgar.direwolves.core.rpc.http.HttpRpcHandlerFactory
-com.edgar.direwolves.core.rpc.eventbus.PublishHandlerFactory
-com.edgar.direwolves.core.rpc.eventbus.PointToPointHandlerFactory
-com.edgar.direwolves.core.rpc.eventbus.ReqRespHandlerFactory
+com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory

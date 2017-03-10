@@ -35,13 +35,13 @@ public interface Endpoint {
   /**
    * 创建Req-Resp类型的Endpoint
    *
-   * @param name      名称
-   * @param address   事件地址
-   * @param action 操作，方法，如果不为null，会在EventBus的消息头中增加 action : ${action}的头，用来匹配RPC调用.
+   * @param name    名称
+   * @param address 事件地址
+   * @param action  操作，方法，如果不为null，会在EventBus的消息头中增加 action : ${action}的头，用来匹配RPC调用.
    * @return
    */
-  static ReqRespEndpoint reqResp(String name, String address, String action) {
-    return new ReqRespEndpointImpl(name, address, action);
+  static EventbusEndpoint reqResp(String name, String address, String action) {
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.REQ_RESP, action);
   }
 
   /**
@@ -51,8 +51,8 @@ public interface Endpoint {
    * @param address 事件地址
    * @return
    */
-  static PublishEndpoint publish(String name, String address) {
-    return new PublishEndpointImpl(name, address);
+  static EventbusEndpoint publish(String name, String address) {
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.PUB_SUB, null);
   }
 
   /**
@@ -62,8 +62,8 @@ public interface Endpoint {
    * @param address 事件地址
    * @return
    */
-  static PointToPointEndpoint pointToPoint(String name, String address) {
-    return new PointToPointEndpointImpl(name, address);
+  static EventbusEndpoint pointToPoint(String name, String address) {
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.POINT_POINT, null);
   }
 
 }

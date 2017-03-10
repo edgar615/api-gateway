@@ -14,12 +14,13 @@ public class PublishEndPointTest {
 
   @Test
   public void testToJson() {
-    PublishEndpoint endpoint =
+    EventbusEndpoint endpoint =
             Endpoint.publish("get_device", "service.device.get");
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 
-    Assert.assertEquals("publish", jsonObject.getString("type"));
+    Assert.assertEquals("eventbus", jsonObject.getString("type"));
+    Assert.assertEquals("pub-sub", jsonObject.getString("policy"));
     Assert.assertEquals("get_device", jsonObject.getString("name"));
     Assert.assertEquals("service.device.get", jsonObject.getString("address"));
   }
@@ -28,14 +29,16 @@ public class PublishEndPointTest {
   public void testFromJson() {
 
     JsonObject jsonObject = new JsonObject()
-            .put("type", "publish")
+            .put("type", "eventbus")
             .put("name", "device.delete.1.2.0")
+            .put("policy", "pub-sub")
             .put("address", "service.device.delete");
 
-    PublishEndpoint endpoint = (PublishEndpoint) Endpoints.fromJson(jsonObject);
+    EventbusEndpoint endpoint = (EventbusEndpoint) Endpoints.fromJson(jsonObject);
 
     Assert.assertEquals("service.device.delete", endpoint.address());
     Assert.assertEquals("device.delete.1.2.0", endpoint.name());
+    Assert.assertEquals("pub-sub", endpoint.policy());
   }
 
 }

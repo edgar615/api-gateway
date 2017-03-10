@@ -1,7 +1,8 @@
 package com.edgar.direwolves.core.rpc;
 
-import com.edgar.direwolves.core.rpc.eventbus.ReqRespHandlerFactory;
-import com.edgar.direwolves.core.rpc.eventbus.ReqRespRpcRequest;
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
+import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -37,7 +38,7 @@ public class ReqRespRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new ReqRespHandlerFactory().create(vertx, new JsonObject());
+    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
   }
 
   @After
@@ -48,9 +49,10 @@ public class ReqRespRpcHandlerTest {
   @Test
   public void reqShouldAlwaysReturnThrowResourceNotFound(TestContext context) {
     String address = UUID.randomUUID().toString();
-    RpcRequest rpcRequest = ReqRespRpcRequest.create("abc", "device", address,
-        "get",
-        new JsonObject().put("id", 1));
+    RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
+                                                      EventbusEndpoint.REQ_RESP,
+                                                      "get",
+                                                      new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
@@ -82,7 +84,8 @@ public class ReqRespRpcHandlerTest {
       async.complete();
     });
 
-    RpcRequest rpcRequest = ReqRespRpcRequest.create(id, "device", address,
+    RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
+                                                      EventbusEndpoint.REQ_RESP,
         null,
         new
             JsonObject().put("id", 1));
@@ -117,7 +120,8 @@ public class ReqRespRpcHandlerTest {
       async.complete();
     });
 
-    RpcRequest rpcRequest = ReqRespRpcRequest.create(id, "device", address,
+    RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
+                                                     EventbusEndpoint.REQ_RESP,
         "abcdefg",
         new
             JsonObject().put("id", 1));
