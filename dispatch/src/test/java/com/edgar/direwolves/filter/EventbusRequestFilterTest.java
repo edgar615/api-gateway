@@ -72,12 +72,15 @@ public class EventbusRequestFilterTest {
     headers.put("h3", "v3");
     headers.put("h3", "v3.2");
 
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    ebHeaders.put("action", "get");
+
     apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     EventbusEndpoint reqResp =
-        Endpoint.reqResp("send_log", "send_log", new JsonObject().put("action", "get"));
+        Endpoint.reqResp("send_log", "send_log", ebHeaders);
     EventbusEndpoint point =
         Endpoint.reqResp("point", "send_log", null);
     EventbusEndpoint pub =
@@ -94,9 +97,10 @@ public class EventbusRequestFilterTest {
             .andThen(context -> {
               testContext.assertEquals(3, context.requests().size());
               EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              System.out.println(request);
               testContext.assertEquals("send_log", request.address());
-              testContext.assertEquals(1, request.header().size());
-              testContext.assertTrue(request.header().containsKey("action"));
+              testContext.assertEquals(1, request.headers().size());
+              testContext.assertTrue(request.headers().containsKey("action"));
               testContext.assertTrue(request.message().isEmpty());
               async.complete();
             }).onFailure(t -> testContext.fail());
@@ -111,12 +115,15 @@ public class EventbusRequestFilterTest {
     headers.put("h3", "v3");
     headers.put("h3", "v3.2");
 
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    headers.put("action", "get");
+
     apiContext =
         ApiContext.create(HttpMethod.POST, "/devices", headers, params, new JsonObject().put("foo", "bar"));
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     EventbusEndpoint reqResp =
-        Endpoint.reqResp("send_log", "send_log", new JsonObject().put("action", "get"));
+        Endpoint.reqResp("send_log", "send_log",ebHeaders);
     EventbusEndpoint point =
         Endpoint.reqResp("point", "send_log", null);
     EventbusEndpoint pub =
@@ -134,7 +141,7 @@ public class EventbusRequestFilterTest {
           testContext.assertEquals(3, context.requests().size());
           EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(2);
           testContext.assertEquals("send_log", request.address());
-          testContext.assertEquals(0, request.header().size());
+          testContext.assertEquals(0, request.headers().size());
           testContext.assertTrue(request.message().containsKey("foo"));
           async.complete();
         }).onFailure(t -> testContext.fail());

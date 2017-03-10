@@ -30,7 +30,7 @@ import java.util.UUID;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class RequestReplaceFilterTest {
+public class HttpRequestReplaceFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -89,7 +89,7 @@ public class RequestReplaceFilterTest {
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
 
     Filter filter =
-            Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -158,7 +158,7 @@ public class RequestReplaceFilterTest {
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
 
     Filter filter =
-            Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -234,7 +234,7 @@ public class RequestReplaceFilterTest {
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
 
     Filter filter =
-            Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -300,7 +300,7 @@ public class RequestReplaceFilterTest {
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
 
     Filter filter =
-            Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();

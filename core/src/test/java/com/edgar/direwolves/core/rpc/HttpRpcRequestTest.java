@@ -37,7 +37,7 @@ public class HttpRpcRequestTest {
     Assert.assertEquals(request.host(), copyReq.host());
     Assert.assertEquals(request.id(), copyReq.id());
     Assert.assertEquals(request.name(), copyReq.name());
-    Assert.assertEquals("HTTP", copyReq.type());
+    Assert.assertEquals("http", copyReq.type());
     Assert.assertEquals(request.body().getString("userId"), copyReq.body().getString("userId"));
     Assert.assertEquals(request.params().get("param0"), copyReq.params().get("param0"));
     Assert.assertEquals(request.headers().get("header0"), copyReq.headers().get("header0"));

@@ -129,7 +129,7 @@ public class HttpRpcHandlerTest {
             .addParam("userId", "2")
             .addParam("userId", "1");
 
-    Assert.assertEquals("HTTP", rpcRequest.type());
+    Assert.assertEquals("http", rpcRequest.type());
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async = context.async();
     future.setHandler(ar -> {

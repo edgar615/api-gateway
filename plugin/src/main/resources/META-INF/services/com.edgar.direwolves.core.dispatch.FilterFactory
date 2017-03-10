@@ -5,3 +5,4 @@ com.edgar.direwolves.plugin.transformer.RequestTransformerFilterFactory
 com.edgar.direwolves.plugin.transformer.ResponseTransformerFilterFactory
 com.edgar.direwolves.plugin.ip.IpRestrictionFilterFactory
 com.edgar.direwolves.plugin.authorization.AuthoriseFilterFactory
+com.edgar.direwolves.plugin.transformer.EventbusRequestTransformerFilterFactory

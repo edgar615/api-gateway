@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Strings;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -61,10 +62,11 @@ public class EventbusRpcHandler implements RpcHandler {
   private DeliveryOptions createDeliveryOptions(EventbusRpcRequest request) {
     DeliveryOptions deliveryOptions = new DeliveryOptions()
         .addHeader("x-request-id", request.id());
-    JsonObject header = request.header();
-    for (String key : header.fieldNames()) {
-      Object value = header.getValue(key);
-      deliveryOptions.addHeader(key, value.toString());
+    Multimap<String, String> headers = request.headers();
+    for (String key : headers.keySet()) {
+      for (String value : headers.get(key)) {
+        deliveryOptions.addHeader(key, value);
+      }
     }
     return deliveryOptions;
   }

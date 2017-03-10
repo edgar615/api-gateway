@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
+import com.google.common.collect.Multimap;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -24,7 +25,7 @@ public interface EventbusEndpoint extends Endpoint {
   /**
    * @return 消息头.
    */
-  JsonObject header();
+  Multimap<String, String> headers();
 
   /**
    * 策略

@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.rpc.http;
 
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
@@ -96,7 +97,7 @@ public class HttpRpcRequest implements RpcRequest {
 
   @Override
   public String type() {
-    return "HTTP";
+    return HttpEndpoint.TYPE;
   }
 
   @Override

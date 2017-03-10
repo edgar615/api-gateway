@@ -8,14 +8,14 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-12-27.
  */
-public class RequestReplaceFilterFactory implements FilterFactory {
+public class HttpRequestReplaceFilterFactory implements FilterFactory {
   @Override
   public String name() {
-    return RequestReplaceFilter.class.getSimpleName();
+    return HttpRequestReplaceFilter.class.getSimpleName();
   }
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new RequestReplaceFilter();
+    return new HttpRequestReplaceFilter();
   }
 }

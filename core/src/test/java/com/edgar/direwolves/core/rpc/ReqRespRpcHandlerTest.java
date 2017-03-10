@@ -5,6 +5,8 @@ import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -120,9 +122,12 @@ public class ReqRespRpcHandlerTest {
       async.complete();
     });
 
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("action", "abcdefg");
+
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
                                                      EventbusEndpoint.REQ_RESP,
-        new JsonObject().put("action", "abcdefg"),
+        headers,
         new
             JsonObject().put("id", 1));
 

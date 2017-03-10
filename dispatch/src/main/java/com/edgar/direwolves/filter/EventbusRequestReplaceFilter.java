@@ -4,6 +4,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -19,7 +20,7 @@ import io.vertx.core.json.JsonObject;
  * 对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.
  * 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
  */
-public class EventbusRequestReplaceFilter implements Filter {
+public class EventbusRequestReplaceFilter extends RequestReplaceFilter implements Filter {
   EventbusRequestReplaceFilter() {
   }
 
@@ -50,53 +51,12 @@ public class EventbusRequestReplaceFilter implements Filter {
   }
 
   private void replace(ApiContext apiContext, EventbusRpcRequest request) {
-    JsonObject header = replaceBody(apiContext, request.header());
-    request.replaceHeader(header);
+    Multimap<String, String> headers = replaceHeader(apiContext, request.headers());
+    request.clearHeaders().addHeaders(headers);
     if (request.message() != null) {
       JsonObject body = replaceBody(apiContext, request.message());
       request.replaceMessage(body);
     }
   }
 
-  private JsonObject replaceBody(ApiContext apiContext, JsonObject body) {
-    JsonObject newBody = new JsonObject();
-    if (body != null) {
-      for (String key : body.fieldNames()) {
-        Object newVal = getNewVal(apiContext, body.getValue(key));
-        if (newVal != null) {
-          newBody.put(key, newVal);
-        }
-      }
-    }
-    return newBody;
-  }
-
-  private Object getNewVal(ApiContext apiContext, Object value) {
-    if (value instanceof String) {
-      String val = (String) value;
-      return apiContext.getValueByKeyword(val);
-    } else if (value instanceof JsonArray) {
-      JsonArray val = (JsonArray) value;
-      JsonArray replacedArray = new JsonArray();
-      for (int i = 0; i < val.size(); i++) {
-        Object newVal = getNewVal(apiContext, val.getValue(i));
-        if (newVal != null) {
-          replacedArray.add(newVal);
-        }
-      }
-      return replacedArray.isEmpty() ? null : replacedArray;
-    } else if (value instanceof JsonObject) {
-      JsonObject val = (JsonObject) value;
-      JsonObject replacedObject = new JsonObject();
-      for (String key : val.fieldNames()) {
-        Object newVal = getNewVal(apiContext, val.getValue(key));
-        if (newVal != null) {
-          replacedObject.put(key, newVal);
-        }
-      }
-      return replacedObject.isEmpty() ? null : replacedObject;
-    } else {
-      return value;
-    }
-  }
 }

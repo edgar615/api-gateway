@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -59,7 +60,7 @@ public class EventBusRequestFilter implements Filter {
       String name = eventbusEndpoint.name();
       String address = eventbusEndpoint.address();
       String policy = eventbusEndpoint.policy();
-      JsonObject header = eventbusEndpoint.header();
+      Multimap header = eventbusEndpoint.headers();
       JsonObject message = apiContext.body();
       if (message == null) {
         message = new JsonObject();

@@ -1,11 +1,9 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
@@ -24,7 +22,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -71,17 +68,17 @@ public class EventbusRequestReplaceFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
 
-    JsonObject header = new JsonObject()
-    .put("h1", "$query.q1")
-        .put("h2", "$var.foo")
-        .put("h3", "$body.type")
-        .put("h4", "$user.userId")
-        .put("h5", "$var.bar")
-        .put("h6", "$body.obj")
-        .put("h7", "$body.arr");
-    apiContext.addRequest(EventbusRpcRequest.create("a", "send_log", "send_log", EventbusEndpoint.REQ_RESP, header, new JsonObject()));
-    apiContext.addRequest(EventbusRpcRequest.create("b", "send_log", "point", EventbusEndpoint.POINT_POINT, header, new JsonObject()));
-    apiContext.addRequest(EventbusRpcRequest.create("c", "send_log", "pub", EventbusEndpoint.PUB_SUB, header, new JsonObject()));
+    Multimap<String, String> ebheaders = ArrayListMultimap.create();
+    ebheaders.put("h1", "$query.q1");
+    ebheaders .put("h2", "$var.foo");
+    ebheaders.put("h3", "$body.type");
+    ebheaders .put("h4", "$user.userId");
+    ebheaders.put("h5", "$var.bar");
+    ebheaders.put("h6", "$body.obj");
+    ebheaders .put("h7", "$body.arr");;
+    apiContext.addRequest(EventbusRpcRequest.create("a", "send_log", "send_log", EventbusEndpoint.REQ_RESP, ebheaders, new JsonObject()));
+    apiContext.addRequest(EventbusRpcRequest.create("b", "send_log", "point", EventbusEndpoint.POINT_POINT, ebheaders, new JsonObject()));
+    apiContext.addRequest(EventbusRpcRequest.create("c", "send_log", "pub", EventbusEndpoint.PUB_SUB, ebheaders, new JsonObject()));
 
     apiContext.addVariable("foo", "var_bar");
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
@@ -97,15 +94,15 @@ public class EventbusRequestReplaceFilterTest {
             .andThen(context -> {
               testContext.assertEquals(3, context.requests().size());
               EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
-              System.out.println(request.header());
-              testContext.assertEquals(6, request.header().size());
-              testContext.assertEquals("q1.1", request.header().getJsonArray("h1").getString(0));
-              testContext.assertEquals("var_bar", request.header().getString("h2"));
-              testContext.assertEquals(1, request.header().getInteger("h3"));
-              testContext.assertEquals(1, request.header().getInteger("h4"));
-              testContext.assertFalse(request.header().containsKey("h5"));
-              testContext.assertEquals(1, request.header().getJsonObject("h6").getInteger("userId"));
-              testContext.assertEquals(1, request.header().getJsonArray("h7").getValue(0));
+              System.out.println(request.headers());
+              testContext.assertEquals(6, request.headers().keySet().size());
+              testContext.assertEquals("q1.1", request.headers().get("h1").iterator().next());
+              testContext.assertEquals("var_bar", request.headers().get("h2").iterator().next());
+              testContext.assertEquals("1", request.headers().get("h3").iterator().next());
+              testContext.assertEquals("1", request.headers().get("h4").iterator().next());
+              testContext.assertTrue(request.headers().get("h5").isEmpty());
+              testContext.assertEquals(1, request.headers().get("h6").size());
+              testContext.assertEquals("1", request.headers().get("h7").iterator().next());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();
@@ -127,12 +124,17 @@ public class EventbusRequestReplaceFilterTest {
     params.put("q2", "q2");
 
     JsonObject jsonObject = new JsonObject()
-            .put("type", 1)
-            .put("obj", new JsonObject()
-                    .put("userId", 1)
-                    .put("username", "edgar")
-                    .put("q1", "$query.q1"))
-            .put("arr", new JsonArray().add(1).add("2"));
+        .put("b1", "$header.h1")
+        .put("b2", "$query.q1")
+        .put("b3", "$var.foo")
+        .put("b4", "$user.userId")
+        .put("b5", "$var.bar")
+        .put("b6", new JsonObject()
+            .put("userId", 1)
+            .put("username", "edgar")
+            .put("q1", "$query.q1"))
+        .put("b7", new JsonArray().add("$user.userId").add("2"))
+        .put("foo", "bar");
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
@@ -145,7 +147,7 @@ public class EventbusRequestReplaceFilterTest {
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
 
     Filter filter =
-            Filter.create(RequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+            Filter.create(EventbusRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -153,7 +155,7 @@ public class EventbusRequestReplaceFilterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              testContext.assertEquals(1, context.requests().size());
+              testContext.assertEquals(3, context.requests().size());
               EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
               System.out.println(request.message());
               testContext.assertEquals(7, request.message().size());

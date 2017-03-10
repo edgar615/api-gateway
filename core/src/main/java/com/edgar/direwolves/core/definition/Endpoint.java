@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
+import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -31,7 +32,7 @@ public interface Endpoint {
    * @param header  请求头
    * @return
    */
-  static EventbusEndpoint reqResp(String name, String address, JsonObject header) {
+  static EventbusEndpoint reqResp(String name, String address, Multimap<String, String> header) {
     return new EventbusEndpointImpl(name, address, EventbusEndpoint.REQ_RESP, header);
   }
 
@@ -43,7 +44,7 @@ public interface Endpoint {
    * @param header  请求头
    * @return
    */
-  static EventbusEndpoint publish(String name, String address, JsonObject header) {
+  static EventbusEndpoint publish(String name, String address, Multimap<String, String> header) {
     return new EventbusEndpointImpl(name, address, EventbusEndpoint.PUB_SUB, header);
   }
 
@@ -55,7 +56,7 @@ public interface Endpoint {
    * @param header  请求头
    * @return
    */
-  static EventbusEndpoint pointToPoint(String name, String address, JsonObject header) {
+  static EventbusEndpoint pointToPoint(String name, String address, Multimap<String, String> header) {
     return new EventbusEndpointImpl(name, address, EventbusEndpoint.POINT_POINT, header);
   }
 

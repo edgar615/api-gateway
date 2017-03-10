@@ -5,7 +5,8 @@ import com.google.common.base.Preconditions;
 
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import io.vertx.core.json.JsonObject;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Created by Edgar on 2017/3/8.
@@ -26,14 +27,14 @@ class EventbusEndpointImpl implements EventbusEndpoint {
   /**
    * 请求头.
    */
-  private final JsonObject header;
+  private final Multimap<String, String> headers;
 
   /**
    * 三种策略：pub-sub、point-point、req-resp
    */
   private final String policy;
 
-  EventbusEndpointImpl(String name, String address, String policy, JsonObject header) {
+  EventbusEndpointImpl(String name, String address, String policy, Multimap<String, String> headers) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(address, "address can not be null");
     Preconditions.checkNotNull(policy, "policy can not be null");
@@ -46,10 +47,10 @@ class EventbusEndpointImpl implements EventbusEndpoint {
     this.name = name;
     this.address = address;
     this.policy = policy;
-    if (header == null) {
-      this.header = new JsonObject();
+    if (headers == null) {
+      this.headers = ArrayListMultimap.create();
     } else {
-      this.header = header;
+      this.headers = ArrayListMultimap.create(headers);
     }
   }
 
@@ -64,8 +65,8 @@ class EventbusEndpointImpl implements EventbusEndpoint {
   }
 
   @Override
-  public JsonObject header() {
-    return header;
+  public Multimap<String, String> headers() {
+    return headers;
   }
 
   @Override
@@ -75,15 +76,11 @@ class EventbusEndpointImpl implements EventbusEndpoint {
 
   @Override
   public String toString() {
-    String headEncode = null;
-    if (header != null) {
-      headEncode = header.encode();
-    }
     return MoreObjects.toStringHelper("EventbusEndpoint")
         .add("name", name)
         .add("address", address)
         .add("policy", policy)
-        .add("header", headEncode)
+        .add("headers", headers)
         .toString();
   }
 }
