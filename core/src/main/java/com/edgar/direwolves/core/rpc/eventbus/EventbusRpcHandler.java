@@ -36,11 +36,6 @@ public class EventbusRpcHandler implements RpcHandler {
   @Override
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     EventbusRpcRequest request = (EventbusRpcRequest) rpcRequest;
-    DeliveryOptions deliveryOptions = new DeliveryOptions()
-            .addHeader("id", request.id());
-    if (!Strings.isNullOrEmpty(request.action())) {
-      deliveryOptions.addHeader("action", request.action());
-    }
     Future<RpcResponse> future = Future.future();
     if (EventbusEndpoint.PUB_SUB.equalsIgnoreCase(request.policy())) {
       pubsub(request, future);
@@ -56,17 +51,26 @@ public class EventbusRpcHandler implements RpcHandler {
   }
 
   private void pubsub(EventbusRpcRequest request, Future<RpcResponse> completed) {
-    DeliveryOptions deliveryOptions = new DeliveryOptions()
-            .addHeader("id", request.id());
+    DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     vertx.eventBus().publish(request.address(), request.message(), deliveryOptions);
     JsonObject result = new JsonObject()
             .put("result", 1);
     completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, 0));
   }
 
-  private void pointToPoint(EventbusRpcRequest request, Future<RpcResponse> completed) {
+  private DeliveryOptions createDeliveryOptions(EventbusRpcRequest request) {
     DeliveryOptions deliveryOptions = new DeliveryOptions()
-            .addHeader("id", request.id());
+        .addHeader("x-request-id", request.id());
+    JsonObject header = request.header();
+    for (String key : header.fieldNames()) {
+      Object value = header.getValue(key);
+      deliveryOptions.addHeader(key, value.toString());
+    }
+    return deliveryOptions;
+  }
+
+  private void pointToPoint(EventbusRpcRequest request, Future<RpcResponse> completed) {
+    DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     vertx.eventBus().send(request.address(), request.message(), deliveryOptions);
     JsonObject result = new JsonObject()
             .put("result", 1);
@@ -74,11 +78,7 @@ public class EventbusRpcHandler implements RpcHandler {
   }
 
   private void reqResp(EventbusRpcRequest request, Future<RpcResponse> completed) {
-    DeliveryOptions deliveryOptions = new DeliveryOptions()
-            .addHeader("id", request.id());
-    if (!Strings.isNullOrEmpty(request.action())) {
-      deliveryOptions.addHeader("action", request.action());
-    }
+    DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     vertx.eventBus().<JsonObject>send(request.address(), request.message(), deliveryOptions, ar -> {
       if (ar.succeeded()) {
         if (!ar.result().body().containsKey("result")) {

@@ -51,7 +51,7 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-                                                      "get",
+                                                      null,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
@@ -75,7 +75,7 @@ public class ReqRespRpcHandlerTest {
     String id = UUID.randomUUID().toString();
     Async async = context.async();
     vertx.eventBus().<JsonObject>consumer(address, msg -> {
-      String eventId = msg.headers().get("id");
+      String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
 
@@ -111,7 +111,7 @@ public class ReqRespRpcHandlerTest {
     String id = UUID.randomUUID().toString();
     Async async = context.async();
     vertx.eventBus().<JsonObject>consumer(address, msg -> {
-      String eventId = msg.headers().get("id");
+      String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
 
@@ -122,7 +122,7 @@ public class ReqRespRpcHandlerTest {
 
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
                                                      EventbusEndpoint.REQ_RESP,
-        "abcdefg",
+        new JsonObject().put("action", "abcdefg"),
         new
             JsonObject().put("id", 1));
 

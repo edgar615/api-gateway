@@ -14,7 +14,7 @@ public class ReqRespEndPointTest {
   @Test
   public void testToJson() {
     EventbusEndpoint endpoint =
-            Endpoint.reqResp("get_device", "service.device.get", "get");
+            Endpoint.reqResp("get_device", "service.device.get", new JsonObject().put("action", "get"));
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 
@@ -22,7 +22,7 @@ public class ReqRespEndPointTest {
     Assert.assertEquals("get_device", jsonObject.getString("name"));
     Assert.assertEquals("req-resp", jsonObject.getString("policy"));
     Assert.assertEquals("service.device.get", jsonObject.getString("address"));
-    Assert.assertEquals("get", jsonObject.getString("action"));
+    Assert.assertEquals("get", jsonObject.getJsonObject("header").getString("action"));
   }
 
   @Test
@@ -39,7 +39,7 @@ public class ReqRespEndPointTest {
     Assert.assertEquals("service.device.delete", endpoint.address());
     Assert.assertEquals("device.delete.1.2.0", endpoint.name());
     Assert.assertEquals("req-resp", endpoint.policy());
-    Assert.assertNull(endpoint.action());
+    Assert.assertTrue(endpoint.header().isEmpty());
   }
 
 }

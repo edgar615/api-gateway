@@ -63,7 +63,7 @@ public class ServiceDiscoveryFilter implements Filter {
     Task.par(futures)
             .andThen(records -> {
               apiContext.apiDefinition().endpoints().stream()
-//              .filter(e -> e instanceof HttpEndpoint)
+              .filter(e -> e instanceof HttpEndpoint)
                       .map(e -> toRpc(apiContext, e, records))
                       .forEach(req -> apiContext.addRequest(req));
             })

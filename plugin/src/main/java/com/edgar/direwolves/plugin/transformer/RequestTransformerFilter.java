@@ -1,12 +1,12 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.dispatch.ApiContext;
-import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
@@ -46,8 +46,10 @@ public class RequestTransformerFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     for (int i = 0; i < apiContext.requests().size(); i++) {
-      HttpRpcRequest request = (HttpRpcRequest) apiContext.requests().get(i);
-      transformer(apiContext, request);
+      RpcRequest request = apiContext.requests().get(i);
+      if (request instanceof HttpRpcRequest) {
+        transformer(apiContext, (HttpRpcRequest) request);
+      }
     }
     completeFuture.complete(apiContext);
   }

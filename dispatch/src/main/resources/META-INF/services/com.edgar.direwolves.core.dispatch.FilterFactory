@@ -5,3 +5,5 @@ com.edgar.direwolves.filter.RequestReplaceFilterFactory
 com.edgar.direwolves.filter.TimeoutFilterFactory
 com.edgar.direwolves.filter.ExtractResultFilterFactory
 com.edgar.direwolves.filter.LogFilterFactory
+com.edgar.direwolves.filter.EventbusRequestFilterFactory
+com.edgar.direwolves.filter.EventbusRequestReplaceFilterFactory

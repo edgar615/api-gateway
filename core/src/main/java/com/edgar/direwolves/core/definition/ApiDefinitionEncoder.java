@@ -36,9 +36,7 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
   private JsonArray createEndpointArray(List<Endpoint> endpoints) {
     JsonArray jsonArray = new JsonArray();
     endpoints.forEach(endpoint -> {
-      if ("http".equals(endpoint.type())) {
-        jsonArray.add(Endpoints.toJson(endpoint));
-      }
+      jsonArray.add(Endpoints.toJson(endpoint));
     });
     return jsonArray;
   }

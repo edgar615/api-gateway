@@ -1,5 +1,6 @@
 package com.edgar.direwolves.filter;
 
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -67,8 +68,10 @@ public class ServiceDiscoveryFilterTest {
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
             Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
+    EventbusEndpoint eventbusEndpoint =
+        Endpoint.reqResp("send_log","send_log", null);
     ApiDefinition definition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, eventbusEndpoint));
     apiContext.setApiDefinition(definition);
 
     JsonObject config = new JsonObject()

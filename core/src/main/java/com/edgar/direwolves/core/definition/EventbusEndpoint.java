@@ -1,5 +1,7 @@
 package com.edgar.direwolves.core.definition;
 
+import io.vertx.core.json.JsonObject;
+
 /**
  * 点对点的事件.
  *
@@ -20,9 +22,9 @@ public interface EventbusEndpoint extends Endpoint {
   String address();
 
   /**
-   * @return 操作，方法，如果不为null，会在EventBus的消息头中增加 action : operation的头，用来匹配RPC调用.
+   * @return 消息头.
    */
-  String action();
+  JsonObject header();
 
   /**
    * 策略
@@ -30,7 +32,6 @@ public interface EventbusEndpoint extends Endpoint {
    * @return 三种策略：pub-sub、point-point、req-resp
    */
   String policy();
-
 
   default String type() {
     return TYPE;

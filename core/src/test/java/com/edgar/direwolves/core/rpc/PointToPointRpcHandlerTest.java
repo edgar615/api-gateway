@@ -74,7 +74,7 @@ public class PointToPointRpcHandlerTest {
     String id = UUID.randomUUID().toString();
     Async async = context.async();
     vertx.eventBus().<JsonObject>consumer(address, ar -> {
-      String eventId = ar.headers().get("id");
+      String eventId = ar.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(eventId);
       async.complete();

@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Created by Edgar on 2017/3/8.
@@ -23,16 +24,16 @@ class EventbusEndpointImpl implements EventbusEndpoint {
   private final String address;
 
   /**
-   * 操作，方法，如果不为null，会在EventBus的消息头中增加 action : operation的头，用来匹配RPC调用.
+   * 请求头.
    */
-  private final String action;
+  private final JsonObject header;
 
   /**
    * 三种策略：pub-sub、point-point、req-resp
    */
   private final String policy;
 
-  EventbusEndpointImpl(String name, String address, String policy, String action) {
+  EventbusEndpointImpl(String name, String address, String policy, JsonObject header) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(address, "address can not be null");
     Preconditions.checkNotNull(policy, "policy can not be null");
@@ -45,7 +46,11 @@ class EventbusEndpointImpl implements EventbusEndpoint {
     this.name = name;
     this.address = address;
     this.policy = policy;
-    this.action = action;
+    if (header == null) {
+      this.header = new JsonObject();
+    } else {
+      this.header = header;
+    }
   }
 
   @Override
@@ -59,8 +64,8 @@ class EventbusEndpointImpl implements EventbusEndpoint {
   }
 
   @Override
-  public String action() {
-    return action;
+  public JsonObject header() {
+    return header;
   }
 
   @Override
@@ -70,11 +75,15 @@ class EventbusEndpointImpl implements EventbusEndpoint {
 
   @Override
   public String toString() {
+    String headEncode = null;
+    if (header != null) {
+      headEncode = header.encode();
+    }
     return MoreObjects.toStringHelper("EventbusEndpoint")
-            .add("name", name)
-            .add("address", address)
-            .add("policy", policy)
-            .add("action", action)
-            .toString();
+        .add("name", name)
+        .add("address", address)
+        .add("policy", policy)
+        .add("header", headEncode)
+        .toString();
   }
 }

@@ -1,5 +1,6 @@
 package com.edgar.direwolves.filter;
 
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
@@ -50,8 +51,10 @@ public class RequestReplaceFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     for (int i = 0; i < apiContext.requests().size(); i++) {
-      HttpRpcRequest request = (HttpRpcRequest) apiContext.requests().get(i);
-      replace(apiContext, request);
+      RpcRequest request = apiContext.requests().get(i);
+      if (request instanceof HttpRpcRequest) {
+        replace(apiContext, (HttpRpcRequest) request);
+      }
     }
     completeFuture.complete(apiContext);
   }

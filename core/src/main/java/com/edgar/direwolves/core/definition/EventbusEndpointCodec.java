@@ -23,8 +23,8 @@ public class EventbusEndpointCodec implements EndpointCodec {
     Preconditions.checkNotNull(name, "endpoint name cannot be null");
     String policy = jsonObject.getString("policy");
     Preconditions.checkNotNull(policy, "endpoint policy cannot be null");
-    String action = jsonObject.getString("action");
-    return new EventbusEndpointImpl(name, address, policy, action);
+    JsonObject header = jsonObject.getJsonObject("header", new JsonObject());
+    return new EventbusEndpointImpl(name, address, policy, header);
   }
 
   @Override
@@ -35,7 +35,7 @@ public class EventbusEndpointCodec implements EndpointCodec {
             .put("name", eventbusEndpoint.name())
             .put("address", eventbusEndpoint.address())
             .put("policy", eventbusEndpoint.policy())
-            .put("action", eventbusEndpoint.action());
+            .put("header", eventbusEndpoint.header());
   }
 
   @Override
