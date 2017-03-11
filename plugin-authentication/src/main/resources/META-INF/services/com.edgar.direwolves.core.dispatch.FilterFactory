@@ -2,3 +2,4 @@ com.edgar.direvolves.plugin.authentication.AuthenticationFilterFactory
 com.edgar.direvolves.plugin.authentication.JwtBuildFilterFactory
 com.edgar.direvolves.plugin.authentication.BackdoorAuthFilterFactory
 com.edgar.direvolves.plugin.authentication.BackdoorVertifyFilterFactory
+com.edgar.direvolves.plugin.authentication.JwtCleanFilterFactory
