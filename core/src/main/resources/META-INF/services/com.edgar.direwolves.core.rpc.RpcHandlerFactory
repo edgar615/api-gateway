@@ -1,2 +1,3 @@
 com.edgar.direwolves.core.rpc.http.HttpRpcHandlerFactory
 com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory
+com.edgar.direwolves.core.rpc.dummy.DummyHandlerFactory

@@ -13,7 +13,7 @@ import io.vertx.core.http.HttpMethod;
 class HttpEndpointImpl implements HttpEndpoint {
 
   /**
-   * 服务名
+   * endpoint名称
    */
   private final String name;
 

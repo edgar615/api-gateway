@@ -81,22 +81,24 @@ public class EventbusRpcHandler implements RpcHandler {
 
   private void reqResp(EventbusRpcRequest request, Future<RpcResponse> completed) {
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
+    long srated = System.currentTimeMillis();
     vertx.eventBus().<JsonObject>send(request.address(), request.message(), deliveryOptions, ar -> {
+      long elapsedTime = System.currentTimeMillis() - srated;
       if (ar.succeeded()) {
         if (!ar.result().body().containsKey("result")) {
           JsonObject result = ar.result().body();
-          completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, 0));
+          completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, elapsedTime));
         } else {
           Object result = ar.result().body().getValue("result");
           if (result instanceof JsonArray) {
             completed.complete(
-                    RpcResponse.createJsonArray(request.id(), 200, (JsonArray) result, 0));
+                    RpcResponse.createJsonArray(request.id(), 200, (JsonArray) result, elapsedTime));
           } else if (result instanceof JsonObject) {
             completed.complete(
-                    RpcResponse.createJsonObject(request.id(), 200, (JsonObject) result, 0));
+                    RpcResponse.createJsonObject(request.id(), 200, (JsonObject) result, elapsedTime));
           } else {
             completed.complete(
-                    RpcResponse.createJsonObject(request.id(), 200, ar.result().body(), 0));
+                    RpcResponse.createJsonObject(request.id(), 200, ar.result().body(), elapsedTime));
           }
 
         }

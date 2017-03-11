@@ -2,12 +2,11 @@ package com.edgar.direwolves.plugin.transformer;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
@@ -27,7 +26,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -151,7 +149,7 @@ public class EventbusRequestTransformerFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

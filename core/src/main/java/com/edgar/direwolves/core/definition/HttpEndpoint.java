@@ -12,6 +12,19 @@ public interface HttpEndpoint extends Endpoint {
   String TYPE = "http";
 
   /**
+   * 创建HTTP类型的Endpoint
+   *
+   * @param name    名称
+   * @param method  请求方法 GET | POST | DELETE | PUT
+   * @param path    API路径
+   * @param service 服务名，用于服务发现
+   * @return HttpEndpoint
+   */
+  static HttpEndpoint http(String name, HttpMethod method, String path, String service) {
+    return new HttpEndpointImpl(name, method, path, service);
+  }
+
+  /**
    * @return 请求方法 GET | POST | DELETE | PUT.
    */
   HttpMethod method();

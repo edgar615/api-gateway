@@ -20,7 +20,7 @@ public class ReqRespEndPointTest {
     headers.put("action", "get");
 
     EventbusEndpoint endpoint =
-            Endpoint.reqResp("get_device", "service.device.get", headers);
+        EventbusEndpoint.reqResp("get_device", "service.device.get", headers);
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 

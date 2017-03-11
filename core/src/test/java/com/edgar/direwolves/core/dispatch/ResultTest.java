@@ -1,6 +1,5 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;

@@ -52,7 +52,7 @@ public class UrlArgFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

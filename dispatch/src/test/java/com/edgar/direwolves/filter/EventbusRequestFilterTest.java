@@ -3,21 +3,17 @@ package com.edgar.direwolves.filter;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.filter.servicediscovery.MockConsulHttpVerticle;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -29,7 +25,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2016/11/18.
@@ -78,13 +73,13 @@ public class EventbusRequestFilterTest {
     apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     EventbusEndpoint reqResp =
-        Endpoint.reqResp("send_log", "send_log", ebHeaders);
+        EventbusEndpoint.reqResp("send_log", "send_log", ebHeaders);
     EventbusEndpoint point =
-        Endpoint.reqResp("point", "send_log", null);
+        EventbusEndpoint.pointToPoint("point", "send_log", null);
     EventbusEndpoint pub =
-        Endpoint.reqResp("pub", "send_log", null);
+        EventbusEndpoint.publish("pub", "send_log", null);
     ApiDefinition definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, reqResp, point, pub));
     apiContext.setApiDefinition(definition);
@@ -121,13 +116,13 @@ public class EventbusRequestFilterTest {
     apiContext =
         ApiContext.create(HttpMethod.POST, "/devices", headers, params, new JsonObject().put("foo", "bar"));
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     EventbusEndpoint reqResp =
-        Endpoint.reqResp("send_log", "send_log",ebHeaders);
+        EventbusEndpoint.reqResp("send_log", "send_log",ebHeaders);
     EventbusEndpoint point =
-        Endpoint.reqResp("point", "send_log", null);
+        EventbusEndpoint.pointToPoint("point", "send_log", null);
     EventbusEndpoint pub =
-        Endpoint.reqResp("pub", "send_log", null);
+        EventbusEndpoint.publish("pub", "send_log", null);
     ApiDefinition definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, reqResp, point, pub));
     apiContext.setApiDefinition(definition);

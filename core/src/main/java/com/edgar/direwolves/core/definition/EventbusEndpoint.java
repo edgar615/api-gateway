@@ -1,10 +1,9 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.collect.Multimap;
-import io.vertx.core.json.JsonObject;
 
 /**
- * 点对点的事件.
+ * Eventbus的Endpoint.
  *
  * @author Edgar  Date 2017/3/8
  */
@@ -16,6 +15,42 @@ public interface EventbusEndpoint extends Endpoint {
   String POINT_POINT = "point-point";
 
   String REQ_RESP = "req-resp";
+
+  /**
+   * 创建Req-Resp类型的Endpoint
+   *
+   * @param name    名称
+   * @param address 事件地址
+   * @param header  请求头
+   * @return
+   */
+  static EventbusEndpoint reqResp(String name, String address, Multimap<String, String> header) {
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.REQ_RESP, header);
+  }
+
+  /**
+   * 创建广播类型的Endpoint
+   *
+   * @param name    名称
+   * @param address 事件地址
+   * @param header  请求头
+   * @return
+   */
+  static EventbusEndpoint publish(String name, String address, Multimap<String, String> header) {
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.PUB_SUB, header);
+  }
+
+  /**
+   * 创建点对点类型的Endpoint
+   *
+   * @param name    名称
+   * @param address 事件地址
+   * @param header  请求头
+   * @return
+   */
+  static EventbusEndpoint pointToPoint(String name, String address, Multimap<String, String> header) {
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.POINT_POINT, header);
+  }
 
   /**
    * @return 事件地址

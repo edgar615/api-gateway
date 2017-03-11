@@ -1,14 +1,14 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.util.base.Randoms;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -28,7 +28,7 @@ public class ApiContextTest {
   @Test
   public void testJsonCopy() {
     JsonObject jsonObject = new JsonObject("{\"accountType\":1,\"username\":\"57516243616\",\n"
-                                           + "            \"password\":\"111111\"}");
+        + "            \"password\":\"111111\"}");
     System.out.println(jsonObject.encode());
     System.out.println(jsonObject.copy());
     JsonObject copyJson = new JsonObject();
@@ -49,8 +49,8 @@ public class ApiContextTest {
     params.put("p1", "p1.2");
     params.put("p2", "p2");
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", headers,
-                    params, null);
+        .create(HttpMethod.GET, "/devices", headers,
+            params, null);
 
     ApiContext copyContext = apiContext.copy();
     Assert.assertEquals(apiContext.id(), copyContext.id());
@@ -73,9 +73,9 @@ public class ApiContextTest {
     params.put("p1", "p1.2");
     params.put("p2", "p2");
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", headers,
-                    params, new JsonObject("{\"accountType\":1,\"username\":\"57516243616\",\n"
-                                           + "            \"password\":\"111111\"}"));
+        .create(HttpMethod.GET, "/devices", headers,
+            params, new JsonObject("{\"accountType\":1,\"username\":\"57516243616\",\n"
+                + "            \"password\":\"111111\"}"));
 
     ApiContext copyContext = apiContext.copy();
     Assert.assertEquals(apiContext.id(), copyContext.id());
@@ -95,10 +95,10 @@ public class ApiContextTest {
   @Test
   public void testCopyRequest() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
     HttpRpcRequest rpcRequest =
-            HttpRpcRequest.create(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        HttpRpcRequest.create(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     rpcRequest.setBody(new JsonObject().put("foo", "bar"));
     rpcRequest.setHost(UUID.randomUUID().toString());
     rpcRequest.setPort(Integer.parseInt(Randoms.randomNumber(5)));
@@ -138,14 +138,14 @@ public class ApiContextTest {
   @Test
   public void testCopyResponse() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
     RpcResponse rpcResponse = RpcResponse.createJsonObject(UUID.randomUUID().toString(),
-                                                           Integer.parseInt(
-                                                                   Randoms.randomNumber(5)),
-                                                           new JsonObject().put("foo", "bar"),
-                                                           Long.parseLong(
-                                                                   Randoms.randomNumber(10)));
+        Integer.parseInt(
+            Randoms.randomNumber(5)),
+        new JsonObject().put("foo", "bar"),
+        Long.parseLong(
+            Randoms.randomNumber(10)));
 
     apiContext.addResponse(rpcResponse);
 
@@ -167,12 +167,12 @@ public class ApiContextTest {
   @Test
   public void testCopyJsonArrayResponse() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
     RpcResponse rpcResponse = RpcResponse.createJsonArray(UUID.randomUUID().toString(),
-                                                          Integer.parseInt(Randoms.randomNumber(5)),
-                                                          new JsonArray().add(1).add("2"),
-                                                          Long.parseLong(Randoms.randomNumber(10)));
+        Integer.parseInt(Randoms.randomNumber(5)),
+        new JsonArray().add(1).add("2"),
+        Long.parseLong(Randoms.randomNumber(10)));
 
     apiContext.addResponse(rpcResponse);
 
@@ -195,7 +195,7 @@ public class ApiContextTest {
   @Test
   public void testCopyVariable() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
     apiContext.addVariable("foo", "bar");
     apiContext.addVariable("intVal", 1);
@@ -213,7 +213,7 @@ public class ApiContextTest {
   @Test
   public void testCopyResult() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
 
     Multimap<String, String> header = ArrayListMultimap.create();
@@ -222,7 +222,7 @@ public class ApiContextTest {
     header.put("h2", "h2");
 
     Result result = Result.createJsonObject(Integer.parseInt(Randoms.randomNumber(5)),
-                                            new JsonObject().put("foo", "bar"), header);
+        new JsonObject().put("foo", "bar"), header);
     apiContext.setResult(result);
 
     ApiContext copyContext = apiContext.copy();
@@ -242,7 +242,7 @@ public class ApiContextTest {
   @Test
   public void testCopyJsonArrayResult() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
 
     Multimap<String, String> header = ArrayListMultimap.create();
@@ -251,7 +251,7 @@ public class ApiContextTest {
     header.put("h2", "h2");
 
     Result result = Result.createJsonArray(Integer.parseInt(Randoms.randomNumber(5)),
-                                           new JsonArray().add(1).add("2"), header);
+        new JsonArray().add(1).add("2"), header);
     apiContext.setResult(result);
 
     ApiContext copyContext = apiContext.copy();
@@ -272,7 +272,7 @@ public class ApiContextTest {
   @Test
   public void testCopyPrincipal() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
     Multimap<String, String> header = ArrayListMultimap.create();
     header.put("h1", "h1.1");
@@ -295,12 +295,12 @@ public class ApiContextTest {
   @Test
   public void testCopyDefinition() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null, null, null);
+        .create(HttpMethod.GET, "/devices", null, null, null);
 
-    Endpoint httpEndpoint = Endpoint.http("add_device", HttpMethod.POST, "/devices",
-                                          "device");
+    Endpoint httpEndpoint = HttpEndpoint.http("add_device", HttpMethod.POST, "/devices",
+        "device");
     ApiDefinition apiDefinition = ApiDefinition.create("add_device", HttpMethod.POST, "/devices",
-                                                       Lists.newArrayList(httpEndpoint));
+        Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(apiDefinition);
 
     ApiContext copyContext = apiContext.copy();
@@ -321,8 +321,8 @@ public class ApiContextTest {
     header.put("h1", "h1.2");
     header.put("h2", "h2");
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", header,
-                    null, null);
+        .create(HttpMethod.GET, "/devices", header,
+            null, null);
     Object value = apiContext.getValueByKeyword("$header.h1");
     Assert.assertTrue(value instanceof List);
     Assert.assertEquals(2, List.class.cast(value).size());
@@ -340,8 +340,8 @@ public class ApiContextTest {
     params.put("p1", "p1.2");
     params.put("p2", "p2");
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    params, new JsonObject().put("foo", "bar"));
+        .create(HttpMethod.GET, "/devices", null,
+            params, new JsonObject().put("foo", "bar"));
     Object value = apiContext.getValueByKeyword("$query.p1");
     Assert.assertTrue(value instanceof List);
     Assert.assertEquals(2, List.class.cast(value).size());
@@ -355,8 +355,8 @@ public class ApiContextTest {
   @Test
   public void testGetValueByKeywordFromBody() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    null, new JsonObject().put("foo", "bar"));
+        .create(HttpMethod.GET, "/devices", null,
+            null, new JsonObject().put("foo", "bar"));
 
     Object value = apiContext.getValueByKeyword("$body.foo");
     Assert.assertEquals("bar", value);
@@ -364,8 +364,8 @@ public class ApiContextTest {
     Assert.assertNull(value);
 
     apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    null, null);
+        .create(HttpMethod.GET, "/devices", null,
+            null, null);
 
     value = apiContext.getValueByKeyword("$body.foo");
     Assert.assertNull(value);
@@ -375,8 +375,8 @@ public class ApiContextTest {
   @Test
   public void testGetValueByKeywordFromUser() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    null, null);
+        .create(HttpMethod.GET, "/devices", null,
+            null, null);
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
 
     Object value = apiContext.getValueByKeyword("$user.userId");
@@ -385,8 +385,8 @@ public class ApiContextTest {
     Assert.assertNull(value);
 
     apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    null, null);
+        .create(HttpMethod.GET, "/devices", null,
+            null, null);
 
     value = apiContext.getValueByKeyword("$user.userId");
     Assert.assertNull(value);
@@ -396,8 +396,8 @@ public class ApiContextTest {
   @Test
   public void testGetValueByKeywordFromVariable() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    null, new JsonObject().put("foo", "bar"));
+        .create(HttpMethod.GET, "/devices", null,
+            null, new JsonObject().put("foo", "bar"));
     apiContext.addVariable("username", "edgar");
     Object value = apiContext.getValueByKeyword("$var.username");
     Assert.assertEquals("edgar", value);
@@ -408,8 +408,8 @@ public class ApiContextTest {
   @Test
   public void testGetValueByKeywordFromUndefinedKey() {
     ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", null,
-                    null, new JsonObject().put("foo", "bar"));
+        .create(HttpMethod.GET, "/devices", null,
+            null, new JsonObject().put("foo", "bar"));
     apiContext.addVariable("username", "edgar");
     Object value = apiContext.getValueByKeyword("$test.username");
     Assert.assertEquals("$test.username", value);

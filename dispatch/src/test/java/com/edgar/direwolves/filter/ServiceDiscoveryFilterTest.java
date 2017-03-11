@@ -1,12 +1,8 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.definition.EventbusEndpoint;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
@@ -15,6 +11,9 @@ import com.edgar.direwolves.filter.servicediscovery.MockConsulHttpVerticle;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -66,10 +65,10 @@ public class ServiceDiscoveryFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     EventbusEndpoint eventbusEndpoint =
-        Endpoint.reqResp("send_log","send_log", null);
+        EventbusEndpoint.reqResp("send_log","send_log", null);
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, eventbusEndpoint));
     apiContext.setApiDefinition(definition);
@@ -115,10 +114,10 @@ public class ServiceDiscoveryFilterTest {
   public void twoEndpointShouldReturnTwoRequest(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint2 =
-            Endpoint.http("get_user", HttpMethod.GET, "users/", "user");
+            HttpEndpoint.http("get_user", HttpMethod.GET, "users/", "user");
 
     ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",
                                                     Lists.newArrayList(httpEndpoint,
@@ -178,7 +177,7 @@ public class ServiceDiscoveryFilterTest {
   public void testNoService(TestContext testContext) {
     add2Servers();
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "sms");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "sms");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

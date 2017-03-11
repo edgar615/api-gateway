@@ -9,19 +9,18 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/9/8
  */
-public class PublishEndPointTest {
+public class DummyEndPointTest {
 
   @Test
   public void testToJson() {
-    EventbusEndpoint endpoint =
-        EventbusEndpoint.publish("get_device", "service.device.get", null);
+    DummyEndpoint endpoint =
+        DummyEndpoint.dummy("get_device", new JsonObject().put("foo", "bar"));
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 
-    Assert.assertEquals("eventbus", jsonObject.getString("type"));
-    Assert.assertEquals("pub-sub", jsonObject.getString("policy"));
+    Assert.assertEquals("dummy", jsonObject.getString("type"));
     Assert.assertEquals("get_device", jsonObject.getString("name"));
-    Assert.assertEquals("service.device.get", jsonObject.getString("address"));
+    Assert.assertEquals("bar", jsonObject.getJsonObject("result").getString("foo"));
   }
 
   @Test
@@ -30,14 +29,14 @@ public class PublishEndPointTest {
     JsonObject jsonObject = new JsonObject()
             .put("type", "eventbus")
             .put("name", "device.delete.1.2.0")
-            .put("policy", "pub-sub")
+            .put("policy", "point-point")
             .put("address", "service.device.delete");
 
     EventbusEndpoint endpoint = (EventbusEndpoint) Endpoints.fromJson(jsonObject);
 
     Assert.assertEquals("service.device.delete", endpoint.address());
     Assert.assertEquals("device.delete.1.2.0", endpoint.name());
-    Assert.assertEquals("pub-sub", endpoint.policy());
+    Assert.assertEquals("point-point", endpoint.policy());
   }
 
 }

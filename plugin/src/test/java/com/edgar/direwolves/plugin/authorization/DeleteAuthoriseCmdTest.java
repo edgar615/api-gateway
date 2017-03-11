@@ -23,7 +23,7 @@ public class DeleteAuthoriseCmdTest {
   @Before
   public void setUp() {
     HttpEndpoint httpEndpoint =
-        Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

@@ -14,7 +14,7 @@ public class PointToPointEndPointTest {
   @Test
   public void testToJson() {
     EventbusEndpoint endpoint =
-            Endpoint.pointToPoint("get_device", "service.device.get", null);
+        EventbusEndpoint.pointToPoint("get_device", "service.device.get", null);
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 

@@ -1,5 +1,6 @@
 package com.edgar.direvolves.plugin.authentication;
 
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -331,7 +332,7 @@ public class AuthticationFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", header,
                               params, null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -347,7 +348,7 @@ public class AuthticationFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", ArrayListMultimap.create(),
                               ArrayListMultimap.create(), null);
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

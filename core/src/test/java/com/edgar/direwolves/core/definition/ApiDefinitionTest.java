@@ -1,7 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.collect.Lists;
-
 import io.vertx.core.http.HttpMethod;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,7 +18,7 @@ public class ApiDefinitionTest {
   public void testCreate() {
 
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -42,12 +41,12 @@ public class ApiDefinitionTest {
   @Test
   public void testEndpointsShouldImmutable() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     try {
       apiDefinition.endpoints().add(httpEndpoint);
       Assert.fail();
@@ -61,7 +60,7 @@ public class ApiDefinitionTest {
   @Test
   public void testAddPlugin() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
@@ -80,7 +79,7 @@ public class ApiDefinitionTest {
   @Test
   public void testRemovePlugin() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
@@ -97,7 +96,7 @@ public class ApiDefinitionTest {
 
   @Test
   public void testMatcher() {
-    HttpEndpoint httpEndpoint = Endpoint.http("get_device", HttpMethod.GET, "devices/",
+    HttpEndpoint httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices/",
                                               "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -109,7 +108,7 @@ public class ApiDefinitionTest {
     Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/123"));
 
 
-    httpEndpoint = Endpoint.http("get_device", HttpMethod.GET, "devices",
+    httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
                                  "device");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
@@ -120,7 +119,7 @@ public class ApiDefinitionTest {
     Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
     Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/123"));
 
-    httpEndpoint = Endpoint.http("get_device", HttpMethod.GET, "devices",
+    httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
                                  "device");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\w+]+)",
                                          Lists.newArrayList(httpEndpoint));

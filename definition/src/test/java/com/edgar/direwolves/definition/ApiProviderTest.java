@@ -1,12 +1,12 @@
 package com.edgar.direwolves.definition;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
+import com.google.common.collect.Lists;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -30,8 +30,8 @@ public class ApiProviderTest {
   @Before
   public void setUp(TestContext testContext) {
     apiProvider = new ApiProviderImpl();
-    Endpoint httpEndpoint = Endpoint.http("add_device", HttpMethod.GET, "/devices",
-                                          "device");
+    Endpoint httpEndpoint = HttpEndpoint.http("add_device", HttpMethod.GET, "/devices",
+        "device");
     ApiDefinition apiDefinition = ApiDefinition.create("add_device", HttpMethod.POST, "/devices",
                                                        Lists.newArrayList(httpEndpoint));
     ApiDefinitionRegistry.create().add(apiDefinition);

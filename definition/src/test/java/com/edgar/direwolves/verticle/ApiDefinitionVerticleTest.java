@@ -1,7 +1,6 @@
 package com.edgar.direwolves.verticle;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -33,7 +32,7 @@ public class ApiDefinitionVerticleTest {
   @Before
   public void setUp(TestContext testContext) {
     registry = ApiDefinitionRegistry.create();
-    HttpEndpoint httpEndpoint = Endpoint
+    HttpEndpoint httpEndpoint = HttpEndpoint
         .http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
         .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));

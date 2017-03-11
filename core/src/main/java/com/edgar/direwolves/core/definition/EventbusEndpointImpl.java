@@ -15,7 +15,7 @@ import com.google.common.collect.Multimap;
  */
 class EventbusEndpointImpl implements EventbusEndpoint {
   /**
-   * 服务名
+   * endpoint名称
    */
   private final String name;
 

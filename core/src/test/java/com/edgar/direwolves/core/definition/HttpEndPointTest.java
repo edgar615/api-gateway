@@ -15,7 +15,7 @@ public class HttpEndPointTest {
   @Test
   public void testBuild() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "/devices", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "/devices", "device");
 
     Assert.assertEquals("/devices", httpEndpoint.path());
   }
@@ -23,7 +23,7 @@ public class HttpEndPointTest {
   @Test
   public void testToJson() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "/devices", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "/devices", "device");
 
     JsonObject jsonObject = Endpoints.toJson(httpEndpoint);
 

@@ -73,7 +73,7 @@ public class EventbusRpcRequest implements RpcRequest {
    * @param address 地址
    * @param headers  请求头
    * @param message 消息内容
-   * @return ReqRespRpcRequest
+   * @return EventbusRpcRequest
    */
   public static EventbusRpcRequest create(String id, String name, String address, String policy,
                                           Multimap<String, String> headers,

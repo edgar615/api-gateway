@@ -1,6 +1,5 @@
 package com.edgar.direwolves.core.definition;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;

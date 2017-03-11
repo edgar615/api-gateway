@@ -1,10 +1,8 @@
 package com.edgar.direwolves.verticle;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.google.common.collect.Lists;
 import io.vertx.core.http.HttpMethod;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,7 +33,7 @@ public class ApiDefinitionRegistryTest {
 
   @Test
   public void testRegister() {
-    HttpEndpoint httpEndpoint = Endpoint
+    HttpEndpoint httpEndpoint = HttpEndpoint
             .http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition apiDefinition = ApiDefinition
@@ -54,7 +52,7 @@ public class ApiDefinitionRegistryTest {
   @Test
   public void testUniqueName() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
@@ -67,7 +65,7 @@ public class ApiDefinitionRegistryTest {
   @Test
   public void testFilterByName() {
     HttpEndpoint httpEndpoint =
-            Endpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));

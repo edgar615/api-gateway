@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 
@@ -81,7 +82,7 @@ public class ResponseTranformerFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
@@ -121,7 +122,7 @@ public class ResponseTranformerFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
 
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            Endpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     definition.addPlugin(plugin);
