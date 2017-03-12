@@ -39,7 +39,7 @@ public class AppKeyUpdateFilter implements Filter {
     String namespace = config.getString("project.namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
     this.appKey = config.getString("app.key", "appKey");

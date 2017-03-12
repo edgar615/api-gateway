@@ -48,7 +48,7 @@ public class JwtCleanFilterTest {
 
   private String namespace = UUID.randomUUID().toString();
 
-  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
+  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
   private int userId = Integer.parseInt(Randoms.randomNumber(5));
   String jti = UUID.randomUUID().toString();
 

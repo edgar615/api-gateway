@@ -77,7 +77,7 @@ public class AuthenticationFilter implements Filter {
     this.uniqueToken = config.getBoolean("jwt.user.unique", false);
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }

@@ -1,22 +1,22 @@
 package com.edgar.direwolves.verticle;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.cmd.ApiCmdFactory;
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiProvider;
+import com.edgar.direwolves.core.definition.*;
 import com.edgar.direwolves.definition.ApiProviderImpl;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
@@ -24,19 +24,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * java -jar definition-1.0.0.jar run com.edgar.direwolves.definition.DefinitonVerticle.
- * <p>
+ * <p/>
  * java -jar definition-1.0.0.jar start com.edgar.direwolves.definition.DefinitonVerticle.
- * <p>
+ * <p/>
  * java -jar definition-1.0.0.jar list
- * <p>
+ * <p/>
  * java -jar definition-1.0.0.jar stop vertId
  *
  * @author Edgar  Date 2016/9/13
@@ -49,22 +46,23 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) throws Exception {
 
     LOGGER.info("\n"
-                + "                       _       __ _       _ _   _             \n"
-                + "                      | |     / _(_)     (_) | (_)            \n"
-                + "                    __| | ___| |_ _ _ __  _| |_ _  ___  _ __  \n"
-                + "                   / _` |/ _ \\  _| | '_ \\| | __| |/ _ \\| '_ \\ \n"
-                + "                  | (_| |  __/ | | | | | | | |_| | (_) | | | |\n"
-                + "                   \\__,_|\\___|_| |_|_| |_|_|\\__|_|\\___/|_| |_|");
+        + "                       _       __ _       _ _   _             \n"
+        + "                      | |     / _(_)     (_) | (_)            \n"
+        + "                    __| | ___| |_ _ _ __  _| |_ _  ___  _ __  \n"
+        + "                   / _` |/ _ \\  _| | '_ \\| | __| |/ _ \\| '_ \\ \n"
+        + "                  | (_| |  __/ | | | | | | | |_| | (_) | | | |\n"
+        + "                   \\__,_|\\___|_| |_|_| |_|_|\\__|_|\\___/|_| |_|");
 
     LOGGER.info("config->{}", config().encodePrettily());
 
 
     registerEventBusConsumer();
+    registerBackendApi();
 
     String namespace = config().getString("project.namespace", "");
     String address = ApiProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
     ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
     LOGGER.info("register ApiProvider, address->{}", address);
@@ -90,7 +88,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
         try {
           List<JsonObject> apiList = ar.result();
           apiList.stream().map(json -> ApiDefinition.fromJson(json))
-                  .forEach(d -> ApiDefinitionRegistry.create().add(d));
+              .forEach(d -> ApiDefinitionRegistry.create().add(d));
           startFuture.complete();
         } catch (Exception e) {
           startFuture.fail(e);
@@ -114,7 +112,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   private List<File> readApiFileFromDir(File jsonDir) {
     Preconditions.checkArgument(jsonDir.isDirectory(),
-                                "Api definition directory must be directory");
+        "Api definition directory must be directory");
 
     List<File> mappingFiles = new ArrayList<>();
     File[] jsonFiles = jsonDir.listFiles((dir, fileName) -> fileName.endsWith(".json"));
@@ -131,21 +129,21 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     //eventbus consumer
     EventBus eb = vertx.eventBus();
     Lists.newArrayList(ServiceLoader.load(ApiCmdFactory.class))
-            .stream()
-            .map(f -> f.create(vertx, config()))
-            .forEach(cmd -> {
-              LOGGER.info("register consumer, address->{}", cmdAddress(namespace, cmd.cmd()));
-              eb.<JsonObject>consumer(cmdAddress(namespace, cmd.cmd()), msg -> {
-                Future<JsonObject> future = cmd.handle(msg.body());
-                future.setHandler(ar -> {
-                  if (ar.succeeded()) {
-                    msg.reply(ar.result());
-                  } else {
-                    eventbusFailureHandler(msg, ar.cause());
-                  }
-                });
-              });
+        .stream()
+        .map(f -> f.create(vertx, config()))
+        .forEach(cmd -> {
+          LOGGER.info("register consumer, address->{}", cmdAddress(namespace, cmd.cmd()));
+          eb.<JsonObject>consumer(cmdAddress(namespace, cmd.cmd()), msg -> {
+            Future<JsonObject> future = cmd.handle(msg.body());
+            future.setHandler(ar -> {
+              if (ar.succeeded()) {
+                msg.reply(ar.result());
+              } else {
+                eventbusFailureHandler(msg, ar.cause());
+              }
             });
+          });
+        });
   }
 
   private String cmdAddress(String namespace, String cmd) {
@@ -162,10 +160,38 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     } else if (throwable instanceof ValidationException) {
       ValidationException ex = (ValidationException) throwable;
       msg.fail(DefaultErrorCode.INVALID_ARGS.getNumber(),
-               DefaultErrorCode.INVALID_ARGS.getMessage());
+          DefaultErrorCode.INVALID_ARGS.getMessage());
     } else {
       msg.fail(999, throwable.getMessage());
     }
+  }
+
+  private void registerBackendApi() {
+    List<ApiDefinition> apiDefinitions = cmdToBackendApi();
+    apiDefinitions.forEach(d -> {
+      ApiDefinitionRegistry.create().add(d);
+    });
+  }
+
+  private List<ApiDefinition> cmdToBackendApi() {
+    String namespace = config().getString("project.namespace", "");
+    return
+        Lists.newArrayList(ServiceLoader.load(ApiCmdFactory.class))
+            .stream()
+            .map(f -> f.create(vertx, config()))
+            .map(cmd -> {
+              String address = cmdAddress(namespace, cmd.cmd());
+              Endpoint endpoint =
+                  EventbusEndpoint.reqResp(cmd.cmd(), address, null);
+              ApiDefinition apiDefinition =
+                  ApiDefinition.create(address, HttpMethod.GET, "backend/" + cmd.cmd(), Lists.newArrayList(endpoint));
+              JsonObject jsonObject = new JsonObject()
+                  .put("acl_restriction", new JsonObject()
+                      .put("whitelist", new JsonArray().add("backend"))
+                      .put("blacklist", new JsonArray().add("*")));
+              ApiPlugin.factories.forEach(f -> apiDefinition.addPlugin((ApiPlugin) f.decode(jsonObject)));
+              return apiDefinition;
+            }).collect(Collectors.toList());
   }
 
 }

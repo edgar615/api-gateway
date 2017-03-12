@@ -39,7 +39,7 @@ public class RateLimitFilter implements Filter {
     this.namespace = config.getString("project.namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
     String script = vertx.fileSystem().readFileBlocking(ratelimitScriptPath).toString();

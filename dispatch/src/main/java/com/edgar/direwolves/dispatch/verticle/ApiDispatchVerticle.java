@@ -43,7 +43,7 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     String namespace = config().getString("project.namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
 
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,

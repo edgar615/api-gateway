@@ -49,7 +49,7 @@ public class AppKeyUpdateFilterTest {
 
   private String namespace = UUID.randomUUID().toString();
 
-  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
+  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
 
   @Before
   public void setUp() {

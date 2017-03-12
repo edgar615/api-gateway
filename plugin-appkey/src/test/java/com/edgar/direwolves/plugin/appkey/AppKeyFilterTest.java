@@ -70,7 +70,7 @@ public class AppKeyFilterTest {
 
   private Vertx vertx;
 
-  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
+  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
 
   @Before
   public void setUp() {

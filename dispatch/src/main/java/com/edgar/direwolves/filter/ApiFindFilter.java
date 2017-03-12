@@ -31,7 +31,7 @@ public class ApiFindFilter implements Filter {
     String namespace = config.getString("project.namespace", "");
     String address = ApiProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
     this.apiProvider = ProxyHelper.createProxy(ApiProvider.class, vertx, address);
   }

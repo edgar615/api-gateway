@@ -69,7 +69,7 @@ public class AppKeyImporterTest {
 
   private Vertx vertx;
 
-  private String cacheAddress = namespace + ":" + RedisProvider.class.getName();
+  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
 
   AtomicInteger reqCount;
 

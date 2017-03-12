@@ -102,7 +102,7 @@ public class JwtBuildFilter implements Filter {
     this.namespace = config.getString("project.namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + ":" + address;
+      address = namespace + "." + address;
     }
     this.permissionsKey = config.getString("jwt.permissionKey", "permissions");
     this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
