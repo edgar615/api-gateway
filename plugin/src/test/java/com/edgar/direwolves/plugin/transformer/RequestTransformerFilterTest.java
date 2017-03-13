@@ -63,7 +63,7 @@ public class RequestTransformerFilterTest {
 
   @Test
   public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(10000, filter.order());
+    Assert.assertEquals(15000, filter.order());
     Assert.assertEquals(Filter.PRE, filter.type());
   }
 
@@ -98,7 +98,10 @@ public class RequestTransformerFilterTest {
               testContext.assertEquals(2, request.headers().keySet().size());
               testContext.assertFalse(request.params().containsKey("q3"));
               testContext.assertFalse(request.headers().containsKey("h3"));
-              testContext.assertNull(request.body());
+              testContext.assertNotNull(request.body());
+              testContext.assertEquals(2, request.body().size());
+              testContext.assertEquals("b1", request.body().getString("b1"));
+              testContext.assertEquals("b2", request.body().getString("b2"));
               System.out.println(request);
               async.complete();
             }).onFailure(t -> {
@@ -119,7 +122,7 @@ public class RequestTransformerFilterTest {
                                                           "add_device");
     httpRpcRequest.setHost("localhost")
             .setPort(8080)
-            .setHttpMethod(HttpMethod.POST)
+            .setHttpMethod(HttpMethod.GET)
             .setPath("/")
             .addParam("q3", "v3")
             .addHeader("h3", "v3");

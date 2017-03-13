@@ -17,7 +17,10 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -28,19 +31,19 @@ import java.util.concurrent.ConcurrentSkipListSet;
  *
  * @author Edgar  Date 2017/3/10
  */
-public class BackdoorVertifyFilter implements Filter {
+public class BackendVertifyFilter implements Filter {
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
   private final Set<String> allowedPermitted = new ConcurrentSkipListSet<>();
 
   private final Vertx vertx;
 
-  BackdoorVertifyFilter(Vertx vertx, JsonObject config) {
+  BackendVertifyFilter(Vertx vertx, JsonObject config) {
     commonParamRule.put("tel", Rule.required());
     commonParamRule.put("code", Rule.required());
     commonParamRule.put("sign", Rule.required());
     this.vertx = vertx;
-    JsonArray permitted = config.getJsonArray("backdoor.permitted", new JsonArray());
+    JsonArray permitted = config.getJsonArray("backend.permitted", new JsonArray());
     for (int i = 0; i < permitted.size(); i++) {
       allowedPermitted.add(permitted.getString(i));
     }
@@ -59,36 +62,45 @@ public class BackdoorVertifyFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition()
-                   .plugin(BackdoorVertifyPlugin.class.getSimpleName()) != null;
+                   .plugin(BackendVertifyPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    Validations.validate(apiContext.params(), commonParamRule);
-    String tel = apiContext.params().get("tel").iterator().next();
+    if (apiContext.body() == null) {
+      Validations.validate(new HashMap<>(), commonParamRule);
+    } else {
+      Validations.validate(apiContext.body().getMap(), commonParamRule);
+    }
+    String tel = apiContext.body().getString("tel");
     if (!allowedPermitted.contains(tel)) {
       throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
               .set("details", "the tel not allowed:" + tel);
     }
-    String code = apiContext.params().get("code").iterator().next();
-    String clientSign = apiContext.params().get("sign").iterator().next();
-    List<String> splits = Splitter.on(".").splitToList(clientSign);
-
-    JsonObject chaim = new JsonObject(splits.get(0));
-    long exp = chaim.getLong("exp", Instant.now().getEpochSecond() - 10 * 60);
-    if (exp < (Instant.now().getEpochSecond() - 5 * 60)) {
-      throw SystemException.create(DefaultErrorCode.EXPIRE);
-    }
-
     try {
+      String code = apiContext.body().getString("code");
+      String clientSign = apiContext.body().getString("sign");
+      List<String> splits = Splitter.on(".").splitToList(clientSign);
+
+      JsonObject chaim = new JsonObject(base64urlDecode(splits.get(0)));
+      long exp = chaim.getLong("exp", Instant.now().getEpochSecond() - 10 * 60);
+      if (exp < (Instant.now().getEpochSecond() - 5 * 60)) {
+        throw SystemException.create(DefaultErrorCode.EXPIRE);
+      }
       String serverSign = EncryptUtils.encryptHmacMd5(splits.get(0), code + exp);
-      if (serverSign.equalsIgnoreCase(clientSign)) {
+      if (serverSign.equalsIgnoreCase(splits.get(1))) {
         completeFuture.complete(apiContext);
       } else {
-        throw SystemException.create(DefaultErrorCode.NAME_PWD_INCORRECT);
+        throw SystemException.create(DefaultErrorCode.UNKOWN_ACCOUNT);
       }
-    } catch (IOException e) {
-      throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
+    } catch (SystemException e) {
+      throw e;
+    } catch (Exception e) {
+      throw SystemException.wrap(DefaultErrorCode.UNKOWN_ACCOUNT, e);
     }
+  }
+
+  private String base64urlDecode(String str) {
+    return new String(Base64.getUrlDecoder().decode(str.getBytes(StandardCharsets.UTF_8)));
   }
 }

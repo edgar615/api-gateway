@@ -1,21 +1,23 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 /**
  * 将RpcRequest中的请求头，请求参数，请求体按照RequestTransformerPlugin中的配置处理.
- *
+ * <p>
  * 执行的顺序为: remove add
- *
- * 该filter的order=10000
+ * <p>
+ * 该filter的order=15000
  * Created by edgar on 16-9-20.
  */
 public class RequestTransformerFilter implements Filter {
@@ -30,7 +32,7 @@ public class RequestTransformerFilter implements Filter {
 
   @Override
   public int order() {
-    return 10000;
+    return 15000;
   }
 
   @Override
@@ -66,7 +68,8 @@ public class RequestTransformerFilter implements Filter {
       request.clearParams().addParams(params);
       Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
       request.clearHeaders().addHeaders(headers);
-      if (request.body() != null) {
+      if (request.method() == HttpMethod.POST
+              || request.method() == HttpMethod.PUT) {
         JsonObject body = tranformerBody(request.body(), transformer);
         request.setBody(body);
       }
@@ -93,7 +96,10 @@ public class RequestTransformerFilter implements Filter {
 
   private JsonObject tranformerBody(final JsonObject body,
                                     RequestTransformer transformer) {
-    JsonObject newBody = body.copy();
+    final JsonObject newBody = new JsonObject();
+    if (body != null) {
+      newBody.mergeIn(body.copy());
+    }
     transformer.bodyRemoved().forEach(b -> newBody.remove(b));
     transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
     return newBody;

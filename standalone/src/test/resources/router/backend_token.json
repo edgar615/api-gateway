@@ -1,0 +1,39 @@
+{
+  "name": "backend.token",
+  "method": "POST",
+  "path": "/backend/token",
+  "scope": "backend:token",
+  "appkey" : true,
+  "endpoints": [
+    {
+      "type": "dummy",
+      "name": "backend.token",
+      "result" : {
+        "userId": -188,
+        "username" : "backend",
+        "permissions" : "all",
+        "role" : "backend"
+      }
+    }
+  ],
+  "body_arg": [
+    {
+      "name": "tel",
+      "rules": {
+        "required": true
+      }
+    },{
+      "name": "sign",
+      "rules": {
+        "required": true
+      }
+    },{
+      "name": "code",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "backend_vertify" : true,
+  "jwt_build": true
+}

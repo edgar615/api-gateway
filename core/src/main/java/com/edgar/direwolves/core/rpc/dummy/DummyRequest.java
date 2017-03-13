@@ -1,11 +1,10 @@
 package com.edgar.direwolves.core.rpc.dummy;
 
-import com.edgar.direwolves.core.definition.EventbusEndpoint;
-import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.definition.DummyEndpoint;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -70,7 +69,7 @@ public class DummyRequest implements RpcRequest {
 
   @Override
   public String type() {
-    return EventbusEndpoint.TYPE;
+    return DummyEndpoint.TYPE;
   }
 
   @Override

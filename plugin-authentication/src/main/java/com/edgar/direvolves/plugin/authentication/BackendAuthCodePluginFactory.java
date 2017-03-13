@@ -5,25 +5,25 @@ import com.edgar.direwolves.core.definition.ApiPluginFactory;
 import io.vertx.core.json.JsonObject;
 
 /**
- * BackdoorVertifyPlugin的工厂类.
+ * backendAuthPlugin的工厂类.
  *
  * @author Edgar  Date 2016/10/31
  */
-public class BackdoorVertifyPluginFactory implements ApiPluginFactory {
+public class BackendAuthCodePluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
-    return BackdoorVertifyPlugin.class.getSimpleName();
+    return BackendAuthCodePlugin.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new BackdoorAuthPlugin();
+    return new BackendAuthCodePlugin();
   }
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("backdoor_vertify", false)) {
-      return new BackdoorVertifyPlugin();
+    if (jsonObject.getBoolean("backend_code", false)) {
+      return new BackendAuthCodePlugin();
     }
     return null;
   }
@@ -33,6 +33,6 @@ public class BackdoorVertifyPluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    return new JsonObject().put("backdoor_vertify", true);
+    return new JsonObject().put("backend_code", true);
   }
 }

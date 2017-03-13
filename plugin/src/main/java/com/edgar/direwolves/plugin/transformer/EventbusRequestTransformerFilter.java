@@ -16,7 +16,7 @@ import io.vertx.core.json.JsonObject;
  *
  * 执行的顺序为: remove add
  *
- * 该filter的order=10000
+ * 该filter的order=15000
  * Created by edgar on 16-9-20.
  */
 public class EventbusRequestTransformerFilter implements Filter {
@@ -31,7 +31,7 @@ public class EventbusRequestTransformerFilter implements Filter {
 
   @Override
   public int order() {
-    return 10000;
+    return 15000;
   }
 
   @Override

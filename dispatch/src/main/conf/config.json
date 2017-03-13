@@ -45,5 +45,6 @@
     "scan-period": 5000,
     "url": "/appkey/import"
   },
-  "log.ignore": ["oem_list"]
+  "log.ignore": ["oem_list"],
+  "backend.permitted" : ["18627874615"]
 }

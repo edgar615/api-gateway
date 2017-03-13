@@ -17,27 +17,35 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 隐藏的一个过滤器，主要用于超级管理员的访问授权.
  * 请求登录密码，密码是一个随机的6位数字，会通过短信发送到手机上，有五分钟的失效性
- *
+ *这个Filter需要body中有tel参数，会保存backend.code、backend.sign两个变量
+ *  该filter可以接受下列的配置参数
+ * <pre>
+ *   backend.permitted JSON数组 允许的手机号
+ * </pre>
+ * 该filter的order=1000
  * @author Edgar  Date 2017/3/10
  */
-public class BackdoorAuthFilter implements Filter {
+public class BackendAuthCodeFilter implements Filter {
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
   private final Set<String> allowedPermitted = new ConcurrentSkipListSet<>();
 
   private final Vertx vertx;
 
-  BackdoorAuthFilter(Vertx vertx, JsonObject config) {
+  BackendAuthCodeFilter(Vertx vertx, JsonObject config) {
     commonParamRule.put("tel", Rule.required());
     this.vertx = vertx;
-    JsonArray permitted = config.getJsonArray("backdoor.permitted", new JsonArray());
+    JsonArray permitted = config.getJsonArray("backend.permitted", new JsonArray());
     for (int i = 0; i < permitted.size(); i++) {
       allowedPermitted.add(permitted.getString(i));
     }
@@ -56,28 +64,37 @@ public class BackdoorAuthFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition()
-                   .plugin(BackdoorAuthPlugin.class.getSimpleName()) != null;
+                   .plugin(BackendAuthCodePlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    Validations.validate(apiContext.params(), commonParamRule);
-    String tel = apiContext.params().get("tel").iterator().next();
+    if (apiContext.body() == null) {
+      Validations.validate(new HashMap<>(), commonParamRule);
+    } else {
+      Validations.validate(apiContext.body().getMap(), commonParamRule);
+    }
+    String tel = apiContext.body().getString("tel");
     if (!allowedPermitted.contains(tel)) {
       throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
               .set("details", "the tel not allowed:" + tel);
     }
     String code = Randoms.randomNumber(6);
-    apiContext.addVariable("backdoor.code", code);
+    apiContext.addVariable("backend.code", code);
 
     long exp = Instant.now().getEpochSecond() + 60 * 5;
     String chaim = new JsonObject().put("exp", exp).encode();
+    String chaimSeg = base64urlEncode(chaim);
     try {
-      String sign = EncryptUtils.encryptHmacMd5(chaim, code + exp);
-      apiContext.addVariable("backdoor.sign", chaim + "." + sign);
+      String sign = EncryptUtils.encryptHmacMd5(chaimSeg, code + exp);
+      apiContext.addVariable("backend.sign", chaimSeg + "." + sign);
       completeFuture.complete(apiContext);
     } catch (IOException e) {
       throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
     }
+  }
+
+  private String base64urlEncode(String str) {
+    return new String(Base64.getUrlEncoder().encode(str.getBytes(StandardCharsets.UTF_8)));
   }
 }

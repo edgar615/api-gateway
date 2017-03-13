@@ -275,7 +275,7 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
           registration.complete();
         } else {
           LOGGER.info("Importing service " + record.getName() + " (" + id + ")"
-                      + " from consul");
+                      + " from zookeeper");
           ImportedZookeeperService service = new ImportedZookeeperService(name, id, record);
           //注册服务
           service.register(publisher, Future.<ImportedZookeeperService>future().setHandler(res -> {

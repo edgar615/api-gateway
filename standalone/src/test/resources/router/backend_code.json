@@ -1,0 +1,38 @@
+{
+  "name": "backend.code",
+  "method": "POST",
+  "path": "/backend/code",
+  "scope": "backend:token",
+  "appkey" : true,
+  "endpoints": [
+    {
+      "type": "http",
+      "name": "sms.send",
+      "service": "sms",
+      "method": "POST",
+      "path": "/sms"
+    }
+  ],
+  "body_arg": [
+    {
+      "name": "tel",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "request_transformer": [
+    {
+      "name": "sms.send",
+      "body.add": [
+        "code:$var.backend.code"
+      ]
+    }
+  ],
+  "response_transformer": {
+    "body.add": [
+      "sign:$var.backend.sign"
+    ]
+  },
+  "backend_code": true
+}

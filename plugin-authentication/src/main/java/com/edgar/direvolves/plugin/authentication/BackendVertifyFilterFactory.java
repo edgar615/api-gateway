@@ -6,17 +6,17 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 /**
- * BackdoorVertifyFilter的工厂类.
+ * backendVertifyFilter的工厂类.
  * Created by edgar on 16-12-11.
  */
-public class BackdoorVertifyFilterFactory implements FilterFactory {
+public class BackendVertifyFilterFactory implements FilterFactory {
   @Override
   public String name() {
-    return BackdoorVertifyFilter.class.getSimpleName();
+    return BackendVertifyFilter.class.getSimpleName();
   }
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new BackdoorVertifyFilter(vertx, config);
+    return new BackendVertifyFilter(vertx, config);
   }
 }

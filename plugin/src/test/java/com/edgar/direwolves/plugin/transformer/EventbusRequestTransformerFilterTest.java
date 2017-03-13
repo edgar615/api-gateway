@@ -63,7 +63,7 @@ public class EventbusRequestTransformerFilterTest {
 
   @Test
   public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(10000, filter.order());
+    Assert.assertEquals(15000, filter.order());
     Assert.assertEquals(Filter.PRE, filter.type());
   }
 

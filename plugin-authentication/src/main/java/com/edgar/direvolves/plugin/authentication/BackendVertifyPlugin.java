@@ -9,20 +9,17 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
  *
  * @author Edgar  Date 2016/10/31
  */
-class BackdoorAuthPlugin implements ApiPlugin {
-
-  BackdoorAuthPlugin() {
-  }
+public class BackendVertifyPlugin implements ApiPlugin {
 
   @Override
   public String toString() {
     return MoreObjects
-            .toStringHelper("BackdoorAuthPlugin")
+            .toStringHelper("BackendVertifyPlugin")
             .toString();
   }
 
   @Override
   public String name() {
-    return BackdoorAuthPlugin.class.getSimpleName();
+    return BackendVertifyPlugin.class.getSimpleName();
   }
 }
