@@ -21,6 +21,7 @@
         <module>service-discovery-bridge-zookeeper</module>
         <module>standalone</module>
         <module>metric</module>
+        <module>direwovles-web</module>
     </modules>
 
     <properties>
