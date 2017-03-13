@@ -200,6 +200,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
                               ApiDefinition.create(address, HttpMethod.GET, "backend/" + cmd.cmd(),
                                                    Lists.newArrayList(endpoint));
                       JsonObject jsonObject = new JsonObject()
+                              .put("authentication", true)
                               .put("acl_restriction", new JsonObject()
                                       .put("whitelist", new JsonArray().add("backend"))
                                       .put("blacklist", new JsonArray().add("*")));
