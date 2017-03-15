@@ -4,9 +4,9 @@ import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -15,6 +15,8 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Edgar on 2016/12/30.
@@ -22,6 +24,8 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2016/12/30
  */
 public class EventbusRpcHandler implements RpcHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(EventbusRpcHandler.class);
 
   private final Vertx vertx;
 
@@ -37,6 +41,16 @@ public class EventbusRpcHandler implements RpcHandler {
   @Override
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     EventbusRpcRequest request = (EventbusRpcRequest) rpcRequest;
+
+    LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}]",
+        request.id(),
+        type().toUpperCase(),
+        request.policy(),
+        request.address(),
+        MultimapUtils.convertToString(request.headers(), "no header"),
+        request.message() == null ? "no body" : request.message().encode()
+    );
+
     Future<RpcResponse> future = Future.future();
     if (EventbusEndpoint.PUB_SUB.equalsIgnoreCase(request.policy())) {
       pubsub(request, future);
@@ -55,7 +69,14 @@ public class EventbusRpcHandler implements RpcHandler {
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     vertx.eventBus().publish(request.address(), request.message(), deliveryOptions);
     JsonObject result = new JsonObject()
-            .put("result", 1);
+        .put("result", 1);
+
+    LOGGER.info("<------ [{}] [{}] [{}ms] [{} bytes]",
+        request.id(),
+        request.type().toUpperCase(),
+        0,
+        result.encode().getBytes().length
+    );
     completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, 0));
   }
 
@@ -75,7 +96,13 @@ public class EventbusRpcHandler implements RpcHandler {
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     vertx.eventBus().send(request.address(), request.message(), deliveryOptions);
     JsonObject result = new JsonObject()
-            .put("result", 1);
+        .put("result", 1);
+    LOGGER.info("<------ [{}] [{}] [{}ms] [{} bytes]",
+        request.id(),
+        request.type().toUpperCase(),
+        0,
+        result.encode().getBytes().length
+    );
     completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, 0));
   }
 
@@ -85,6 +112,13 @@ public class EventbusRpcHandler implements RpcHandler {
     vertx.eventBus().<JsonObject>send(request.address(), request.message(), deliveryOptions, ar -> {
       long elapsedTime = System.currentTimeMillis() - srated;
       if (ar.succeeded()) {
+        LOGGER.info("<------ [{}] [{}] [{}ms] [{} bytes]",
+            request.id(),
+            request.type().toUpperCase(),
+            elapsedTime,
+            ar.result().body().encode().getBytes().length
+        );
+
         if (!ar.result().body().containsKey("result")) {
           JsonObject result = ar.result().body();
           completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, elapsedTime));
@@ -92,23 +126,30 @@ public class EventbusRpcHandler implements RpcHandler {
           Object result = ar.result().body().getValue("result");
           if (result instanceof JsonArray) {
             completed.complete(
-                    RpcResponse.createJsonArray(request.id(), 200, (JsonArray) result, elapsedTime));
+                RpcResponse.createJsonArray(request.id(), 200, (JsonArray) result, elapsedTime));
           } else if (result instanceof JsonObject) {
             completed.complete(
-                    RpcResponse.createJsonObject(request.id(), 200, (JsonObject) result, elapsedTime));
+                RpcResponse.createJsonObject(request.id(), 200, (JsonObject) result, elapsedTime));
           } else {
             completed.complete(
-                    RpcResponse.createJsonObject(request.id(), 200, ar.result().body(), elapsedTime));
+                RpcResponse.createJsonObject(request.id(), 200, ar.result().body(), elapsedTime));
           }
 
         }
       } else {
+        LOGGER.warn("<------ [{}] [{}] [{}]",
+            request.id(),
+            request.type().toUpperCase(),
+            "FAILED",
+            ar.cause().getMessage()
+        );
+
         if (ar.cause() instanceof ReplyException) {
           ReplyException ex = (ReplyException) ar.cause();
           if (ex.failureType() == ReplyFailure.NO_HANDLERS) {
             SystemException resourceNotFoundEx =
-                    SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
-                            .set("details", "No handlers for address " + request.address());
+                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
+                    .set("details", "No handlers for address " + request.address());
             completed.fail(resourceNotFoundEx);
           } else {
             completed.fail(ar.cause());

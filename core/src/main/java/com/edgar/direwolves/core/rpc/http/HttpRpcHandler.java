@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.rpc.http;
 
+import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.google.common.base.Joiner;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
@@ -14,6 +15,8 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.List;
  * @author Edgar  Date 2016/12/30
  */
 public class HttpRpcHandler implements RpcHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpRpcHandler.class);
 
   private final HttpClient httpClient;
 
@@ -51,6 +56,17 @@ public class HttpRpcHandler implements RpcHandler {
                       .set("details", "POST or PUT method must contains request body")
       );
     }
+
+    LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}] [{}]",
+        httpRpcRequest.id(),
+        type().toUpperCase(),
+        httpRpcRequest.host() + ":" + httpRpcRequest.port(),
+        httpRpcRequest.method().name() + " " + httpRpcRequest.path(),
+        MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"),
+        MultimapUtils.convertToString(httpRpcRequest.params(), "no param"),
+        httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode()
+    );
+
     Future<RpcResponse> future = Future.future();
     String path = requestPath(httpRpcRequest);
     final long startTime = System.currentTimeMillis();
@@ -66,9 +82,23 @@ public class HttpRpcHandler implements RpcHandler {
                                    response.statusCode(),
                                    body,
                                    System.currentTimeMillis() - startTime);
+        LOGGER.info("<------ [{}] [{}] [{}] [{}ms] [{} bytes]",
+            rpcRequest.id(),
+            rpcRequest.type().toUpperCase(),
+            rpcResponse.statusCode(),
+            rpcResponse.elapsedTime(),
+            body.getBytes().length
+        );
+
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
+          LOGGER.warn("<------ [{}] [{}] [{}]",
+              rpcRequest.id(),
+              rpcRequest.type().toUpperCase(),
+              "FAILED",
+              throwable.getMessage()
+          );
           future.fail(throwable);
         }
       });

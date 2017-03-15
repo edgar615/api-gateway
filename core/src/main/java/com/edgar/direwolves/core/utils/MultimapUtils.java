@@ -1,7 +1,9 @@
 package com.edgar.direwolves.core.utils;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import io.vertx.core.MultiMap;
 
 import java.util.List;
 
@@ -29,5 +31,25 @@ public class MultimapUtils {
       return null;
     }
     return values.get(0);
+  }
+
+  /**
+   * 将Multimap转换为字符串用来记录日志.
+   * @param multimap Multimap
+   * @param defaultString 如果Multimap是空，返回的默认字符串
+   * @return 字符串
+   */
+  public static String convertToString(Multimap<String, String> multimap, String defaultString) {
+    StringBuilder s = new StringBuilder();
+    for (String key : multimap.keySet()) {
+      s.append(key)
+          .append(":")
+          .append(Joiner.on(",").join(multimap.get(key)))
+          .append(";");
+    }
+    if (s.length() == 0) {
+      return defaultString;
+    }
+    return s.toString();
   }
 }
