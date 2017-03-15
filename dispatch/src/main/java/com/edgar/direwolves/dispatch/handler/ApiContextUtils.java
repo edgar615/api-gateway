@@ -17,6 +17,7 @@ import io.vertx.ext.web.RoutingContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/10/14.
@@ -56,7 +57,8 @@ public class ApiContextUtils {
                 .set("details", "Request body must be JSON Object");
       }
     }
-    ApiContext apiContext = ApiContext.create(method, path, headers, params, body);
+    String id = (String) rc.data().getOrDefault("x-request-id", UUID.randomUUID().toString());
+    ApiContext apiContext = ApiContext.create(id, method, path, headers, params, body);
     Map<String, Object> variables = getVariables(rc);
     variables.forEach((key, value) -> apiContext.addVariable(key, value));
     return apiContext;

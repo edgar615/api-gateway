@@ -16,7 +16,6 @@
     {
       "name": "username",
       "rules": {
-        "maxLength" : 6,
         "required": true
       }
     },

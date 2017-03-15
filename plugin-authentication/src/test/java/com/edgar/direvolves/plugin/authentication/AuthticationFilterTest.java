@@ -190,7 +190,7 @@ public class AuthticationFilterTest {
   @Test
   public void unequalJtiShouldSuccessWhenUnrestrictedUniqueUser(TestContext testContext) {
     redisProvider.set(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
+            .put(userKey, userId)
             .put("username", "edgar")
             .put("jti", jti), ar -> {
 
@@ -219,6 +219,8 @@ public class AuthticationFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               JsonObject principal = context.principal();
+              testContext.assertEquals(userId, principal.getInteger(userKey));
+              testContext.assertEquals(userId, principal.getInteger("userId"));
               testContext.assertEquals("edgar", principal.getString("username"));
               async.complete();
             })
@@ -231,7 +233,7 @@ public class AuthticationFilterTest {
   @Test
   public void equalJtiShouldSuccessWhenRestrictedUniqueUser(TestContext testContext) {
     redisProvider.set(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
+            .put(userKey, userId)
             .put("username", "edgar")
             .put("jti", jti), ar -> {
 
@@ -261,6 +263,8 @@ public class AuthticationFilterTest {
             .andThen(context -> {
               JsonObject principal = context.principal();
               testContext.assertEquals("edgar", principal.getString("username"));
+              testContext.assertEquals(userId, principal.getInteger(userKey));
+              testContext.assertEquals(userId, principal.getInteger("userId"));
               async.complete();
             })
             .onFailure(throwable -> {

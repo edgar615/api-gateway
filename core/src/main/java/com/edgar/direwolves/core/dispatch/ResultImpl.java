@@ -48,6 +48,8 @@ class ResultImpl implements Result {
 
   private final Multimap<String, String> headers = ArrayListMultimap.create();
 
+  private final int byteSize;
+
   ResultImpl(int statusCode, JsonObject responseObject,
              Multimap<String, String> headers) {
     this.statusCode = statusCode;
@@ -57,6 +59,7 @@ class ResultImpl implements Result {
     if (headers != null) {
       this.headers.putAll(headers);
     }
+    byteSize = responseObject.encode().getBytes().length;
   }
 
   ResultImpl(int statusCode, JsonArray responseArray, Multimap<String, String> headers) {
@@ -67,6 +70,7 @@ class ResultImpl implements Result {
     if (headers != null) {
       this.headers.putAll(headers);
     }
+    byteSize = responseArray.encode().getBytes().length;
   }
 
   @Override
@@ -105,6 +109,11 @@ class ResultImpl implements Result {
   }
 
   @Override
+  public int byteSize() {
+    return byteSize;
+  }
+
+  @Override
   public String toString() {
     MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("Result");
     helper.add("statusCode", statusCode);
@@ -116,4 +125,5 @@ class ResultImpl implements Result {
     helper.add("headers", headers);
     return helper.toString();
   }
+
 }

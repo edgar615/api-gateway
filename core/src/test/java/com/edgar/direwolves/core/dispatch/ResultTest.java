@@ -23,6 +23,7 @@ public class ResultTest {
     Assert.assertNotNull(result.responseObject());
     Assert.assertNull(result.responseArray());
     Assert.assertEquals("{}", result.responseObject().encode());
+    System.out.println(result);
   }
 
   @Test

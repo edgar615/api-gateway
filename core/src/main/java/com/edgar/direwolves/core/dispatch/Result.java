@@ -40,6 +40,8 @@ public interface Result {
    */
   Multimap<String, String> header();
 
+  int byteSize();
+
   /**
    * 创建一个JsonObject的响应.
    *

@@ -2,26 +2,19 @@ package com.edgar.direwolves.web;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
-
-import java.io.File;
+import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.templ.HandlebarsTemplateEngine;
+import io.vertx.ext.web.templ.TemplateEngine;
 
 public class WebVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
 
-    HandlebarsTemplateEngine engine = HandlebarsTemplateEngine.create();
 
     Router router = Router.router(vertx);
-    router.get("/clear").handler(rc -> {
-      engine.clearCache();
-//      System.out.println(new File(".vertx").getAbsolutePath());
-//      rc.vertx().fileSystem().deleteRecursive(new File(".vertx").getAbsolutePath(), true, ar -> {
-//        System.out.println(ar.result());
-//      });
-      rc.response().setStatusCode(200).end("clear");
-    });
-
+    router.route("/static/*").handler(StaticHandler.create());
+    TemplateEngine engine = HandlebarsTemplateEngine.create();
     router.get().handler(rc -> {
       rc.put("name", "vert.x webhoho");
 

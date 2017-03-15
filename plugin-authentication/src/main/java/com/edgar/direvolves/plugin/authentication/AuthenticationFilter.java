@@ -150,13 +150,13 @@ public class AuthenticationFilter implements Filter {
           if (uniqueToken) {
             String serverJti = ar.result().getString("jti", UUID.randomUUID().toString());
             if (serverJti.equalsIgnoreCase(clientJti)) {
-              userFuture.complete(ar.result());
+              userFuture.complete(ar.result().put("userId", userId));
             } else {
               userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
                                       .set("details", "The token has been kicked out"));
             }
           } else {
-            userFuture.complete(ar.result());
+            userFuture.complete(ar.result().put("userId", userId));
           }
 
         } else {
