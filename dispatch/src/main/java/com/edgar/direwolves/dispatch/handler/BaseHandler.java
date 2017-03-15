@@ -32,7 +32,8 @@ public class BaseHandler implements Handler<RoutingContext> {
     rc.put("x-request-id", id);
     long start = System.currentTimeMillis();
     rc.put("x-request-time", start);
-    LOGGER.info("---> [{}] [HTTP] [{} {}] [{}] [{}] [{}]", id,
+    LOGGER.info("---> [{}] [{}] [{} {}] [{}] [{}] [{}]", id,
+                rc.request().scheme(),
                 rc.request().method().name(),
                 rc.normalisedPath(),
                 mutiMapToString(rc.request().headers(), "no header"),
@@ -41,7 +42,13 @@ public class BaseHandler implements Handler<RoutingContext> {
     );
 
     rc.addBodyEndHandler(v -> {
-      LOGGER.info("end");
+      LOGGER.info("<--- [{}] [{}] [{}] [{}] [{}ms] [{} bytes]", id,
+          rc.request().scheme(),
+          rc.response().getStatusCode(),
+          mutiMapToString(rc.response().headers(), "no header"),
+          System.currentTimeMillis() - start,
+          rc.response().bytesWritten()
+      );
     });
     rc.next();
   }

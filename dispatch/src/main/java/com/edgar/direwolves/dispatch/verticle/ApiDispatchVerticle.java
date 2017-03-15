@@ -57,7 +57,6 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     router.route().handler(BodyHandler.create());
 
     router.route().handler(BaseHandler.create());
-//    router.route().handler(LoggerHandler.create(true, LoggerFormat.DEFAULT));
     router.route().handler(ResponseTimeHandler.create());
 
     //API拦截

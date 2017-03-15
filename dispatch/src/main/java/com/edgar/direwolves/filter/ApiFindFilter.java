@@ -9,19 +9,24 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 该filter根据请求从API路由注册表中读取到对应的API定义.
- * <p>
+ * <p/>
  * 该filter可以接受下列的配置参数
  * <pre>
  * </pre>
- * <p>
+ * <p/>
  * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回对应的异常。
  * 该filter的order=-2147483648, int的最小值
  * Created by edgar on 17-1-4.
  */
 public class ApiFindFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiFindFilter.class);
+
   private final Vertx vertx;
 
   private final ApiProvider apiProvider;
@@ -60,9 +65,11 @@ public class ApiFindFilter implements Filter {
           apiContext.setApiDefinition(apiDefinition);
           completeFuture.complete(apiContext);
         } catch (Exception e) {
+          LOGGER.warn("---| [{}] [FAILED] [{}]", apiContext.id(), "failed match api");
           completeFuture.fail(e);
         }
       } else {
+        LOGGER.warn("---| [{}] [FAILED] [{}]", apiContext.id(), "failed match api");
         completeFuture.fail(ar.cause());
       }
     });

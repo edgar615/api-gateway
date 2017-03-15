@@ -32,6 +32,7 @@ public class FailureHandler implements Handler<RoutingContext> {
   public static void doHandle(RoutingContext rc, Throwable throwable) {
     String id = (String) rc.data().getOrDefault("x-request-id", UUID.randomUUID().toString());
     int statusCode = 400;
+    boolean printErrorMsg = false;
     JsonObject failureMsg = new JsonObject();
     HttpServerResponse response = rc.response();
     if (throwable instanceof SystemException) {
@@ -59,36 +60,29 @@ public class FailureHandler implements Handler<RoutingContext> {
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
-      LOGGER.error("Undefined exception", throwable);
+      LOGGER.info("---| [{}] [ERROR] [{}]", id,
+          throwable.getMessage(),
+          throwable
+      );
+      printErrorMsg = true;
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
               .set("details", throwable.getMessage());
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     }
+
+    if (printErrorMsg) {
+      LOGGER.error("---| [{}] [ERROR] [{}]", id,
+          failureMsg.encode(),
+          throwable
+      );
+    } else {
+      LOGGER.warn("---| [{}] [FAILED] [{}]", id,
+          failureMsg.encode()
+      );
+    }
     response.putHeader("x-request-id", id)
             .setStatusCode(statusCode).end(failureMsg.encode());
-    log(rc, id, failureMsg);
-  }
-
-  private static void log(RoutingContext rc, String id, JsonObject failureMsg) {
-    HttpServerRequest
-            req = rc.request();
-    JsonObject requestInfo = new JsonObject()
-            .put("request.scheme", req.scheme())
-            .put("request.method", req.method().name())
-            .put("request.query_string", req.query())
-            .put("request.uri", req.uri())
-            .put("request.path_info", req.path())
-            .put("request.header", req.headers().entries());
-    JsonObject body = null;
-    if (rc.getBody() != null && rc.getBody().length() > 0) {
-      try {
-        requestInfo.put("request.body", rc.getBody().toString());
-      } catch (Exception e) {
-      }
-    }
-    LOGGER.warn("Request failed, id->{}, error->{}, request->{}",
-                id, failureMsg.encode(), requestInfo.encode());
   }
 
   private static JsonObject replyJson(ReplyException ex) {

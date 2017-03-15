@@ -50,10 +50,6 @@ public class Filters {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
-          LOGGER.debug("Execute  filter, id->{},Filter->{}, context->{}",
-                       apiContext.id(),
-                       filter.getClass().getName(),
-                       apiContext);
           Future<ApiContext> completeFuture = Future.future();
           filter.doFilter(apiContext.copy(), completeFuture);
           return completeFuture;
@@ -61,10 +57,10 @@ public class Filters {
           return Future.succeededFuture(apiContext);
         }
       }).andThen(apiContext ->
-                         LOGGER.debug("Execute  filter succeed, id->{},Filter->{}, context->{}",
-                                     apiContext.id(),
-                                     filter.getClass().getName(),
-                                     apiContext));
+          LOGGER.info("---| [{}] [FILTER] [{}] [{}]", apiContext.id(),
+              filter.type(),
+              filter.getClass().getSimpleName()
+          ));
     }
     return task;
   }

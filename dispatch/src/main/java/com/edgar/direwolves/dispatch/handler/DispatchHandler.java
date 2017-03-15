@@ -95,7 +95,6 @@ public class DispatchHandler implements Handler<RoutingContext> {
     //创建上下文
     Task<ApiContext> task = Task.create();
     task.complete(ApiContextUtils.apiContext(rc));
-    task = task.andThen(apiContext -> rc.data().put("x-request-id", apiContext.id()));
     task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()));
     task = task.flatMap("RPC", apiContext -> rpc(apiContext));
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
