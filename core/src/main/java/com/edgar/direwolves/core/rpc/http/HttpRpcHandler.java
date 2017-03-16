@@ -1,12 +1,12 @@
 package com.edgar.direwolves.core.rpc.http;
 
-import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.google.common.base.Joiner;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -58,13 +58,13 @@ public class HttpRpcHandler implements RpcHandler {
     }
 
     LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}] [{}]",
-        httpRpcRequest.id(),
-        type().toUpperCase(),
-        httpRpcRequest.host() + ":" + httpRpcRequest.port(),
-        httpRpcRequest.method().name() + " " + httpRpcRequest.path(),
-        MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"),
-        MultimapUtils.convertToString(httpRpcRequest.params(), "no param"),
-        httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode()
+                httpRpcRequest.id(),
+                type().toUpperCase(),
+                httpRpcRequest.host() + ":" + httpRpcRequest.port(),
+                httpRpcRequest.method().name() + " " + httpRpcRequest.path(),
+                MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"),
+                MultimapUtils.convertToString(httpRpcRequest.params(), "no param"),
+                httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode()
     );
 
     Future<RpcResponse> future = Future.future();
@@ -82,22 +82,23 @@ public class HttpRpcHandler implements RpcHandler {
                                    response.statusCode(),
                                    body,
                                    System.currentTimeMillis() - startTime);
-        LOGGER.info("<------ [{}] [{}] [{}] [{}ms] [{} bytes]",
-            rpcRequest.id(),
-            rpcRequest.type().toUpperCase(),
-            rpcResponse.statusCode(),
-            rpcResponse.elapsedTime(),
-            body.getBytes().length
+        LOGGER.info("<------ [{}] [{}] [{}] [{}] [{}ms] [{} bytes]",
+                    rpcRequest.id(),
+                    rpcRequest.type().toUpperCase(),
+                    "OK",
+                    rpcResponse.statusCode(),
+                    rpcResponse.elapsedTime(),
+                    body.getBytes().length
         );
 
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
           LOGGER.warn("<------ [{}] [{}] [{}]",
-              rpcRequest.id(),
-              rpcRequest.type().toUpperCase(),
-              "FAILED",
-              throwable.getMessage()
+                      rpcRequest.id(),
+                      rpcRequest.type().toUpperCase(),
+                      "FAILED",
+                      throwable.getMessage()
           );
           future.fail(throwable);
         }

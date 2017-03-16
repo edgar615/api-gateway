@@ -9,8 +9,6 @@ import com.edgar.direwolves.core.rpc.dummy.DummyRequest;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
-import java.util.UUID;
-
 /**
  * Dummy类型的endpoint需要经过这个Filter转换为RpcRequest.
  *
@@ -34,15 +32,15 @@ public class DummyRequestFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition().endpoints().stream()
-        .anyMatch(e -> e instanceof DummyEndpoint);
+            .anyMatch(e -> e instanceof DummyEndpoint);
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     apiContext.apiDefinition().endpoints().stream()
-        .filter(e -> e instanceof DummyEndpoint)
-        .map(e -> toRpc(apiContext, e))
-        .forEach(req -> apiContext.addRequest(req));
+            .filter(e -> e instanceof DummyEndpoint)
+            .map(e -> toRpc(apiContext, e))
+            .forEach(req -> apiContext.addRequest(req));
     completeFuture.complete(apiContext);
   }
 
@@ -50,7 +48,7 @@ public class DummyRequestFilter implements Filter {
   private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint) {
     if (endpoint instanceof DummyEndpoint) {
       DummyEndpoint dummyEndpoint = (DummyEndpoint) endpoint;
-      String id = UUID.randomUUID().toString();
+      String id = apiContext.nextRpcId();
       String name = dummyEndpoint.name();
       JsonObject result = dummyEndpoint.result();
       if (result == null) {

@@ -1,21 +1,21 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
 /**
  * 将RpcRequest中的请求头，请求参数，请求体按照RequestTransformerPlugin中的配置处理.
- *
+ * <p>
  * 执行的顺序为: remove add
- *
+ * <p>
  * 该filter的order=15000
  * Created by edgar on 16-9-20.
  */
@@ -41,7 +41,9 @@ public class EventbusRequestTransformerFilter implements Filter {
     }
     return apiContext.apiDefinition()
                    .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
-           && apiContext.requests().size() > 0;
+           && apiContext.requests().size() > 0
+           && apiContext.requests().stream()
+                   .anyMatch(e -> e instanceof EventbusRpcRequest);
   }
 
   @Override

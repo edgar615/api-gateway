@@ -21,6 +21,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -110,6 +112,8 @@ import java.util.Map;
  * Created by edgar on 16-9-20.
  */
 public class AppKeyFilter implements Filter, AppKeyPublisher {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyFilter.class);
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
@@ -244,6 +248,7 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     String secret = app.getString(secretKey, "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
     if (!clientSignValue.equals(serverSignValue)) {
+      LOGGER.warn("---| [{}] [FAILED] [{}]", apiContext.id(), " sign incorrect:" + serverSignValue);
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                   .set("details", "The sign is incorrect, baseString->"
                                                   + baseString(params)));

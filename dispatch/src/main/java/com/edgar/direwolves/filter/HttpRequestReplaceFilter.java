@@ -1,13 +1,12 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -45,7 +44,8 @@ public class HttpRequestReplaceFilter extends RequestReplaceFilter implements Fi
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return true;
+    return apiContext.requests().stream()
+            .anyMatch(e -> e instanceof HttpRpcRequest);
   }
 
   @Override

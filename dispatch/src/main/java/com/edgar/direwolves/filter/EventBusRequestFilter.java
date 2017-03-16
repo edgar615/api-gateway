@@ -1,22 +1,19 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * EventBus类型的endpoint需要经过这个Filter转换为RpcRequest.
- * <p/>
+ * <p>
  * 请求头中的header将被忽略，如果是GET或DELETE请求，会将message设置为一个空JSON {}．
  * 然后再通过request_transformer插件将请求参数添加到message中
  *
@@ -40,7 +37,7 @@ public class EventBusRequestFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition().endpoints().stream()
-        .anyMatch(e -> e instanceof EventbusEndpoint);
+            .anyMatch(e -> e instanceof EventbusEndpoint);
   }
 
   @Override
@@ -48,7 +45,7 @@ public class EventBusRequestFilter implements Filter {
     apiContext.apiDefinition().endpoints().stream()
             .filter(e -> e instanceof EventbusEndpoint)
             .map(e -> toRpc(apiContext, e))
-        .forEach(req -> apiContext.addRequest(req));
+            .forEach(req -> apiContext.addRequest(req));
     completeFuture.complete(apiContext);
   }
 
@@ -56,7 +53,7 @@ public class EventBusRequestFilter implements Filter {
   private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint) {
     if (endpoint instanceof EventbusEndpoint) {
       EventbusEndpoint eventbusEndpoint = (EventbusEndpoint) endpoint;
-      String id = UUID.randomUUID().toString();
+      String id = apiContext.nextRpcId();
       String name = eventbusEndpoint.name();
       String address = eventbusEndpoint.address();
       String policy = eventbusEndpoint.policy();

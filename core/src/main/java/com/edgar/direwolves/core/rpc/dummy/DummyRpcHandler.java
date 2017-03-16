@@ -35,16 +35,17 @@ public class DummyRpcHandler implements RpcHandler {
     DummyRequest request = (DummyRequest) rpcRequest;
     Future<RpcResponse> future = Future.future();
     LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}]",
-        request.id(),
-        type().toUpperCase(),
-        request.result() == null ? "no body" : request.result().encode()
+                request.id(),
+                type().toUpperCase(),
+                request.result() == null ? "no body" : request.result().encode()
     );
 
-    LOGGER.info("<------ [{}] [{}] [{}ms] [{} bytes]",
-        request.id(),
-        request.type().toUpperCase(),
-        0,
-        request.result().encode().getBytes().length
+    LOGGER.info("<------ [{}] [{}] [{}] [{}ms] [{} bytes]",
+                request.id(),
+                request.type().toUpperCase(),
+                "OK",
+                0,
+                request.result().encode().getBytes().length
     );
 
     future.complete(RpcResponse.createJsonObject(request.id(), 200, request.result(), 0));

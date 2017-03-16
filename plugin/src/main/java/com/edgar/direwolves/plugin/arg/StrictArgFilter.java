@@ -89,6 +89,9 @@ public class StrictArgFilter implements Filter {
   }
 
   private boolean testBodyArg(String argName, BodyArgPlugin plugin) {
+    if ("".equalsIgnoreCase(argName)) {
+      return false;
+    }
     if (excludeBody.contains(argName)) {
       return false;
     }

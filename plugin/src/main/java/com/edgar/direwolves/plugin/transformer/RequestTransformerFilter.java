@@ -42,7 +42,9 @@ public class RequestTransformerFilter implements Filter {
     }
     return apiContext.apiDefinition()
                    .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
-           && apiContext.requests().size() > 0;
+           && apiContext.requests().size() > 0
+           && apiContext.requests().stream()
+                   .anyMatch(e -> e instanceof HttpRpcRequest);
   }
 
   @Override
@@ -69,7 +71,7 @@ public class RequestTransformerFilter implements Filter {
       Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
       request.clearHeaders().addHeaders(headers);
       if (request.method() == HttpMethod.POST
-              || request.method() == HttpMethod.PUT) {
+          || request.method() == HttpMethod.PUT) {
         JsonObject body = tranformerBody(request.body(), transformer);
         request.setBody(body);
       }

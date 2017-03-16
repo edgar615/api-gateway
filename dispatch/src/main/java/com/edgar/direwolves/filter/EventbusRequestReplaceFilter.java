@@ -1,12 +1,12 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -36,7 +36,8 @@ public class EventbusRequestReplaceFilter extends RequestReplaceFilter implement
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return true;
+    return apiContext.requests().stream()
+            .anyMatch(e -> e instanceof EventbusRpcRequest);
   }
 
   @Override

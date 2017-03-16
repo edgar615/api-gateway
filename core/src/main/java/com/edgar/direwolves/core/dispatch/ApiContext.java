@@ -119,6 +119,12 @@ public interface ApiContext {
   void setResult(Result result);
 
   /**
+   * 计算RPC的ID，主要用于日志记录
+   * @return ID
+   */
+  String nextRpcId();
+
+  /**
    * 创建ApiContext对象.
    *
    * @param id      上下文ID，该值应该使用一个全局唯一ID

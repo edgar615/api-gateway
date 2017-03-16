@@ -2,7 +2,7 @@
   "http.port": 9001,
   "project.namespace": "example",
   "long_req_time" : 1000,
-  "redis.host": "localhost",
+  "redis.host": "10.11.0.31",
   "redis.port": 6379,
   "redis.password": "",
   "redis.sub.keys": [
@@ -11,7 +11,7 @@
   ],
   "api.config.dir": "standalone/src/test/resources/router",
   "api.config.auto_refresh": false,
-  "service.discovery": "zookeeper://localhost:2181",
+  "service.discovery": "zookeeper://10.11.0.31:2181",
   "zookeeper.path": "/csst-microservice",
   "service.discovery.scan-period": 2000,
   "service.discovery.select-strategy": {

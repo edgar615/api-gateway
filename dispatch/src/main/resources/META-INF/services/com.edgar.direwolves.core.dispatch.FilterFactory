@@ -4,7 +4,6 @@ com.edgar.direwolves.filter.ServiceDiscoveryFilterFactory
 com.edgar.direwolves.filter.HttpRequestReplaceFilterFactory
 com.edgar.direwolves.filter.TimeoutFilterFactory
 com.edgar.direwolves.filter.ExtractResultFilterFactory
-com.edgar.direwolves.filter.LogFilterFactory
 com.edgar.direwolves.filter.EventbusRequestFilterFactory
 com.edgar.direwolves.filter.EventbusRequestReplaceFilterFactory
 com.edgar.direwolves.filter.DummyRequestFilterFactory

@@ -56,11 +56,14 @@ public class Filters {
         } else {
           return Future.succeededFuture(apiContext);
         }
-      }).andThen(apiContext ->
+      }).andThen(apiContext -> {
+        if (filter.shouldFilter(apiContext)) {
           LOGGER.info("---| [{}] [FILTER] [{}] [{}]", apiContext.id(),
-              filter.type(),
-              filter.getClass().getSimpleName()
-          ));
+                      filter.type(),
+                      filter.getClass().getSimpleName()
+          );
+        }
+      });
     }
     return task;
   }

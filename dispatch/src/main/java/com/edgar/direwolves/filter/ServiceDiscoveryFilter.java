@@ -100,7 +100,7 @@ public class ServiceDiscoveryFilter implements Filter {
     if (endpoint instanceof HttpEndpoint) {
       HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
       HttpRpcRequest httpRpcRequest =
-              HttpRpcRequest.create(UUID.randomUUID().toString(), httpEndpoint.name());
+              HttpRpcRequest.create(apiContext.nextRpcId(), httpEndpoint.name());
       httpRpcRequest.setPath(httpEndpoint.path());
       httpRpcRequest.setHttpMethod(httpEndpoint.method());
       httpRpcRequest.addParams(apiContext.params());

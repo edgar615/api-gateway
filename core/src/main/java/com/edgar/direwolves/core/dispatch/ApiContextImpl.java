@@ -172,4 +172,11 @@ class ApiContextImpl implements ApiContext {
     return helper.toString();
   }
 
+  @Override
+  public String nextRpcId() {
+    int counter = (int) variables.getOrDefault("rpc.sn", 0) + 1;
+    variables.put("rpc.sn", counter);
+    return id + "." + counter;
+  }
+
 }
