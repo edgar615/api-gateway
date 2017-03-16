@@ -15,7 +15,7 @@ public class LoginTest {
             .put("password", "123")
             .put("deviceType", 3)
             .put("channelId", "1");
-    Vertx.vertx().createHttpClient().post(9001, "localhost", "/login?v=1.1")
+    Vertx.vertx().createHttpClient().post(9000, "localhost", "/login?v=1.1")
             .handler(resp -> {
               System.out.println(resp.statusCode());
               resp.bodyHandler(body -> System.out.println(body.toString()));

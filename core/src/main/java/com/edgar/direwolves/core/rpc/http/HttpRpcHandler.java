@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -94,12 +95,9 @@ public class HttpRpcHandler implements RpcHandler {
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
-          LOGGER.warn("<------ [{}] [{}] [{}]",
-                      rpcRequest.id(),
-                      rpcRequest.type().toUpperCase(),
-                      "FAILED",
-                      throwable.getMessage()
-          );
+          Helper.logFailed(LOGGER, rpcRequest.id(),
+                           this.getClass().getSimpleName(),
+                           throwable.getMessage());
           future.fail(throwable);
         }
       });

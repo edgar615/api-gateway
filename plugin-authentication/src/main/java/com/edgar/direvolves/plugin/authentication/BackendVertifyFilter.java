@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -15,8 +16,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
@@ -32,6 +34,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @author Edgar  Date 2017/3/10
  */
 public class BackendVertifyFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(BackendVertifyFilter.class);
+
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
   private final Set<String> allowedPermitted = new ConcurrentSkipListSet<>();
@@ -74,8 +79,11 @@ public class BackendVertifyFilter implements Filter {
     }
     String tel = apiContext.body().getString("tel");
     if (!allowedPermitted.contains(tel)) {
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       tel + " not allowed");
       throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
-              .set("details", "the tel not allowed:" + tel);
+              .set("details", tel + " not allowed");
     }
     try {
       String code = apiContext.body().getString("code");
@@ -94,8 +102,14 @@ public class BackendVertifyFilter implements Filter {
         throw SystemException.create(DefaultErrorCode.UNKOWN_ACCOUNT);
       }
     } catch (SystemException e) {
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       e.getMessage());
       throw e;
     } catch (Exception e) {
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       e.getMessage());
       throw SystemException.wrap(DefaultErrorCode.UNKOWN_ACCOUNT, e);
     }
   }

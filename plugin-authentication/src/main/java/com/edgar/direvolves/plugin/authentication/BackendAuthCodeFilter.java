@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -15,6 +16,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,15 +30,19 @@ import java.util.concurrent.ConcurrentSkipListSet;
 /**
  * 隐藏的一个过滤器，主要用于超级管理员的访问授权.
  * 请求登录密码，密码是一个随机的6位数字，会通过短信发送到手机上，有五分钟的失效性
- *这个Filter需要body中有tel参数，会保存backend.code、backend.sign两个变量
- *  该filter可以接受下列的配置参数
+ * 这个Filter需要body中有tel参数，会保存backend.code、backend.sign两个变量
+ * 该filter可以接受下列的配置参数
  * <pre>
  *   backend.permitted JSON数组 允许的手机号
  * </pre>
  * 该filter的order=1000
+ *
  * @author Edgar  Date 2017/3/10
  */
 public class BackendAuthCodeFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(BackendAuthCodeFilter.class);
+
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
   private final Set<String> allowedPermitted = new ConcurrentSkipListSet<>();
@@ -76,8 +83,11 @@ public class BackendAuthCodeFilter implements Filter {
     }
     String tel = apiContext.body().getString("tel");
     if (!allowedPermitted.contains(tel)) {
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       tel + " not allowed");
       throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
-              .set("details", "the tel not allowed:" + tel);
+              .set("details", tel + " not allowed");
     }
     String code = Randoms.randomNumber(6);
     apiContext.addVariable("backend.code", code);
@@ -90,6 +100,9 @@ public class BackendAuthCodeFilter implements Filter {
       apiContext.addVariable("backend.sign", chaimSeg + "." + sign);
       completeFuture.complete(apiContext);
     } catch (IOException e) {
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       e.getMessage());
       throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
     }
   }

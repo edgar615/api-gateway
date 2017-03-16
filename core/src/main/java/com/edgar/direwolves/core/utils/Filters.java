@@ -58,10 +58,9 @@ public class Filters {
         }
       }).andThen(apiContext -> {
         if (filter.shouldFilter(apiContext)) {
-          LOGGER.info("---| [{}] [FILTER] [{}] [{}]", apiContext.id(),
-                      filter.type(),
-                      filter.getClass().getSimpleName()
-          );
+          Helper.logOK(LOGGER, apiContext.id(),
+                       filter.getClass().getSimpleName(),
+                       filter.type());
         }
       });
     }

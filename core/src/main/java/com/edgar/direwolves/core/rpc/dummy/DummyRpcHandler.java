@@ -34,7 +34,7 @@ public class DummyRpcHandler implements RpcHandler {
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     DummyRequest request = (DummyRequest) rpcRequest;
     Future<RpcResponse> future = Future.future();
-    LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}]",
+    LOGGER.info("------> [{}] [{}] [{}]",
                 request.id(),
                 type().toUpperCase(),
                 request.result() == null ? "no body" : request.result().encode()

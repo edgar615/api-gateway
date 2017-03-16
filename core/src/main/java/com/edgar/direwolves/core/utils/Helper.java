@@ -1,8 +1,5 @@
 package com.edgar.direwolves.core.utils;
 
-import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.dispatch.ApiContext;
 import org.slf4j.Logger;
 
 /**
@@ -12,94 +9,54 @@ import org.slf4j.Logger;
  */
 public class Helper {
 
-  public static void log(Logger logger, ApiContext apiContext) {
-    StringBuilder log = new StringBuilder(apiContext.id())
-            .append("\n")
-            .append(logReq(apiContext))
-            .append("\n")
-            .append(logResult(apiContext));
-    logger.info(log.toString());
+  /**
+   * 记录方法运行过程中的成功日志
+   * ---| [id] [OK] [方法] [描述] [参数（可选值）]
+   *
+   * @param logger Logger
+   * @param id     跟踪ID
+   * @param method 方法
+   * @param desc   描述
+   */
+  public static void logOK(Logger logger, String id, String method, String desc) {
+    logger.info("---| [{}] [OK] [{}] [{}]",
+                id,
+                method,
+                desc);
   }
 
-  public static StringBuilder logResult(ApiContext apiContext) {
-    StringBuilder log = new StringBuilder();
-    long started = (long) apiContext.variables()
-            .getOrDefault("request.time", System.currentTimeMillis());
-    long ended = System.currentTimeMillis();
-    long duration = ended - started;
-    log.append("<--- HTTP ")
-            .append(apiContext.result().statusCode())
-            .append(" ")
-            .append(duration)
-            .append("ms")
-            .append("\n");
-    Multimap<String, String> headers = apiContext.result().header();
-    for (String key : headers.keySet()) {
-      log.append(key)
-              .append(" : ")
-              .append(headers.get(key))
-              .append("\n");
-    }
-    if (apiContext.result().responseObject() != null) {
-      log.append(apiContext.result().responseObject().encode());
-    } else if (apiContext.result().responseArray() != null) {
-      log.append(apiContext.result().responseArray().encode());
-    } else {
-      log.append("(nobody)");
-    }
-    log.append("\n")
-            .append("<--- END ")
-            .append(apiContext.result().byteSize())
-            .append("bytes");
-    return log;
+  /**
+   * 记录方法运行过程中的失败日志
+   * ---| [id] [FAILED] [方法] [描述] [参数（可选值）]
+   *
+   * @param logger Logger
+   * @param id     跟踪ID
+   * @param method 方法
+   * @param desc   描述
+   */
+  public static void logFailed(Logger logger, String id, String method, String desc) {
+    logger.warn("---| [{}] [FAILED] [{}] [{}]",
+                id,
+                method,
+                desc);
   }
 
-  public static StringBuilder logReq(ApiContext apiContext) {
-    StringBuilder log = new StringBuilder();
-    log.append("---> HTTP  (SUCCEED) ")
-            .append("\n")
-            .append(apiContext.method().name())
-            .append(" ")
-            .append(apiContext.path())
-            .append("\n");
-    Multimap<String, String> headers = apiContext.headers();
-    for (String key : headers.keySet()) {
-      log.append(key)
-              .append(" : ")
-              .append(headers.get(key))
-              .append("\n");
-    }
-    Multimap<String, String> params = apiContext.params();
-    for (String key : params.keySet()) {
-      log.append(key)
-              .append(" : ")
-              .append(params.get(key))
-              .append("\n");
-    }
-    if (apiContext.body() != null) {
-      log.append(apiContext.body().encode());
-    } else {
-      log.append("(nobody)");
-    }
-    log.append("\n").append("---> END");
-    return log;
+  /**
+   * 记录方法运行过程中的异常日志
+   * ---| [id] [FAILED] [方法] [描述] [参数（可选值）]
+   *
+   * @param logger    Logger
+   * @param id        跟踪ID
+   * @param method    方法
+   * @param desc      描述
+   * @param throwable 异常
+   */
+  public static void logError(Logger logger, String id, String method, String desc,
+                              Throwable throwable) {
+    logger.error("---| [{}] [FAILED] [{}] [{}]",
+                 id,
+                 method,
+                 desc,
+                 throwable);
   }
-
-//  public String toString() {
-//    MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ApiContext")
-//            .add("id", id)
-//            .add("params", params)
-//            .add("headers", headers)
-//            .add("body", body)
-//            .add("variables", variables)
-//            .add("apiDefinition", apiDefinition);
-//    if (principal != null) {
-//      helper.add("principal", principal.encode());
-//    }
-//    helper.add("requests", requests);
-//    helper.add("responses", responses);
-//    helper.add("result", result);
-//
-//    return helper.toString();
-//  }
 }

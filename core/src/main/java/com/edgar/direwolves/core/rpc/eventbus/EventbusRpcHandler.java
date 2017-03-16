@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -144,12 +145,9 @@ public class EventbusRpcHandler implements RpcHandler {
 
         }
       } else {
-        LOGGER.warn("<------ [{}] [{}] [{}]",
-                    request.id(),
-                    request.type().toUpperCase(),
-                    "FAILED",
-                    ar.cause().getMessage()
-        );
+        Helper.logFailed(LOGGER, request.id(),
+                         this.getClass().getSimpleName(),
+                         ar.cause().getMessage());
 
         if (ar.cause() instanceof ReplyException) {
           ReplyException ex = (ReplyException) ar.cause();

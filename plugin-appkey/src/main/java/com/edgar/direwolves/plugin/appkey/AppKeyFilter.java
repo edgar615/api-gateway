@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -207,8 +208,11 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
           JsonObject app = ar.result();
           checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
         } else {
+          Helper.logFailed(LOGGER, apiContext.id(),
+                           this.getClass().getSimpleName(),
+                           "undefined AppKey:" + appKey);
           completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                      .set("details", "Undefined AppKey->" + appKey));
+                                      .set("details", "Undefined AppKey:" + appKey));
         }
       });
     }
@@ -248,7 +252,9 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     String secret = app.getString(secretKey, "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
     if (!clientSignValue.equals(serverSignValue)) {
-      LOGGER.warn("---| [{}] [FAILED] [{}]", apiContext.id(), " sign incorrect:" + serverSignValue);
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       "sign incorrect:" + serverSignValue);
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                   .set("details", "The sign is incorrect, baseString->"
                                                   + baseString(params)));

@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -12,6 +13,8 @@ import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
@@ -33,6 +36,8 @@ import java.time.Instant;
  * Created by edgar on 16-9-20.
  */
 public class TimeoutFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutFilter.class);
 
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
@@ -72,8 +77,11 @@ public class TimeoutFilter implements Filter {
     long currentTime = Instant.now().getEpochSecond();
     if ((timestamp > currentTime + timeout)
         || (timestamp < currentTime - timeout)) {
+      Helper.logFailed(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       "timestamp incorrect, client:" + timestamp + ", server:" + currentTime);
       completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE)
-      .set("details", "timestamp:" + timestamp + " is incorrect"));
+                                  .set("details", "timestamp:" + timestamp + " is incorrect"));
     } else {
       completeFuture.complete(apiContext);
     }

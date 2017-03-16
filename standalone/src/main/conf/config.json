@@ -1,5 +1,5 @@
 {
-  "http.port": 9001,
+  "http.port": 9000,
   "project.namespace": "example",
   "long_req_time" : 1000,
   "redis.host": "10.11.0.31",

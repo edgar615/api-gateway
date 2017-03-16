@@ -1,18 +1,17 @@
 package com.edgar.direvolves.plugin.authentication;
 
+import com.google.common.base.Strings;
+
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.dispatch.Result;
-import com.google.common.base.Strings;
+import com.edgar.direwolves.core.utils.Helper;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.jwt.JWTAuth;
-import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.serviceproxy.ProxyHelper;
-
-import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 清除token的Filter.
@@ -20,6 +19,8 @@ import java.util.UUID;
  * Created by edgar on 16-11-26.
  */
 public class JwtCleanFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(JwtCleanFilter.class);
+
   private final Vertx vertx;
 
   private final String userKey;
@@ -71,6 +72,9 @@ public class JwtCleanFilter implements Filter {
     int userId = apiContext.principal().getInteger(userKey);
     String userCacheKey = namespace + ":user:" + userId;
     redisProvider.delete(userCacheKey, ar -> {
+      Helper.logOK(LOGGER, apiContext.id(),
+                       this.getClass().getSimpleName(),
+                       "delete token:" + userCacheKey);
       completeFuture.complete(apiContext);
     });
   }

@@ -1,12 +1,12 @@
 package com.edgar.direwolves.dispatch.handler;
 
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -61,8 +61,8 @@ public class FailureHandler implements Handler<RoutingContext> {
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
       LOGGER.info("---| [{}] [ERROR] [{}]", id,
-          throwable.getMessage(),
-          throwable
+                  throwable.getMessage(),
+                  throwable
       );
       printErrorMsg = true;
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
@@ -72,14 +72,12 @@ public class FailureHandler implements Handler<RoutingContext> {
     }
 
     if (printErrorMsg) {
-      LOGGER.error("---| [{}] [ERROR] [{}]", id,
-          failureMsg.encode(),
-          throwable
-      );
+      Helper.logError(LOGGER, id, FailureHandler.class.getSimpleName(),
+                      "encode exception: " + failureMsg.encode(),
+                      throwable);
     } else {
-      LOGGER.warn("---| [{}] [FAILED] [{}]", id,
-          failureMsg.encode()
-      );
+      Helper.logFailed(LOGGER, id, FailureHandler.class.getSimpleName(),
+                       "encode exception: " + failureMsg.encode());
     }
     response.putHeader("x-request-id", id)
             .setStatusCode(statusCode).end(failureMsg.encode());

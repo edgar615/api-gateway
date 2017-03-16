@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
@@ -110,6 +111,9 @@ public class AuthenticationFilter implements Filter {
                   apiContext.setPrincipal(principal);
                   completeFuture.complete(apiContext);
                 } else {
+                  Helper.logFailed(LOGGER, apiContext.id(),
+                                   this.getClass().getSimpleName(),
+                                   ar.cause().getMessage());
                   completeFuture.fail(ar.cause());
                 }
               });
@@ -131,6 +135,9 @@ public class AuthenticationFilter implements Filter {
         return authorization.substring(AUTH_PREFIX.length());
       }
     }
+    Helper.logFailed(LOGGER, apiContext.id(),
+                     this.getClass().getSimpleName(),
+                     "Authorization is undefined");
     throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
             .set("details", "Request header: Authorization is undefined");
   }

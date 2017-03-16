@@ -5,6 +5,8 @@ import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.google.common.base.Strings;
+
+import com.edgar.direwolves.core.utils.Helper;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -65,11 +67,15 @@ public class ApiFindFilter implements Filter {
           apiContext.setApiDefinition(apiDefinition);
           completeFuture.complete(apiContext);
         } catch (Exception e) {
-          LOGGER.warn("---| [{}] [FAILED] [{}]", apiContext.id(), "failed match api");
+          Helper.logFailed(LOGGER, apiContext.id(),
+                           this.getClass().getSimpleName(),
+                           "failed match api");
           completeFuture.fail(e);
         }
       } else {
-        LOGGER.warn("---| [{}] [FAILED] [{}]", apiContext.id(), "failed match api");
+        Helper.logFailed(LOGGER, apiContext.id(),
+                         this.getClass().getSimpleName(),
+                         "failed match api");
         completeFuture.fail(ar.cause());
       }
     });

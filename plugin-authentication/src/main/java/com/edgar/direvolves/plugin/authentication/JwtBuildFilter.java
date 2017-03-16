@@ -1,16 +1,20 @@
 package com.edgar.direvolves.plugin.authentication;
 
+import com.google.common.base.Strings;
+
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
-import com.google.common.base.Strings;
+import com.edgar.direwolves.core.utils.Helper;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.serviceproxy.ProxyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
@@ -37,6 +41,9 @@ import java.util.UUID;
  * Created by edgar on 16-11-26.
  */
 public class JwtBuildFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JwtBuildFilter.class);
+
   private final Vertx vertx;
 
   private final int expires;
@@ -152,11 +159,20 @@ public class JwtBuildFilter implements Filter {
             body.put("token", token);
             apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
                                                          result.header()));
+            Helper.logOK(LOGGER, apiContext.id(),
+                         this.getClass().getSimpleName(),
+                         "save token:" + userCacheKey);
             completeFuture.complete(apiContext);
           } catch (Exception e) {
+            Helper.logFailed(LOGGER, apiContext.id(),
+                             this.getClass().getSimpleName(),
+                             e.getMessage());
             completeFuture.fail(e);
           }
         } else {
+          Helper.logFailed(LOGGER, apiContext.id(),
+                           this.getClass().getSimpleName(),
+                           ar.cause().getMessage());
           completeFuture.fail(ar.cause());
         }
       });
