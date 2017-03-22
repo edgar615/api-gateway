@@ -53,18 +53,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-
-    LOGGER.info("\n"
-                + "                       _       __ _       _ _   _             \n"
-                + "                      | |     / _(_)     (_) | (_)            \n"
-                + "                    __| | ___| |_ _ _ __  _| |_ _  ___  _ __  \n"
-                + "                   / _` |/ _ \\  _| | '_ \\| | __| |/ _ \\| '_ \\ \n"
-                + "                  | (_| |  __/ | | | | | | | |_| | (_) | | | |\n"
-                + "                   \\__,_|\\___|_| |_|_| |_|_|\\__|_|\\___/|_| |_|");
-
-    LOGGER.info("config->{}", config().encodePrettily());
-
-
+    LOGGER.info("---@ [Definition] [Read config] [OK] [{}]", config().encode());
     registerEventBusConsumer();
     registerBackendApi();
 
@@ -74,7 +63,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
       address = namespace + "." + address;
     }
     ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
-    LOGGER.info("register ApiProvider, address->{}", address);
+    LOGGER.info("---@ [Definition] [register ApiProvider] [OK] [{}]", address);
     //读取路由
     if (config().containsKey("api.config.dir")) {
       readApi(startFuture);
@@ -89,8 +78,8 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
       try {
         List<JsonObject> apiList = readApiJsonFromDir(configDir);
         f.complete(apiList);
-      } catch (IOException e) {
-        LOGGER.error("Read Api failed, error->{}", e.getMessage());
+      } catch (Exception e) {
+        LOGGER.error("---@ [Definition] [Read Api] [FAILED] [{}]", e.getMessage());
         f.fail(e);
       }
     }, ar -> {
@@ -101,11 +90,11 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
                   .forEach(d -> ApiDefinitionRegistry.create().add(d));
           startFuture.complete();
         } catch (Exception e) {
-          LOGGER.error("Decode Api failed, error->{}", e.getMessage());
+          LOGGER.error("---@ [Definition] [Decode Api] [FAILED] [{}]", e.getMessage());
           startFuture.fail(e);
         }
       } else {
-        LOGGER.error("Decode Api failed, error->{}", ar.cause().getMessage());
+        LOGGER.error("---@ [Definition] [Decode Api] [FAILED] [{}]", ar.cause().getMessage());
         startFuture.fail(ar.cause());
       }
     });
@@ -116,9 +105,14 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     List<File> files = readApiFileFromDir(new File(dirPath));
     ObjectMapper mapper = new ObjectMapper();
     for (File file : files) {
-      Map<String, Object> map = mapper.readValue(file, Map.class);
-      mappings.add(new JsonObject(map));
-      LOGGER.info("Read Api from {}", file.getAbsolutePath());
+      try {
+        Map<String, Object> map = mapper.readValue(file, Map.class);
+        mappings.add(new JsonObject(map));
+        LOGGER.info("---@ [Definition] [Read Api] [OK] [{}]", file.getAbsolutePath());
+      } catch (Exception e) {
+        LOGGER.error("---@ [Definition] [Read Api] [FAILED] [{}]", file.getAbsolutePath()
+                                                      + ":" + e.getMessage());
+      }
     }
     return mappings;
   }
@@ -145,7 +139,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             .stream()
             .map(f -> f.create(vertx, config()))
             .forEach(cmd -> {
-              LOGGER.info("register consumer, address->{}", cmdAddress(namespace, cmd.cmd()));
+              LOGGER.info("---@ [Definition] [register consumer] [OK] [{}]", cmdAddress(namespace, cmd.cmd()));
               eb.<JsonObject>consumer(cmdAddress(namespace, cmd.cmd()), msg -> {
                 Future<JsonObject> future = cmd.handle(msg.body());
                 future.setHandler(ar -> {
@@ -171,7 +165,6 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
       SystemException ex = (SystemException) throwable;
       msg.fail(ex.getErrorCode().getNumber(), ex.getMessage());
     } else if (throwable instanceof ValidationException) {
-      ValidationException ex = (ValidationException) throwable;
       msg.fail(DefaultErrorCode.INVALID_ARGS.getNumber(),
                DefaultErrorCode.INVALID_ARGS.getMessage());
     } else {
