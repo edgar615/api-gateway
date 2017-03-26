@@ -1,0 +1,17 @@
+<ul class="pagination pull-right mrg25L mrg0T mrg5B">
+    <li class="prev" ng-hide="page == 1" ng-click="gotoPage(page - 1)"><a href="javascript:;">
+        <i class="fa fa-angle-left"></i>
+    </a></li>
+    <li><a class="disabled active ng-binding" href="javascript:;">{{page}}/{{totalPages}}页</a></li>
+
+    <li class="next" ng-hide="page == totalPages" ng-click="gotoPage(page + 1)"><a href="javascript:;">
+        <i class="fa fa-angle-right"></i>
+    </a></li>
+    <li class="mrg5L">
+        <!--<label class="blank5 bg-white"></label>-->
+        <span class="text-blue ng-binding">跳转到
+        <input type="text" class="page-input" ng-model="p" ng-keydown="enterPageValue($event)">
+        <span class="mrg5L"></span>页
+        </span>
+    </li>
+</ul>
