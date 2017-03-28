@@ -1,0 +1,18 @@
+<ng-include src="'app/partials/left_sidebar.html'" onload="" autoscroll=""></ng-include>
+
+<div>
+    <!--BEGIN TO TOP--><a id="totop" href="javascript:;">
+    <i class="fa fa-angle-up"></i>
+</a><!--END BACK TO TOP-->
+</div>
+
+<!-- Content -->
+<div id="content">
+    <ng-include src="'app/partials/top_navbar.html'" onload="" autoscroll=""></ng-include>
+
+    <!-- Content start -->
+    <div class="container-fluid">
+        <ui-view></ui-view>
+    </div>
+</div>
+<!-- /Content -->

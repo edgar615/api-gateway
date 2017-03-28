@@ -11,21 +11,8 @@ public class WebVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-
     Router router = Router.router(vertx);
-    router.route("/static/*").handler(StaticHandler.create());
-    TemplateEngine engine = HandlebarsTemplateEngine.create();
-    router.get().handler(rc -> {
-      rc.put("name", "vert.x webhoho");
-
-      engine.render(rc, "templates/index.hbs", res -> {
-        if (res.succeeded()) {
-          rc.response().end(res.result());
-        } else {
-          rc.fail(res.cause());
-        }
-      });
-    });
+    router.route().handler(StaticHandler.create());
     vertx.createHttpServer().requestHandler(router::accept).listen(8080);
   }
 }

@@ -1,45 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="MyApp">
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
     <title>Direwolves</title>
     <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="/static/assets/css/style.css">
+    <link href="//cdn.bootcss.com/angular-loading-bar/0.9.0/loading-bar.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="//cdn.bootcss.com/metisMenu/2.7.0/metisMenu.min.css" rel="stylesheet">
     <link href="//cdn.bootcss.com/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="page-container">
-    {{#block "static/partials/sidebar.html"}}
-    {{/block}}
-
-    <div>
-        <!--BEGIN TO TOP--><a id="totop" href="javascript:;">
-        <i class="fa fa-angle-up"></i>
-    </a><!--END BACK TO TOP-->
-    </div>
-
-    <!-- Content -->
-    <div id="content">
-        {{#block "static/partials/navbar.html"}}
-        {{/block}}
-
-        <!-- Content start -->
-        <div class="container-fluid">
-            {{#block "static/partials/blank.html"}}
-            {{/block}}
-        </div>
-    </div>
-    <!-- /Content -->
+<div class="page-container" ng-controller="MainCtrl">
+    <ui-view></ui-view>
 </div>
 
 <script src="//cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="//cdn.bootcss.com/metisMenu/2.7.0/metisMenu.min.js"></script>
+<script src="//cdn.bootcss.com/metisMenu/1.0.3/metisMenu.min.js"></script>
 <script src="//cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
-<script src="//cdn.bootcss.com/handlebars.js/4.0.6/handlebars.min.js"></script>
 
+<!--angular-->
+<script src="//cdn.bootcss.com/angular.js/1.2.0/angular.min.js"></script>
+<script src="//cdn.bootcss.com/angular.js/1.2.0/angular-animate.min.js"></script>
+<script src="//cdn.bootcss.com/angular.js/1.2.0/angular-resource.min.js"></script>
+<script src="//cdn.bootcss.com/angular-ui-router/0.2.18/angular-ui-router.min.js"></script>
+<script src="//cdn.bootcss.com/oclazyload/1.1.0/ocLazyLoad.min.js"></script>
+<script src="//cdn.bootcss.com/angular-loading-bar/0.9.0/loading-bar.min.js"></script>
+<script src="//cdn.bootcss.com/ngStorage/0.3.11/ngStorage.min.js"></script>
+
+<!--angular validation-->
+<script src="//cdn.bootcss.com/angular-validation/1.4.3/angular-validation.min.js"></script>
+<script src="//cdn.bootcss.com/angular-validation/1.4.3/angular-validation-rule.min.js"></script>
+
+<script src="app/app.routes.js"></script>
+<script src="app/app.controllers.js"></script>
+<script src="app/app.directives.js"></script>
+<script src="app/app.service.js"></script>
 </body>
 </html>

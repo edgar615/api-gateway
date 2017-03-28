@@ -14,18 +14,9 @@
         </rollingPolicy>
         <!--%date %level [%thread] %logger{10} [%file:%line] %msg%n-->
         <encoder>
-            <pattern>%date %level [%thread]  %msg%n
+            <pattern>%date %level [%thread] %msg%n
             </pattern>
         </encoder>
-    </appender>
-    <appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
-        <SyslogHost>localhost</SyslogHost>
-        <Facility>local6</Facility>
-        <FacilityPrinting>true</FacilityPrinting>
-        <SuffixPattern>%-5p %c{2} [%t,%M:%L] %m%n</SuffixPattern>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>debug</level>
-        </filter>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are by default assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
@@ -42,11 +33,11 @@
     <logger name="ch.qos.logback.core" level="WARN"/>
     <logger name="ch.qos.logback.classic" level="WARN"/>
     <logger name="org.maven" level="INFO"/>-->
-    <logger name="com.edgar" level="debug"/>
+    <logger name="com.edgar" level="debug">
+        <appender-ref ref="FILE"/>
+    </logger>
 
     <root level="DEBUG">
-        <appender-ref ref="syslog"/>
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
     </root>
 </configuration>

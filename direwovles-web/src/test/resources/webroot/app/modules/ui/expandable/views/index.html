@@ -1,0 +1,78 @@
+<!--row-->
+<div class="row">
+    <!--                   col-md-6-->
+    <div class="col-md-offset-3 col-md-6">
+        <h4 class="page-section-heading">Example #1 (Small preview)</h4>
+        <div class="expandable expandable-trigger">
+            <div class="expandable-content">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi delectus distinctio eaque, esse, id maxime modi, nam neque nihil qui quia quibusdam quis quisquam similique sunt totam veritatis. Ad autem consequatur cum delectus deleniti
+                    dolor dolores eius, eligendi error id nesciunt odit officia perferendis quasi recusandae similique tempora tenetur voluptas.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur debitis dignissimos maiores nisi optio quas, quod? Animi fuga inventore laborum nemo quaerat quis quod? Alias, architecto consequuntur corporis deleniti dolor facilis
+                    id minima necessitatibus nihil perspiciatis quo repellendus saepe, sunt suscipit velit. Deleniti dolorum id maxime omnis perspiciatis sed, veniam?</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium aliquam autem doloribus iste nesciunt nihil nisi odio, optio temporibus. Alias dolore eveniet expedita neque nesciunt nihil qui reprehenderit repudiandae tempore?
+                    A consectetur ipsam magni quibusdam totam? At earum id incidunt iure labore libero, perferendis perspiciatis, saepe sed suscipit velit veritatis.</p>
+            </div>
+        </div>
+
+        <h4 class="page-section-heading">Example #2 (Large preview)</h4>
+        <div class="expandable expandable-trigger">
+            <div class="expandable-content expandable-content-large">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi delectus distinctio eaque, esse, id maxime modi, nam neque nihil qui quia quibusdam quis quisquam similique sunt totam veritatis. Ad autem consequatur cum delectus deleniti
+                    dolor dolores eius, eligendi error id nesciunt odit officia perferendis quasi recusandae similique tempora tenetur voluptas.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur debitis dignissimos maiores nisi optio quas, quod? Animi fuga inventore laborum nemo quaerat quis quod? Alias, architecto consequuntur corporis deleniti dolor facilis
+                    id minima necessitatibus nihil perspiciatis quo repellendus saepe, sunt suscipit velit. Deleniti dolorum id maxime omnis perspiciatis sed.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium aliquam autem doloribus iste nesciunt nihil nisi odio, optio temporibus. Alias dolore eveniet expedita neque nesciunt nihil qui reprehenderit repudiandae tempore?
+                    A consectetur ipsam magni quibusdam totam? At earum id incidunt iure labore libero, perferendis perspiciatis, saepe sed suscipit velit veritatis.</p>
+            </div>
+        </div>
+    </div>
+    <!--                    /col-md-6-->
+</div>
+<!-- /row -->
+
+
+<!--row-->
+<div class="row">
+    <!--                   col-md-6-->
+    <div class="col-md-offset-3 col-md-6">
+        <h4 class="page-section-heading">Example #3 (Expandable on white background)</h4>
+        <div class="panel panel-default">
+            <div class="panel-body expandable expandable-indicator-white expandable-trigger">
+                <div class="expandable-content">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. A accusamus aut consectetur consequatur cum cupiditate debitis doloribus, error ex explicabo harum illum minima mollitia nisi nostrum officiis omnis optio qui quisquam saepe
+                        sit sunt totam vel velit voluptatibus? Adipisci ducimus expedita id nostrum quas quia!</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur debitis dignissimos maiores nisi optio quas, quod? Animi fuga inventore laborum nemo quaerat quis quod? Alias, architecto consequuntur corporis deleniti dolor
+                        facilis id minima necessitatibus nihil perspiciatis quo repellendus saepe, sunt suscipit velit. Deleniti dolorum id maxime omnis perspiciatis sed, veniam?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium aliquam autem doloribus iste nesciunt nihil nisi odio, optio temporibus. Alias dolore eveniet expedita neque nesciunt nihil qui reprehenderit repudiandae tempore?
+                        A consectetur ipsam magni quibusdam totam? At earum id incidunt iure labore libero, perferendis perspiciatis, saepe sed suscipit velit veritatis.</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body expandable expandable-indicator-white expandable-trigger">
+                <div class="expandable-content expandable-content-large">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. A accusamus aut consectetur consequatur cum cupiditate debitis doloribus, error ex explicabo harum illum minima mollitia nisi nostrum officiis omnis optio qui quisquam saepe
+                        sit sunt totam vel velit voluptatibus? Adipisci ducimus expedita id nostrum quas quia!</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur debitis dignissimos maiores nisi optio quas, quod? Animi fuga inventore laborum nemo quaerat quis quod? Alias, architecto consequuntur corporis deleniti dolor
+                        facilis id minima necessitatibus nihil perspiciatis quo repellendus saepe, sunt suscipit velit. Deleniti dolorum id maxime omnis perspiciatis sed, veniam?</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium aliquam autem doloribus iste nesciunt nihil nisi odio, optio temporibus. Alias dolore eveniet expedita neque nesciunt nihil qui reprehenderit repudiandae tempore?
+                        A consectetur ipsam magni quibusdam totam? At earum id incidunt iure labore libero, perferendis perspiciatis, saepe sed suscipit velit veritatis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--                    /col-md-6-->
+</div>
+<!-- /row -->
+
+<script type="text/javascript">
+    $('.expandable-content').append('<div class="expandable-indicator"><i></i></div>');
+
+    $('body').on('click', '.expandable-indicator', function(){
+        $(this).closest('.expandable').toggleClass('expandable-open');
+    });
+
+    $('body').on('click', '.expandable-trigger:not(.expandable-open)', function(){
+        $(this).addClass('expandable-open');
+    });
+</script>
