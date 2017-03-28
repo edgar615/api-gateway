@@ -7,10 +7,7 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.cmd.ApiCmdFactory;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiProvider;
-import com.edgar.direwolves.core.definition.Endpoint;
-import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.definition.ApiProviderImpl;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -20,8 +17,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
@@ -34,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 /**
  * java -jar definition-1.0.0.jar run com.edgar.direwolves.definition.DefinitonVerticle.
@@ -55,7 +49,6 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) throws Exception {
     LOGGER.info("---@ [Definition] [Read config] [OK] [{}]", config().encode());
     registerEventBusConsumer();
-    registerBackendApi();
 
     String namespace = config().getString("project.namespace", "");
     String address = ApiProvider.class.getName();
@@ -111,7 +104,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
         LOGGER.info("---@ [Definition] [Read Api] [OK] [{}]", file.getAbsolutePath());
       } catch (Exception e) {
         LOGGER.error("---@ [Definition] [Read Api] [FAILED] [{}]", file.getAbsolutePath()
-                                                      + ":" + e.getMessage());
+                                                                   + ":" + e.getMessage());
       }
     }
     return mappings;
@@ -139,7 +132,8 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             .stream()
             .map(f -> f.create(vertx, config()))
             .forEach(cmd -> {
-              LOGGER.info("---@ [Definition] [register consumer] [OK] [{}]", cmdAddress(namespace, cmd.cmd()));
+              LOGGER.info("---@ [Definition] [register consumer] [OK] [{}]",
+                          cmdAddress(namespace, cmd.cmd()));
               eb.<JsonObject>consumer(cmdAddress(namespace, cmd.cmd()), msg -> {
                 Future<JsonObject> future = cmd.handle(msg.body());
                 future.setHandler(ar -> {
@@ -172,35 +166,5 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     }
   }
 
-  private void registerBackendApi() {
-    List<ApiDefinition> apiDefinitions = cmdToBackendApi();
-    apiDefinitions.forEach(d -> {
-      ApiDefinitionRegistry.create().add(d);
-    });
-  }
-
-  private List<ApiDefinition> cmdToBackendApi() {
-    String namespace = config().getString("project.namespace", "");
-    return
-            Lists.newArrayList(ServiceLoader.load(ApiCmdFactory.class))
-                    .stream()
-                    .map(f -> f.create(vertx, config()))
-                    .map(cmd -> {
-                      String address = cmdAddress(namespace, cmd.cmd());
-                      Endpoint endpoint =
-                              EventbusEndpoint.reqResp(cmd.cmd(), address, null);
-                      ApiDefinition apiDefinition =
-                              ApiDefinition.create(address, HttpMethod.GET, "backend/" + cmd.cmd(),
-                                                   Lists.newArrayList(endpoint));
-                      JsonObject jsonObject = new JsonObject()
-                              .put("authentication", true)
-                              .put("acl_restriction", new JsonObject()
-                                      .put("whitelist", new JsonArray().add("backend"))
-                                      .put("blacklist", new JsonArray().add("*")));
-                      ApiPlugin.factories.forEach(
-                              f -> apiDefinition.addPlugin((ApiPlugin) f.decode(jsonObject)));
-                      return apiDefinition;
-                    }).collect(Collectors.toList());
-  }
 
 }

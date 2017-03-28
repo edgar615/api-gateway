@@ -1,0 +1,10 @@
+{
+  "enabled" : true,
+  "register-name" : "my-register",
+  "monitoredHttpServerUris" : [
+    {
+      "value" : "/.*",
+      "type" : "REGEX"
+    }
+  ]
+}

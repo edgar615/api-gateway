@@ -45,7 +45,7 @@
   "app.codeKey" : "companyCode",
   "app.permissionKey" : "scope",
   "app.importer" : {
-    "scan-period": 50000,
+    "scan-period": 500000,
     "url": "/appkey/import"
   },
   "log.ignore": ["appkey_list"],
