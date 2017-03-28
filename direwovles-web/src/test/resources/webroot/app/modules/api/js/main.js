@@ -1,3 +1,0 @@
-// PANELS
-$(document).ready(function () {
-});
