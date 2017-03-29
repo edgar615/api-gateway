@@ -1,18 +1,16 @@
 package com.edgar.direwolves.verticle;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import com.edgar.direwolves.cmd.ImportApiCmd;
+import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.cmd.ApiCmdFactory;
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.definition.ApiProviderImpl;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -22,12 +20,6 @@ import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
@@ -67,61 +59,16 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   private void readApi(Future<Void> startFuture) {
     String configDir = config().getString("api.config.dir");
-    vertx.<List<JsonObject>>executeBlocking(f -> {
-      try {
-        List<JsonObject> apiList = readApiJsonFromDir(configDir);
-        f.complete(apiList);
-      } catch (Exception e) {
-        LOGGER.error("---@ [Definition] [Read Api] [FAILED] [{}]", e.getMessage());
-        f.fail(e);
-      }
-    }, ar -> {
+    ApiCmd cmd = new ImportApiCmd(vertx);
+    Future<JsonObject> imported = cmd.handle(new JsonObject().put("path", configDir));
+    imported.setHandler(ar -> {
       if (ar.succeeded()) {
-        try {
-          List<JsonObject> apiList = ar.result();
-          apiList.stream().map(json -> ApiDefinition.fromJson(json))
-                  .forEach(d -> ApiDefinitionRegistry.create().add(d));
-          startFuture.complete();
-        } catch (Exception e) {
-          LOGGER.error("---@ [Definition] [Decode Api] [FAILED] [{}]", e.getMessage());
-          startFuture.fail(e);
-        }
+        LOGGER.info("---| [Import Api] [OK] [{}]", ar.result().encode());
+        startFuture.complete();
       } else {
-        LOGGER.error("---@ [Definition] [Decode Api] [FAILED] [{}]", ar.cause().getMessage());
         startFuture.fail(ar.cause());
       }
     });
-  }
-
-  private List<JsonObject> readApiJsonFromDir(String dirPath) throws IOException {
-    List<JsonObject> mappings = new ArrayList<>();
-    List<File> files = readApiFileFromDir(new File(dirPath));
-    ObjectMapper mapper = new ObjectMapper();
-    for (File file : files) {
-      try {
-        Map<String, Object> map = mapper.readValue(file, Map.class);
-        mappings.add(new JsonObject(map));
-        LOGGER.info("---@ [Definition] [Read Api] [OK] [{}]", file.getAbsolutePath());
-      } catch (Exception e) {
-        LOGGER.error("---@ [Definition] [Read Api] [FAILED] [{}]", file.getAbsolutePath()
-                                                                   + ":" + e.getMessage());
-      }
-    }
-    return mappings;
-  }
-
-  private List<File> readApiFileFromDir(File jsonDir) {
-    Preconditions.checkArgument(jsonDir.isDirectory(),
-                                "Api definition directory must be directory");
-
-    List<File> mappingFiles = new ArrayList<>();
-    File[] jsonFiles = jsonDir.listFiles((dir, fileName) -> fileName.endsWith(".json"));
-    Iterables.addAll(mappingFiles, Arrays.asList(jsonFiles));
-    File[] jsonDirs = jsonDir.listFiles((pathname) -> pathname.isDirectory());
-    for (File dir : jsonDirs) {
-      Iterables.addAll(mappingFiles, readApiFileFromDir(dir));
-    }
-    return mappingFiles;
   }
 
   private void registerEventBusConsumer() {

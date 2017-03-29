@@ -47,7 +47,8 @@ public class ImportApiCmdTest {
     cmd.handle(jsonObject)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                testContext.assertEquals(1, ar.result().getInteger("result"));
+                testContext.assertEquals(2, ar.result().getInteger("total"));
+                testContext.assertEquals(2, ar.result().getInteger("succeed"));
                 testContext.assertEquals(1, registry.filter("add_device").size());
                 testContext.assertEquals(1, registry.filter("add_*").size());
                 testContext.assertEquals(2, registry.filter("*_device").size());
@@ -71,7 +72,9 @@ public class ImportApiCmdTest {
     cmd.handle(jsonObject)
         .setHandler(ar -> {
           if (ar.succeeded()) {
-            testContext.assertEquals(1, ar.result().getInteger("result"));
+            System.out.println(ar.result());
+            testContext.assertEquals(1, ar.result().getInteger("total"));
+            testContext.assertEquals(1, ar.result().getInteger("succeed"));
             testContext.assertEquals(1, registry.filter("add_device").size());
             testContext.assertEquals(1, registry.filter("add_*").size());
             testContext.assertEquals(1, registry.filter("*_device").size());
@@ -95,10 +98,12 @@ public class ImportApiCmdTest {
     cmd.handle(jsonObject)
         .setHandler(ar -> {
           if (ar.succeeded()) {
-            testContext.fail();
-          } else {
-            testContext.assertEquals(0, registry.filter(null).size());
+            testContext.assertEquals(2, ar.result().getInteger("total"));
+            testContext.assertEquals(1, ar.result().getInteger("succeed"));
+            testContext.assertEquals(1, registry.filter(null).size());
             async.complete();
+          } else {
+            testContext.fail();
           }
         });
   }
