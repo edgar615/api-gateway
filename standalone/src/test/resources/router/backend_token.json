@@ -12,13 +12,13 @@
         "userId": -188,
         "username" : "backend",
         "permissions" : "all",
-        "role" : "backend"
+        "group" : "backend"
       }
     }
   ],
   "body_arg": [
     {
-      "name": "tel",
+      "name": "username",
       "rules": {
         "required": true
       }

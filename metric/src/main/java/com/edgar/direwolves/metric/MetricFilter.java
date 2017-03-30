@@ -16,28 +16,19 @@ import io.vertx.serviceproxy.ProxyHelper;
  */
 public class MetricFilter implements Filter {
 
-  private final Vertx vertx;
-
-  private final RedisProvider redisProvider;
+  private Api
 
   MetricFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    String namespace = config.getString("project.namespace", "");
-    String address = RedisProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
-    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 
   @Override
   public String type() {
-    return POST;
+    return PRE;
   }
 
   @Override
   public int order() {
-    return Integer.MAX_VALUE;
+    return Integer.MIN_VALUE + 1;
   }
 
   @Override

@@ -13,7 +13,7 @@ public class BeckendCodeTest {
 
     Api api = new Api();
     JsonObject data = new JsonObject()
-            .put("tel", "18627874615");
+            .put("username", "18627874615");
     api.setData(data.getMap());
     Vertx.vertx().createHttpClient()
             .post(9000, "localhost", "/backend/code?" + api.signTopRequest())

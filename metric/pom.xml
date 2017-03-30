@@ -12,33 +12,33 @@
     <artifactId>direwolves-metric</artifactId>
 
     <dependencies>
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.awaitility</groupId>
-        <artifactId>awaitility</artifactId>
-        <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-        <groupId>io.vertx</groupId>
-        <artifactId>vertx-unit</artifactId>
-        <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-unit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-        <groupId>io.vertx</groupId>
-        <artifactId>vertx-auth-jwt</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-dropwizard-metrics</artifactId>
+        </dependency>
 
-    <dependency>
-        <groupId>com.edgar</groupId>
-        <artifactId>direwolves-core</artifactId>
-        <version>${project.parent.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

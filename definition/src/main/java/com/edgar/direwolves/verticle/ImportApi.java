@@ -21,7 +21,6 @@ public class ImportApi implements Initializable {
       Future<JsonObject> imported = cmd.handle(new JsonObject().put("path", configDir));
       imported.setHandler(ar -> {
         if (ar.succeeded()) {
-//        LOGGER.info("---| [Import Api] [OK] [{}] [{}]", configDir, ar.result().encode());
           complete.complete();
         } else {
           complete.fail(ar.cause());

@@ -65,10 +65,10 @@ public class ImportApiCmd implements ApiCmd {
             JsonObject json = new JsonObject(str);
             ApiDefinition d = ApiDefinition.fromJson(json);
             ApiDefinitionRegistry.create().add(d);
-            LOGGER.info("---| [Import Api] [OK] [{}]", d.name());
+            LOGGER.info("---| [Import Api] [OK] [{}] [{}]", d.name(), str);
             succeed.add(d.name());
           } catch (Exception e) {
-            LOGGER.error("---| [Import Api] [FAILED] [{}]", e.getMessage());
+            LOGGER.error("---| [Import Api] [FAILED] [{}] [{}]", e.getMessage(), str);
           }
         }
         future.complete(new JsonObject().put("total", apiList.size())

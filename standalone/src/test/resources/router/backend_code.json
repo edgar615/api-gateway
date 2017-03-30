@@ -6,16 +6,15 @@
   "appkey" : true,
   "endpoints": [
     {
-      "type": "http",
-      "name": "sms.send",
-      "service": "sms",
-      "method": "POST",
-      "path": "/sms"
+      "type": "dummy",
+      "name" : "backend",
+      "result" : {
+      }
     }
   ],
   "body_arg": [
     {
-      "name": "tel",
+      "name": "username",
       "rules": {
         "required": true
       }
@@ -23,7 +22,7 @@
   ],
   "request_transformer": [
     {
-      "name": "sms.send",
+      "name": "backend",
       "body.add": [
         "code:$var.backend.code"
       ]
@@ -31,7 +30,8 @@
   ],
   "response_transformer": {
     "body.add": [
-      "sign:$var.backend.sign"
+      "sign:$var.backend.sign",
+      "code:$var.backend.code"
     ]
   },
   "backend_code": true
