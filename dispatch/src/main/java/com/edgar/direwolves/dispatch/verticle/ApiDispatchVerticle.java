@@ -80,12 +80,12 @@ public class ApiDispatchVerticle extends AbstractVerticle {
             });
 
     //metirc
-    MetricsService metricsService = MetricsService.create(vertx);
-    vertx.setPeriodic(5000, t -> {
-      System.out.println(metricsService.getBaseName(httpServer));
-      JsonObject metrics = metricsService.getMetricsSnapshot(
-              metricsService.getBaseName(httpServer) + ".post-requests./login");
-      System.out.println(metrics.encodePrettily());
-    });
+//    MetricsService metricsService = MetricsService.create(vertx);
+//    vertx.setPeriodic(5000, t -> {
+//      System.out.println(metricsService.getBaseName(httpServer));
+//      JsonObject metrics = metricsService.getMetricsSnapshot(
+//              metricsService.getBaseName(httpServer) + ".post-requests./login");
+//      System.out.println(metrics.encodePrettily());
+//    });
   }
 }

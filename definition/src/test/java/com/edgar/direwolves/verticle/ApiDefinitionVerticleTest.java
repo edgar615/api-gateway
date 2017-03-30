@@ -17,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Edgar on 2016/4/11.
  *

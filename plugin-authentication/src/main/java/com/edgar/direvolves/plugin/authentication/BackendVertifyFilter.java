@@ -44,7 +44,7 @@ public class BackendVertifyFilter implements Filter {
   private final Vertx vertx;
 
   BackendVertifyFilter(Vertx vertx, JsonObject config) {
-    commonParamRule.put("tel", Rule.required());
+    commonParamRule.put("username", Rule.required());
     commonParamRule.put("code", Rule.required());
     commonParamRule.put("sign", Rule.required());
     this.vertx = vertx;
@@ -77,13 +77,13 @@ public class BackendVertifyFilter implements Filter {
     } else {
       Validations.validate(apiContext.body().getMap(), commonParamRule);
     }
-    String tel = apiContext.body().getString("tel");
-    if (!allowedPermitted.contains(tel)) {
+    String username = apiContext.body().getString("username");
+    if (!allowedPermitted.contains(username)) {
       Helper.logFailed(LOGGER, apiContext.id(),
                        this.getClass().getSimpleName(),
-                       tel + " not allowed");
+                       username + " not allowed");
       throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
-              .set("details", tel + " not allowed");
+              .set("details", username + " not allowed");
     }
     try {
       String code = apiContext.body().getString("code");

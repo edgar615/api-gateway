@@ -1,6 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
-import com.edgar.direwolves.core.spi.JsonObjectCodec;
+import com.edgar.util.vertx.spi.JsonObjectCodec;
 
 /**
  * Created by Edgar on 2016/10/21.

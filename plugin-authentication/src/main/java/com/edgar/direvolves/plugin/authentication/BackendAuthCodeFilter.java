@@ -29,11 +29,10 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 隐藏的一个过滤器，主要用于超级管理员的访问授权.
- * 请求登录密码，密码是一个随机的6位数字，会通过短信发送到手机上，有五分钟的失效性
  * 这个Filter需要body中有tel参数，会保存backend.code、backend.sign两个变量
  * 该filter可以接受下列的配置参数
  * <pre>
- *   backend.permitted JSON数组 允许的手机号
+ *   backend.permitted JSON数组 允许的(用户名)
  * </pre>
  * 该filter的order=1000
  *
@@ -50,7 +49,7 @@ public class BackendAuthCodeFilter implements Filter {
   private final Vertx vertx;
 
   BackendAuthCodeFilter(Vertx vertx, JsonObject config) {
-    commonParamRule.put("tel", Rule.required());
+    commonParamRule.put("username", Rule.required());
     this.vertx = vertx;
     JsonArray permitted = config.getJsonArray("backend.permitted", new JsonArray());
     for (int i = 0; i < permitted.size(); i++) {
@@ -81,13 +80,13 @@ public class BackendAuthCodeFilter implements Filter {
     } else {
       Validations.validate(apiContext.body().getMap(), commonParamRule);
     }
-    String tel = apiContext.body().getString("tel");
-    if (!allowedPermitted.contains(tel)) {
+    String username = apiContext.body().getString("username");
+    if (!allowedPermitted.contains(username)) {
       Helper.logFailed(LOGGER, apiContext.id(),
                        this.getClass().getSimpleName(),
-                       tel + " not allowed");
+                       username + " not allowed");
       throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
-              .set("details", tel + " not allowed");
+              .set("details", username + " not allowed");
     }
     String code = Randoms.randomNumber(6);
     apiContext.addVariable("backend.code", code);

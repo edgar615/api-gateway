@@ -29,10 +29,8 @@ public interface ApiCmd {
   default Future<JsonObject> handle(JsonObject jsonObject) {
     try {
       Future<JsonObject> future = doHandle(jsonObject);
-      LOGGER.debug("{} succeed, name->{}", cmd(), jsonObject);
       return future;
     } catch (Exception e) {
-      LOGGER.error("{} failed, error->{}", cmd(), e.getMessage(), e);
       return Future.failedFuture(e);
     }
   }

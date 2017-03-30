@@ -1,35 +1,18 @@
 package com.edgar.direwolves.verticle;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
-import com.edgar.direwolves.cmd.ImportApiCmd;
-import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.cmd.ApiCmdFactory;
 import com.edgar.direwolves.core.definition.ApiProvider;
 import com.edgar.direwolves.definition.ApiProviderImpl;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
-import com.edgar.util.validation.ValidationException;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ServiceLoader;
-
 /**
- * java -jar definition-1.0.0.jar run com.edgar.direwolves.definition.DefinitonVerticle.
- * <p>
- * java -jar definition-1.0.0.jar start com.edgar.direwolves.definition.DefinitonVerticle.
- * <p>
- * java -jar definition-1.0.0.jar list
- * <p>
- * java -jar definition-1.0.0.jar stop vertId
+ * API定义的Verticle，从指定的路径<code>api.config.dir</code>读取API定义.
  *
  * @author Edgar  Date 2016/9/13
  */
@@ -39,78 +22,39 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    LOGGER.info("---@ [Definition] [Read config] [OK] [{}]", config().encode());
-    registerEventBusConsumer();
-
+    LOGGER.info("---| [Read Definition Config] [{}]", config().encodePrettily());
     String namespace = config().getString("project.namespace", "");
     String address = ApiProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;
     }
     ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
-    LOGGER.info("---@ [Definition] [register ApiProvider] [OK] [{}]", address);
+    LOGGER.info("---| [Register ApiProvider] [{}]", address);
+    initialize(startFuture);
+  }
+
+  public void initialize(Future<Void> startFuture) {
     //读取路由
-    if (config().containsKey("api.config.dir")) {
-      readApi(startFuture);
-    } else {
-      startFuture.complete();
-    }
-  }
+    Future<Void> importApiFuture = Future.future();
+    new ImportApi().initialize(vertx, config(), importApiFuture);
+    //读取命令
+    Future<Void> importCmdFuture = Future.future();
+    new RegisterApiCmd().initialize(vertx, config(), importCmdFuture);
 
-  private void readApi(Future<Void> startFuture) {
-    String configDir = config().getString("api.config.dir");
-    ApiCmd cmd = new ImportApiCmd(vertx);
-    Future<JsonObject> imported = cmd.handle(new JsonObject().put("path", configDir));
-    imported.setHandler(ar -> {
-      if (ar.succeeded()) {
-        LOGGER.info("---| [Import Api] [OK] [{}]", ar.result().encode());
-        startFuture.complete();
-      } else {
-        startFuture.fail(ar.cause());
-      }
-    });
-  }
+    //注册API
+    Future<Void> backendApiFuture = Future.future();
+    new RegisterBackendApi().initialize(vertx, config(), backendApiFuture);
 
-  private void registerEventBusConsumer() {
-    String namespace = config().getString("project.namespace", "");
-    //eventbus consumer
-    EventBus eb = vertx.eventBus();
-    Lists.newArrayList(ServiceLoader.load(ApiCmdFactory.class))
-            .stream()
-            .map(f -> f.create(vertx, config()))
-            .forEach(cmd -> {
-              LOGGER.info("---@ [Definition] [register consumer] [OK] [{}]",
-                          cmdAddress(namespace, cmd.cmd()));
-              eb.<JsonObject>consumer(cmdAddress(namespace, cmd.cmd()), msg -> {
-                Future<JsonObject> future = cmd.handle(msg.body());
-                future.setHandler(ar -> {
-                  if (ar.succeeded()) {
-                    msg.reply(ar.result());
-                  } else {
-                    eventbusFailureHandler(msg, ar.cause());
-                  }
-                });
-              });
+    CompositeFuture.all(importApiFuture, importCmdFuture, backendApiFuture)
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                LOGGER.info("---| [Definition Start] [OK]");
+                startFuture.complete();
+              } else {
+                LOGGER.error("---| [Definition Start] [FAILED]");
+                startFuture.fail(ar.cause());
+              }
             });
-  }
-
-  private String cmdAddress(String namespace, String cmd) {
-    if (Strings.isNullOrEmpty(namespace)) {
-      return "direwolves.eb." + cmd;
-    }
-    return namespace + ".direwolves.eb." + cmd;
-  }
-
-  private void eventbusFailureHandler(Message<JsonObject> msg, Throwable throwable) {
-    if (throwable instanceof SystemException) {
-      SystemException ex = (SystemException) throwable;
-      msg.fail(ex.getErrorCode().getNumber(), ex.getMessage());
-    } else if (throwable instanceof ValidationException) {
-      msg.fail(DefaultErrorCode.INVALID_ARGS.getNumber(),
-               DefaultErrorCode.INVALID_ARGS.getMessage());
-    } else {
-      msg.fail(999, throwable.getMessage());
-    }
   }
 
 

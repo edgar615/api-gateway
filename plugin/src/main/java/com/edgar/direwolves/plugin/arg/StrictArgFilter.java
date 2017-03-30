@@ -56,7 +56,14 @@ public class StrictArgFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return enabled;
+    StrictArgPlugin plugin
+            = (StrictArgPlugin) apiContext.apiDefinition()
+            .plugin(StrictArgPlugin.class.getSimpleName());
+    if (plugin == null) {
+      return enabled;
+    } else {
+      return plugin.strict();
+    }
   }
 
   @Override
