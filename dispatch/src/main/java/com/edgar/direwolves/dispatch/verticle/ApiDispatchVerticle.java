@@ -71,21 +71,23 @@ public class ApiDispatchVerticle extends AbstractVerticle {
             .requestHandler(router::accept)
             .listen(port, ar -> {
               if (ar.succeeded()) {
-                LOGGER.info("Start http server succeeded, port->{}", port);
+                LOGGER.info("---| [Diaptacher Start] [OK] [{}]", port);
                 startFuture.complete();
               } else {
-                LOGGER.error("Start http server failed, port->{}", port, ar.cause());
+                LOGGER.error("---| [Diaptacher Start] [FAILED] [{}]", port, ar.cause());
                 startFuture.fail(ar.cause());
               }
             });
 
     //metirc
-//    MetricsService metricsService = MetricsService.create(vertx);
-//    vertx.setPeriodic(5000, t -> {
+    MetricsService metricsService = MetricsService.create(vertx);
+    vertx.setPeriodic(5000, t -> {
 //      System.out.println(metricsService.getBaseName(httpServer));
 //      JsonObject metrics = metricsService.getMetricsSnapshot(
 //              metricsService.getBaseName(httpServer) + ".post-requests./login");
-//      System.out.println(metrics.encodePrettily());
-//    });
+      JsonObject metrics = metricsService.getMetricsSnapshot(
+              "example.api");
+      System.out.println(metrics.encodePrettily());
+    });
   }
 }

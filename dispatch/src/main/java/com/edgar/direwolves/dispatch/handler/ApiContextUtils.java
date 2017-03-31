@@ -68,11 +68,11 @@ public class ApiContextUtils {
     Map<String, Object> variables = new HashMap<>();
     HttpServerRequest req = rc.request();
     variables.put("request.time", System.currentTimeMillis());
-    variables.put("request.scheme", req.scheme());
-    variables.put("request.method", req.method().name());
-    variables.put("request.query_string", req.query());
-    variables.put("request.uri", req.uri());
-    variables.put("request.path_info", req.path());
+//    variables.put("request.scheme", req.scheme());
+//    variables.put("request.method", req.method().name());
+//    variables.put("request.query_string", req.query());
+//    variables.put("request.uri", req.uri());
+//    variables.put("request.path_info", req.path());
     variables.put("request.client_ip", getClientIp(req));
     return variables;
   }

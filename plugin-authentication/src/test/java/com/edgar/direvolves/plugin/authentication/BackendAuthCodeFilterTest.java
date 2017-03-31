@@ -62,7 +62,7 @@ public class BackendAuthCodeFilterTest {
   }
 
   @Test
-  public void missTelShouldThrowValidationException(TestContext testContext) {
+  public void missUsernameShouldThrowValidationException(TestContext testContext) {
     ApiContext apiContext = createGetContext();
 
     JsonObject body = new JsonObject()
@@ -83,7 +83,7 @@ public class BackendAuthCodeFilterTest {
   }
 
   @Test
-  public void notAllowedTelShouldThrow1004(TestContext testContext) {
+  public void notAllowedUsernameShouldThrow1004(TestContext testContext) {
     ApiContext apiContext = createContext("123456");
 
     Task<ApiContext> task = Task.create();
@@ -103,7 +103,7 @@ public class BackendAuthCodeFilterTest {
   }
 
   @Test
-  public void validTelShouldSuccess(TestContext testContext) {
+  public void validUsernameShouldSuccess(TestContext testContext) {
     ApiContext apiContext = createContext("987654321");
 
     Task<ApiContext> task = Task.create();
@@ -151,7 +151,7 @@ public class BackendAuthCodeFilterTest {
     headers.put("h3", "v3");
     headers.put("h3", "v3.2");
     JsonObject body = new JsonObject()
-            .put("tel", tel);
+            .put("username", tel);
     ApiContext apiContext =
             ApiContext.create(HttpMethod.POST, "/devices", headers, params, body);
     HttpEndpoint httpEndpoint =

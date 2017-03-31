@@ -61,7 +61,7 @@ public class BackendVertifyFilterTest {
   }
 
   @Test
-  public void missTelShouldThrowValidationException(TestContext testContext) {
+  public void missUsernameShouldThrowValidationException(TestContext testContext) {
     ApiContext apiContext = createContext(null, null, null);
 
     Task<ApiContext> task = Task.create();
@@ -74,7 +74,7 @@ public class BackendVertifyFilterTest {
             .onFailure(throwable -> {
               testContext.assertTrue(throwable instanceof ValidationException);
               ValidationException ex = (ValidationException) throwable;
-              testContext.assertTrue(ex.getErrorDetail().containsKey("tel"));
+              testContext.assertTrue(ex.getErrorDetail().containsKey("username"));
               testContext.assertTrue(ex.getErrorDetail().containsKey("code"));
               testContext.assertTrue(ex.getErrorDetail().containsKey("sign"));
               async.complete();
@@ -82,7 +82,7 @@ public class BackendVertifyFilterTest {
   }
 
   @Test
-  public void notAllowedTelShouldThrow1004(TestContext testContext) {
+  public void notAllowedUsernameShouldThrow1004(TestContext testContext) {
     ApiContext apiContext = createContext("145687", "123456", "dree");
 
     Task<ApiContext> task = Task.create();
@@ -102,7 +102,7 @@ public class BackendVertifyFilterTest {
   }
 
   @Test
-  public void InvalidSignTelShouldThrow1003(TestContext testContext) {
+  public void InvalidSignUsernameShouldThrow1003(TestContext testContext) {
     ApiContext apiContext = createContext("987654321", "123456", "dree");
 
     Task<ApiContext> task = Task.create();
@@ -123,7 +123,7 @@ public class BackendVertifyFilterTest {
   }
 
   @Test
-  public void ExpireSignTelShouldThrow1023(TestContext testContext) throws IOException {
+  public void ExpireSignUsernameShouldThrow1023(TestContext testContext) throws IOException {
     long exp =  Instant.now().getEpochSecond() - 10 * 60;
     JsonObject jsonObject = new JsonObject()
             .put("exp",exp);
@@ -150,7 +150,7 @@ public class BackendVertifyFilterTest {
   }
 
   @Test
-  public void InvalidSignTelShouldThrow1001(TestContext testContext) throws IOException {
+  public void InvalidSignUsernameShouldThrow1001(TestContext testContext) throws IOException {
     long exp =  Instant.now().getEpochSecond() - 3 * 60;
     JsonObject jsonObject = new JsonObject()
             .put("exp",exp);
@@ -206,7 +206,7 @@ public class BackendVertifyFilterTest {
     headers.put("h3", "v3");
     headers.put("h3", "v3.2");
     JsonObject body = new JsonObject()
-            .put("tel", tel)
+            .put("username", tel)
             .put("code", code)
             .put("sign", sign);
     ApiContext apiContext =

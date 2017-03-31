@@ -60,7 +60,7 @@ public class FailureHandler implements Handler<RoutingContext> {
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
-      LOGGER.info("---| [{}] [ERROR] [{}]", id,
+      LOGGER.error("---| [{}] [ERROR] [{}]", id,
                   throwable.getMessage(),
                   throwable
       );

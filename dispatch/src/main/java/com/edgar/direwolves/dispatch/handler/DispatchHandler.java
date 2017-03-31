@@ -73,7 +73,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
     Filters.sort(filterList);
     this.filters = ImmutableList.copyOf(filterList);
     this.filters.forEach(filter -> {
-      LOGGER.info("filter loaded,name->{}, type->{}, order->{}", filter.getClass().getSimpleName(),
+      LOGGER.info("---| [load filter] [{}] [{}] [{}]",
+                  filter.getClass().getSimpleName(),
                   filter.type(), filter.order());
     });
   }
@@ -99,7 +100,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
     task = task.flatMap("RPC", apiContext -> rpc(apiContext));
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
     task = task.andThen("Response", apiContext -> response(rc, apiContext));
-    task = doFilter(task, f -> Filter.AFTER_RESP.equalsIgnoreCase(f.type()));
+//    task = doFilter(task, f -> Filter.AFTER_RESP.equalsIgnoreCase(f.type()));
     task.onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
   }
 

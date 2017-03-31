@@ -1,6 +1,6 @@
 {
   "enabled" : true,
-  "register-name" : "my-register",
+  "registerName" : "my-registry",
   "monitoredHttpServerUris" : [
     {
       "value" : "/.*",

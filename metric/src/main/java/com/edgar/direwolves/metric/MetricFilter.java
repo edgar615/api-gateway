@@ -1,13 +1,12 @@
 package com.edgar.direwolves.metric;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.serviceproxy.ProxyHelper;
 
 /**
  * Created by Edgar on 2017/2/9.
@@ -16,9 +15,11 @@ import io.vertx.serviceproxy.ProxyHelper;
  */
 public class MetricFilter implements Filter {
 
-  private Api
+  private ApiMetrics metrics;
 
   MetricFilter(Vertx vertx, JsonObject config) {
+    MetricRegistry registry = SharedMetricRegistries.getOrCreate("my-registry");
+    metrics = new ApiMetrics(registry, config.getString("project.namespace", ""));
   }
 
   @Override
@@ -38,6 +39,7 @@ public class MetricFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-
+    metrics.request(apiContext.apiDefinition().name());
+    completeFuture.complete(apiContext);
   }
 }
