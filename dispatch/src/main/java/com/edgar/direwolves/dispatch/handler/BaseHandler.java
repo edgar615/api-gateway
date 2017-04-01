@@ -2,6 +2,7 @@ package com.edgar.direwolves.dispatch.handler;
 
 import com.google.common.base.Joiner;
 
+import com.edgar.direwolves.metric.ApiMetrics;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
@@ -55,6 +56,8 @@ public class BaseHandler implements Handler<RoutingContext> {
                   System.currentTimeMillis() - start,
                   rc.response().bytesWritten()
       );
+      ApiMetrics.instance()
+              .response(id, rc.response().getStatusCode(), System.currentTimeMillis() - start);
     });
     rc.next();
   }

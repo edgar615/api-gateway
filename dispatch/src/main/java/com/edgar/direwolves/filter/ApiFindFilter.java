@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.google.common.base.Strings;
 
+import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.direwolves.core.utils.Helper;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -65,6 +66,8 @@ public class ApiFindFilter implements Filter {
         try {
           ApiDefinition apiDefinition = ApiDefinition.fromJson(ar.result());
           apiContext.setApiDefinition(apiDefinition);
+
+          ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
           completeFuture.complete(apiContext);
         } catch (Exception e) {
           Helper.logFailed(LOGGER, apiContext.id(),

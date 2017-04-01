@@ -10,6 +10,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/3/31
  */
+@Deprecated
 public class MetricFilterFactory implements FilterFactory {
   @Override
   public String name() {

@@ -2,15 +2,15 @@ package com.edgar.direwolves.dispatch.verticle;
 
 import com.google.common.base.Strings;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
+import com.edgar.direwolves.metric.ApiMetrics;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.dropwizard.MetricsService;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ResponseTimeHandler;
@@ -53,6 +53,12 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
                                 address);
 
+    //API Metrics
+    String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");
+    MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
+    ApiMetrics.create(registry, namespace, 10000);
+
+    //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 
     int port = config().getInteger("http.port", 8080);
@@ -67,7 +73,7 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     router.route().handler(dispatchHandler)
             .failureHandler(FailureHandler.create());
 
-    HttpServer httpServer = vertx.createHttpServer()
+    vertx.createHttpServer()
             .requestHandler(router::accept)
             .listen(port, ar -> {
               if (ar.succeeded()) {
@@ -78,16 +84,5 @@ public class ApiDispatchVerticle extends AbstractVerticle {
                 startFuture.fail(ar.cause());
               }
             });
-
-    //metirc
-    MetricsService metricsService = MetricsService.create(vertx);
-    vertx.setPeriodic(5000, t -> {
-//      System.out.println(metricsService.getBaseName(httpServer));
-//      JsonObject metrics = metricsService.getMetricsSnapshot(
-//              metricsService.getBaseName(httpServer) + ".post-requests./login");
-      JsonObject metrics = metricsService.getMetricsSnapshot(
-              "example.api");
-      System.out.println(metrics.encodePrettily());
-    });
   }
 }

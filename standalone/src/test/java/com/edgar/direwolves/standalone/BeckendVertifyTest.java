@@ -13,9 +13,9 @@ public class BeckendVertifyTest {
 
     Api api = new Api();
     JsonObject data = new JsonObject()
-            .put("tel", "18627874615")
-            .put("sign", "eyJleHAiOjE0ODk2NDQ5NjB9.98D4C582DC4A8F4ABDA852A79E556919")
-            .put("code", "575116");
+            .put("username", "18627874615")
+            .put("sign", "eyJleHAiOjE0OTEwMjY3MTB9.5C067F0DA21B46FDD14C8C6F22EB0E19")
+            .put("code", "734335");
     api.setData(data.getMap());
     Vertx.vertx().createHttpClient()
             .post(9000, "localhost", "/backend/token?" + api.signTopRequest())

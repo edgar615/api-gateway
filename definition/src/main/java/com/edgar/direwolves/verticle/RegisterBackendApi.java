@@ -52,6 +52,7 @@ public class RegisterBackendApi implements Initializable {
                                  Lists.newArrayList(endpoint));
     JsonObject jsonObject = new JsonObject()
             .put("strict_arg", false)
+            .put("authentication", true)
             .put("acl_restriction", new JsonObject()
                     .put("whitelist", new JsonArray().add("backend"))
                     .put("blacklist", new JsonArray().add("*")));

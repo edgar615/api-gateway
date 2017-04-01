@@ -13,6 +13,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/2/9
  */
+@Deprecated
 public class MetricFilter implements Filter {
 
   private ApiMetrics metrics;

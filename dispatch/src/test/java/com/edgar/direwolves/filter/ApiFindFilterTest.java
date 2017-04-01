@@ -2,6 +2,7 @@ package com.edgar.direwolves.filter;
 
 import com.google.common.collect.Lists;
 
+import com.codahale.metrics.MetricRegistry;
 import com.edgar.direwolves.ApiUtils;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiProvider;
@@ -11,6 +12,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.definition.ApiProviderImpl;
 import com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle;
+import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 import com.edgar.util.vertx.task.Task;
@@ -53,6 +55,7 @@ public class ApiFindFilterTest {
 
   @Test
   public void testFoundApi(TestContext testContext) {
+    ApiMetrics apiMetrics = ApiMetrics.create(new MetricRegistry(), "test", 100);
     ApiContext apiContext =
             ApiContext.create(HttpMethod.POST, "/devices", null, null, null);
     Task<ApiContext> task = Task.create();
