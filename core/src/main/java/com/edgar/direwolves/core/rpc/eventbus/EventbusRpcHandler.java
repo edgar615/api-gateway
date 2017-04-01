@@ -116,14 +116,24 @@ public class EventbusRpcHandler implements RpcHandler {
     vertx.eventBus().<JsonObject>send(request.address(), request.message(), deliveryOptions, ar -> {
       long elapsedTime = System.currentTimeMillis() - srated;
       if (ar.succeeded()) {
+        int bytes;
+        if (ar.result() == null) {
+          bytes = 0;
+        } else {
+          bytes = ar.result().toString().getBytes().length;
+        }
+
         LOGGER.info("<------ [{}] [{}] [{}] [{}ms] [{} bytes]",
                     request.id(),
                     request.type().toUpperCase(),
                     "OK",
                     elapsedTime,
-                    ar.result().body().encode().getBytes().length
+                    bytes
         );
-
+        if (ar.result().body() == null) {
+          completed.fail(new NullPointerException("result is null"));
+          return;
+        }
         if (!ar.result().body().containsKey("result")) {
           JsonObject result = ar.result().body();
           completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, elapsedTime));

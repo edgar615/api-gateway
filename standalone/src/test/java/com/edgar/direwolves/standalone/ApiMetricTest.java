@@ -11,7 +11,7 @@ import io.vertx.core.json.JsonObject;
 public class ApiMetricTest {
   public static void main(String[] args) {
     String token =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxZTRkNjIxNi1hYmI5LTQyYTctOGUwYi04NTc5MzNhZjI4NjAiLCJ1c2VySWQiOi0xODgsImlhdCI6MTQ5MTAyNjQzMywiZXhwIjoxNDkxMDI4MjMzLCJhdWQiOiIiLCJpc3MiOiIiLCJzdWIiOiIifQ==.y1bKZVZ4Z6YqW1I0gg6L3yJ3VBjdsLWPfrVcnmgS_itoIW3Pd0kZPHW3zpZNV39kFFF-yGXAVZeplbh3wWmnhA==";
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIzNTcyNTViOC1jMmYxLTQ0ZWUtYTFhYy0wMWJhZDBmZGYwYjMiLCJ1c2VySWQiOiItMTg4IiwiaWF0IjoxNDkxMDM0Njc0LCJleHAiOjE0OTEwMzY0NzQsImF1ZCI6IiIsImlzcyI6IiIsInN1YiI6IiJ9.DPTp9ACY8AqbbDQqqGBt0SuhO11jGFoSHkhp1grW-F00Be0IM6XdoAy239q2qMmiQjQh8nHq7z_tcRyIkDtENw==";
 
     Api api = new Api();
     JsonObject data = new JsonObject()

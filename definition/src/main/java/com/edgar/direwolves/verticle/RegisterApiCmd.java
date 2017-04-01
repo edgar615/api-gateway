@@ -64,9 +64,15 @@ public class RegisterApiCmd implements Initializable {
     future.setHandler(ar -> {
       long duration = System.currentTimeMillis() - started;
       if (ar.succeeded()) {
+        int bytes;
+        if (ar.result() == null) {
+          bytes = 0;
+        } else {
+          bytes = ar.result().toString().getBytes().length;
+        }
         LOGGER.info("<=== [{}] [OK] [{}ms] [{} bytes]", finalId,
                     duration,
-                    ar.result().toString().getBytes().length);
+                    bytes);
         msg.reply(ar.result());
       } else {
         LOGGER.error("<===  [{}] [FAILED] [{}ms] [{}]", finalId,

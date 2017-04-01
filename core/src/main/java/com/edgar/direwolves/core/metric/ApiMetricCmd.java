@@ -26,8 +26,15 @@ class ApiMetricCmd implements ApiCmd {
 
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    String name = jsonObject.getString("name", "");
-    JsonObject metrics = metricsService.getMetricsSnapshot(name);
-    return Future.succeededFuture(metrics);
+    try {
+      String name = jsonObject.getString("name", "");
+      JsonObject metrics = metricsService.getMetricsSnapshot(name);
+      if (metrics == null) {
+        return Future.succeededFuture(new JsonObject());
+      }
+      return Future.succeededFuture(metrics);
+    } catch (Exception e) {
+      return Future.failedFuture(e.getCause());
+    }
   }
 }
