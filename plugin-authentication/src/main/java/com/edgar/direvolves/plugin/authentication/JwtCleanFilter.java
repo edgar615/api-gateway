@@ -69,7 +69,7 @@ public class JwtCleanFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    int userId = apiContext.principal().getInteger(userKey);
+    String  userId = apiContext.principal().getValue(userKey).toString();
     String userCacheKey = namespace + ":user:" + userId;
     redisProvider.delete(userCacheKey, ar -> {
       Helper.logOK(LOGGER, apiContext.id(),

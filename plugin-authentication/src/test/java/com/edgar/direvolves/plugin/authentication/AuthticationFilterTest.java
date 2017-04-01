@@ -220,7 +220,7 @@ public class AuthticationFilterTest {
             .andThen(context -> {
               JsonObject principal = context.principal();
               testContext.assertEquals(userId, principal.getInteger(userKey));
-              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(userId + "", principal.getValue("userId"));
               testContext.assertEquals("edgar", principal.getString("username"));
               async.complete();
             })
@@ -241,7 +241,7 @@ public class AuthticationFilterTest {
 
     JsonObject claims = new JsonObject()
             .put(userKey, userId)
-            .put("jti", UUID.randomUUID().toString());
+            .put("jti", jti);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token =
@@ -254,7 +254,8 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
-                                          .put("project.namespace", namespace));
+                                          .put("project.namespace", namespace)
+                                          .put("jwt.user.unique", true));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -264,7 +265,7 @@ public class AuthticationFilterTest {
               JsonObject principal = context.principal();
               testContext.assertEquals("edgar", principal.getString("username"));
               testContext.assertEquals(userId, principal.getInteger(userKey));
-              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(userId + "", principal.getValue("userId"));
               async.complete();
             })
             .onFailure(throwable -> {
@@ -279,6 +280,51 @@ public class AuthticationFilterTest {
     redisProvider
             .set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
                     .put("userId", userId)
+                    .put("username", "password")
+                    .put("jti", jti), ar -> {
+
+            });
+
+
+    JsonObject claims = new JsonObject()
+            .put(userKey, userId)
+            .put("jti", UUID.randomUUID().toString());
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token =
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("token.expires", 60 * 30)
+                                          .put("jwt.userClaimKey", userKey)
+                                          .put("project.namespace", namespace)
+                                          .put("jwt.user.unique", true));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> testContext.fail())
+            .onFailure(throwable -> {
+              testContext.assertTrue(throwable instanceof SystemException);
+              SystemException ex = (SystemException) throwable;
+              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+              async.complete();
+            });
+  }
+
+  @Test
+  public void missUserKeyShouldThrownInvalidToken(TestContext testContext) {
+
+    redisProvider
+            .set(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
+//                    .put("userId", userId)
                     .put("username", "password")
                     .put("jti", jti), ar -> {
 

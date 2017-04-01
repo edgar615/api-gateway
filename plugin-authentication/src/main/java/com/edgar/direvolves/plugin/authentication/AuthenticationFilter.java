@@ -145,7 +145,7 @@ public class AuthenticationFilter implements Filter {
   private Future<JsonObject> userCheck(JsonObject principal) {
     Future<JsonObject> userFuture = Future.future();
     String clientJti = principal.getString("jti");
-    Integer userId = principal.getInteger(userKey);
+    String userId = principal.getValue(userKey).toString();
     if (userId == null) {
       LOGGER.debug("jwt failed, error->userId not found");
       userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN)
@@ -154,6 +154,11 @@ public class AuthenticationFilter implements Filter {
       String userCacheKey = namespace + ":user:" + userId;
       redisProvider.get(userCacheKey, ar -> {
         if (ar.succeeded()) {
+          if (!ar.result().containsKey(userKey)) {
+            userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
+                                    .set("details", "The token has been removed"));
+            return;
+          }
           if (uniqueToken) {
             String serverJti = ar.result().getString("jti", UUID.randomUUID().toString());
             if (serverJti.equalsIgnoreCase(clientJti)) {

@@ -144,7 +144,7 @@ public class JwtBuildFilter implements Filter {
         && result.responseObject().containsKey(userKey)) {
       JsonObject body = result.responseObject();
       String jti = UUID.randomUUID().toString();
-      int userId = body.getInteger(userKey);
+      String userId = body.getValue(userKey).toString();
       JsonObject claims = new JsonObject()
               .put("jti", jti)
               .put(userKey, userId);
