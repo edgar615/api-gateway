@@ -1,5 +1,9 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
@@ -8,9 +12,6 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -81,7 +82,9 @@ public class RequestTransformerFilterTest {
             .setHttpMethod(HttpMethod.POST)
             .setPath("/")
             .addParam("q3", "q3")
-            .addHeader("h3", "h3");
+            .addParam("q5", "q5")
+            .addHeader("h3", "h3")
+            .addHeader("h6", "h6");
     apiContext.addRequest(httpRpcRequest);
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -94,10 +97,15 @@ public class RequestTransformerFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.host());
               testContext.assertEquals(8080, request.port());
-              testContext.assertEquals(2, request.params().keySet().size());
-              testContext.assertEquals(2, request.headers().keySet().size());
+              testContext.assertEquals(3, request.params().keySet().size());
+              testContext.assertEquals(3, request.headers().keySet().size());
               testContext.assertFalse(request.params().containsKey("q3"));
               testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertFalse(request.params().containsKey("q5"));
+              testContext.assertFalse(request.headers().containsKey("h6"));
+              testContext.assertTrue(request.params().containsKey("rq5"));
+              testContext.assertTrue(request.headers().containsKey("rh6"));
+
               testContext.assertNotNull(request.body());
               testContext.assertEquals(2, request.body().size());
               testContext.assertEquals("b1", request.body().getString("b1"));
@@ -124,8 +132,10 @@ public class RequestTransformerFilterTest {
             .setPort(8080)
             .setHttpMethod(HttpMethod.GET)
             .setPath("/")
-            .addParam("q3", "v3")
-            .addHeader("h3", "v3");
+            .addParam("q3", "q3")
+            .addParam("q5", "q5")
+            .addHeader("h3", "h3")
+            .addHeader("h6", "h6");
     apiContext.addRequest(httpRpcRequest);
 
     httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
@@ -134,8 +144,10 @@ public class RequestTransformerFilterTest {
             .setPort(8080)
             .setHttpMethod(HttpMethod.POST)
             .setPath("/")
-            .addParam("q3", "v3")
-            .addHeader("h3", "v3");
+            .addParam("q3", "q3")
+            .addParam("q6", "q6")
+            .addHeader("h3", "h3")
+            .addHeader("h5", "h5");
     apiContext.addRequest(httpRpcRequest);
 
 
@@ -149,19 +161,27 @@ public class RequestTransformerFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.host());
               testContext.assertEquals(8080, request.port());
-              testContext.assertEquals(2, request.params().size());
-              testContext.assertEquals(2, request.headers().size());
+              testContext.assertEquals(3, request.params().size());
+              testContext.assertEquals(3, request.headers().size());
               testContext.assertFalse(request.params().containsKey("q3"));
               testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertFalse(request.params().containsKey("q5"));
+              testContext.assertFalse(request.headers().containsKey("h6"));
+              testContext.assertTrue(request.params().containsKey("rq5"));
+              testContext.assertTrue(request.headers().containsKey("rh6"));
               testContext.assertNull(request.body());
 
               request = (HttpRpcRequest) context.requests().get(1);
               testContext.assertEquals("localhost", request.host());
               testContext.assertEquals(8080, request.port());
-              testContext.assertEquals(1, request.params().size());
-              testContext.assertEquals(1, request.headers().size());
+              testContext.assertEquals(2, request.params().size());
+              testContext.assertEquals(2, request.headers().size());
               testContext.assertTrue(request.params().containsKey("q3"));
               testContext.assertTrue(request.headers().containsKey("h3"));
+              testContext.assertTrue(request.params().containsKey("q6"));
+              testContext.assertTrue(request.headers().containsKey("h5"));
+              testContext.assertFalse(request.params().containsKey("rq6"));
+              testContext.assertFalse(request.headers().containsKey("rh5"));
               testContext.assertNull(request.body());
               async.complete();
             }).onFailure(t -> testContext.fail());
@@ -182,9 +202,11 @@ public class RequestTransformerFilterTest {
             .setPort(8080)
             .setHttpMethod(HttpMethod.POST)
             .setPath("/")
-            .addParam("q3", "v3")
-            .addHeader("h3", "v3")
-            .setBody(new JsonObject().put("b3", "b3"));
+            .addParam("q3", "q3")
+            .addParam("q5", "q5")
+            .addHeader("h3", "h3")
+            .addHeader("h6", "h6")
+            .setBody(new JsonObject().put("b3", "b3").put("b5", "b5"));
     apiContext.addRequest(httpRpcRequest);
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -197,12 +219,18 @@ public class RequestTransformerFilterTest {
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
               testContext.assertEquals("localhost", request.host());
               testContext.assertEquals(8080, request.port());
-              testContext.assertEquals(2, request.params().size());
-              testContext.assertEquals(2, request.headers().size());
+              testContext.assertEquals(3, request.params().size());
+              testContext.assertEquals(3, request.headers().size());
               testContext.assertFalse(request.params().containsKey("q3"));
               testContext.assertFalse(request.headers().containsKey("h3"));
-              testContext.assertEquals(2, request.body().size());
+              testContext.assertFalse(request.params().containsKey("q5"));
+              testContext.assertFalse(request.headers().containsKey("h6"));
+              testContext.assertTrue(request.params().containsKey("rq5"));
+              testContext.assertTrue(request.headers().containsKey("rh6"));
+              testContext.assertEquals(3, request.body().size());
               testContext.assertFalse(request.body().containsKey("b3"));
+              testContext.assertFalse(request.body().containsKey("b5"));
+              testContext.assertTrue(request.body().containsKey("rb5"));
               System.out.println(request);
               async.complete();
             }).onFailure(t -> {
@@ -233,6 +261,14 @@ public class RequestTransformerFilterTest {
     transformer.removeParam("q4");
     transformer.removeBody("b3");
     transformer.removeBody("b4");
+
+    transformer.replaceHeader("h5", "rh5");
+    transformer.replaceHeader("h6", "rh6");
+    transformer.replaceParam("q5", "rq5");
+    transformer.replaceParam("q6", "rq6");
+    transformer.replaceBody("b5", "rb5");
+    transformer.replaceBody("b6", "rb6");
+
     transformer.addHeader("h2", "h2");
     transformer.addHeader("h1", "h1");
     transformer.addParam("q1", "q1");

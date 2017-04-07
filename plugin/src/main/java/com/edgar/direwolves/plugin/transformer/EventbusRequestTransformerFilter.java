@@ -11,6 +11,8 @@ import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Collection;
+
 /**
  * 将RpcRequest中的请求头，请求参数，请求体按照RequestTransformerPlugin中的配置处理.
  * <p>
@@ -78,6 +80,12 @@ public class EventbusRequestTransformerFilter implements Filter {
                                                      RequestTransformer transformer) {
     Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
     transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
+    transformer.headerReplaced().forEach(entry -> {
+      if (newHeader.containsKey(entry.getKey())) {
+        Collection<String> values = newHeader.removeAll(entry.getKey());
+        newHeader.putAll(entry.getValue(), values);
+      }
+    });
     transformer.headerAdded().forEach(
             entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
     return newHeader;
@@ -87,6 +95,12 @@ public class EventbusRequestTransformerFilter implements Filter {
                                     RequestTransformer transformer) {
     JsonObject newBody = body.copy();
     transformer.bodyRemoved().forEach(b -> newBody.remove(b));
+    transformer.bodyReplaced().forEach(entry -> {
+      if (newBody.containsKey(entry.getKey())) {
+        Object value =  newBody.remove(entry.getKey());
+        newBody.put(entry.getValue(), value);
+      }
+    });
     transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
     return newBody;
   }

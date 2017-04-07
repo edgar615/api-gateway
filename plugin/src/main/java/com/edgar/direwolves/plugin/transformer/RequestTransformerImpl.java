@@ -65,6 +65,11 @@ class RequestTransformerImpl implements RequestTransformer {
   }
 
   @Override
+  public List<Map.Entry<String, String>> bodyReplaced() {
+    return bodyReplace;
+  }
+
+  @Override
   public List<Map.Entry<String, String>> bodyAdded() {
     return bodyAdd;
   }
@@ -81,9 +86,20 @@ class RequestTransformerImpl implements RequestTransformer {
   }
 
   @Override
+  public RequestTransformer replaceBody(String key, String value) {
+    this.bodyReplace.add(Maps.immutableEntry(key, value));
+    return this;
+  }
+
+  @Override
   public RequestTransformer removeBody(String key) {
     this.bodyRemove.add(key);
     return this;
+  }
+
+  @Override
+  public List<Map.Entry<String, String>> headerReplaced() {
+    return headerReplace;
   }
 
   @Override
@@ -103,9 +119,20 @@ class RequestTransformerImpl implements RequestTransformer {
   }
 
   @Override
+  public RequestTransformer replaceHeader(String key, String value) {
+    this.headerReplace.add(Maps.immutableEntry(key, value));
+    return this;
+  }
+
+  @Override
   public RequestTransformer removeHeader(String key) {
     this.headerRemove.add(key);
     return this;
+  }
+
+  @Override
+  public List<Map.Entry<String, String>> paramReplaced() {
+    return paramReplace;
   }
 
   @Override
@@ -121,6 +148,12 @@ class RequestTransformerImpl implements RequestTransformer {
   @Override
   public RequestTransformer addParam(String key, String value) {
     this.paramAdd.add(Maps.immutableEntry(key, value));
+    return this;
+  }
+
+  @Override
+  public RequestTransformer replaceParam(String key, String value) {
+    this.paramReplace.add(Maps.immutableEntry(key, value));
     return this;
   }
 

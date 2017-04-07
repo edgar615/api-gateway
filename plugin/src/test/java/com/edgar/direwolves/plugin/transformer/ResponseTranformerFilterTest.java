@@ -74,6 +74,10 @@ public class ResponseTranformerFilterTest {
     plugin.removeHeader("h4");
     plugin.removeBody("b3");
     plugin.removeBody("b4");
+    plugin.replaceHeader("h5", "rh5");
+    plugin.replaceHeader("h6", "rh6");
+    plugin.replaceBody("b5", "rb5");
+    plugin.replaceBody("b6", "rb6");
     plugin.addHeader("h2", "h2");
     plugin.addHeader("h1", "h1");
     plugin.addBody("b1", "b1");
@@ -88,8 +92,8 @@ public class ResponseTranformerFilterTest {
     definition.addPlugin(plugin);
     apiContext.setApiDefinition(definition);
     apiContext.setResult(Result.createJsonObject(
-            200, new JsonObject().put("foo", "bar").put("b3", "b3"),
-            ImmutableMultimap.of("h3", "h3")));
+            200, new JsonObject().put("foo", "bar").put("b3", "b3").put("b5", "b5"),
+            ImmutableMultimap.of("h3", "h3", "h6", "h6")));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -97,8 +101,13 @@ public class ResponseTranformerFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
-              testContext.assertEquals(2, result.header().keys().size());
-              testContext.assertEquals(3, result.responseObject().size());
+              System.out.println(result);
+              testContext.assertEquals(3, result.header().keys().size());
+              testContext.assertEquals(4, result.responseObject().size());
+              testContext.assertFalse(result.header().containsKey("rh5"));
+              testContext.assertTrue(result.header().containsKey("rh6"));
+              testContext.assertTrue(result.responseObject().containsKey("rb5"));
+              testContext.assertFalse(result.responseObject().containsKey("rb6"));
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();
@@ -114,6 +123,10 @@ public class ResponseTranformerFilterTest {
     plugin.removeHeader("h4");
     plugin.removeBody("b3");
     plugin.removeBody("b4");
+    plugin.replaceHeader("h5", "rh5");
+    plugin.replaceHeader("h6", "rh6");
+    plugin.replaceBody("b5", "rb5");
+    plugin.replaceBody("b6", "rb6");
     plugin.addHeader("h2", "h2");
     plugin.addHeader("h1", "h1");
     plugin.addBody("b1", "b1");
@@ -129,7 +142,7 @@ public class ResponseTranformerFilterTest {
     apiContext.setApiDefinition(definition);
     apiContext.setResult(Result.createJsonArray(
             200, new JsonArray().add(1),
-            ImmutableMultimap.of("h3", "h3")));
+            ImmutableMultimap.of("h3", "h3", "h6", "h6")));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -137,8 +150,10 @@ public class ResponseTranformerFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
-              testContext.assertEquals(2, result.header().keys().size());
+              testContext.assertEquals(3, result.header().keys().size());
               testContext.assertEquals(1, result.responseArray().size());
+              testContext.assertFalse(result.header().containsKey("rh5"));
+              testContext.assertTrue(result.header().containsKey("rh6"));
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

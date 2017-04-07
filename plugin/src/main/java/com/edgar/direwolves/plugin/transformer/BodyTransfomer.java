@@ -11,6 +11,11 @@ import java.util.Map;
 public interface BodyTransfomer {
 
   /**
+   * @return body的替换规则.
+   */
+  List<Map.Entry<String, String>> bodyReplaced();
+
+  /**
    * @return body的增加规则
    */
   List<Map.Entry<String, String>> bodyAdded();
@@ -36,4 +41,13 @@ public interface BodyTransfomer {
    * @return
    */
   BodyTransfomer removeBody(String key);
+
+  /**
+   * 替换一个body,只有当body存在时才替换;
+   *
+   * @param key
+   * @param value
+   * @return
+   */
+  BodyTransfomer replaceBody(String key, String value);
 }

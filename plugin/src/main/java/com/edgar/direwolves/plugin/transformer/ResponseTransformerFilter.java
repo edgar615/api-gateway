@@ -12,6 +12,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -139,6 +140,12 @@ public class ResponseTransformerFilter implements Filter {
                                                      ResponseTransformerPlugin transformer) {
     Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
     transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
+    transformer.headerReplaced().forEach(entry -> {
+      if (newHeader.containsKey(entry.getKey())) {
+        Collection<String> values = newHeader.removeAll(entry.getKey());
+        newHeader.putAll(entry.getValue(), values);
+      }
+    });
     transformer.headerAdded().forEach(
             entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
     return newHeader;
@@ -148,6 +155,12 @@ public class ResponseTransformerFilter implements Filter {
                                     ResponseTransformerPlugin transformer) {
     JsonObject newBody = body.copy();
     transformer.bodyRemoved().forEach(b -> newBody.remove(b));
+    transformer.bodyReplaced().forEach(entry -> {
+      if (newBody.containsKey(entry.getKey())) {
+        Object value =  newBody.remove(entry.getKey());
+        newBody.put(entry.getValue(), value);
+      }
+    });
     transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
     return newBody;
   }

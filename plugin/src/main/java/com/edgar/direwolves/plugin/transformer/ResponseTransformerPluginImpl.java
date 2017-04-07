@@ -46,6 +46,13 @@ class ResponseTransformerPluginImpl implements ResponseTransformerPlugin {
     return bodyAdd;
   }
 
+
+  @Override
+  public List<Map.Entry<String, String>> bodyReplaced() {
+    return bodyReplace;
+  }
+
+
   @Override
   public List<String> bodyRemoved() {
     return bodyRemove;
@@ -54,6 +61,12 @@ class ResponseTransformerPluginImpl implements ResponseTransformerPlugin {
   @Override
   public ResponseTransformerPlugin addBody(String key, String value) {
     this.bodyAdd.add(Maps.immutableEntry(key, value));
+    return this;
+  }
+
+  @Override
+  public ResponseTransformerPlugin replaceBody(String key, String value) {
+    this.bodyReplace.add(Maps.immutableEntry(key, value));
     return this;
   }
 
@@ -69,6 +82,11 @@ class ResponseTransformerPluginImpl implements ResponseTransformerPlugin {
   }
 
   @Override
+  public List<Map.Entry<String, String>> headerReplaced() {
+    return headerReplace;
+  }
+
+  @Override
   public List<String> headerRemoved() {
     return headerRemove;
   }
@@ -76,6 +94,12 @@ class ResponseTransformerPluginImpl implements ResponseTransformerPlugin {
   @Override
   public ResponseTransformerPlugin addHeader(String key, String value) {
     this.headerAdd.add(Maps.immutableEntry(key, value));
+    return this;
+  }
+
+  @Override
+  public ResponseTransformerPlugin replaceHeader(String key, String value) {
+    this.headerReplace.add(Maps.immutableEntry(key, value));
     return this;
   }
 

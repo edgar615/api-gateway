@@ -11,6 +11,11 @@ import java.util.Map;
 public interface HeaderTransfomer {
 
   /**
+   * @return header的替换规则
+   */
+  List<Map.Entry<String, String>> headerReplaced();
+
+  /**
    * @return header的新增规则
    */
   List<Map.Entry<String, String>> headerAdded();
@@ -36,5 +41,14 @@ public interface HeaderTransfomer {
    * @return
    */
   HeaderTransfomer removeHeader(String key);
+
+  /**
+   * 替换一个header,只有当header存在时才替换;
+   *
+   * @param key
+   * @param value
+   * @return
+   */
+  HeaderTransfomer replaceHeader(String key, String value);
 
 }

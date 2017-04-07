@@ -12,23 +12,7 @@ import java.util.stream.Collectors;
 
 /**
  * Response Transformer的工厂类.
- * json配置
- * <pre>
- *     "response_transformer" : [
- * {
- * "name" : "add_device",
- * "service": "device",
- * "method": "POST",
- * "path": "/devices",
- * "header.remove" : ["h3", "h4"],
- * "body.remove" : ["p3", "p4"],
- * "header.replace" : ["h5:v2", "h6:v1"],
- * "body.replace" : ["p5:v2", "p6:v1"],
- * "header.add" : ["h1:v2", "h2:v1"],
- * "body.add" : ["p1:v2", "p2:v1"]
- * }
- * ]
- * </pre>
+ * <p>
  * Created by edgar on 16-10-23.
  */
 public class ResponseTransformerPluginFactory implements ApiPluginFactory {
@@ -51,6 +35,8 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
     JsonObject request = jsonObject.getJsonObject("response_transformer");
     removeBody(request, plugin);
     removeHeader(request, plugin);
+    replaceBody(request, plugin);
+    replaceHeader(request, plugin);
     addBody(request, plugin);
     addHeader(request, plugin);
 
@@ -67,6 +53,14 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
     return new JsonObject()
             .put("header.remove", transformer.headerRemoved())
             .put("body.remove", transformer.bodyRemoved())
+            .put("header.replace", transformer.headerReplaced()
+                    .stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.toList()))
+            .put("body.replace", transformer.bodyReplaced()
+                    .stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.toList()))
             .put("header.add", transformer.headerAdded()
                     .stream()
                     .map(entry -> entry.getKey() + ":" + entry.getValue())
@@ -88,6 +82,28 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
     JsonArray removes = endpoint.getJsonArray("body.remove", new JsonArray());
     for (int j = 0; j < removes.size(); j++) {
       transformer.removeBody(removes.getString(j));
+    }
+  }
+
+  private void replaceHeader(JsonObject endpoint, ResponseTransformerPlugin transformer) {
+    JsonArray replaces = endpoint.getJsonArray("header.replace", new JsonArray());
+    for (int j = 0; j < replaces.size(); j++) {
+      String value = replaces.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      transformer
+              .replaceHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
+    }
+  }
+
+  private void replaceBody(JsonObject endpoint, ResponseTransformerPlugin transformer) {
+    JsonArray replaces = endpoint.getJsonArray("body.replace", new JsonArray());
+    for (int j = 0; j < replaces.size(); j++) {
+      String value = replaces.getString(j);
+      Iterable<String> iterable =
+              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
+      transformer
+              .replaceBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
     }
   }
 
