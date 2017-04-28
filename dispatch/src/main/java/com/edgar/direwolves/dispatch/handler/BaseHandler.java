@@ -3,12 +3,15 @@ package com.edgar.direwolves.dispatch.handler;
 import com.google.common.base.Joiner;
 
 import com.edgar.direwolves.metric.ApiMetrics;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 /**
@@ -47,6 +50,11 @@ public class BaseHandler implements Handler<RoutingContext> {
                 (rc.getBody() == null || rc.getBody().length() == 0) ? "no body" : rc.getBody()
                         .toString()
     );
+
+    rc.addHeadersEndHandler(v -> {
+      rc.response().putHeader("x-server-time",
+                              ISO8601Utils.format(new Date(), false, TimeZone.getDefault()));
+    });
 
     rc.addBodyEndHandler(v -> {
       LOGGER.info("<--- [{}] [{}] [{}] [{}] [{}ms] [{} bytes]", id,

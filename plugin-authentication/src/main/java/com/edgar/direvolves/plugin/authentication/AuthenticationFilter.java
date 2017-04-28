@@ -208,11 +208,11 @@ public class AuthenticationFilter implements Filter {
         completeFuture.fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause())
                                     .set("details", "Invalid JWT token"));
       } else {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause())
+        completeFuture.fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
                                     .set("details", ar.cause().getMessage()));
       }
     } else {
-      completeFuture.fail(SystemException.wrap(DefaultErrorCode.NO_AUTHORITY, ar.cause())
+      completeFuture.fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
                                   .set("details", ar.cause().getMessage()));
     }
   }

@@ -61,7 +61,7 @@ public class EventbusRpcHandler implements RpcHandler {
     } else if (EventbusEndpoint.REQ_RESP.equalsIgnoreCase(request.policy())) {
       reqResp(request, future);
     } else {
-      future.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE));
+      future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE));
     }
 
     return future;

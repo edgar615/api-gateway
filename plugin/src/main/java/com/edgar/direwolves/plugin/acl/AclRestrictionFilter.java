@@ -63,7 +63,7 @@ public class AclRestrictionFilter implements Filter {
     if (allow) {
       completeFuture.complete(apiContext);
     } else {
-      completeFuture.fail(SystemException.create(DefaultErrorCode.NO_AUTHORITY)
+      completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
                                   .set("details", "The group is forbidden"));
     }
 

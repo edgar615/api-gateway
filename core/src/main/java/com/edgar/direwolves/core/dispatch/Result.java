@@ -98,7 +98,7 @@ public interface Result {
                                 Buffer.buffer(data).toJsonObject(), header);
       } catch (Exception e) {
         throw SystemException.wrap(DefaultErrorCode.INVALID_JSON, e)
-                .set("details", "The result of RPC is incorrect, It must be JSON Object");
+                .set("details", "The result of RPC is incorrect, It should be a JSON object");
       }
     }
     if (data.startsWith("[") && data.endsWith("]")) {
@@ -107,11 +107,11 @@ public interface Result {
                                Buffer.buffer(data).toJsonArray(), header);
       } catch (Exception e) {
         throw SystemException.wrap(DefaultErrorCode.INVALID_JSON, e)
-                .set("details", "The result of RPC is incorrect, It must be JSON Array");
+                .set("details", "The result of RPC is incorrect, It should be JSON array");
       }
     }
     throw SystemException.create(DefaultErrorCode.INVALID_JSON)
-            .set("details", "The result of RPC is incorrect, It must be JSON format like {} or []");
+            .set("details", "The result of RPC is incorrect, It should be a JSON object");
   }
 
   default Result copy() {

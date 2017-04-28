@@ -95,7 +95,7 @@ public class BackendVertifyFilterTest {
             .onFailure(throwable -> {
               testContext.assertTrue(throwable instanceof SystemException);
               SystemException ex = (SystemException) throwable;
-              testContext.assertEquals(DefaultErrorCode.NO_AUTHORITY, ex.getErrorCode());
+              testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
               async.complete();
             });
 

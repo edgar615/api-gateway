@@ -85,7 +85,7 @@ public class BackendAuthCodeFilter implements Filter {
       Helper.logFailed(LOGGER, apiContext.id(),
                        this.getClass().getSimpleName(),
                        username + " not allowed");
-      throw SystemException.create(DefaultErrorCode.NO_AUTHORITY)
+      throw SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", username + " not allowed");
     }
     String code = Randoms.randomNumber(6);

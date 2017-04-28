@@ -86,13 +86,13 @@ public class ServiceDiscoveryFilter implements Filter {
       if (ar.succeeded()) {
         Record record = ar.result();
         if (record == null) {
-          serviceFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
+          serviceFuture.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                                      .set("details", "Service not found: " + service));
         } else {
           serviceFuture.complete(record);
         }
       } else {
-        serviceFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
+        serviceFuture.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                                    .set("details", "Service not found: " + service + ", "
                                                    + ar.cause().getMessage()));
       }
@@ -118,7 +118,7 @@ public class ServiceDiscoveryFilter implements Filter {
         Helper.logFailed(LOGGER, apiContext.id(),
                          this.getClass().getSimpleName(),
                          "Service not found, endpoint:" + endpoint.name());
-        throw SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
+        throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                 .set("details", "Service not found, endpoint:" + endpoint.name());
       }
       Record record = recordList.get(0);

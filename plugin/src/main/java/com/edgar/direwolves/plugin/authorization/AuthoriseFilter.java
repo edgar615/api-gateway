@@ -67,7 +67,7 @@ public class AuthoriseFilter implements Filter {
     if (userMatch && appMatch) {
       completeFuture.complete(apiContext);
     } else {
-      SystemException ex = SystemException.create(DefaultErrorCode.NO_AUTHORITY);
+      SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED);
       if (!userMatch) {
         ex.set("details", "User does not have permission");
       }

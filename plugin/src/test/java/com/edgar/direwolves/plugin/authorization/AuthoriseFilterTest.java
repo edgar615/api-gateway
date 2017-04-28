@@ -79,7 +79,7 @@ public class AuthoriseFilterTest {
             .onFailure(t -> {
               testContext.assertTrue(t instanceof SystemException);
               SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.NO_AUTHORITY, ex.getErrorCode());
+              testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
               async.complete();
             });
   }
@@ -126,7 +126,7 @@ public class AuthoriseFilterTest {
             .onFailure(t -> {
               testContext.assertTrue(t instanceof SystemException);
               SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.NO_AUTHORITY, ex.getErrorCode());
+              testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
               async.complete();
             });
   }

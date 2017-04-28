@@ -18,6 +18,7 @@ public class LoginTest {
     Vertx.vertx().createHttpClient().post(9000, "localhost", "/login?v=1.1")
             .handler(resp -> {
               System.out.println(resp.statusCode());
+              System.out.println(resp.headers().get("x-server-time"));
               resp.bodyHandler(body -> System.out.println(body.toString()));
             })
             .setChunked(true)

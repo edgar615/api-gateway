@@ -191,7 +191,7 @@ public class ServiceDiscoveryFilterTest {
             .onFailure(t -> {
               testContext.assertTrue(t instanceof SystemException);
               SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.UNKOWN_REMOTE.getNumber(),
+              testContext.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE.getNumber(),
                                        ex.getErrorCode().getNumber());
               async.complete();
             });

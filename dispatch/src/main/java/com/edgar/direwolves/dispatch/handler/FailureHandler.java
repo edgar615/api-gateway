@@ -55,7 +55,7 @@ public class FailureHandler implements Handler<RoutingContext> {
       failureMsg.mergeIn(jsonObject);
     } else if (throwable instanceof ConnectException) {
       ConnectException connectException = (ConnectException) throwable;
-      SystemException ex = SystemException.create(DefaultErrorCode.UNKOWN_REMOTE)
+      SystemException ex = SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
               .set("details", connectException.getMessage());
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));

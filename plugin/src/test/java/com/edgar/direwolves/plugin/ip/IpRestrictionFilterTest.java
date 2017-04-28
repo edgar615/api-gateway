@@ -85,7 +85,7 @@ public class IpRestrictionFilterTest {
               testContext.fail();
             }).onFailure(t -> {
       SystemException ex = (SystemException) t;
-      testContext.assertEquals(DefaultErrorCode.NO_AUTHORITY, ex.getErrorCode());
+      testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
       async.complete();
     });
   }
@@ -104,7 +104,7 @@ public class IpRestrictionFilterTest {
               testContext.fail();
             }).onFailure(t -> {
       SystemException ex = (SystemException) t;
-      testContext.assertEquals(DefaultErrorCode.NO_AUTHORITY, ex.getErrorCode());
+      testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
       async.complete();
     });
   }
