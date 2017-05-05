@@ -20,7 +20,9 @@ public class LoginTest {
               System.out.println(resp.statusCode());
               System.out.println(resp.headers().get("x-server-time"));
               resp.bodyHandler(body -> System.out.println(body.toString()));
-            })
+            }).exceptionHandler(throwable-> {
+      throwable.printStackTrace();
+    }).setTimeout(1)
             .setChunked(true)
             .end(data.encode());
   }

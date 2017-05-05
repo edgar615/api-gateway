@@ -31,6 +31,8 @@ public class ApiMetrics implements Metrics {
 
   private final Counter response4xx;
 
+  private final Counter response5xx;
+
   private MetricRegistry registry;
 
   private ApiMetrics(MetricRegistry registry, String baseName, int maxCacheSize) {
@@ -44,6 +46,7 @@ public class ApiMetrics implements Metrics {
                                      MetricHelper.THROUGHPUT_TIMER);
     response2xx = registry.counter(MetricRegistry.name(baseName, "api", "response-2xx"));
     response4xx = registry.counter(MetricRegistry.name(baseName, "api", "response-4xx"));
+    response5xx = registry.counter(MetricRegistry.name(baseName, "api", "response-5xx"));
 //    response = MetricHelper.getOrAdd(registry,
 //                                     MetricRegistry.name(baseName, "api", "response"),
 //                                     MetricHelper.THROUGHPUT_METER);
@@ -93,6 +96,13 @@ public class ApiMetrics implements Metrics {
       response4xx.inc();
       Counter apiCounter =
               registry.counter(MetricRegistry.name(baseName, "api", api, "response-4xx"));
+      apiCounter.inc();
+    }
+
+    if (statusCode >= 500) {
+      response5xx.inc();
+      Counter apiCounter =
+              registry.counter(MetricRegistry.name(baseName, "api", api, "response-5xx"));
       apiCounter.inc();
     }
   }

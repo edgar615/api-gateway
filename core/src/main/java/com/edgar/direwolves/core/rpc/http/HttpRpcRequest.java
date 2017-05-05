@@ -11,6 +11,8 @@ import com.edgar.direwolves.core.rpc.RpcRequest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
+import java.util.UUID;
+
 /**
  * HTTP类型的rpc请求的定义.
  *
@@ -42,6 +44,11 @@ public class HttpRpcRequest implements RpcRequest {
    * 服务端端口
    */
   private int port = 80;
+
+  /**
+   * 服务端的ID
+   */
+  private String serverId = "undefined";
 
   /**
    * 服务端地址
@@ -112,6 +119,14 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.addParams(params());
     copyReq.addHeaders(headers());
     return copyReq;
+  }
+
+  public String getServerId() {
+    return serverId;
+  }
+
+  public void setServerId(String serverId) {
+    this.serverId = serverId;
   }
 
   public int port() {

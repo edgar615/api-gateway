@@ -122,6 +122,11 @@ public class ServiceDiscoveryFilter implements Filter {
                 .set("details", "Service not found, endpoint:" + endpoint.name());
       }
       Record record = recordList.get(0);
+      if (record.getMetadata().containsKey("ID")) {
+        httpRpcRequest.setServerId(record.getMetadata().getString("ID"));
+      } else if (record.getMetadata().containsKey("zookeeper-id")) {
+        httpRpcRequest.setServerId(record.getMetadata().getString("zookeeper-id"));
+      }
       httpRpcRequest.setHost(record.getLocation().getString("host"));
       httpRpcRequest.setPort(record.getLocation().getInteger("port"));
       return httpRpcRequest;

@@ -109,7 +109,7 @@ public class FailureHandlerTest {
                  resp -> {
                    resp.bodyHandler(body -> {
                      System.out.println(body.toString());
-                     testContext.assertTrue(resp.statusCode() == 400);
+                     testContext.assertTrue(resp.statusCode() == 500);
                      testContext.assertEquals(DefaultErrorCode.UNKOWN.getNumber(), new
                              JsonObject(body.toString()).getInteger("code"));
                      async.complete();
