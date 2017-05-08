@@ -4,6 +4,7 @@ import com.edgar.direwolves.core.definition.DummyEndpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
+import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -18,7 +19,7 @@ public class DummyHandlerFactory implements RpcHandlerFactory {
   }
 
   @Override
-  public RpcHandler create(Vertx vertx, JsonObject config) {
+  public RpcHandler create(Vertx vertx, JsonObject config, RpcMetric metric) {
     return new DummyRpcHandler(vertx, config);
   }
 }

@@ -10,5 +10,5 @@ public interface RpcHandlerFactory {
 
   String type();
 
-  RpcHandler create(Vertx vertx, JsonObject config);
+  RpcHandler create(Vertx vertx, JsonObject config, RpcMetric metric);
 }

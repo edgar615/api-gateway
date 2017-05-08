@@ -22,7 +22,7 @@ public class LoginTest {
               resp.bodyHandler(body -> System.out.println(body.toString()));
             }).exceptionHandler(throwable-> {
       throwable.printStackTrace();
-    }).setTimeout(1)
+    })
             .setChunked(true)
             .end(data.encode());
   }

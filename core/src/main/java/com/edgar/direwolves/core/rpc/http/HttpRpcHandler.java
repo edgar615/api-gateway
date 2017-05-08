@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
+import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.Helper;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Edgar on 2016/12/30.
@@ -34,7 +34,10 @@ public class HttpRpcHandler implements RpcHandler {
 
   private final HttpClient httpClient;
 
-  HttpRpcHandler(Vertx vertx, JsonObject config) {
+  private final RpcMetric metric;
+
+  HttpRpcHandler(Vertx vertx, JsonObject config, RpcMetric metric) {
+    this.metric = metric;
     this.httpClient = vertx.createHttpClient();
   }
 
@@ -57,6 +60,10 @@ public class HttpRpcHandler implements RpcHandler {
               SystemException.create(DefaultErrorCode.MISSING_ARGS)
                       .set("details", "POST or PUT method must contains request body")
       );
+    }
+
+    if (metric != null) {
+      metric.request(httpRpcRequest.getServerId());
     }
 
     LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}] [{}]",
@@ -92,7 +99,10 @@ public class HttpRpcHandler implements RpcHandler {
                     rpcResponse.elapsedTime(),
                     body.getBytes().length
         );
-
+        if (metric != null) {
+          metric.response(httpRpcRequest.getServerId(), rpcResponse.statusCode(),
+                          rpcResponse.elapsedTime());
+        }
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
@@ -104,7 +114,7 @@ public class HttpRpcHandler implements RpcHandler {
       });
     });
     header(httpRpcRequest, request);
-    exceptionHandler(future, request);
+    exceptionHandler(future, request, httpRpcRequest.getServerId());
     timeout(httpRpcRequest, request);
 
     endRequest(httpRpcRequest, request);
@@ -123,9 +133,13 @@ public class HttpRpcHandler implements RpcHandler {
     });
   }
 
-  private void exceptionHandler(Future<RpcResponse> future, HttpClientRequest request) {
+  private void exceptionHandler(Future<RpcResponse> future, HttpClientRequest request,
+                                String serverId) {
     request.exceptionHandler(throwable -> {
       if (!future.isComplete()) {
+        if (metric != null) {
+          metric.failed(serverId);
+        }
         future.fail(throwable);
       }
     });

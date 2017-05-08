@@ -1,4 +1,4 @@
-package com.edgar.direwolves.filter.servicediscovery;
+package com.edgar.direwolves.filter;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;

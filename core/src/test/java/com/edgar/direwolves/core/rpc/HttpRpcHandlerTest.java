@@ -36,7 +36,7 @@ public class HttpRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new HttpRpcHandlerFactory().create(vertx, new JsonObject());
+    rpcHandler = new HttpRpcHandlerFactory().create(vertx, new JsonObject(), null);
 //    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
   }
 

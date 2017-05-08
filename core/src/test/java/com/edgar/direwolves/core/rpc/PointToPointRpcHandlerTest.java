@@ -37,7 +37,7 @@ public class PointToPointRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
+    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject(), null);
 //    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
   }
 

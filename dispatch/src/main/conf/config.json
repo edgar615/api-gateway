@@ -15,8 +15,12 @@
   "service.discovery": "consul://localhost:8500",
   "service.discovery.scan-period": 2000,
   "service.discovery.select-strategy": {
-    "user": "random",
-    "device": "round_robin"
+    "user": {
+      "strategy": "random"
+    },
+    "device": {
+      "strategy": "round_robin"
+    }
   },
   "keystore.path": "keystore.jceks",
   "keystore.type": "jceks",

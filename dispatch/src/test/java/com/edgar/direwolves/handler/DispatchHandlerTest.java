@@ -2,19 +2,13 @@ package com.edgar.direwolves.handler;
 
 import static org.awaitility.Awaitility.await;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.ApiUtils;
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle;
-import com.edgar.direwolves.filter.servicediscovery.MockConsulHttpVerticle;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.direwolves.filter.MockConsulHttpVerticle;
 import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -22,7 +16,6 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

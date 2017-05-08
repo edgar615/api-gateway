@@ -1,22 +1,15 @@
-package com.edgar.direwolves.filter;
+package com.edgar.direwolves.dispatch.verticle;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
-import com.edgar.direwolves.record.SelectStrategy;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.spi.ServiceImporter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Edgar on 2016/10/12.
@@ -34,28 +27,7 @@ class RecordSelectImpl implements RecordSelect {
   private final String zookeeperImportClass =
           "com.edgar.direwolves.servicediscovery.zookeeper.ZookeeperServiceImporter";
 
-
-  private final Map<String, SelectStrategy> strategyMap = new HashMap<>();
-
-  ServiceDiscovery discovery;
-
-  @Override
-  public Future<Record> select(final String service) {
-    Future<Record> competeFuture = Future.future();
-    if (discovery == null) {
-      competeFuture.fail("ServiceDiscovery has not been started");
-      return competeFuture;
-    }
-    synchronized (this) {
-      SelectStrategy selectStrategy = strategyMap.get(service);
-      if (selectStrategy == null) {
-        selectStrategy = SelectStrategy.create("round_robin");
-        strategyMap.put(service, selectStrategy);
-      }
-    }
-    getRecord(service, competeFuture);
-    return competeFuture;
-  }
+  private final ServiceDiscovery discovery;
 
   public RecordSelectImpl(Vertx vertx, JsonObject config) {
     discovery = ServiceDiscovery.create(vertx);
@@ -72,14 +44,6 @@ class RecordSelectImpl implements RecordSelect {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
               .set("details", "Config : service.discovery:" + serviceDiscovery + " unsupported");
     }
-
-    JsonObject strategyConfig =
-            config.getJsonObject("service.discovery.select-strategy", new JsonObject());
-    strategyConfig.forEach(entry ->
-                                   strategyMap.put(entry.getKey(),
-                                                   SelectStrategy
-                                                           .create(entry.getValue().toString())
-                                   ));
 
   }
 
@@ -124,20 +88,6 @@ class RecordSelectImpl implements RecordSelect {
     } catch (Exception e) {
       throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
     }
-  }
-
-  private void getRecord(String service, Future<Record> competeFuture) {
-    SelectStrategy
-            selectStrategy = strategyMap.get(service);
-
-    discovery.getRecords(r -> service.equals(r.getName()), ar -> {
-      if (ar.succeeded()) {
-        List<Record> records = ar.result();
-        competeFuture.complete(selectStrategy.select(records));
-      } else {
-        competeFuture.fail(ar.cause());
-      }
-    });
   }
 
 }

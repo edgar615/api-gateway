@@ -7,7 +7,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.filter.servicediscovery.MockConsulHttpVerticle;
+import com.edgar.direwolves.dispatch.verticle.RecordSelect;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -77,7 +77,7 @@ public class ServiceDiscoveryFilterTest {
             .put("service.discovery", "consul://localhost:5601");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
-
+    RecordSelect.create(vertx, config);
     filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);
 
     filters.clear();
@@ -107,7 +107,10 @@ public class ServiceDiscoveryFilterTest {
               testContext.assertTrue(request.headers().containsKey("x-request-id"));
               testContext.assertNull(request.body());
               async.complete();
-            }).onFailure(t -> testContext.fail());
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
   }
 
   @Test

@@ -3,6 +3,7 @@ package com.edgar.direwolves.core.rpc.http;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
+import com.edgar.direwolves.core.rpc.RpcMetric;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -16,7 +17,7 @@ public class HttpRpcHandlerFactory implements RpcHandlerFactory {
   }
 
   @Override
-  public RpcHandler create(Vertx vertx, JsonObject config) {
-    return new HttpRpcHandler(vertx, config);
+  public RpcHandler create(Vertx vertx, JsonObject config, RpcMetric metric) {
+    return new HttpRpcHandler(vertx, config, metric);
   }
 }

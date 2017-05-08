@@ -1,21 +1,26 @@
-package com.edgar.direwolves.record;
+package com.edgar.direwolves.discovery;
 
 import io.vertx.servicediscovery.Record;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 轮询从列表中选择
+ * 从给定列表中轮询选择一个节点.
+ *
+ * 由于给定的节点列表会变化，并不是严格意义上的轮询算法.
  *
  * @author Edgar  Date 2016/8/5
  */
 class RoundRobinStrategy implements SelectStrategy {
 
+  private final AtomicReference<String> ourInstance = new AtomicReference<>(null);
+
   private final AtomicInteger integer = new AtomicInteger(0);
 
   @Override
-  public Record select(List<Record> records) {
+  public Record get(List<Record> records) {
     if (records == null || records.isEmpty()) {
       return null;
     }

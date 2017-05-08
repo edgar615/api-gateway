@@ -30,16 +30,6 @@ public class ApiDispatchVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
-    LOGGER.info("\n"
-                + "                    _ _                 _       _               \n"
-                + "                   | (_)               | |     | |              \n"
-                + "                 __| |_ ___ _ __   __ _| |_ ___| |__   ___ _ __ \n"
-                + "                / _` | / __| '_ \\ / _` | __/ __| '_ \\ / _ \\ '__|\n"
-                + "               | (_| | \\__ \\ |_) | (_| | || (__| | | |  __/ |   \n"
-                + "                \\__,_|_|___/ .__/ \\__,_|\\__\\___|_| |_|\\___|_|   \n"
-                + "                           | |                                  \n"
-                + "                           |_|                              ");
-
     LOGGER.info("config->{}", config().encodePrettily());
 
     RedisProvider redisProvider = RedisProvider.create(vertx, config());
@@ -57,6 +47,9 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");
     MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
     ApiMetrics.create(registry, namespace, 10000);
+
+    //ServiceDiscovery
+    RecordSelect.create(vertx, config());
 
     //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());

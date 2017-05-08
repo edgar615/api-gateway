@@ -76,6 +76,13 @@ public class RpcMetricsImpl implements Metrics, RpcMetric {
   }
 
   @Override
+  public void failed(String server) {
+    Counter counter =
+            registry.counter(MetricRegistry.name(baseName, "endpoint", server, "failed"));
+    counter.inc();
+  }
+
+  @Override
   public boolean isEnabled() {
     return true;
   }

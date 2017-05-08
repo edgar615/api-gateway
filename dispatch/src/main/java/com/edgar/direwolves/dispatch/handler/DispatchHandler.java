@@ -10,6 +10,7 @@ import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.rpc.FailureRpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
+import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
@@ -64,8 +65,11 @@ public class DispatchHandler implements Handler<RoutingContext> {
   private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
 
   private DispatchHandler(Vertx vertx, JsonObject config) {
+
+    RpcMetric metric = null;
+
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
-            .stream().map(f -> f.create(vertx, config))
+            .stream().map(f -> f.create(vertx, config, metric))
             .forEach(h -> handlers.put(h.type().toUpperCase(), h));
     List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(FilterFactory.class))
             .stream().map(f -> f.create(vertx, config))

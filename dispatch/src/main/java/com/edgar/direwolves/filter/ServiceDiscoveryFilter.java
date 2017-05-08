@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.discovery.RecordProvider;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -14,10 +15,10 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
+import io.vertx.servicediscovery.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,13 +31,19 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
 
-  private Vertx vertx;
+  private final ServiceDiscovery discovery;
 
-  private RecordSelect recordSelect;
+  private final RecordProvider recordProvider;
+
+  private Vertx vertx;
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    recordSelect = RecordSelect.create(vertx, config);
+    this.discovery = ServiceDiscovery.create(vertx);
+    JsonObject strategyConfig =
+            config.getJsonObject("service.discovery.select-strategy", new JsonObject());
+
+    this.recordProvider = RecordProvider.create(discovery, strategyConfig);
   }
 
   @Override
@@ -57,12 +64,13 @@ public class ServiceDiscoveryFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    List<Future<Record>> futures = new ArrayList<>();
-    apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof HttpEndpoint)
-            .map(e -> ((HttpEndpoint) e).service())
-            .collect(Collectors.toSet())
-            .forEach(s -> futures.add(serviceFuture(s)));
+    List<Future<Record>> futures =
+            apiContext.apiDefinition().endpoints().stream()
+                    .filter(e -> e instanceof HttpEndpoint)
+                    .map(e -> ((HttpEndpoint) e).service())
+                    .distinct()
+                    .map(s -> serviceFuture(s))
+                    .collect(Collectors.toList());
 
     Task.par(futures)
             .andThen(records -> {
@@ -81,7 +89,7 @@ public class ServiceDiscoveryFilter implements Filter {
     //服务发现
     Future<Record> serviceFuture = Future.future();
 
-    Future<Record> future = recordSelect.select(service);
+    Future<Record> future = recordProvider.getRecord(service);
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         Record record = ar.result();

@@ -9,4 +9,6 @@ public interface RpcMetric {
   void request(String server);
 
   void response(String server, int result, long duration);
+
+  void failed(String server);
 }
