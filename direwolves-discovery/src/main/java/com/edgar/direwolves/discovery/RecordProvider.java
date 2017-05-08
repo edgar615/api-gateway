@@ -23,10 +23,6 @@ public interface RecordProvider {
 
   Future<Record> getRecord(String name, Function<Record, Boolean> filter);
 
-  Future<List<Record>> getRecords(Function<Record, Boolean> filter);
-
-  Future<Record> getRecord(Function<Record, Boolean> filter);
-
   static RecordProvider create(ServiceDiscovery discovery, JsonObject config) {
     return new RecordProviderImpl(discovery, config);
   }

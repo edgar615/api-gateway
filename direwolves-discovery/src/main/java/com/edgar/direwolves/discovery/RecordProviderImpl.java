@@ -60,20 +60,6 @@ class RecordProviderImpl implements RecordProvider {
     return future;
   }
 
-  @Override
-  public Future<List<Record>> getRecords(Function<Record, Boolean> filter) {
-    Future<List<Record>> future = Future.future();
-    discovery.getRecords(filter, future.completer());
-    return future;
-  }
-
-  @Override
-  public Future<Record> getRecord(Function<Record, Boolean> filter) {
-    Future<Record> future = Future.future();
-    discovery.getRecord(filter, future.completer());
-    return future;
-  }
-
   private RecordSelector getOrCreateProvider(String name) {
     return providers.computeIfAbsent(name, k -> createProvider(name));
   }
