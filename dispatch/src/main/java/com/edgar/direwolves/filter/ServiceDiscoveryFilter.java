@@ -8,7 +8,7 @@ import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.discovery.ServiceInstance;
-import com.edgar.direwolves.discovery.ServiceProvider;
+import com.edgar.direwolves.discovery.ServiceDiscovery;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -30,13 +30,13 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
 
-  private final ServiceProvider serviceProvider;
+  private final ServiceDiscovery serviceDiscovery;
 
   private final Vertx vertx;
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.serviceProvider = ServiceProvider.create(vertx, config);
+    this.serviceDiscovery = ServiceDiscovery.create(vertx, config);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class ServiceDiscoveryFilter implements Filter {
   private ServiceInstance serviceFuture(String service) {
     //服务发现
     try {
-      ServiceInstance instance = serviceProvider.getInstance(service);
+      ServiceInstance instance = serviceDiscovery.getInstance(service);
       if (instance == null) {
         throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                 .set("details", "Service not found: " + service);

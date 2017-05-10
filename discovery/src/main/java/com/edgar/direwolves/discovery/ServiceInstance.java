@@ -20,6 +20,16 @@ public class ServiceInstance {
 
   private Record record;
 
+  public ServiceInstance(String id, String name, int weight) {
+    this.id = id;
+    this.name = name;
+    this.weight = new AtomicInteger(weight);
+  }
+
+  public ServiceInstance(String id, String name) {
+    this(id, name, 60);
+  }
+
   public ServiceInstance(Record record) {
     this(record, 60);
   }

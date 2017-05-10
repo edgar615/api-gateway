@@ -4,7 +4,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,13 +21,13 @@ import java.util.UUID;
  * @author Edgar  Date 2017/5/10
  */
 @RunWith(VertxUnitRunner.class)
-public class ServiceProviderTest {
+public class ServiceDiscoveryTest {
 
   private Vertx vertx;
 
-  private ServiceDiscovery discovery;
+  private io.vertx.servicediscovery.ServiceDiscovery discovery;
 
-  private ServiceProvider provider;
+  private ServiceDiscovery provider;
 
   private String aId;
 
@@ -39,8 +38,8 @@ public class ServiceProviderTest {
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
-    discovery = ServiceDiscovery.create(vertx);
-    provider = ServiceProvider.create(vertx, new JsonObject());
+    discovery = io.vertx.servicediscovery.ServiceDiscovery.create(vertx);
+    provider = ServiceDiscovery.create(vertx, new JsonObject());
 
     aId = UUID.randomUUID().toString();
     bId = UUID.randomUUID().toString();

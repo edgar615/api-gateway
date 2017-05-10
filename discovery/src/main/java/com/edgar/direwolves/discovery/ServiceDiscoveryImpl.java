@@ -1,25 +1,37 @@
 package com.edgar.direwolves.discovery;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Created by edgar on 17-5-9.
  */
-class ServiceProviderImpl implements ServiceProvider {
+class ServiceDiscoveryImpl implements ServiceDiscoveryInternal {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscovery.class);
+
   private final Vertx vertx;
 
   private final Map<String, ServiceInstance> instances = new ConcurrentHashMap<>();
 
   private final Map<String, ProviderStrategy> strategyMap = new ConcurrentHashMap<>();
+
+  private final Set<ServiceImporter> importers = new CopyOnWriteArraySet<>();
 
   private final JsonObject strategyConfig;
 
@@ -29,14 +41,14 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private final int weightDecrease;
 
-  ServiceProviderImpl(Vertx vertx, JsonObject config) {
+  ServiceDiscoveryImpl(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     String address = config.getString("service.discovery.announce", "vertx.discovery.announce");
     this.timeoutThreshold = config.getLong("service.discovery.weight.timeout", 2000l);
     this.weightIncrease = config.getInteger("service.discovery.weight.increase", 1);
     this.weightDecrease = config.getInteger("service.discovery.weight.decrease", 10);
     this.strategyConfig =
-            config.getJsonObject("service.discovery.strategy", new JsonObject());
+        config.getJsonObject("service.discovery.strategy", new JsonObject());
     vertx.eventBus().<JsonObject>consumer(address, msg -> {
       JsonObject jsonObject = msg.body();
       Record record = new Record(jsonObject);
@@ -70,15 +82,15 @@ class ServiceProviderImpl implements ServiceProvider {
   @Override
   public List<ServiceInstance> getInstances(Function<ServiceInstance, Boolean> filter) {
     return instances.values()
-            .stream()
-            .filter(i -> filter.apply(i))
-            .collect(Collectors.toList());
+        .stream()
+        .filter(i -> filter.apply(i))
+        .collect(Collectors.toList());
   }
 
   @Override
   public ServiceInstance getInstance(String name) {
     return getOrCreateProvider(name)
-            .get(getInstances(i -> i.name().equals(name) && i.weight() > 0));
+        .get(getInstances(i -> i.name().equals(name) && i.weight() > 0));
   }
 
   @Override
@@ -117,4 +129,46 @@ class ServiceProviderImpl implements ServiceProvider {
     throw new UnsupportedOperationException("Strategy " + strategy);
   }
 
+  @Override
+  public void publish(ServiceInstance instance) {
+    instances.putIfAbsent(instance.id(), instance);
+  }
+
+  @Override
+  public void unpublish(String id) {
+    instances.remove(id);
+  }
+
+  @Override
+  public ServiceDiscovery registerServiceImporter(ServiceImporter importer, JsonObject configuration,
+                                                  Handler<AsyncResult<Void>> completionHandler) {
+    JsonObject conf;
+    if (configuration == null) {
+      conf = new JsonObject();
+    } else {
+      conf = configuration;
+    }
+
+    Future<Void> completed = Future.future();
+    completed.setHandler(
+        ar -> {
+          if (ar.failed()) {
+            LOGGER.error("Cannot start the service importer " + importer, ar.cause());
+            if (completionHandler != null) {
+              completionHandler.handle(Future.failedFuture(ar.cause()));
+            }
+          } else {
+            importers.add(importer);
+            LOGGER.info("Service importer " + importer + " started");
+
+            if (completionHandler != null) {
+              completionHandler.handle(Future.succeededFuture(null));
+            }
+          }
+        }
+    );
+
+    importer.start(vertx, this, conf, completed);
+    return this;
+  }
 }
