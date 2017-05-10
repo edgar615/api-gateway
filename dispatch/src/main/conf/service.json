@@ -1,6 +1,9 @@
 {
   "service.discovery": "consul://localhost:8500",
   "service.discovery.scan-period": 2000,
+  "service.discovery.weight.timeout" : 2000,
+  "service.discovery.weight.increase" : 1,
+  "service.discovery.weight.decrease" : 10,
   "service.discovery.strategy": {
     "user": {
       "strategy": "random"

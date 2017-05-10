@@ -14,7 +14,7 @@ public class RoundRobinStrategyTest extends StrategyTest {
   @Test
   public void testRandom() {
     ProviderStrategy providerStrategy = ProviderStrategy.roundRobin();
-    List<String> selected = select100(providerStrategy);
+    List<String> selected = select3000(providerStrategy);
     Assert.assertEquals(3, new HashSet<>(selected).size());
     long aSize = selected.stream()
         .filter(i -> "a".equals(i))

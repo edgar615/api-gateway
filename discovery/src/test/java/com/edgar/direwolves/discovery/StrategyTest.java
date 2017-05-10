@@ -27,7 +27,7 @@ public class StrategyTest {
             HttpEndpoint.createRecord("device", "localhost", 8080, "/").setRegistration("c")));
   }
 
-  protected List<String> select100(ProviderStrategy strategy) {
+  protected List<String> select3000(ProviderStrategy strategy) {
     List<String> selected = new ArrayList<>();
     for (int i = 0; i < 3000; i++) {
       ServiceInstance instance = strategy.get(instances);

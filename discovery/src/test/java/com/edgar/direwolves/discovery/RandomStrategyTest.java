@@ -14,7 +14,7 @@ public class RandomStrategyTest extends StrategyTest {
   @Test
   public void testRandom() {
     ProviderStrategy providerStrategy = ProviderStrategy.random();
-    List<String> selected = select100(providerStrategy);
+    List<String> selected = select3000(providerStrategy);
     Assert.assertEquals(3, new HashSet<>(selected).size());
     long aSize = selected.stream()
         .filter(i -> "a".equals(i))

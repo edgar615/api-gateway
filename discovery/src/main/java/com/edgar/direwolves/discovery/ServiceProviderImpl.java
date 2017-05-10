@@ -23,9 +23,20 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private final JsonObject strategyConfig;
 
+  private final long timeoutThreshold;
+
+  private final int weightIncrease;
+
+  private final int weightDecrease;
+
   ServiceProviderImpl(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     String address = config.getString("service.discovery.announce", "vertx.discovery.announce");
+    this.timeoutThreshold = config.getLong("service.discovery.weight.timeout", 2000l);
+    this.weightIncrease = config.getInteger("service.discovery.weight.increase", 1);
+    this.weightDecrease = config.getInteger("service.discovery.weight.decrease", 10);
+    this.strategyConfig =
+            config.getJsonObject("service.discovery.strategy", new JsonObject());
     vertx.eventBus().<JsonObject>consumer(address, msg -> {
       JsonObject jsonObject = msg.body();
       Record record = new Record(jsonObject);
@@ -37,8 +48,18 @@ class ServiceProviderImpl implements ServiceProvider {
         instances.remove(instance.id());
       }
     });
-    this.strategyConfig =
-            config.getJsonObject("service.discovery.strategy", new JsonObject());
+    vertx.eventBus().<JsonObject>consumer(address + ".weight", msg -> {
+      JsonObject jsonObject = msg.body();
+      String id = jsonObject.getString("id");
+      long duration = jsonObject.getLong("duration", 0l);
+      boolean result = jsonObject.getBoolean("result", true);
+      if (result) {
+        complete(id, duration);
+      } else {
+        fail(id);
+      }
+    });
+
   }
 
   @Override
@@ -60,16 +81,18 @@ class ServiceProviderImpl implements ServiceProvider {
             .get(getInstances(i -> i.name().equals(name) && i.weight() > 0));
   }
 
-  public void success(String id, long duration) {
-    if (duration > 3000) {
-      failed(id);
+  @Override
+  public void complete(String id, long duration) {
+    if (duration > timeoutThreshold) {
+      fail(id);
     } else {
-      instances.computeIfPresent(id, (s, instance) -> instance.incWeight(1));
+      instances.computeIfPresent(id, (s, instance) -> instance.incWeight(weightIncrease));
     }
   }
 
-  public void failed(String id) {
-    instances.computeIfPresent(id, (s, instance) -> instance.decWeight(10));
+  @Override
+  public void fail(String id) {
+    instances.computeIfPresent(id, (s, instance) -> instance.decWeight(weightDecrease));
   }
 
   private ProviderStrategy getOrCreateProvider(String name) {

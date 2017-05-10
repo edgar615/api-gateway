@@ -21,6 +21,10 @@ public interface ServiceProvider {
 
   ServiceInstance getInstance(String name);
 
+  void complete(String id, long duration);
+
+  void fail(String id);
+
   static ServiceProvider create(Vertx vertx, JsonObject config) {
     return new ServiceProviderImpl(vertx, config);
   }

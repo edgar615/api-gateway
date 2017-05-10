@@ -1,6 +1,5 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +16,7 @@ public class StickyStrategyTest extends StrategyTest {
   @Test
   public void testStick() {
     ProviderStrategy providerStrategy = ProviderStrategy.sticky(ProviderStrategy.roundRobin());
-    List<String> selected = select100(providerStrategy);
+    List<String> selected = select3000(providerStrategy);
     Assert.assertEquals(1, new HashSet<>(selected).size());
     long aSize = selected.stream()
         .filter(i -> "a".equals(i))

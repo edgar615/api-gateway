@@ -24,7 +24,6 @@ public class ServiceInstance {
     this(record, 60);
   }
 
-
   public ServiceInstance(Record record, int weight) {
     if (record.getMetadata().containsKey("ID")) {
       this.id = record.getMetadata().getString("ID");
@@ -77,5 +76,16 @@ public class ServiceInstance {
 
   public String id() {
     return id;
+  }
+
+  @Override
+  public String toString() {
+    return "ServiceInstance{" +
+           "id='" + id + '\'' +
+           ", name='" + name + '\'' +
+           ", weight=" + weight +
+           ", effectiveWeight=" + effectiveWeight +
+           ", record=" + record.toJson().encode() +
+           '}';
   }
 }
