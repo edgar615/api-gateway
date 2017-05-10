@@ -1,7 +1,5 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.servicediscovery.Record;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,28 +12,28 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>
  * Created by edgar on 17-5-6.
  */
-class StickyStrategy implements SelectStrategy {
+class StickyStrategy implements ProviderStrategy {
 
-  private final SelectStrategy masterStrategy;
+  private final ProviderStrategy masterStrategy;
 
-  private final AtomicReference<Record> ourInstance = new AtomicReference<>(null);
+  private final AtomicReference<ServiceInstance> ourInstance = new AtomicReference<>(null);
 
   private final AtomicInteger instanceNumber = new AtomicInteger(-1);
 
-  public StickyStrategy(SelectStrategy masterStrategy) {
+  public StickyStrategy(ProviderStrategy masterStrategy) {
     this.masterStrategy = masterStrategy;
   }
 
   @Override
-  public Record get(List<Record> instances) {
+  public ServiceInstance get(List<ServiceInstance> instances) {
 
-    Record localOurInstance = ourInstance.get();
+    ServiceInstance localOurInstance = ourInstance.get();
     if (!instances.contains(localOurInstance)) {
       ourInstance.compareAndSet(localOurInstance, null);
     }
 
     if (ourInstance.get() == null) {
-      Record instance = masterStrategy.get(instances);
+      ServiceInstance instance = masterStrategy.get(instances);
       if (ourInstance.compareAndSet(null, instance)) {
         instanceNumber.incrementAndGet();
       }

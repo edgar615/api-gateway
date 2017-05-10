@@ -1,7 +1,6 @@
 package com.edgar.direwolves.discovery;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -14,8 +13,8 @@ public class RandomStrategyTest extends StrategyTest {
 
   @Test
   public void testRandom() {
-    SelectStrategy selectStrategy = SelectStrategy.random();
-    List<String> selected = select100(selectStrategy);
+    ProviderStrategy providerStrategy = ProviderStrategy.random();
+    List<String> selected = select100(providerStrategy);
     Assert.assertEquals(3, new HashSet<>(selected).size());
     long aSize = selected.stream()
         .filter(i -> "a".equals(i))

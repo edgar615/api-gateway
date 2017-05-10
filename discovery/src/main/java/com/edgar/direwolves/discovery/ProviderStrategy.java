@@ -1,7 +1,5 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.servicediscovery.Record;
-
 import java.util.List;
 
 /**
@@ -11,28 +9,28 @@ import java.util.List;
  *
  * @author Edgar
  */
-public interface SelectStrategy {
+public interface ProviderStrategy {
   /**
    * 从给定一组对象中，返回一个对象.
    *
    * @param instances the instance list
    * @return the instance to use
    */
-  Record get(List<Record> instances);
+  ServiceInstance get(List<ServiceInstance> instances);
 
-  static SelectStrategy random() {
+  static ProviderStrategy random() {
     return new RandomStrategy();
   }
 
-  static SelectStrategy weightRoundRobin() {
+  static ProviderStrategy weightRoundRobin() {
     return new WeightRoundbinStrategy();
   }
 
-  static SelectStrategy roundRobin() {
+  static ProviderStrategy roundRobin() {
     return new RoundRobinStrategy();
   }
 
-  static SelectStrategy sticky(SelectStrategy masterStrategy) {
+  static ProviderStrategy sticky(ProviderStrategy masterStrategy) {
     return new StickyStrategy(masterStrategy);
   }
 }

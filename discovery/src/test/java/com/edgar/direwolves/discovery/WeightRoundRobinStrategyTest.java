@@ -1,7 +1,5 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.core.json.JsonObject;
-import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,27 +14,24 @@ import java.util.List;
  */
 public class WeightRoundRobinStrategyTest {
 
-  List<Record> instances = new ArrayList<>();
+  List<ServiceInstance> instances = new ArrayList<>();
 
   @Before
   public void setUp() {
     instances.clear();
-    instances.add(HttpEndpoint.createRecord("device", "localhost", 8080, "/")
-                          .setRegistration
-                                  ("a").setMetadata(new JsonObject().put("weight", 5)));
-    instances.add(HttpEndpoint.createRecord("device", "localhost", 8080, "/")
-                          .setRegistration
-                                  ("b").setMetadata(new JsonObject().put("weight", 1)));
-    instances.add(HttpEndpoint.createRecord("device", "localhost", 8080, "/")
-                          .setRegistration
-                                  ("c").setMetadata(new JsonObject().put("weight", 1)));
+    instances.add(new ServiceInstance(
+            HttpEndpoint.createRecord("device", "localhost", 8080, "/").setRegistration("a"), 5));
+    instances.add(new ServiceInstance(HttpEndpoint.createRecord("device", "localhost", 8080, "/")
+                                              .setRegistration("b"), 1));
+    instances.add(new ServiceInstance(HttpEndpoint.createRecord("device", "localhost", 8080, "/")
+                                              .setRegistration("c"), 1));
   }
 
 
   @Test
   public void testWeight() {
-    SelectStrategy selectStrategy = SelectStrategy.weightRoundRobin();
-    List<String> selected = select(selectStrategy);
+    ProviderStrategy providerStrategy = ProviderStrategy.weightRoundRobin();
+    List<String> selected = select(providerStrategy);
     Assert.assertEquals(3, new HashSet<>(selected).size());
     long aSize = selected.stream()
             .filter(i -> "a".equals(i))
@@ -54,8 +49,8 @@ public class WeightRoundRobinStrategyTest {
 
   @Test
   public void testSmoothWeight() {
-    SelectStrategy selectStrategy = SelectStrategy.weightRoundRobin();
-    List<String> selected = select7(selectStrategy);
+    ProviderStrategy providerStrategy = ProviderStrategy.weightRoundRobin();
+    List<String> selected = select7(providerStrategy);
     Assert.assertEquals(3, new HashSet<>(selected).size());
     System.out.println(selected);
     long aSize = selected.stream()
@@ -80,20 +75,20 @@ public class WeightRoundRobinStrategyTest {
     Assert.assertEquals("a", selected.get(6));
   }
 
-  private List<String> select7(SelectStrategy strategy) {
+  private List<String> select7(ProviderStrategy strategy) {
     List<String> selected = new ArrayList<>();
     for (int i = 0; i < 7; i++) {
-      Record instance = strategy.get(instances);
-      selected.add(instance.getRegistration());
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
     }
     return selected;
   }
 
-  private List<String> select(SelectStrategy strategy) {
+  private List<String> select(ProviderStrategy strategy) {
     List<String> selected = new ArrayList<>();
     for (int i = 0; i < 7000; i++) {
-      Record instance = strategy.get(instances);
-      selected.add(instance.getRegistration());
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
     }
     return selected;
   }

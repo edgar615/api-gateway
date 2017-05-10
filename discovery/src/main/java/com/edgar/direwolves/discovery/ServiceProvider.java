@@ -13,10 +13,15 @@ public interface ServiceProvider {
 
   void getInstances(Handler<AsyncResult<List<ServiceInstance>>> handler);
 
-  void getInstances(Function<ServiceInstance, Boolean> filter, Handler<AsyncResult<List<ServiceInstance>>> handler);
+  void getInstances(Function<ServiceInstance, Boolean> filter,
+                    Handler<AsyncResult<List<ServiceInstance>>> handler);
 
   void getInstance(Handler<AsyncResult<ServiceInstance>> handler);
 
-  void getInstance(Function<ServiceInstance, Boolean> filter, Handler<AsyncResult<ServiceInstance>> handler);
+  void getInstance(Function<ServiceInstance, Boolean> filter,
+                   Handler<AsyncResult<ServiceInstance>> handler);
+
+  void getInstance(String name,
+                   Handler<AsyncResult<ServiceInstance>> handler);
 
 }

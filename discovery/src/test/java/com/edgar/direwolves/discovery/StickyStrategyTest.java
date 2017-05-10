@@ -16,8 +16,8 @@ public class StickyStrategyTest extends StrategyTest {
 
   @Test
   public void testStick() {
-    SelectStrategy selectStrategy = SelectStrategy.sticky(SelectStrategy.roundRobin());
-    List<String> selected = select100(selectStrategy);
+    ProviderStrategy providerStrategy = ProviderStrategy.sticky(ProviderStrategy.roundRobin());
+    List<String> selected = select100(providerStrategy);
     Assert.assertEquals(1, new HashSet<>(selected).size());
     long aSize = selected.stream()
         .filter(i -> "a".equals(i))
@@ -35,8 +35,8 @@ public class StickyStrategyTest extends StrategyTest {
 
   @Test
   public void testStickReset() {
-    SelectStrategy selectStrategy = SelectStrategy.sticky(SelectStrategy.roundRobin());
-    List<String> selected = select(selectStrategy);
+    ProviderStrategy providerStrategy = ProviderStrategy.sticky(ProviderStrategy.roundRobin());
+    List<String> selected = select(providerStrategy);
     Assert.assertEquals(2, new HashSet<>(selected).size());
     long aSize = selected.stream()
         .filter(i -> "a".equals(i))
@@ -52,23 +52,23 @@ public class StickyStrategyTest extends StrategyTest {
     Assert.assertEquals(cSize, 2000);
   }
 
-  protected List<String> select(SelectStrategy strategy) {
+  protected List<String> select(ProviderStrategy strategy) {
     List<String> selected = new ArrayList<>();
     for (int i = 0; i < 1000; i++) {
-      Record instance = strategy.get(instances);
-      selected.add(instance.getRegistration());
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
     }
 
-    instances.removeIf(r -> r.getRegistration().equalsIgnoreCase("a"));
+    instances.removeIf(r -> r.id().equalsIgnoreCase("a"));
     for (int i = 1000; i < 2000; i++) {
-      Record instance = strategy.get(instances);
-      selected.add(instance.getRegistration());
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
     }
 
-    instances.add(HttpEndpoint.createRecord("device", "localhost", 8080, "/").setRegistration("a"));
+    instances.add(new ServiceInstance(HttpEndpoint.createRecord("device", "localhost", 8080, "/").setRegistration("a")));
     for (int i = 2000; i < 3000; i++) {
-      Record instance = strategy.get(instances);
-      selected.add(instance.getRegistration());
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
     }
     return selected;
   }

@@ -1,7 +1,5 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.servicediscovery.Record;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -57,25 +55,25 @@ import java.util.stream.Collectors;
  * reduced temporarily on peer failures.
  * Created by edgar on 17-5-6.
  */
-class WeightRoundbinStrategy implements SelectStrategy {
+class WeightRoundbinStrategy implements ProviderStrategy {
 
   private final Map<String, Integer> currentWeightHolder = new ConcurrentHashMap<>();
 
   private synchronized Map.Entry<String, Integer> findAndUpdateWeight(
-          List<Record> records, int total) {
+          List<ServiceInstance> records, int total) {
 
     Set<String> notExists = currentWeightHolder.keySet()
             .stream()
             .filter(id -> records.stream()
-                                  .filter(i -> i.getRegistration().equals(id)).count() == 0)
+                                  .filter(i -> i.id().equals(id)).count() == 0)
             .collect(Collectors.toSet());
 
     notExists.forEach(id -> currentWeightHolder.remove(id));
 
     records.stream()
             .forEach(r -> {
-              String id = r.getRegistration();
-              int weight = r.getMetadata().getInteger("weight", 0);
+              String id = r.id();
+              int weight = r.weight();
               currentWeightHolder
                       .compute(id, (k, v) -> v == null ? 0 + weight : v + weight);
             });
@@ -95,18 +93,18 @@ class WeightRoundbinStrategy implements SelectStrategy {
   }
 
   @Override
-  public Record get(List<Record> records) {
+  public ServiceInstance get(List<ServiceInstance> records) {
     int total = totalWeight(records);
     final Map.Entry<String, Integer> entry = findAndUpdateWeight(records, total);
     return records.stream()
-            .filter(i -> i.getRegistration().equals(entry.getKey()))
+            .filter(i -> i.id().equals(entry.getKey()))
             .findFirst()
             .get();
   }
 
-  private int totalWeight(List<Record> records) {
+  private int totalWeight(List<ServiceInstance> records) {
     return records.stream()
-            .map(r -> r.getMetadata().getInteger("weight", 0))
+            .map(r -> r.weight())
             .reduce(0, (i1, i2) -> i1 + i2);
   }
 }

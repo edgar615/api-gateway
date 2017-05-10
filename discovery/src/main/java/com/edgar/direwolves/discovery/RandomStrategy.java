@@ -1,7 +1,5 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.servicediscovery.Record;
-
 import java.util.List;
 import java.util.Random;
 
@@ -9,11 +7,11 @@ import java.util.Random;
  * 从给定列表中随机选择一个对象.
  * Created by edgar on 17-5-6.
  */
-class RandomStrategy implements SelectStrategy {
+class RandomStrategy implements ProviderStrategy {
   private final Random random = new Random();
 
   @Override
-  public Record get(List<Record> instances) {
+  public ServiceInstance get(List<ServiceInstance> instances) {
     if (instances == null || instances.isEmpty()) {
       return null;
     }
