@@ -21,7 +21,7 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private final Map<String, ProviderStrategy> strategyMap = new ConcurrentHashMap<>();
 
-  private final JsonObject config;
+  private final JsonObject strategyConfig;
 
   ServiceProviderImpl(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -30,12 +30,15 @@ class ServiceProviderImpl implements ServiceProvider {
       JsonObject jsonObject = msg.body();
       Record record = new Record(jsonObject);
       if (record.getStatus() == Status.UP) {
-        instances.putIfAbsent(record.getRegistration(), new ServiceInstance(record));
+        ServiceInstance instance = new ServiceInstance(record);
+        instances.putIfAbsent(instance.id(), instance);
       } else {
-        instances.remove(record.getRegistration());
+        ServiceInstance instance = new ServiceInstance(record);
+        instances.remove(instance.id());
       }
     });
-    this.config = config;
+    this.strategyConfig =
+            config.getJsonObject("service.discovery.strategy", new JsonObject());
   }
 
   @Override
@@ -49,20 +52,6 @@ class ServiceProviderImpl implements ServiceProvider {
             .stream()
             .filter(i -> filter.apply(i))
             .collect(Collectors.toList());
-  }
-
-  @Override
-  public ServiceInstance getInstance() {
-    return getInstance(r -> true);
-  }
-
-  @Override
-  public ServiceInstance getInstance(Function<ServiceInstance, Boolean> filter) {
-    return instances.values()
-            .stream()
-            .filter(i -> filter.apply(i))
-            .findAny()
-            .get();
   }
 
   @Override
@@ -88,7 +77,7 @@ class ServiceProviderImpl implements ServiceProvider {
   }
 
   private ProviderStrategy createProvider(String name) {
-    JsonObject jsonObject = config.getJsonObject(name, new JsonObject());
+    JsonObject jsonObject = strategyConfig.getJsonObject(name, new JsonObject());
     String strategy = jsonObject.getString("strategy", "round_robin");
     if ("random".equalsIgnoreCase(strategy)) {
       return ProviderStrategy.random();

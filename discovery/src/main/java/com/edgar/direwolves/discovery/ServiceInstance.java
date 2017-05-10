@@ -2,6 +2,7 @@ package com.edgar.direwolves.discovery;
 
 import io.vertx.servicediscovery.Record;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -25,7 +26,13 @@ public class ServiceInstance {
 
 
   public ServiceInstance(Record record, int weight) {
-    this.id = record.getRegistration();
+    if (record.getMetadata().containsKey("ID")) {
+      this.id = record.getMetadata().getString("ID");
+    } else if (record.getMetadata().containsKey("zookeeper-id")) {
+      this.id = record.getMetadata().getString("zookeeper-id");
+    } else {
+      this.id = UUID.randomUUID().toString();
+    }
     this.name = record.getName();
     this.weight = new AtomicInteger(weight);
     this.record = record;

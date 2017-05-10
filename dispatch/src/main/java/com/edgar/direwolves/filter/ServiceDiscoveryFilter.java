@@ -7,15 +7,14 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Helper;
-import com.edgar.direwolves.discovery.RecordProvider;
+import com.edgar.direwolves.discovery.ServiceInstance;
+import com.edgar.direwolves.discovery.ServiceProvider;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,19 +30,13 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
 
-  private final ServiceDiscovery discovery;
+  private final ServiceProvider serviceProvider;
 
-  private final RecordProvider recordProvider;
-
-  private Vertx vertx;
+  private final Vertx vertx;
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.discovery = ServiceDiscovery.create(vertx);
-    JsonObject strategyConfig =
-            config.getJsonObject("service.discovery.select-strategy", new JsonObject());
-
-    this.recordProvider = RecordProvider.create(discovery, strategyConfig);
+    this.serviceProvider = ServiceProvider.create(vertx, config);
   }
 
   @Override
@@ -64,7 +57,7 @@ public class ServiceDiscoveryFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    List<Future<Record>> futures =
+    List<ServiceInstance> instances =
             apiContext.apiDefinition().endpoints().stream()
                     .filter(e -> e instanceof HttpEndpoint)
                     .map(e -> ((HttpEndpoint) e).service())
@@ -72,43 +65,32 @@ public class ServiceDiscoveryFilter implements Filter {
                     .map(s -> serviceFuture(s))
                     .collect(Collectors.toList());
 
-    Task.par(futures)
-            .andThen(records -> {
-              apiContext.apiDefinition().endpoints().stream()
-                      .filter(e -> e instanceof HttpEndpoint)
-                      .map(e -> toRpc(apiContext, e, records))
-                      .forEach(req -> apiContext.addRequest(req));
-            })
-            .andThen(records -> {
-              completeFuture.complete(apiContext);
-            })
-            .onFailure(throwable -> completeFuture.fail(throwable));
+    apiContext.apiDefinition().endpoints().stream()
+            .filter(e -> e instanceof HttpEndpoint)
+            .map(e -> toRpc(apiContext, e, instances))
+            .forEach(req -> apiContext.addRequest(req));
+
+    completeFuture.complete(apiContext);
+
   }
 
-  private Future<Record> serviceFuture(String service) {
+  private ServiceInstance serviceFuture(String service) {
     //服务发现
-    Future<Record> serviceFuture = Future.future();
-
-    Future<Record> future = recordProvider.getRecord(service);
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        Record record = ar.result();
-        if (record == null) {
-          serviceFuture.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                                     .set("details", "Service not found: " + service));
-        } else {
-          serviceFuture.complete(record);
-        }
-      } else {
-        serviceFuture.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                                   .set("details", "Service not found: " + service + ", "
-                                                   + ar.cause().getMessage()));
+    try {
+      ServiceInstance instance = serviceProvider.getInstance(service);
+      if (instance == null) {
+        throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                .set("details", "Service not found: " + service);
       }
-    });
-    return serviceFuture;
+      return instance;
+    } catch (Exception e) {
+      throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+              .set("details", "Service not found: " + service);
+    }
   }
 
-  private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint, List<Record> records) {
+  private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint,
+                           List<ServiceInstance> records) {
     if (endpoint instanceof HttpEndpoint) {
       HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
       HttpRpcRequest httpRpcRequest =
@@ -119,24 +101,20 @@ public class ServiceDiscoveryFilter implements Filter {
 //    httpRpcRequest.addHeaders(apiContext.headers());
       httpRpcRequest.addHeader("x-request-id", httpRpcRequest.id());
       httpRpcRequest.setBody(apiContext.body());
-      List<Record> recordList = records.stream()
-              .filter(r -> httpEndpoint.service().equalsIgnoreCase(r.getName()))
+      List<ServiceInstance> instances = records.stream()
+              .filter(r -> httpEndpoint.service().equalsIgnoreCase(r.name()))
               .collect(Collectors.toList());
-      if (recordList.isEmpty()) {
+      if (instances.isEmpty()) {
         Helper.logFailed(LOGGER, apiContext.id(),
                          this.getClass().getSimpleName(),
                          "Service not found, endpoint:" + endpoint.name());
         throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                 .set("details", "Service not found, endpoint:" + endpoint.name());
       }
-      Record record = recordList.get(0);
-      if (record.getMetadata().containsKey("ID")) {
-        httpRpcRequest.setServerId(record.getMetadata().getString("ID"));
-      } else if (record.getMetadata().containsKey("zookeeper-id")) {
-        httpRpcRequest.setServerId(record.getMetadata().getString("zookeeper-id"));
-      }
-      httpRpcRequest.setHost(record.getLocation().getString("host"));
-      httpRpcRequest.setPort(record.getLocation().getInteger("port"));
+      ServiceInstance instance = instances.get(0);
+      httpRpcRequest.setServerId(instance.id());
+      httpRpcRequest.setHost(instance.record().getLocation().getString("host"));
+      httpRpcRequest.setPort(instance.record().getLocation().getInteger("port"));
       return httpRpcRequest;
     }
     return null;

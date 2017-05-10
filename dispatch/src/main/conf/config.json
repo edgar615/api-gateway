@@ -14,7 +14,7 @@
   "api.config.auto_refresh": false,
   "service.discovery": "consul://localhost:8500",
   "service.discovery.scan-period": 2000,
-  "service.discovery.select-strategy": {
+  "service.discovery.strategy": {
     "user": {
       "strategy": "random"
     },

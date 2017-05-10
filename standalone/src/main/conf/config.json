@@ -14,7 +14,7 @@
   "service.discovery": "zookeeper://10.11.0.31:2181",
   "zookeeper.path": "/csst-microservice",
   "service.discovery.scan-period": 2000,
-  "service.discovery.select-strategy": {
+  "service.discovery.strategy": {
     "user": {
       "strategy": "random"
     },
