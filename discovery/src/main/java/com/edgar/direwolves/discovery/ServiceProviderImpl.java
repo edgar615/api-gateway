@@ -1,13 +1,9 @@
 package com.edgar.direwolves.discovery;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.Status;
-import io.vertx.servicediscovery.impl.AsyncMap;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +17,7 @@ import java.util.stream.Collectors;
 class ServiceProviderImpl implements ServiceProvider {
   private final Vertx vertx;
 
-  private final AsyncMap<String, ServiceInstance> instances;
+  private final Map<String, ServiceInstance> instances = new ConcurrentHashMap<>();
 
   private final Map<String, ProviderStrategy> strategyMap = new ConcurrentHashMap<>();
 
@@ -29,73 +25,62 @@ class ServiceProviderImpl implements ServiceProvider {
 
   ServiceProviderImpl(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.instances = new AsyncMap<>(vertx, "service.cache");
     String address = config.getString("service.discovery.announce", "vertx.discovery.announce");
     vertx.eventBus().<JsonObject>consumer(address, msg -> {
       JsonObject jsonObject = msg.body();
       Record record = new Record(jsonObject);
       if (record.getStatus() == Status.UP) {
-
+        instances.putIfAbsent(record.getRegistration(), new ServiceInstance(record));
       } else {
+        instances.remove(record.getRegistration());
       }
     });
     this.config = config;
   }
 
   @Override
-  public void getInstances(Handler<AsyncResult<List<ServiceInstance>>> handler) {
-    getInstances(i -> true, handler);
+  public List<ServiceInstance> getInstances() {
+    return getInstances(i -> true);
   }
 
   @Override
-  public void getInstances(Function<ServiceInstance, Boolean> filter,
-                           Handler<AsyncResult<List<ServiceInstance>>> handler) {
-    instances.getAll(ar -> {
-      if (ar.succeeded()) {
-        handler.handle(Future.succeededFuture(ar.result().values().stream()
-                                                      .filter(i -> filter.apply(i))
-                                                      .collect(Collectors.toList())));
-      } else {
-        handler.handle(Future.failedFuture(ar.cause()));
-      }
-    });
+  public List<ServiceInstance> getInstances(Function<ServiceInstance, Boolean> filter) {
+    return instances.values()
+            .stream()
+            .filter(i -> filter.apply(i))
+            .collect(Collectors.toList());
   }
 
   @Override
-  public void getInstance(Handler<AsyncResult<ServiceInstance>> handler) {
-    getInstance(r -> true, handler);
+  public ServiceInstance getInstance() {
+    return getInstance(r -> true);
   }
 
   @Override
-  public void getInstance(Function<ServiceInstance, Boolean> filter,
-                          Handler<AsyncResult<ServiceInstance>> handler) {
-    instances.getAll(ar -> {
-      if (ar.succeeded()) {
-        handler.handle(Future.succeededFuture(ar.result().values().stream()
-                                                      .filter(i -> filter.apply(i))
-                                                      .findAny().get()));
-      } else {
-        handler.handle(Future.failedFuture(ar.cause()));
-      }
-    });
+  public ServiceInstance getInstance(Function<ServiceInstance, Boolean> filter) {
+    return instances.values()
+            .stream()
+            .filter(i -> filter.apply(i))
+            .findAny()
+            .get();
   }
 
   @Override
-  public void getInstance(String name,
-                          Handler<AsyncResult<ServiceInstance>> handler) {
-    getInstances(i -> i.name().equals(name), ar -> {
-      if (ar.failed()) {
-        handler.handle(Future.failedFuture(ar.cause()));
-      } else {
-        try {
-          ServiceInstance instance = getOrCreateProvider(name)
-                  .get(ar.result());
-          handler.handle(Future.succeededFuture(instance));
-        } catch (Exception e) {
-          handler.handle(Future.failedFuture(e));
-        }
-      }
-    });
+  public ServiceInstance getInstance(String name) {
+    return getOrCreateProvider(name)
+            .get(getInstances(i -> i.name().equals(name) && i.weight() > 0));
+  }
+
+  public void success(String id, long duration) {
+    if (duration > 3000) {
+      failed(id);
+    } else {
+      instances.computeIfPresent(id, (s, instance) -> instance.incWeight(1));
+    }
+  }
+
+  public void failed(String id) {
+    instances.computeIfPresent(id, (s, instance) -> instance.decWeight(10));
   }
 
   private ProviderStrategy getOrCreateProvider(String name) {

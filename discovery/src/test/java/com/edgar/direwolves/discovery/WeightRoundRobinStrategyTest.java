@@ -51,8 +51,8 @@ public class WeightRoundRobinStrategyTest {
   public void testSmoothWeight() {
     ProviderStrategy providerStrategy = ProviderStrategy.weightRoundRobin();
     List<String> selected = select7(providerStrategy);
-    Assert.assertEquals(3, new HashSet<>(selected).size());
     System.out.println(selected);
+    Assert.assertEquals(3, new HashSet<>(selected).size());
     long aSize = selected.stream()
             .filter(i -> "a".equals(i))
             .count();
@@ -75,6 +75,42 @@ public class WeightRoundRobinStrategyTest {
     Assert.assertEquals("a", selected.get(6));
   }
 
+  @Test
+  public void testDowngrade() {
+    ProviderStrategy providerStrategy = ProviderStrategy.weightRoundRobin();
+    List<String> selected = selectWithDowngrade(providerStrategy);
+    System.out.println(selected);
+    Assert.assertEquals(3, new HashSet<>(selected).size());
+    long aSize = selected.stream()
+            .filter(i -> "a".equals(i))
+            .count();
+    long bSize = selected.stream()
+            .filter(i -> "b".equals(i))
+            .count();
+    long cSize = selected.stream()
+            .filter(i -> "c".equals(i))
+            .count();
+    Assert.assertEquals(aSize, 7);
+    Assert.assertEquals(bSize, 3);
+    Assert.assertEquals(cSize, 5);
+
+    Assert.assertEquals("a", selected.get(0));
+    Assert.assertEquals("a", selected.get(1));
+    Assert.assertEquals("b", selected.get(2));
+    Assert.assertEquals("a", selected.get(3));
+    Assert.assertEquals("c", selected.get(4));
+    Assert.assertEquals("a", selected.get(5));
+    Assert.assertEquals("a", selected.get(6));
+    Assert.assertEquals("a", selected.get(7));
+    Assert.assertEquals("b", selected.get(8));
+    Assert.assertEquals("c", selected.get(9));
+    Assert.assertEquals("c", selected.get(10));
+    Assert.assertEquals("a", selected.get(11));
+    Assert.assertEquals("c", selected.get(12));
+    Assert.assertEquals("b", selected.get(13));
+    Assert.assertEquals("c", selected.get(14));
+  }
+
   private List<String> select7(ProviderStrategy strategy) {
     List<String> selected = new ArrayList<>();
     for (int i = 0; i < 7; i++) {
@@ -92,4 +128,31 @@ public class WeightRoundRobinStrategyTest {
     }
     return selected;
   }
+
+  private List<String> selectWithDowngrade(ProviderStrategy strategy) {
+    List<String> selected = new ArrayList<>();
+    for (int i = 0; i < 7; i++) {
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
+    }
+    //将a降级到1，选择3次，应该a,b,c平均
+    instances.stream()
+            .filter(i -> i.id().equals("a"))
+            .forEach(i -> i.decWeight(4));
+    for (int i = 0; i < 3; i++) {
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
+    }
+
+    //将C升级到3，选择5次，应该 c, a, c, b c
+    instances.stream()
+            .filter(i -> i.id().equals("c"))
+            .forEach(i -> i.incWeight(2));
+    for (int i = 0; i < 5; i++) {
+      ServiceInstance instance = strategy.get(instances);
+      selected.add(instance.id());
+    }
+    return selected;
+  }
+
 }

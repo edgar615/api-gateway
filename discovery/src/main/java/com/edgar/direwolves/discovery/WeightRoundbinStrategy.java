@@ -1,11 +1,8 @@
 package com.edgar.direwolves.discovery;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 基于权重的随机轮询策略.
@@ -57,54 +54,25 @@ import java.util.stream.Collectors;
  */
 class WeightRoundbinStrategy implements ProviderStrategy {
 
-  private final Map<String, Integer> currentWeightHolder = new ConcurrentHashMap<>();
-
-  private synchronized Map.Entry<String, Integer> findAndUpdateWeight(
-          List<ServiceInstance> records, int total) {
-
-    Set<String> notExists = currentWeightHolder.keySet()
-            .stream()
-            .filter(id -> records.stream()
-                                  .filter(i -> i.id().equals(id)).count() == 0)
-            .collect(Collectors.toSet());
-
-    notExists.forEach(id -> currentWeightHolder.remove(id));
-
-    records.stream()
-            .forEach(r -> {
-              String id = r.id();
-              int weight = r.weight();
-              currentWeightHolder
-                      .compute(id, (k, v) -> v == null ? 0 + weight : v + weight);
-            });
-
-    //找到最大值
-    Iterator<Map.Entry<String, Integer>> iterator = currentWeightHolder.entrySet().iterator();
-    Map.Entry<String, Integer> entry = iterator.next();
-    while (iterator.hasNext()) {
-      Map.Entry<String, Integer> tmp = iterator.next();
-      if (entry.getValue() < tmp.getValue()) {
-        entry = tmp;
-      }
-    }
-    //重新计算weight
-    currentWeightHolder.put(entry.getKey(), entry.getValue() - total);
-    return entry;
-  }
-
   @Override
-  public ServiceInstance get(List<ServiceInstance> records) {
-    int total = totalWeight(records);
-    final Map.Entry<String, Integer> entry = findAndUpdateWeight(records, total);
-    return records.stream()
-            .filter(i -> i.id().equals(entry.getKey()))
-            .findFirst()
-            .get();
+  public ServiceInstance get(List<ServiceInstance> instances) {
+    ServiceInstance instance = compute(instances);
+    //重新计算weight
+    return instance;
   }
 
-  private int totalWeight(List<ServiceInstance> records) {
-    return records.stream()
+  public ServiceInstance compute(List<ServiceInstance> instances) {
+    int total = instances.stream()
             .map(r -> r.weight())
             .reduce(0, (i1, i2) -> i1 + i2);
+
+    instances.stream()
+            .forEach(i -> i.incEffectiveWeight(i.weight()));
+    ServiceInstance instance = instances.stream()
+            .max((o1, o2) -> o1.effectiveWeight() - o2.effectiveWeight())
+            .get();
+    Collections.sort(new ArrayList<>(instances), (o1, o2) -> o1.weight() - o2.weight());
+    return instance.decEffectiveWeight(total);
   }
+
 }

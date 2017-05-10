@@ -2,9 +2,13 @@ package com.edgar.direwolves.discovery;
 
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntBinaryOperator;
+import java.util.function.IntUnaryOperator;
 
 /**
  * Created by edgar on 17-5-6.
@@ -31,4 +35,5 @@ public class StrategyTest {
     }
     return selected;
   }
+
 }

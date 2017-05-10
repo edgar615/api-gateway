@@ -15,6 +15,8 @@ public class ServiceInstance {
 
   private AtomicInteger weight;
 
+  private AtomicInteger effectiveWeight;
+
   private Record record;
 
   public ServiceInstance(Record record) {
@@ -27,29 +29,39 @@ public class ServiceInstance {
     this.name = record.getName();
     this.weight = new AtomicInteger(weight);
     this.record = record;
+    this.effectiveWeight = new AtomicInteger(0);
   }
 
   public Record record() {
     return record;
   }
 
-  public ServiceInstance inc() {
-    weight.incrementAndGet();
+  public ServiceInstance incWeight(int num) {
+    weight.accumulateAndGet(num, (left, right) -> Math.min(left + right, 100));
     return this;
   }
 
-  public ServiceInstance dec() {
-    weight.decrementAndGet();
+  public ServiceInstance decWeight(int num) {
+    weight.accumulateAndGet(num, (left, right) -> Math.max(left - right, 0));
     return this;
   }
 
-  public ServiceInstance add(int num) {
-    weight.addAndGet(num);
+  public ServiceInstance incEffectiveWeight(int num) {
+    effectiveWeight.accumulateAndGet(num, (left, right) -> left + right);
+    return this;
+  }
+
+  public ServiceInstance decEffectiveWeight(int num) {
+    effectiveWeight.accumulateAndGet(num, (left, right) -> left - right);
     return this;
   }
 
   public int weight() {
     return weight.get();
+  }
+
+  public int effectiveWeight() {
+    return effectiveWeight.get();
   }
 
   public String name() {

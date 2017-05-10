@@ -11,17 +11,14 @@ import java.util.function.Function;
  */
 public interface ServiceProvider {
 
-  void getInstances(Handler<AsyncResult<List<ServiceInstance>>> handler);
 
-  void getInstances(Function<ServiceInstance, Boolean> filter,
-                    Handler<AsyncResult<List<ServiceInstance>>> handler);
+  List<ServiceInstance> getInstances();
 
-  void getInstance(Handler<AsyncResult<ServiceInstance>> handler);
+  List<ServiceInstance> getInstances(Function<ServiceInstance, Boolean> filter);
 
-  void getInstance(Function<ServiceInstance, Boolean> filter,
-                   Handler<AsyncResult<ServiceInstance>> handler);
+  ServiceInstance getInstance();
 
-  void getInstance(String name,
-                   Handler<AsyncResult<ServiceInstance>> handler);
+  ServiceInstance getInstance(Function<ServiceInstance, Boolean> filter);
 
+  ServiceInstance getInstance(String name);
 }
