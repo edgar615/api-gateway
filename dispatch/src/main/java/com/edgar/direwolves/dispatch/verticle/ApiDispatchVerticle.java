@@ -48,9 +48,6 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
     ApiMetrics.create(registry, namespace, 10000);
 
-    //ServiceDiscovery
-    RecordSelect.create(vertx, config());
-
     //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 

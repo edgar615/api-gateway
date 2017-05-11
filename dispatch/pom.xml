@@ -57,18 +57,11 @@
 
         <dependency>
             <groupId>com.edgar</groupId>
-            <artifactId>direwolves-discovery</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-service-discovery</artifactId>
+            <artifactId>service-discovery</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-service-discovery-bridge-consul</artifactId>
-            <scope>test</scope>
+            <groupId>com.edgar</groupId>
+            <artifactId>service-discovery-consul</artifactId>
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>

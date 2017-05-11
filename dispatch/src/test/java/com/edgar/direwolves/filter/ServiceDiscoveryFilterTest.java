@@ -1,5 +1,9 @@
 package com.edgar.direwolves.filter;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
@@ -7,13 +11,9 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.dispatch.verticle.RecordSelect;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,16 +69,16 @@ public class ServiceDiscoveryFilterTest {
             HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     EventbusEndpoint eventbusEndpoint =
-        EventbusEndpoint.reqResp("send_log","send_log", null);
+            EventbusEndpoint.reqResp("send_log", "send_log", null);
     ApiDefinition definition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, eventbusEndpoint));
+            .create("get_device", HttpMethod.GET, "devices/",
+                    Lists.newArrayList(httpEndpoint, eventbusEndpoint));
     apiContext.setApiDefinition(definition);
 
     JsonObject config = new JsonObject()
             .put("service.discovery", "consul://localhost:5601");
     JsonObject strategy = new JsonObject();
     config.put("service.discovery.select-strategy", strategy);
-    RecordSelect.create(vertx, config);
     filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);
 
     filters.clear();
@@ -202,6 +203,7 @@ public class ServiceDiscoveryFilterTest {
 
   private void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
+                                              .put("ID", UUID.randomUUID().toString())
                                               .put("Node", "u221")
                                               .put("Address", "localhost")
                                               .put("ServiceID", "u221:device:8080")
@@ -209,6 +211,7 @@ public class ServiceDiscoveryFilterTest {
                                               .put("ServiceTags", new JsonArray())
                                               .put("ServicePort", 8080));
     mockConsulHttpVerticle.addService((new JsonObject()
+            .put("ID", UUID.randomUUID().toString())
             .put("Node", "u222")
             .put("Address", "localhost")
             .put("ServiceID", "u222:device:8080")
