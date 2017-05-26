@@ -18,7 +18,6 @@
         <module>plugin-authentication</module>
         <module>plugin-appkey</module>
         <module>plugin-ratelimit</module>
-        <module>service-discovery-bridge-zookeeper</module>
         <module>standalone</module>
         <module>metric</module>
     </modules>
