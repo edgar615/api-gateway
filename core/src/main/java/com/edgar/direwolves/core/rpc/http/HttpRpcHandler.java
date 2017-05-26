@@ -36,7 +36,7 @@ public class HttpRpcHandler implements RpcHandler {
 
   private final RpcMetric metric;
 
-  HttpRpcHandler(Vertx vertx, JsonObject config, RpcMetric metric) {
+  protected HttpRpcHandler(Vertx vertx, JsonObject config, RpcMetric metric) {
     this.metric = metric;
     this.httpClient = vertx.createHttpClient();
   }
