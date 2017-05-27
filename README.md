@@ -31,6 +31,13 @@ API网关,准备造的一个轮子
 - timestamp_check.expires int 请求的过期时间,单位秒，默认值300
 
 
+# AppCodeVertifyPlugin
+校验appKey对应的appCode属性和用户对应的appCode属性是否一致。
+
+配置示例：`"app_code_vertify": true`
+
+
+appCode这个属性名可以通过`app.codeKey`配置来修改（参考AppKey插件）
 
 
 # 日志

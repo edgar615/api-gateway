@@ -51,8 +51,6 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 
-    int port = config().getInteger("http.port", 8080);
-
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
 
@@ -65,12 +63,12 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
     vertx.createHttpServer()
             .requestHandler(router::accept)
-            .listen(port, ar -> {
+            .listen(config().getInteger("http.port", 8080), ar -> {
               if (ar.succeeded()) {
-                LOGGER.info("---| [Diaptacher Start] [OK] [{}]", port);
+                LOGGER.info("---| [Diaptacher Start] [OK] [{}]", config().getInteger("http.port", 8080));
                 startFuture.complete();
               } else {
-                LOGGER.error("---| [Diaptacher Start] [FAILED] [{}]", port, ar.cause());
+                LOGGER.error("---| [Diaptacher Start] [FAILED] [{}]", config().getInteger("http.port", 8080), ar.cause());
                 startFuture.fail(ar.cause());
               }
             });

@@ -28,11 +28,6 @@
             </pattern>
         </encoder>
     </appender>
-    <!--<logger name="com.zaxxer.hikari" level="INFO"/>
-    <logger name="org.apache" level="WARN"/>
-    <logger name="ch.qos.logback.core" level="WARN"/>
-    <logger name="ch.qos.logback.classic" level="WARN"/>
-    <logger name="org.maven" level="INFO"/>-->
     <logger name="com.edgar" level="debug">
         <appender-ref ref="FILE"/>
     </logger>
