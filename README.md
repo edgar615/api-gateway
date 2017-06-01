@@ -1,7 +1,13 @@
 # direwolves
 API网关,准备造的一个轮子
 
-先使用Vert.x实现，在迁移到Openresty上
+使用Vert.x实现
+
+TODO:
+把defintion的registry用vert.x的map实现（参考服务发现的实现）
+definiton的Verticle判断当前是否加载了api，整个集群中只加载一次
+
+definition的写入和读取分离
 
 
 配置项
@@ -32,12 +38,19 @@ API网关,准备造的一个轮子
 
 
 # AppCodeVertifyPlugin
-校验appKey对应的appCode属性和用户对应的appCode属性是否一致。
+校验appKey对应的appCode属性(上下文中的app.code)和用户对应的appCode属性(可以由app.codeKey指定)是否一致。
 
 配置示例：`"app_code_vertify": true`
 
+对应Filter AppCodeVertifyFilter
 
-appCode这个属性名可以通过`app.codeKey`配置来修改（参考AppKey插件）
+- type PRE
+- order 1010
+
+全局参数
+
+app.codeKey 编码的键值，默认值appCode
+
 
 
 # 日志
