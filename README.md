@@ -36,11 +36,43 @@ definition的写入和读取分离
 - token.expires int 过期时间exp，单位秒，默认值1800
 - timestamp_check.expires int 请求的过期时间,单位秒，默认值300
 
+# IpRestriction
+对调用方的ip增加白名单和黑名单限制
+
+配置示例：
+
+    "ip_restriction" : {
+         "whitelist" : ["192.168.0.1", "10.4.7.*"],
+         "blacklist" : ["192.168.0.100"]
+    }
+
+whitelist：白名单的数组，支持*的通配符，只要调用方的ip符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+
+禁止访问对调用方会返回1004的错误码
+
+对应Filter IpRestrictionFilter
+调用方的ip从上下文读取`request.client_ip`变量
+
+- type PRE
+- order 100
+
+全局参数
+
+    "ip.blacklist": [],
+    "ip.whitelist": []
+
+示例
+
+    "ip.blacklist": ["10.4.7.15"],
+    "ip.whitelist": ["192.168.1.*"]
 
 # AppCodeVertifyPlugin
 校验appKey对应的appCode属性(上下文中的app.code)和用户对应的appCode属性(可以由app.codeKey指定)是否一致。
 
-配置示例：`"app_code_vertify": true`
+配置示例：
+
+    "app_code_vertify": true
 
 对应Filter AppCodeVertifyFilter
 
@@ -49,8 +81,11 @@ definition的写入和读取分离
 
 全局参数
 
-app.codeKey 编码的键值，默认值appCode
+    app.codeKey 编码的键值，默认值appCode
 
+示例
+
+    "app.codeKey" : "companyCode"
 
 
 # 日志

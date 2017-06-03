@@ -8,7 +8,10 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,22 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-12-24.
  */
 public class IpRestrictionFilter implements Filter {
+
+  private final  List<String> globalBlacklist = new ArrayList<>();
+  private final  List<String> globalWhitelist = new ArrayList<>();
+
+
+  public IpRestrictionFilter(JsonObject config) {
+    JsonArray blackArray = config.getJsonArray("ip.blacklist", new JsonArray());
+    JsonArray whiteArray = config.getJsonArray("ip.whitelist", new JsonArray());
+    for (int i = 0; i < blackArray.size(); i ++) {
+      globalBlacklist.add(blackArray.getString(i));
+    }
+    for (int i = 0; i < whiteArray.size(); i ++) {
+      globalWhitelist.add(whiteArray.getString(i));
+    }
+  }
+
   @Override
   public String type() {
     return PRE;
@@ -42,10 +61,14 @@ public class IpRestrictionFilter implements Filter {
     IpRestriction plugin =
             (IpRestriction) apiContext.apiDefinition().plugin(IpRestriction.class.getSimpleName());
     String clientIp = (String) apiContext.variables().get("request.client_ip");
-    List<String> black = plugin.blacklist().stream()
+    List<String> blacklist = new ArrayList<>(plugin.blacklist());
+    blacklist.addAll(globalBlacklist);
+    List<String> black = blacklist.stream()
             .filter(r -> checkIp(r, clientIp))
             .collect(Collectors.toList());
-    List<String> white = plugin.whitelist().stream()
+    List<String> whitelist = new ArrayList<>(plugin.whitelist());
+    whitelist.addAll(globalWhitelist);
+    List<String> white = whitelist.stream()
             .filter(r -> checkIp(r, clientIp))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {

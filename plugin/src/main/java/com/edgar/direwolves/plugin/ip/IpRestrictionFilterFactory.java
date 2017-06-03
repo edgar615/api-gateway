@@ -17,6 +17,6 @@ public class IpRestrictionFilterFactory implements FilterFactory {
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new IpRestrictionFilter();
+    return new IpRestrictionFilter(config);
   }
 }

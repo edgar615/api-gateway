@@ -16,6 +16,7 @@ import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -58,7 +59,8 @@ public class IpRestrictionFilterTest {
     apiContext.setApiDefinition(definition);
 
     filter = Filter.create(IpRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject());
+                           new JsonObject().put("ip.blacklist", new JsonArray().add("86.10.*"))
+                               .put("ip.whitelist", new JsonArray().add("86.10.2.*")));
 
     filters.clear();
     filters.add(filter);
@@ -68,6 +70,44 @@ public class IpRestrictionFilterTest {
   public void testOrderAndType(TestContext testContext) {
     Assert.assertEquals(100, filter.order());
     Assert.assertEquals(Filter.PRE, filter.type());
+  }
+
+  @Test
+  public void testGlobalBlackIpShouldForbidden(TestContext testContext) {
+    IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
+    plugin.addBlacklist("10.4.7.15");
+    plugin.addBlacklist("192.168.1.100");
+    apiContext.apiDefinition().addPlugin(plugin);
+    apiContext.addVariable("request.client_ip", "86.10.1.1");
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+        .andThen(context -> {
+          testContext.fail();
+        }).onFailure(t -> {
+      SystemException ex = (SystemException) t;
+      testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
+      async.complete();
+    });
+  }
+
+  @Test
+  public void testGlobalWhiteIpShouldAlwaysAllow(TestContext testContext) {
+    IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
+    plugin.addBlacklist("10.4.7.15");
+    plugin.addWhitelist("10.4.7.15");
+    apiContext.apiDefinition().addPlugin(plugin);
+    apiContext.addVariable("request.client_ip", "86.10.2.100");
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+        .andThen(context -> {
+          async.complete();
+        }).onFailure(t -> {
+      testContext.fail();
+    });
   }
 
   @Test
