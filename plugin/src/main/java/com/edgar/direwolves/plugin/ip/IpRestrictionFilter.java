@@ -22,6 +22,12 @@ import java.util.stream.Collectors;
  * <p>
  *
  *   该filter的order=100
+ *
+ *   该filter可以接受下列的配置参数
+ * <pre>
+ *   ip.blacklist 全局的黑名单
+ *  ip.whitelist 全局的白名单
+ * </pre>
  * Created by edgar on 16-12-24.
  */
 public class IpRestrictionFilter implements Filter {

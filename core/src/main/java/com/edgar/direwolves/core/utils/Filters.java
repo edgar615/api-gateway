@@ -50,6 +50,7 @@ public class Filters {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
+          apiContext.addVariable("filterStarted", System.currentTimeMillis());
           Future<ApiContext> completeFuture = Future.future();
           filter.doFilter(apiContext.copy(), completeFuture);
           return completeFuture;
@@ -58,9 +59,18 @@ public class Filters {
         }
       }).andThen(apiContext -> {
         if (filter.shouldFilter(apiContext)) {
-          Helper.logOK(LOGGER, apiContext.id(),
-                       filter.getClass().getSimpleName(),
-                       filter.type());
+          long filterStarted = System.currentTimeMillis();
+          try {
+            filterStarted = (long) apiContext.variables()
+                    .getOrDefault("filterStarted", System.currentTimeMillis());
+          } catch (Exception e) {
+            //ignore
+          }
+          LOGGER.info("---| [{}] [OK] [{}] [{}] [{}ms]",
+                      apiContext.id(),
+                      filter.getClass().getSimpleName(),
+                      filter.type(),
+                      System.currentTimeMillis() - filterStarted );
         }
       });
     }

@@ -9,6 +9,7 @@ definiton的Verticle判断当前是否加载了api，整个集群中只加载一
 
 definition的写入和读取分离
 
+对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
 
 配置项
 

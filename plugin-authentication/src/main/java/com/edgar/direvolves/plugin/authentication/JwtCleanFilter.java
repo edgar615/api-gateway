@@ -72,9 +72,10 @@ public class JwtCleanFilter implements Filter {
     String  userId = apiContext.principal().getValue(userKey).toString();
     String userCacheKey = namespace + ":user:" + userId;
     redisProvider.delete(userCacheKey, ar -> {
-      Helper.logOK(LOGGER, apiContext.id(),
-                       this.getClass().getSimpleName(),
-                       "delete token:" + userCacheKey);
+      LOGGER.info("---| [{}] [OK] [{}] [{}]",
+                  apiContext.id(),
+                  this.getClass().getSimpleName(),
+                  "delete token:" + userCacheKey);
       completeFuture.complete(apiContext);
     });
   }

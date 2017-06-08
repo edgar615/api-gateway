@@ -159,9 +159,10 @@ public class JwtBuildFilter implements Filter {
             body.put("token", token);
             apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
                                                          result.header()));
-            Helper.logOK(LOGGER, apiContext.id(),
-                         this.getClass().getSimpleName(),
-                         "save token:" + userCacheKey);
+            LOGGER.info("---| [{}] [OK] [{}] [{}]",
+                        apiContext.id(),
+                        this.getClass().getSimpleName(),
+                        "save token:" + userCacheKey);
             completeFuture.complete(apiContext);
           } catch (Exception e) {
             Helper.logFailed(LOGGER, apiContext.id(),
