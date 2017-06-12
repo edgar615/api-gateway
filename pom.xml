@@ -21,6 +21,7 @@
         <module>standalone</module>
         <module>metric</module>
         <module>service-discovery</module>
+        <module>service-discovery-bridge-zookeeper</module>
     </modules>
 
     <properties>
@@ -35,7 +36,6 @@
         <slf4j.version>1.7.14</slf4j.version>
         <util.version>1.0.6</util.version>
         <vertx.util.version>1.0.5</vertx.util.version>
-        <service.discovery.version>1.0.0</service.discovery.version>
 
     </properties>
 
@@ -112,6 +112,12 @@
             <dependency>
                 <groupId>io.vertx</groupId>
                 <artifactId>vertx-service-discovery</artifactId>
+                <version>${vertx.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-service-discovery-bridge-consul</artifactId>
                 <version>${vertx.version}</version>
             </dependency>
 

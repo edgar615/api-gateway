@@ -42,6 +42,11 @@
         </dependency>
 
         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-service-discovery-bridge-consul</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>util</artifactId>
         </dependency>
@@ -54,15 +59,12 @@
             <artifactId>direwolves-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>service-discovery</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>service-discovery-consul</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-definition</artifactId>

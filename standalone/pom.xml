@@ -29,8 +29,8 @@
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
-            <artifactId>service-discovery-zookeeper</artifactId>
-            <version>${service.discovery.version}</version>
+            <artifactId>service-discovery-bridge-zookeeper</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

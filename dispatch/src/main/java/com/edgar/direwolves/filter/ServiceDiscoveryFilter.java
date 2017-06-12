@@ -11,14 +11,16 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Helper;
-import com.edgar.service.discovery.ServiceDiscovery;
-import com.edgar.service.discovery.ServiceImporter;
-import com.edgar.service.discovery.ServiceInstance;
+import com.edgar.service.discovery.MoreServiceDiscovery;
+import com.edgar.service.discovery.MoreServiceDiscoveryOptions;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.servicediscovery.Record;
+import io.vertx.servicediscovery.spi.ServiceImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,18 +41,19 @@ public class ServiceDiscoveryFilter implements Filter {
   private final String ZOOKEEPER_PREFIX = "zookeeper://";
 
   private final String consulImportClass =
-          "com.edgar.service.discovery.consul.ConsulServiceImporter";
+          "io.vertx.servicediscovery.consul.ConsulServiceImporter";
 
   private final String zookeeperImportClass =
           "com.edgar.service.discovery.zookeeper.ZookeeperServiceImporter";
 
-  private final ServiceDiscovery discovery;
+  private final MoreServiceDiscovery discovery;
 
   private final Vertx vertx;
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.discovery = ServiceDiscovery.create(vertx, config);
+    MoreServiceDiscoveryOptions options = new MoreServiceDiscoveryOptions();
+    this.discovery = MoreServiceDiscovery.create(vertx, options);
     String serviceDiscovery = config.getString("service.discovery");
     if (Strings.isNullOrEmpty(serviceDiscovery)) {
       throw SystemException.create(DefaultErrorCode.INVALID_ARGS)
@@ -84,7 +87,7 @@ public class ServiceDiscoveryFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    List<ServiceInstance> instances =
+    List<Future<Record>> futures =
             apiContext.apiDefinition().endpoints().stream()
                     .filter(e -> e instanceof HttpEndpoint)
                     .map(e -> ((HttpEndpoint) e).service())
@@ -92,32 +95,43 @@ public class ServiceDiscoveryFilter implements Filter {
                     .map(s -> serviceFuture(s))
                     .collect(Collectors.toList());
 
-    apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof HttpEndpoint)
-            .map(e -> toRpc(apiContext, e, instances))
-            .forEach(req -> apiContext.addRequest(req));
 
-    completeFuture.complete(apiContext);
+    Task.par(futures)
+            .andThen(records -> {
+              apiContext.apiDefinition().endpoints().stream()
+                      .filter(e -> e instanceof HttpEndpoint)
+                      .map(e -> toRpc(apiContext, e, records))
+                      .forEach(req -> apiContext.addRequest(req));
+            })
+            .andThen(records -> {
+              completeFuture.complete(apiContext);
+            })
+            .onFailure(throwable -> completeFuture.fail(throwable));
 
   }
 
-  private ServiceInstance serviceFuture(String service) {
-    //服务发现
-    try {
-      ServiceInstance instance = discovery.getInstance(service);
-      if (instance == null) {
-        throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                .set("details", "Service not found: " + service);
+  private Future<Record> serviceFuture(String service) {
+    Future<Record> future = Future.future();
+    discovery.queryForInstance(service, ar -> {
+      if (ar.failed()) {
+        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                            .set("details", "Service not found: " + service));
+        return;
       }
-      return instance;
-    } catch (Exception e) {
-      throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-              .set("details", "Service not found: " + service);
-    }
+      Record record = ar.result();
+      if (record == null) {
+        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                            .set("details", "Service not found: " + service));
+        return;
+      }
+      future.complete(record);
+    });
+    return future;
+
   }
 
   private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint,
-                           List<ServiceInstance> records) {
+                           List<Record> records) {
     if (endpoint instanceof HttpEndpoint) {
       HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
       HttpRpcRequest httpRpcRequest =
@@ -128,8 +142,8 @@ public class ServiceDiscoveryFilter implements Filter {
 //    httpRpcRequest.addHeaders(apiContext.headers());
       httpRpcRequest.addHeader("x-request-id", httpRpcRequest.id());
       httpRpcRequest.setBody(apiContext.body());
-      List<ServiceInstance> instances = records.stream()
-              .filter(r -> httpEndpoint.service().equalsIgnoreCase(r.name()))
+      List<Record> instances = records.stream()
+              .filter(r -> httpEndpoint.service().equalsIgnoreCase(r.getName()))
               .collect(Collectors.toList());
       if (instances.isEmpty()) {
         Helper.logFailed(LOGGER, apiContext.id(),
@@ -138,10 +152,10 @@ public class ServiceDiscoveryFilter implements Filter {
         throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                 .set("details", "Service not found, endpoint:" + endpoint.name());
       }
-      ServiceInstance instance = instances.get(0);
-      httpRpcRequest.setServerId(instance.id());
-      httpRpcRequest.setHost(instance.location().getString("host"));
-      httpRpcRequest.setPort(instance.location().getInteger("port"));
+      Record instance = instances.get(0);
+      httpRpcRequest.setServerId(instance.getRegistration());
+      httpRpcRequest.setHost(instance.getLocation().getString("host"));
+      httpRpcRequest.setPort(instance.getLocation().getInteger("port"));
       return httpRpcRequest;
     }
     return null;
@@ -164,7 +178,7 @@ public class ServiceDiscoveryFilter implements Filter {
     try {
       ServiceImporter serviceImporter =
               (ServiceImporter) Class.forName(zookeeperImportClass).newInstance();
-      discovery
+      discovery.discovery()
               .registerServiceImporter(serviceImporter, zkConfig,
                                        Future.<Void>future().completer());
     } catch (Exception e) {
@@ -182,7 +196,7 @@ public class ServiceDiscoveryFilter implements Filter {
     try {
       ServiceImporter serviceImporter =
               (ServiceImporter) Class.forName(consulImportClass).newInstance();
-      discovery
+      discovery.discovery()
               .registerServiceImporter(serviceImporter, new JsonObject()
                                                .put("host", host)
                                                .put("port", port)
