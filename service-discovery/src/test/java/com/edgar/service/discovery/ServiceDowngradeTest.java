@@ -286,13 +286,9 @@ public class ServiceDowngradeTest {
 
   private void close(String id, AtomicBoolean complete) {
     vertx.eventBus().send("service.discovery.close",
-                          new JsonObject().put("id", id));
-    try {
-      TimeUnit.SECONDS.sleep(1);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    complete.set(true);
+                          new JsonObject().put("id", id), ar -> {
+              complete.set(true);
+            });
   }
 
   private void selectSticky3000(AtomicInteger seq, List<Integer> selected,

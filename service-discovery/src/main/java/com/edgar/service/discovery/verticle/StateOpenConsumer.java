@@ -1,6 +1,9 @@
 package com.edgar.service.discovery.verticle;
 
 import com.edgar.service.discovery.MoreServiceDiscovery;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.ServiceDiscovery;
@@ -26,15 +29,27 @@ class StateOpenConsumer extends AbstractInstanceConsumer {
     final String address = UUID.randomUUID().toString();
     vertx.eventBus().<JsonObject>localConsumer(address, msg -> {
       JsonObject jsonObject = msg.body();
-      handle(jsonObject);
+      handle(jsonObject, ar -> {
+        if (ar.failed()) {
+          msg.reply(new JsonObject().put("error", ar.cause().getMessage()) );
+          return;
+        }
+        msg.reply(new JsonObject().put("result", 1) );
+      });
     });
     vertx.eventBus().<JsonObject>consumer("service.discovery.open", msg -> {
       JsonObject jsonObject = msg.body();
-      vertx.eventBus().send(address, jsonObject);
+      vertx.eventBus().<JsonObject>send(address, jsonObject, ar -> {
+        if (ar.failed()) {
+          msg.reply(new JsonObject().put("error", ar.cause().getMessage()) );
+          return;
+        }
+        msg.reply(ar.result().body() );
+      });
     });
   }
 
-  private void handle(JsonObject jsonObject) {
+  private void handle(JsonObject jsonObject, Handler<AsyncResult<JsonObject>> resultHandler) {
     String id = jsonObject.getString("id");
     vertx.executeBlocking(f -> changeState(id, "OPEN", ar -> {
       if (ar.succeeded()) {
@@ -45,6 +60,11 @@ class StateOpenConsumer extends AbstractInstanceConsumer {
         f.fail(ar.cause());
       }
     }), true, ar -> {
+      if (ar.failed()) {
+        resultHandler.handle(Future.failedFuture(ar.cause()));
+        return;
+      }
+      resultHandler.handle(Future.succeededFuture(new JsonObject().put("result", 1)));
     });
   }
 

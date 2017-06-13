@@ -33,15 +33,27 @@ class WeightIncreaseConsumer extends AbstractInstanceConsumer {
     this.weightIncrease = weightIncrease;
     vertx.eventBus().<JsonObject>localConsumer(address, msg -> {
       JsonObject jsonObject = msg.body();
-      handle(jsonObject);
+      handle(jsonObject, ar -> {
+        if (ar.failed()) {
+          msg.reply(new JsonObject().put("error", ar.cause().getMessage()) );
+          return;
+        }
+        msg.reply(new JsonObject().put("result", 1) );
+      });
     });
     vertx.eventBus().<JsonObject>consumer("service.discovery.weight.increase", msg -> {
       JsonObject jsonObject = msg.body();
-      vertx.eventBus().send(address, jsonObject);
+      vertx.eventBus().<JsonObject>send(address, jsonObject, ar -> {
+        if (ar.failed()) {
+          msg.reply(new JsonObject().put("error", ar.cause().getMessage()) );
+          return;
+        }
+        msg.reply(ar.result().body() );
+      });
     });
   }
 
-  private void handle(JsonObject jsonObject) {
+  private void handle(JsonObject jsonObject, Handler<AsyncResult<JsonObject>> resultHandler) {
     String id = jsonObject.getString("id");
     vertx.executeBlocking(f -> incWeight(id, ar -> {
       if (ar.succeeded()) {
@@ -52,6 +64,11 @@ class WeightIncreaseConsumer extends AbstractInstanceConsumer {
         f.fail(ar.cause());
       }
     }), true, ar -> {
+      if (ar.failed()) {
+        resultHandler.handle(Future.failedFuture(ar.cause()));
+        return;
+      }
+      resultHandler.handle(Future.succeededFuture(new JsonObject().put("result", 1)));
     });
   }
 

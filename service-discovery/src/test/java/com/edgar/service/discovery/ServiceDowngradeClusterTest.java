@@ -151,13 +151,9 @@ public class ServiceDowngradeClusterTest {
   }
 
   private void closeService(String id, AtomicBoolean complete) {
-    vertx.eventBus().send("service.discovery.close", new JsonObject().put("id", id));
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    complete.set(true);
+    vertx.eventBus().send("service.discovery.close", new JsonObject().put("id", id), ar -> {
+      complete.set(true);
+    });
   }
 
   private class ClusterDiscovery  {
