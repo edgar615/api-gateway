@@ -1,18 +1,20 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.dispatch.ApiContext;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by edgar on 17-3-10.
  */
-public class RequestReplaceFilter {
+public abstract class RequestReplaceFilter {
   protected Multimap<String, String> replaceHeader(ApiContext apiContext,
                                                    Multimap<String, String> headers) {
     Multimap<String, String> newHeaders = ArrayListMultimap.create();
@@ -24,15 +26,21 @@ public class RequestReplaceFilter {
           if (newVal instanceof List) {
             List valList = (List) newVal;
             for (int i = 0; i < valList.size(); i++) {
-              newHeaders.put(key, valList.get(i).toString());
+              newHeaders.put(key, getNewVal(apiContext, valList.get(i)).toString());
             }
-          }
-          if (newVal instanceof JsonArray) {
+          } else if (newVal instanceof JsonArray) {
             JsonArray valList = (JsonArray) newVal;
 //            newHeaders.putAll(key, valList.getList());
             for (int i = 0; i < valList.size(); i++) {
-              newHeaders.put(key, valList.getValue(i).toString());
+              newHeaders.put(key, getNewVal(apiContext, valList.getValue(i)).toString());
             }
+          } else if (newVal instanceof JsonObject) {
+            JsonObject newJsonObject = replaceBody(apiContext, (JsonObject) newVal);
+            newHeaders.put(key, newJsonObject.encode());
+          } else if (newVal instanceof Map) {
+            JsonObject newJsonObject =
+                    replaceBody(apiContext, new JsonObject((Map<String, Object>) newVal));
+            newHeaders.put(key, newJsonObject.encode());
           } else {
             newHeaders.put(key, newVal.toString());
           }

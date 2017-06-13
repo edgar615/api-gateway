@@ -88,6 +88,44 @@ blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符�
 
     "app.codeKey" : "companyCode"
 
+# HttpRequestReplaceFilter
+用于将请求参数中的带变量的参数用变量的替换，一般与request_transformer结合使用
+
+对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.(不考虑嵌套的集合),
+例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
+
+- type PRE
+- order 2147483647，int的最大值.
+
+示例
+
+    "request_transformer": [
+      {
+        "name": "add_cateye",
+        "body.add": [
+          "userId:$user.userId",
+          "username:$user.username",
+          "companyCode:$user.companyCode"
+        ],
+        "header.add": [
+          "x-auth-userId:$user.userId",
+          "x-auth-companyCode:$user.companyCode",
+          "x-policy-owner:individual"
+        ]
+      }
+    ]
+
+经过HttpRequestReplaceFilter之后，body中的元素包括
+
+    "userId":1,
+    "username":"edgar",
+    "companyCode":0
+
+header中的元素包括
+
+    "x-auth-userId":"1",
+    "x-auth-companyCode":"0",
+     "x-policy-owner" : "individual"
 
 # 日志
 

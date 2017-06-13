@@ -64,7 +64,7 @@ public class HttpRequestReplaceFilterTest {
                     .put("userId", 1)
                     .put("username", "edgar")
                     .put("h1", "$header.h1"))
-            .put("arr", new JsonArray().add(1).add("2"));
+            .put("arr", new JsonArray().add(1).add("2").add("$header.h1"));
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
@@ -99,6 +99,8 @@ public class HttpRequestReplaceFilterTest {
             .andThen(context -> {
               testContext.assertEquals(1, context.requests().size());
               HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              System.out.println(request.params().get("q6"));
+              System.out.println(request.params().get("q7"));
               testContext.assertEquals("localhost", request.host());
               testContext.assertEquals(8080, request.port());
               System.out.println(request.params());

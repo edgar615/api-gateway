@@ -1,4 +1,4 @@
-package com.edgar.direwolves.servicediscovery.zookeeper;
+package com.edgar.service.discovery.zookeeper;
 
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
