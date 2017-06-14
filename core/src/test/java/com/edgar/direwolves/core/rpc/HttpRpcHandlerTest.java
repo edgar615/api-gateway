@@ -159,6 +159,7 @@ public class HttpRpcHandlerTest {
         context.assertEquals(2, rpcResponse.responseArray().size());
         async.complete();
       } else {
+        ar.cause().printStackTrace();
         context.fail();
       }
     });

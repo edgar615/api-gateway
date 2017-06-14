@@ -1,6 +1,7 @@
 package com.edgar.direwolves.core.rpc.http;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
@@ -20,6 +21,8 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +89,13 @@ public class HttpRpcHandler implements RpcHandler {
                     .putHeader("content-type", "application/json");
     request.handler(response -> {
       response.bodyHandler(body -> {
+        LOGGER.debug("<------ [{}] [{}] [{}] [{}]",
+                    rpcRequest.id(),
+                    rpcRequest.type().toUpperCase(),
+                    response.statusCode(),
+                     body.toString()
+        );
+
         RpcResponse rpcResponse =
                 RpcResponse.create(httpRpcRequest.id(),
                                    response.statusCode(),
@@ -177,7 +187,7 @@ public class HttpRpcHandler implements RpcHandler {
     for (String key : rpcRequest.params().keySet()) {
       String value = rpcRequest.params().get(key).iterator().next();
       if (value != null) {
-        query.add(key + "=" + value);
+        query.add(key + "=" + urlEncode(value));
       }
     }
     String queryString = Joiner.on("&").join(query);
@@ -185,11 +195,21 @@ public class HttpRpcHandler implements RpcHandler {
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
-    if (path.indexOf("?") > 0) {
-      path += "&" + queryString;
-    } else {
-      path += "?" + queryString;
+    if (!Strings.isNullOrEmpty(queryString)) {
+      if (path.indexOf("?") > 0) {
+        path += "&" + queryString;
+      } else {
+        path += "?" + queryString;
+      }
     }
-    return path;
+  return path;
+  }
+
+  public String urlEncode(String path) {
+    try {
+      return URLEncoder.encode(path, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return path;
+    }
   }
 }

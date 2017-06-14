@@ -1,0 +1,34 @@
+{
+  "name" : "company.page.1.0.0",
+  "method" : "GET",
+  "path" : "/companies/page",
+  "url_arg" : [  {
+    "name" : "pageSize",
+    "default_value" : 10,
+    "rules" : {
+      "integer" : true,
+      "max" : 100,
+      "min" : 1
+    }
+  }, {
+    "name" : "page",
+    "default_value" : 1,
+    "rules" : {
+      "integer" : true
+    }
+  }, {
+    "name" : "state",
+    "rules" : {
+      "optional" : [1, 2]
+    }
+  }, {
+    "name" : "name"
+  } ],
+  "endpoints" : [ {
+    "service" : "oem",
+    "method" : "GET",
+    "name" : "company.page",
+    "type" : "http",
+    "path" : "/companies/page"
+  } ]
+}
