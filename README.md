@@ -11,6 +11,12 @@ definition的写入和读取分离
 
 对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
 
+将缓存部分实现redis和clustermap（localmap）两种模式
+
+请求数控制和请求频率控制（令牌桶）两种实现
+
+监控值
+
 配置项
 
 - http.port int api的http端口
@@ -37,7 +43,8 @@ definition的写入和读取分离
 - token.expires int 过期时间exp，单位秒，默认值1800
 - timestamp_check.expires int 请求的过期时间,单位秒，默认值300
 
-# IpRestriction
+# IP限制
+## Plugin: IpRestriction
 对调用方的ip增加白名单和黑名单限制
 
 配置示例：
@@ -52,7 +59,7 @@ blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符�
 
 禁止访问对调用方会返回1004的错误码
 
-对应Filter IpRestrictionFilter
+## Filter: IpRestrictionFilter
 调用方的ip从上下文读取`request.client_ip`变量
 
 - type PRE
@@ -68,14 +75,15 @@ blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符�
     "ip.blacklist": ["10.4.7.15"],
     "ip.whitelist": ["192.168.1.*"]
 
-# AppCodeVertifyPlugin
+# AppCode校验
+## Plugin: AppCodeVertifyPlugin
 校验appKey对应的appCode属性(上下文中的app.code)和用户对应的appCode属性(可以由app.codeKey指定)是否一致。
 
 配置示例：
 
     "app_code_vertify": true
 
-对应Filter AppCodeVertifyFilter
+## Filter: AppCodeVertifyFilter
 
 - type PRE
 - order 1010
@@ -88,7 +96,8 @@ blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符�
 
     "app.codeKey" : "companyCode"
 
-# HttpRequestReplaceFilter
+# http请求参数替换
+## Filter: HttpRequestReplaceFilter
 用于将请求参数中的带变量的参数用变量的替换，一般与request_transformer结合使用
 
 对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.(不考虑嵌套的集合),
@@ -125,7 +134,7 @@ header中的元素包括
 
     "x-auth-userId":"1",
     "x-auth-companyCode":"0",
-     "x-policy-owner" : "individual"
+    "x-policy-owner" : "individual"
 
 # 日志
 
