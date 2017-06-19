@@ -1,4 +1,4 @@
-package com.edgar.direwolves.cli;
+package com.edgar.direwolves.cli.launcher;
 
 import io.vertx.core.cli.CLIException;
 import io.vertx.core.cli.annotations.Name;

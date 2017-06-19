@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-core</artifactId>
+            <artifactId>vertx-shell</artifactId>
         </dependency>
     </dependencies>
 </project>

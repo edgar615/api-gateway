@@ -1,7 +1,6 @@
 package com.edgar.service.discovery;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -11,10 +10,11 @@ import io.vertx.servicediscovery.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by Edgar on 2017/6/8.
@@ -40,15 +40,15 @@ class MoreServiceDiscoveryImpl implements MoreServiceDiscovery {
     this(vertx, new MoreServiceDiscoveryOptions());
   }
 
-  @Override
-  public ServiceDiscovery discovery() {
-    return discovery;
-  }
-
   MoreServiceDiscoveryImpl(Vertx vertx, MoreServiceDiscoveryOptions options) {
     this.vertx = vertx;
     this.discovery = ServiceDiscovery.create(vertx, options.getServiceDiscoveryOptions());
     this.strategyConfig = options.getStrategy();
+  }
+
+  @Override
+  public ServiceDiscovery discovery() {
+    return discovery;
   }
 
   @Override
@@ -58,30 +58,13 @@ class MoreServiceDiscoveryImpl implements MoreServiceDiscovery {
 
   @Override
   public void queryAllInstances(Handler<AsyncResult<List<Record>>> handler) {
-    List<Future> futures = new ArrayList<>();
-    providerMap.values().forEach(p -> {
-      Future<List<Record>> future = Future.future();
-      futures.add(future);
-      p.getAllInstances(ar -> {
-        if (ar.failed()) {
-          future.complete(new ArrayList<>());
-        } else {
-          future.complete(ar.result());
-        }
-      });
+    discovery.getRecords(r -> true, ar -> {
+      if (ar.failed()) {
+        handler.handle(Future.failedFuture(ar.cause()));
+        return;
+      }
+      handler.handle(Future.succeededFuture(ar.result()));
     });
-    CompositeFuture.all(futures)
-            .setHandler(ar -> {
-              if (ar.failed()) {
-                handler.handle(Future.failedFuture(ar.cause()));
-                return;
-              }
-              List<Record> instances = new ArrayList<>();
-              for (int i = 0; i < ar.result().size(); i++) {
-                instances.addAll(ar.result().resultAt(i));
-              }
-              handler.handle(Future.succeededFuture(instances));
-            });
   }
 
   @Override
@@ -102,6 +85,29 @@ class MoreServiceDiscoveryImpl implements MoreServiceDiscovery {
         return;
       }
       handler.handle(Future.succeededFuture(ar.result().get(0)));
+    });
+  }
+
+  @Override
+  public void queryForNames(Handler<AsyncResult<JsonObject>> handler) {
+    JsonObject result = new JsonObject();
+    queryAllInstances(ar -> {
+      if (ar.failed()) {
+        handler.handle(Future.failedFuture(ar.cause()));
+        return;
+      }
+      List<Record> records = ar.result();
+      Set<String> names = records.stream()
+              .map(r -> r.getName())
+              .distinct()
+              .collect(Collectors.toSet());
+      for (String name : names) {
+        long count = records.stream()
+                .filter(r -> r.getName().equals(name))
+                .count();
+        result.put(name, new JsonObject().put("instances", count));
+      }
+      handler.handle(Future.succeededFuture(result));
     });
   }
 

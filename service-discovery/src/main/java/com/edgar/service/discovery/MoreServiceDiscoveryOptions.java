@@ -16,6 +16,8 @@ public class MoreServiceDiscoveryOptions {
 
   private static final int DEFAULT_WEIGHT_DECREASE = 5;
 
+  private static final int DEFAULT_MAX_FAILURES = 3;
+
   private final ServiceDiscoveryOptions serviceDiscoveryOptions;
 
   /**
@@ -38,17 +40,22 @@ public class MoreServiceDiscoveryOptions {
    */
   private int weightDecrease = DEFAULT_WEIGHT_DECREASE;
 
+  /**
+   * 连续降级多少次后会设置为半开
+   */
+  private int maxFailures = DEFAULT_MAX_FAILURES;
+
   public MoreServiceDiscoveryOptions() {
     this.serviceDiscoveryOptions = new ServiceDiscoveryOptions();
   }
 
   public MoreServiceDiscoveryOptions(JsonObject json) {
     this.serviceDiscoveryOptions = new ServiceDiscoveryOptions(json);
-    if (json.getValue("weightIncrease") instanceof Number) {
-      this.weightIncrease = json.getInteger("weightIncrease");
+    if (json.getValue("weight.increase") instanceof Number) {
+      this.weightIncrease = json.getInteger("weight.increase");
     }
-    if (json.getValue("weightDecrease") instanceof Number) {
-      this.weightDecrease = json.getInteger("weightDecrease");
+    if (json.getValue("weight.decrease") instanceof Number) {
+      this.weightDecrease = json.getInteger("weight.decrease");
     }
     if (json.getValue("strategy") instanceof JsonObject) {
       this.strategy.mergeIn(json.getJsonObject("strategy"));

@@ -24,6 +24,11 @@
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
+            <artifactId>direwolves-cli</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.edgar</groupId>
             <artifactId>direwolves-redis</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -93,7 +98,7 @@
                             <mainClass>io.vertx.core.Launcher</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Main-Verticle>com.edgar.direwolves.standalone.StartupVerticle</Main-Verticle>
+                            <Main-Verticle>com.edgar.util.vertx.deployment.MainVerticle</Main-Verticle>
                         </manifestEntries>
                     </archive>
                 </configuration>

@@ -57,4 +57,10 @@ public interface MoreServiceDiscovery {
    * @param handler 回调函数
    */
   void queryForInstance(String name, String id, Handler<AsyncResult<Record>> handler);
+
+  /**
+   * 统计所有的服务.
+   * @param handler 回调函数，返回的json对象：{"服务名":{"instances":节点数量},"..}
+   */
+  void queryForNames(Handler<AsyncResult<JsonObject>> handler);
 }

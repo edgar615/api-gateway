@@ -1,0 +1,5 @@
+{
+  "acl.blacklist": [],
+  "acl.whitelist": [],
+  "user.groupKey": "group"
+}

@@ -12,12 +12,6 @@
   "token.expires": 3600,
   "api.config.dir": "/",
   "api.config.auto_refresh": false,
-  "service.discovery": "consul://localhost:8500",
-  "service.discovery.scan-period": 2000,
-  "service.discovery.strategy": {
-    "user": "random",
-    "device": "round_robin"
-  },
   "keystore.path": "keystore.jceks",
   "keystore.type": "jceks",
   "keystore.password": "secret",
@@ -46,5 +40,23 @@
     "url": "/appkey/import"
   },
   "log.ignore": ["oem_list"],
-  "backend.permitted" : ["18627874615"]
+  "backend.permitted" : ["18627874615"],
+  "verticles" : {
+    "ServiceDiscoveryVerticle" : {
+      "class" : "com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle",
+      "instances" : 1,
+      "worker" : false,
+      "config" : {
+        "importer": "zookeeper://10.11.0.31:2181",
+        "zookeeper.path": "/csst-microservice",
+        "consul.scan-period": 2000,
+        "weight.increase" : 1,
+        "weight.decrease" : 10,
+        "strategy": {
+          "user" : "random",
+          "device" : "round_robin"
+        }
+      }
+    }
+  }
 }
