@@ -17,6 +17,6 @@ public class AclRestrictionFilterFactory implements FilterFactory {
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new AclRestrictionFilter();
+    return new AclRestrictionFilter(config);
   }
 }

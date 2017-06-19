@@ -54,8 +54,8 @@ definition的写入和读取分离
          "blacklist" : ["192.168.0.100"]
     }
 
-whitelist：白名单的数组，支持*的通配符，只要调用方的ip符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+- whitelist：白名单的数组，支持*的通配符，只要调用方的ip符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+- blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符合黑名单规则，且不符合黑名单规则，都不允许继续请求
 
 禁止访问对调用方会返回1004的错误码
 
@@ -74,6 +74,41 @@ blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符�
 
     "ip.blacklist": ["10.4.7.15"],
     "ip.whitelist": ["192.168.1.*"]
+
+# ACL限制
+## Plugin: IpRestriction
+对调用API的组（仅检查登录用户）增加白名单和黑名单限制
+
+配置示例：
+
+    "acl_restriction" : {
+         "whitelist" : ["group1", "group2],
+         "blacklist" : [guest]
+    }
+
+- whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+
+禁止访问对调用方会返回1004的错误码
+
+## Filter: AclRestrictionFilter
+调用方的ip从上下文读取`user.group`变量
+
+- type PRE
+- order 1100
+
+全局参数
+
+    "acl.blacklist": [],
+    "acl.whitelist": []
+    "user.groupKey" 编码的键值，默认值group
+
+示例
+
+    "acl.blacklist": ["guest"],
+    "acl.whitelist": ["user"],
+    "user.groupKey" : "role"
+
 
 # AppCode校验
 ## Plugin: AppCodeVertifyPlugin
