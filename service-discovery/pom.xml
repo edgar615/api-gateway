@@ -51,6 +51,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>service-discovery-bridge-zookeeper</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
             <scope>test</scope>

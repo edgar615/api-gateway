@@ -9,7 +9,7 @@
       "instances" : 1,
       "worker" : false,
       "config" : {
-        "importer": "zookeeper://test.ihorn.com.cn:2181",
+        "importer": "zookeeper://localhost:2181",
         "zookeeper.path": "/csst-microservice",
         "consul.scan-period": 2000,
         "weight.increase" : 1,
@@ -21,11 +21,13 @@
       }
     },
     "ShellVertice" : {
-      "class" : "com.edgar.direwolves.verticle.ShellVertice",
+      "class" : "io.vertx.ext.shell.ShellVerticle",
       "instances" : 1,
       "worker" : false,
       "config" : {
-        "http.port" : 4000
+        "httpOptions": {
+          "port" : 4000
+        }
       }
     },
     "ApiDefinitionVerticle" : {
@@ -40,7 +42,7 @@
     },
     "ApiDispatchVerticle" : {
       "class" : "com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle",
-      "instances" : 3,
+      "instances" : 1,
       "worker" : false,
       "config" : {
         "http.port": 9000,

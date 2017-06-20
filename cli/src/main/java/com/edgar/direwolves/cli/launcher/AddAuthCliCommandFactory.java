@@ -5,6 +5,7 @@ import io.vertx.core.spi.launcher.DefaultCommandFactory;
 /**
  * Created by edgar on 16-9-15.
  */
+@Deprecated
 public class AddAuthCliCommandFactory extends DefaultCommandFactory<AddAuthCliCommand> {
   public AddAuthCliCommandFactory() {
     super(AddAuthCliCommand.class);

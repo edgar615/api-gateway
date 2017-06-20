@@ -19,32 +19,11 @@ import java.io.StringWriter;
  */
 @Name("service-weight-incr")
 @Summary("increase the weight of service")
-public class ServiceIncrWeightCommand extends AnnotatedCommand {
+public class ServiceIncrWeightCommand extends AbstractServiceCommand {
   private static final String ADDRESS = "service.discovery.weight.increase";
 
-  private String id;
-
-  @Argument(index = 0, argName = "id")
-  @Description("the service id")
-  public void setId(String id) {
-    this.id = id;
-  }
-
   @Override
-  public void process(CommandProcess process) {
-    VertxInternal vertx = (VertxInternal) process.vertx();
-    vertx.eventBus().<JsonObject>send(ADDRESS, new JsonObject().put("id", id), ar -> {
-      if (ar.failed()) {
-        StringWriter buffer = new StringWriter();
-        PrintWriter writer = new PrintWriter(buffer);
-        ar.cause().printStackTrace(writer);
-        process.write(buffer.toString()).end();
-        return;
-      }
-      JsonObject result = ar.result().body();
-      process.write(result.encode())
-              .write("\n");
-      process.end();
-    });
+  public String address() {
+    return ADDRESS;
   }
 }

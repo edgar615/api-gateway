@@ -17,10 +17,10 @@ import java.io.StringWriter;
  *
  * @author Edgar  Date 2017/6/19
  */
-@Name("service-weight-decr")
-@Summary("decrease the weight of service")
-public class ServiceDecrWeightCommand extends AbstractServiceCommand {
-  private static final String ADDRESS = "service.discovery.weight.decrease";
+@Name("service-close")
+@Summary("close an service")
+public class ServiceCloseCommand extends AbstractServiceCommand {
+  private static final String ADDRESS = "service.discovery.close";
 
   @Override
   public String address() {

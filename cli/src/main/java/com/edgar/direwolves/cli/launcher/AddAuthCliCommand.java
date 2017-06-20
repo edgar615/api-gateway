@@ -8,6 +8,7 @@ import io.vertx.core.spi.launcher.DefaultCommand;
 
 @Name("add-auth")
 @Summary("Add Api Auth.")
+@Deprecated
 public class AddAuthCliCommand extends DefaultCommand {
 
   private String name;

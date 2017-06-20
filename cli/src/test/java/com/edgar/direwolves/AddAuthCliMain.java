@@ -5,6 +5,7 @@ import io.vertx.core.Launcher;
 /**
  * Created by edgar on 16-9-15.
  */
+@Deprecated
 public class AddAuthCliMain {
 
   public static void main(String[] args) {

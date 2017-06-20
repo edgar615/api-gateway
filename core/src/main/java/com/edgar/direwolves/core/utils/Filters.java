@@ -29,6 +29,14 @@ public class Filters {
    */
   public static void sort(List<Filter> filters) {
     Collections.sort(filters, (Filter o1, Filter o2) -> {
+      if ("PRE".equalsIgnoreCase(o1.type())
+              && "POST".equalsIgnoreCase(o2.type())) {
+        return -1;
+      }
+      if ("POST".equalsIgnoreCase(o1.type())
+          && "PRE".equalsIgnoreCase(o2.type())) {
+        return 1;
+      }
       if (o1.order() < o2.order()) {
         return -1;
       }

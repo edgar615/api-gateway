@@ -17,5 +17,11 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-shell</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-hazelcast</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
