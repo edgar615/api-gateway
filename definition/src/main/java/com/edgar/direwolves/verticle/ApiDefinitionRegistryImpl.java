@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 /**
  * 路由映射关系的注册表.
  */
+@Deprecated
 class ApiDefinitionRegistryImpl implements ApiDefinitionRegistry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionRegistryImpl.class);

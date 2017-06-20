@@ -9,8 +9,13 @@ import java.util.stream.Collectors;
 
 /**
  * 路由映射关系的注册表.
+ * <p>
+ * ApiDefinitionRegistry的实现是一个单例对象。
+ * 每个网关应用都会保存一个ApiDefinitionRegistry对象。用来实现Api的缓存，避免频繁远程调用的损耗。
+ * 所有api的维护都是通过ApiDiscovery中的eventbus接受backend发出的修改事件来同步更新。
  * Created by edgar on 16-9-13.
  */
+@Deprecated
 public interface ApiDefinitionRegistry {
 
   /**

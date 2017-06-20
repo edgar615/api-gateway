@@ -103,6 +103,7 @@ public interface ApiDefinition {
    * @param path   路径
    * @return true 符合
    */
+  @Deprecated
   default boolean match(HttpMethod method, String path) {
     if (method != method()) {
       return false;
@@ -119,6 +120,10 @@ public interface ApiDefinition {
   default ApiDefinition copy() {
     JsonObject jsonObject = toJson();
     return ApiDefinition.fromJson(jsonObject);
+  }
+
+  default boolean match(JsonObject filter) {
+   return ApiDefinitionUtils.match(this, filter);
   }
 
 }

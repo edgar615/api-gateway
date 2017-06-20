@@ -1,7 +1,9 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.collect.Lists;
+
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +20,7 @@ public class ApiDefinitionTest {
   public void testCreate() {
 
     HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -41,12 +43,12 @@ public class ApiDefinitionTest {
   @Test
   public void testEndpointsShouldImmutable() {
     HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     try {
       apiDefinition.endpoints().add(httpEndpoint);
       Assert.fail();
@@ -60,7 +62,7 @@ public class ApiDefinitionTest {
   @Test
   public void testAddPlugin() {
     HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
@@ -79,7 +81,7 @@ public class ApiDefinitionTest {
   @Test
   public void testRemovePlugin() {
     HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
@@ -93,41 +95,117 @@ public class ApiDefinitionTest {
 
   }
 
-
   @Test
-  public void testMatcher() {
-    HttpEndpoint httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices/",
-                                              "device");
+  public void testMatchName() {
+
+    HttpEndpoint httpEndpoint =
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    Assert.assertEquals("/devices", apiDefinition.path());
 
-    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/123"));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("name", "get_device")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("name", "get*")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("name", "gEt*")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("name", "*e")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("name", "*")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("name", "***")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("name", "get_device2")));
+  }
 
+  @Test
+  public void testMatchMethod() {
+
+    HttpEndpoint httpEndpoint =
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    Assert.assertEquals("/devices", apiDefinition.path());
+
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("method", "get")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("method", "get*")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("method", "*t")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("method", "*")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("method", "put")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("method", "dfaere")));
+  }
+
+  @Test
+  public void testMatchPath() {
+
+    HttpEndpoint httpEndpoint =
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    Assert.assertEquals("/devices", apiDefinition.path());
+
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
 
     httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
-                                 "device");
+                                     "device");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
 
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
-    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/123"));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
 
     httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
-                                 "device");
+                                     "device");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\w+]+)",
                                          Lists.newArrayList(httpEndpoint));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
+  }
 
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.POST, "/devices"));
-    Assert.assertFalse(apiDefinition.match(HttpMethod.GET, "/devices/"));
-    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/abc"));
-    Assert.assertTrue(apiDefinition.match(HttpMethod.GET, "/devices/123"));
+  @Test
+  public void testMatchAll() {
+
+
+    HttpEndpoint httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
+                                                  "device");
+    ApiDefinition apiDefinition =
+            ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)",
+                                 Lists.newArrayList(httpEndpoint));
+
+    Assert.assertTrue(apiDefinition.match(new JsonObject()));
+
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")
+                                                   .put("name", "*")));
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/")
+                                                   .put("method", "*")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")
+                                                  .put("name", "*").put("method", "*")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")
+                                                  .put("name", "get*").put("method", "GET")));
+
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")
+                                                  .put("name", "query*").put("method", "*")));
+  }
+
+  @Test
+  public void testMatchUndefined() {
+
+    HttpEndpoint httpEndpoint =
+            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    Assert.assertEquals("/devices", apiDefinition.path());
+
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path2", "/devices")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path2", "/devices/")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path2", "/devices/abc")));
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path2", "/devices/123")));
+
   }
 }

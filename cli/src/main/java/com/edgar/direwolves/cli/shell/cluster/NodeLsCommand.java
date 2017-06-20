@@ -26,7 +26,7 @@ public class NodeLsCommand extends AnnotatedCommand {
   @Override
   public void process(CommandProcess process) {
     if (!process.vertx().isClustered()) {
-      process.write("run  on standalone mode\n").end();
+      process.write("localhost\n").end();
       process.end();
     }
     VertxInternal vertx = (VertxInternal) process.vertx();
