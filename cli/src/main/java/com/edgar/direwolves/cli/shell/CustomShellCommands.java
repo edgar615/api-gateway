@@ -1,5 +1,7 @@
 package com.edgar.direwolves.cli.shell;
 
+import com.edgar.direwolves.cli.shell.api.ApiAddCommand;
+import com.edgar.direwolves.cli.shell.api.ApiGetCommand;
 import com.edgar.direwolves.cli.shell.cluster.NodeLsCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceCloseCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceIncrWeightCommand;
@@ -32,6 +34,10 @@ public class CustomShellCommands implements CommandResolverFactory {
 
     //cluster
     registry.registerCommand(NodeLsCommand.class);
+
+    //api
+    registry.registerCommand(ApiAddCommand.class);
+    registry.registerCommand(ApiGetCommand.class);
 
     resolverHandler.handle(Future.succeededFuture(registry));
   }

@@ -2,18 +2,25 @@ package com.edgar.direwolves.cmd;
 
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2017/1/19.
@@ -23,23 +30,33 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class AddApiCmdTest {
 
-  ApiDefinitionRegistry registry = ApiDefinitionRegistry.create();
+  Vertx vertx;
 
+  ApiDiscovery discovery;
+
+  String namespace;
   ApiCmd cmd;
-
   @Before
   public void setUp() {
-    cmd = new AddApiCmdFactory().create(Vertx.vertx(), new JsonObject());
-  }
-
-  @After
-  public void tearDown() {
-    registry.remove("*");
+    namespace = UUID.randomUUID().toString();
+    vertx = Vertx.vertx();
+    discovery = ApiDiscovery.create(vertx, namespace);
+    cmd = new AddApiCmdFactory().create(vertx, new JsonObject());
   }
 
   @Test
   public void testAddApiSuccess(TestContext testContext) {
-    Assert.assertEquals(0, registry.filter("*").size());
+    AtomicBoolean check1 = new AtomicBoolean();
+    discovery.getDefinitions(new JsonObject(), ar -> {
+      if (ar.failed()) {
+        testContext.fail();
+        return;
+      }
+      testContext.assertEquals(0, ar.result().size());
+      check1.set(true);
+    });
+    Awaitility.await().until(() -> check1.get());
+
     JsonObject jsonObject = new JsonObject()
             .put("name", "add_device")
             .put("method", "POST")
@@ -52,53 +69,45 @@ public class AddApiCmdTest {
                          .put("path", "/devices"));
     jsonObject.put("endpoints", endpoints);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
+    AtomicBoolean check2 = new AtomicBoolean();
+    cmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject))
             .setHandler(ar -> {
               if (ar.succeeded()) {
                 testContext.assertEquals(1, ar.result().getInteger("result"));
-                testContext.assertEquals(1, registry.filter("add_device").size());
-                testContext.assertEquals(1, registry.filter("add_*").size());
-                testContext.assertEquals(1, registry.filter("*_device").size());
-                testContext.assertEquals(1, registry.filter("*").size());
-
-                ApiDefinition apiDefinition = registry.filter("add_device").get(0);
-                testContext.assertEquals(0, apiDefinition.plugins().size());
-                async.complete();
+                check2.set(true);
               } else {
+                ar.cause().printStackTrace();
                 testContext.fail();
               }
             });
-  }
+    Awaitility.await().until(() -> check2.get());
 
-  @Test
-  public void testAddApiFailed(TestContext testContext) {
-    Assert.assertEquals(0, registry.filter("*").size());
-    JsonObject jsonObject = new JsonObject()
-            .put("name", "add_device")
-            .put("path", "/devices");
-    JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "http")
-                         .put("name", "add_device")
-                         .put("method", "POST")
-                         .put("path", "/devices"));
-    jsonObject.put("endpoints", endpoints);
-
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                testContext.fail();
-              } else {
-                Assert.assertEquals(0, registry.filter("*").size());
-                async.complete();
-              }
-            });
+    AtomicBoolean check3 = new AtomicBoolean();
+    discovery.getDefinitions(new JsonObject(), ar -> {
+      if (ar.failed()) {
+        testContext.fail();
+        return;
+      }
+      System.out.println(ar.result());
+      testContext.assertEquals(1, ar.result().size());
+      check3.set(true);
+    });
+    Awaitility.await().until(() -> check3.get());
   }
 
   @Test
   public void testAddApiWithPlugin(TestContext testContext) {
-    Assert.assertEquals(0, registry.filter("*").size());
+    AtomicBoolean check1 = new AtomicBoolean();
+    discovery.getDefinitions(new JsonObject(), ar -> {
+      if (ar.failed()) {
+        testContext.fail();
+        return;
+      }
+      testContext.assertEquals(0, ar.result().size());
+      check1.set(true);
+    });
+    Awaitility.await().until(() -> check1.get());
+
     JsonObject jsonObject = new JsonObject()
             .put("name", "add_device")
             .put("method", "POST")
@@ -112,24 +121,34 @@ public class AddApiCmdTest {
     jsonObject.put("endpoints", endpoints);
     jsonObject.put("authentication", true);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
+    AtomicBoolean check2 = new AtomicBoolean();
+    cmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject))
             .setHandler(ar -> {
               if (ar.succeeded()) {
                 testContext.assertEquals(1, ar.result().getInteger("result"));
-                testContext.assertEquals(1, registry.filter("add_device").size());
-                testContext.assertEquals(1, registry.filter("add_*").size());
-                testContext.assertEquals(1, registry.filter("*_device").size());
-                testContext.assertEquals(1, registry.filter("*").size());
-
-                ApiDefinition apiDefinition = registry.filter("add_device").get(0);
-                testContext.assertEquals(1, apiDefinition.plugins().size());
-
-                async.complete();
+                check2.set(true);
               } else {
+                ar.cause().printStackTrace();
                 testContext.fail();
               }
             });
+    Awaitility.await().until(() -> check2.get());
+
+    AtomicBoolean check3 = new AtomicBoolean();
+    discovery.getDefinitions(new JsonObject(), ar -> {
+      if (ar.failed()) {
+        testContext.fail();
+        return;
+      }
+      System.out.println(ar.result());
+      testContext.assertEquals(1, ar.result().size());
+      ApiDefinition definition = ar.result().get(0);
+      testContext.assertEquals(1, definition.plugins().size());
+      check3.set(true);
+    });
+    Awaitility.await().until(() -> check3.get());
+
+
   }
 
 }

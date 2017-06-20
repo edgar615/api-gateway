@@ -32,14 +32,13 @@ public class RegisterApiCmd implements Initializable {
 
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {
-    String namespace = config.getString("project.namespace", "");
     //eventbus consumer
     EventBus eb = vertx.eventBus();
     Lists.newArrayList(ServiceLoader.load(ApiCmdFactory.class))
             .stream()
             .map(f -> f.create(vertx, config))
             .forEach(cmd -> {
-              String address = cmdAddress(namespace, cmd.cmd());
+              String address = cmdAddress(cmd.cmd());
               LOGGER.info("---| [Register consumer] [{}]", address);
               eb.<JsonObject>consumer(address, msg -> consumer(cmd, address, msg));
             });
@@ -105,11 +104,8 @@ public class RegisterApiCmd implements Initializable {
     return s.toString();
   }
 
-  private String cmdAddress(String namespace, String cmd) {
-    if (Strings.isNullOrEmpty(namespace)) {
-      return "direwolves.eb." + cmd;
-    }
-    return namespace + ".direwolves.eb." + cmd;
+  private String cmdAddress( String cmd) {
+    return "direwolves.eb." + cmd;
   }
 
   private void eventbusFailureHandler(Message<JsonObject> msg, Throwable throwable) {

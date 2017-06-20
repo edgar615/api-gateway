@@ -18,7 +18,7 @@ import java.io.StringWriter;
  * @author Edgar  Date 2017/6/19
  */
 @Name("service-close")
-@Summary("close an service")
+@Summary("close a service")
 public class ServiceCloseCommand extends AbstractServiceCommand {
   private static final String ADDRESS = "service.discovery.close";
 

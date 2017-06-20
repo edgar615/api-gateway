@@ -9,6 +9,7 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -90,7 +91,7 @@ class ApiDiscoveryImpl implements ApiDiscovery {
       } else {
         List<ApiDefinition> definitions = ar.result();
         if (definitions.isEmpty()) {
-
+          resultHandler.handle(Future.failedFuture(new NoSuchElementException(name)));
         } else {
           resultHandler.handle(Future.succeededFuture(definitions.get(0)));
         }

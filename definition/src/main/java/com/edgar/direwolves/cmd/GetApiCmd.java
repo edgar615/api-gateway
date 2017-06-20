@@ -2,6 +2,7 @@ package com.edgar.direwolves.cmd;
 
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -10,6 +11,7 @@ import com.edgar.util.validation.Validations;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
@@ -26,7 +28,10 @@ class GetApiCmd implements ApiCmd {
 
   private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  GetApiCmd() {
+  private final Vertx vertx;
+
+  GetApiCmd(Vertx vertx) {this.vertx = vertx;
+    rules.put("namespace", Rule.required());
     rules.put("name", Rule.required());
   }
 
@@ -38,13 +43,18 @@ class GetApiCmd implements ApiCmd {
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
     Validations.validate(jsonObject.getMap(), rules);
+    String namespace = jsonObject.getString("namespace");
     String name = jsonObject.getString("name");
-    List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-    if (definitions.isEmpty()) {
-      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
-              .set("details", "Api->" + name);
-    }
-    return Future.succeededFuture(new JsonObject()
-        .put("result", definitions.get(0).toJson()));
+    Future<JsonObject> future = Future.future();
+    ApiDiscovery.create(vertx, namespace)
+            .getDefinition(name, ar -> {
+              if (ar.failed()) {
+                future.fail(ar.cause());
+                return;
+              }
+              future.complete(ar.result().toJson());
+            });
+    return future;
+
   }
 }

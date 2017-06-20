@@ -18,7 +18,7 @@ import java.io.StringWriter;
  * @author Edgar  Date 2017/6/19
  */
 @Name("service-open")
-@Summary("open an service")
+@Summary("open a service")
 public class ServiceOpenCommand extends AbstractServiceCommand {
   private static final String ADDRESS = "service.discovery.open";
 

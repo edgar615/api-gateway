@@ -39,12 +39,7 @@ public class ApiDiscoveryTest {
   @Before
   public void setUp() {
     namespace = UUID.randomUUID().toString();
-    AtomicBoolean complete = new AtomicBoolean();
-    Vertx.clusteredVertx(new VertxOptions().setClustered(true), ar -> {
-      vertx = ar.result();
-      complete.set(true);
-    });
-    Awaitility.await().until(() -> complete.get());
+   vertx = Vertx.vertx();
     discovery = ApiDiscovery.create(vertx, namespace);
   }
 

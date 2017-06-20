@@ -5,13 +5,13 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.File;
@@ -34,6 +34,7 @@ public class ImportApiCmd implements ApiCmd {
 
   public ImportApiCmd(Vertx vertx) {
     this.vertx = vertx;
+    rules.put("namespace", Rule.required());
     rules.put("path", Rule.required());
   }
 
@@ -45,7 +46,10 @@ public class ImportApiCmd implements ApiCmd {
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
     Validations.validate(jsonObject.getMap(), rules);
+    String namespace = jsonObject.getString("namespace");
     String path = jsonObject.getString("path");
+
+    ApiDiscovery discovery = ApiDiscovery.create(vertx, namespace);
 
     Future<JsonObject> future = Future.future();
 
@@ -58,27 +62,58 @@ public class ImportApiCmd implements ApiCmd {
       }
     }, ar -> {
       if (ar.succeeded()) {
-        JsonArray succeed = new JsonArray();
-        List<String> apiList = ar.result();
-        for (String str : apiList) {
-          try {
-            JsonObject json = new JsonObject(str);
-            ApiDefinition d = ApiDefinition.fromJson(json);
-            ApiDefinitionRegistry.create().add(d);
-            LOGGER.info("---| [Import Api] [OK] [{}] [{}]", d.name(), str);
-            succeed.add(d.name());
-          } catch (Exception e) {
-            LOGGER.error("---| [Import Api] [FAILED] [{}] [{}]", e.getMessage(), str);
-          }
-        }
-        future.complete(new JsonObject().put("total", apiList.size())
-                                .put("succeed", succeed.size()));
+        List<Future> futures = addApiList(discovery, ar.result());
+        checkResult(futures, future);
       } else {
         LOGGER.error("---| [Import Api] [FAILED] [{}]", ar.cause().getMessage());
         future.fail(ar.cause());
       }
     });
 
+    return future;
+  }
+
+  private void checkResult(List<Future> futures, Future<JsonObject> complete) {
+    CompositeFuture.all(futures)
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                complete.complete(new JsonObject().put("result", futures.size()));
+                return;
+              }
+              complete.fail(ar.cause());
+            });
+  }
+
+  private List<Future> addApiList(ApiDiscovery discovery, List<String> apiList) {
+    List<Future> futures = new ArrayList<Future>();
+    for (String str : apiList) {
+      try {
+        ApiDefinition d = ApiDefinition.fromJson(new JsonObject(str));
+        Future<ApiDefinition> addFuture = addApi(discovery, d);
+        futures.add(addFuture);
+        addFuture.setHandler(ar -> {
+          if (ar.succeeded()) {
+            LOGGER.info("---| [Import Api] [OK] [{}] [{}]", d.name(), str);
+          } else {
+            LOGGER.error("---| [Import Api] [FAILED] [{}] [{}]", ar.cause().getMessage(), str);
+          }
+        });
+      } catch (Exception e) {
+        LOGGER.error("---| [Import Api] [FAILED] [{}] [{}]", e.getMessage(), str);
+      }
+    }
+    return futures;
+  }
+
+  private Future<ApiDefinition> addApi(ApiDiscovery discovery, ApiDefinition definition) {
+    Future<ApiDefinition> future = Future.future();
+    discovery.publish(definition, ar -> {
+      if (ar.failed()) {
+        future.fail(ar.cause());
+        return;
+      }
+      future.complete(ar.result());
+    });
     return future;
   }
 
