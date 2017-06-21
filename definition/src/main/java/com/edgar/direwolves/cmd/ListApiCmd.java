@@ -13,6 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,11 @@ class ListApiCmd implements ApiCmd {
               if (toIndex > definitions.size()) {
                 toIndex = definitions.size();
               }
-              List<JsonObject> result = definitions.subList(start, toIndex).stream()
+              List<JsonObject> result = definitions
+                      .stream()
+                      .sorted((o1, o2) -> o1.name().compareToIgnoreCase(o2.name()))
+                      .collect(Collectors.toList())
+                      .subList(start, toIndex).stream()
                       .map(d -> d.toJson())
                       .collect(Collectors.toList());
 

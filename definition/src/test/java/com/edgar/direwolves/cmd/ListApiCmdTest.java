@@ -102,9 +102,9 @@ public class ListApiCmdTest {
 
                 testContext.assertEquals(2, jsonArray.size());
                 ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("get_device", apiDefinition.name());
-                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
                 testContext.assertEquals("add_device", apiDefinition.name());
+                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+                testContext.assertEquals("get_device", apiDefinition.name());
                 async.complete();
               } else {
                 ar.cause().printStackTrace();
@@ -150,9 +150,9 @@ public class ListApiCmdTest {
 
                 testContext.assertEquals(2, jsonArray.size());
                 ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("get_device", apiDefinition.name());
-                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
                 testContext.assertEquals("add_device", apiDefinition.name());
+                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+                testContext.assertEquals("get_device", apiDefinition.name());
                 async.complete();
               } else {
                 testContext.fail();
@@ -195,7 +195,7 @@ public class ListApiCmdTest {
 
                 testContext.assertEquals(1, jsonArray.size());
                 ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("add_device", apiDefinition.name());
+                testContext.assertEquals("get_device", apiDefinition.name());
                 async.complete();
               } else {
                 testContext.fail();
@@ -237,7 +237,7 @@ public class ListApiCmdTest {
 
             testContext.assertEquals(1, jsonArray.size());
             ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("get_device", apiDefinition.name());
+            testContext.assertEquals("add_device", apiDefinition.name());
             async.complete();
           } else {
             testContext.fail();
@@ -280,7 +280,7 @@ public class ListApiCmdTest {
 
             testContext.assertEquals(1, jsonArray.size());
             ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("add_device", apiDefinition.name());
+            testContext.assertEquals("get_device", apiDefinition.name());
             async.complete();
           } else {
             testContext.fail();

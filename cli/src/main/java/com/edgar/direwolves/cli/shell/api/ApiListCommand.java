@@ -78,9 +78,17 @@ public class ApiListCommand extends AnnotatedCommand {
                                         }
                                         JsonArray result = ar.result().body().getJsonArray
                                                 ("result", new JsonArray());
-                                        for (int i = 0; i < result.size(); i ++) {
-                                          process.write(String.format("%-20d\n", i));
-                                            ApiUtils.writeApi(process, result.getJsonObject(i));
+                                        process.write(
+                                                String.format("%-40s%-8s%-30s\n", "name", "method",
+                                                              "path"));
+                                        for (int i = 0; i < result.size(); i++) {
+                                          JsonObject jsonObject = result.getJsonObject(i);
+                                          process.write(String.format("%-40s%-8s%-30s\n",
+                                                                      jsonObject.getString("name"),
+                                                                      jsonObject
+                                                                              .getString("method"),
+                                                                      jsonObject
+                                                                              .getString("path")));
                                         }
                                         process.end();
                                       });
