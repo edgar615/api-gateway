@@ -4,18 +4,45 @@ API网关,准备造的一个轮子
 使用Vert.x实现
 
 TODO:
-把defintion的registry用vert.x的map实现（参考服务发现的实现）
-definiton的Verticle判断当前是否加载了api，整个集群中只加载一次
-
-definition的写入和读取分离
 
 对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
 
 将缓存部分实现redis和clustermap（localmap）两种模式
 
-请求数控制和请求频率控制（令牌桶）两种实现
+全局的transformer
 
-监控值
+请求配额控制QuotaLimit，响应头要说明对应信息
+
+请求频率控制（令牌桶）RateLimit，响应头要说明对应信息
+
+request size limit(全局和单独)：限制过大流量的请求
+
+request termination 中断请求，用来做后端接口的升级维护
+
+请求头校验
+
+断路器
+
+API版本：在响应头中增加API的版本，如果有过期时间说明过期时间
+
+AppKey的黑名单，白名单（全局、单独）
+
+多种类型日志
+暂定的日志事件：
+HttpRpcRequested:内部的HTTP转发
+TokenCreated：创建token
+TokenUpdated：更新token
+TokenDeleted：注销token
+AuthFailure：身份认证失败
+RateLimitExceeded：超过限流
+QuotaExeeded：配额超过
+BreakerTripped：断路器开启
+BreakerReset：断路器重置
+SlowReqDetected：慢请求检查
+
+监控
+
+后台
 
 配置项
 
