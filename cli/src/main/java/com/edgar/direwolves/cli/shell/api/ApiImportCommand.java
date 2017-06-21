@@ -17,14 +17,14 @@ import java.io.StringWriter;
  *
  * @author Edgar  Date 2017/6/19
  */
-@Name("api-get")
-@Summary("find an api")
-public class ApiGetCommand extends AnnotatedCommand {
-  private static final String ADDRESS = "direwolves.eb.api.get";
+@Name("api-import")
+@Summary("add an api from file")
+public class ApiImportCommand extends AnnotatedCommand {
+  private static final String ADDRESS = "direwolves.eb.api.import";
 
   private String namespace;
 
-  private String name;
+  private String path;
 
   @Argument(index = 0, argName = "namespace")
   @Description("the namespace of api")
@@ -32,10 +32,10 @@ public class ApiGetCommand extends AnnotatedCommand {
     this.namespace = namespace;
   }
 
-  @Argument(index = 1, argName = "name")
-  @Description("the name of api")
-  public void setName(String name) {
-    this.name = name;
+  @Argument(index = 1, argName = "path")
+  @Description("the path of api file")
+  public void setPath(String path) {
+    this.path = path;
   }
 
   @Override
@@ -43,7 +43,7 @@ public class ApiGetCommand extends AnnotatedCommand {
     VertxInternal vertx = (VertxInternal) process.vertx();
     vertx.eventBus().<JsonObject>send(ADDRESS,
                                       new JsonObject().put("namespace", namespace)
-                                              .put("name", name),
+                                              .put("path", path),
                                       ar -> {
                                         if (ar.failed()) {
                                           StringWriter buffer = new StringWriter();
@@ -53,9 +53,9 @@ public class ApiGetCommand extends AnnotatedCommand {
                                           return;
                                         }
                                         JsonObject result = ar.result().body();
-                                        ApiUtils.writeApi(process, result);
+                                        process.write(result.encode())
+                                                .write("\n");
                                         process.end();
                                       });
   }
-
 }

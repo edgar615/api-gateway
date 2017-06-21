@@ -1,7 +1,10 @@
 package com.edgar.direwolves.cli.shell;
 
 import com.edgar.direwolves.cli.shell.api.ApiAddCommand;
+import com.edgar.direwolves.cli.shell.api.ApiDeleteCommand;
 import com.edgar.direwolves.cli.shell.api.ApiGetCommand;
+import com.edgar.direwolves.cli.shell.api.ApiImportCommand;
+import com.edgar.direwolves.cli.shell.api.ApiListCommand;
 import com.edgar.direwolves.cli.shell.cluster.NodeLsCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceCloseCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceIncrWeightCommand;
@@ -14,9 +17,15 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.dropwizard.impl.shell.MetricsInfo;
+import io.vertx.ext.dropwizard.impl.shell.MetricsLs;
+import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.command.CommandResolver;
 import io.vertx.ext.shell.spi.CommandResolverFactory;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CustomShellCommands implements CommandResolverFactory {
 
@@ -38,7 +47,13 @@ public class CustomShellCommands implements CommandResolverFactory {
     //api
     registry.registerCommand(ApiAddCommand.class);
     registry.registerCommand(ApiGetCommand.class);
+    registry.registerCommand(ApiListCommand.class);
+    registry.registerCommand(ApiDeleteCommand.class);
+    registry.registerCommand(ApiImportCommand.class);
 
+//    handler.handle(Future.succeededFuture(() -> Stream
+//            .of(MetricsInfo.class, MetricsLs.class).map(cmd -> Command.create(vertx, cmd)).collect(
+//                    Collectors.toList())));
     resolverHandler.handle(Future.succeededFuture(registry));
   }
 }

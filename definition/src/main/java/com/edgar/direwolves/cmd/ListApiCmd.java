@@ -1,9 +1,16 @@
 package com.edgar.direwolves.cmd;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.util.validation.Rule;
+import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
@@ -19,6 +26,14 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2017/1/19
  */
 class ListApiCmd implements ApiCmd {
+  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+
+  private final Vertx vertx;
+
+  ListApiCmd(Vertx vertx) {
+    this.vertx = vertx;
+    rules.put("namespace", Rule.required());
+  }
 
   @Override
   public String cmd() {
@@ -27,18 +42,39 @@ class ListApiCmd implements ApiCmd {
 
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
+    Validations.validate(jsonObject.getMap(), rules);
+    String namespace = jsonObject.getString("namespace");
     Integer start = jsonObject.getInteger("start", 0);
     Integer limit = jsonObject.getInteger("limit", 10);
-    String name = jsonObject.getString("name", null);
-    List<ApiDefinition> definitions = ApiDefinitionRegistry.create().filter(name);
-    int toIndex = start + limit;
-    if (toIndex > definitions.size()) {
-      toIndex = definitions.size();
+    String name = jsonObject.getString("name", "*");
+    JsonObject filter = new JsonObject();
+    if (name != null) {
+      filter.put("name", name);
     }
-    List<JsonObject> result = definitions.subList(start, toIndex).stream()
-        .map(d -> d.toJson())
-        .collect(Collectors.toList());
-    return Future.succeededFuture(new JsonObject()
-        .put("result", result));
+    Future<JsonObject> future = Future.future();
+    ApiDiscovery.create(vertx, namespace)
+            .getDefinitions(filter, ar -> {
+              if (ar.failed()) {
+                future.fail(ar.cause());
+                return;
+              }
+              List<ApiDefinition> definitions = ar.result();
+              if (start > definitions.size()) {
+                future.complete(new JsonObject()
+                                        .put("result", new JsonArray()));
+                return;
+              }
+              int toIndex = start + limit;
+              if (toIndex > definitions.size()) {
+                toIndex = definitions.size();
+              }
+              List<JsonObject> result = definitions.subList(start, toIndex).stream()
+                      .map(d -> d.toJson())
+                      .collect(Collectors.toList());
+
+              future.complete(new JsonObject()
+                                      .put("result", result));
+            });
+    return future;
   }
 }

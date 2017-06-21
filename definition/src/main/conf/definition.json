@@ -1,0 +1,7 @@
+{
+  "router.dir" : {
+    "iotp" : {
+      "path" : "standalone/src/test/resources/router"
+    }
+  }
+}

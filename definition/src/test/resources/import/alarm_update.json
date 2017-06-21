@@ -1,0 +1,14 @@
+{
+  "name" : "alarm.update.1.1.1",
+  "method": "POST",
+  "path": "/alarm/(\\d+)",
+  "endpoints": [
+    {
+      "type" : "http",
+      "name" : "update_device",
+      "service": "device",
+      "method": "alarm",
+      "path": "/alarm/$var.param0"
+    }
+  ]
+}

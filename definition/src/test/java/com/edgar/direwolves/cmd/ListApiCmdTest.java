@@ -1,26 +1,21 @@
 package com.edgar.direwolves.cmd;
 
-import com.edgar.direvolves.plugin.authentication.AuthenticationPlugin;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
-import com.edgar.util.base.Randoms;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
-import com.edgar.util.validation.ValidationException;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.After;
-import org.junit.Assert;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2017/1/19.
@@ -30,14 +25,23 @@ import java.util.List;
 @RunWith(VertxUnitRunner.class)
 public class ListApiCmdTest {
 
-  ApiDefinitionRegistry registry = ApiDefinitionRegistry.create();
+
+  ApiDiscovery discovery;
 
   ApiCmd cmd;
 
+  String namespace;
+
+  Vertx vertx;
+
   @Before
   public void setUp() {
-    cmd = new ListApiCmdFactory().create(Vertx.vertx(), new JsonObject());
+    namespace = UUID.randomUUID().toString();
+    vertx = Vertx.vertx();
+    discovery = ApiDiscovery.create(vertx, namespace);
+    cmd = new ListApiCmdFactory().create(vertx, new JsonObject());
 
+    AddApiCmd addApiCmd = new AddApiCmd(vertx);
     JsonObject jsonObject = new JsonObject()
             .put("name", "add_device")
             .put("method", "POST")
@@ -49,27 +53,46 @@ public class ListApiCmdTest {
                          .put("method", "POST")
                          .put("path", "/devices"));
     jsonObject.put("endpoints", endpoints);
-    jsonObject.put("authentication", true);
 
-    registry.add(ApiDefinition.fromJson(jsonObject));
+    AtomicBoolean check1 = new AtomicBoolean();
+    addApiCmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                check1.set(true);
+              } else {
+                ar.cause().printStackTrace();
+              }
+            });
+    Awaitility.await().until(() -> check1.get());
 
     jsonObject = new JsonObject()
-        .put("name", "update_device")
-        .put("method", "PUT")
-        .put("path", "/devices");
+            .put("name", "get_device")
+            .put("method", "GET")
+            .put("path", "/devices");
+    endpoints = new JsonArray()
+            .add(new JsonObject().put("type", "http")
+                         .put("name", "get_device")
+                         .put("service", "device")
+                         .put("method", "GET")
+                         .put("path", "/devices"));
     jsonObject.put("endpoints", endpoints);
-    registry.add(ApiDefinition.fromJson(jsonObject));
-  }
 
-  @After
-  public void tearDown() {
-    registry.remove(null);
+    AtomicBoolean check2 = new AtomicBoolean();
+    addApiCmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                check2.set(true);
+              } else {
+                ar.cause().printStackTrace();
+              }
+            });
+    Awaitility.await().until(() -> check2.get());
   }
 
   @Test
   public void testListAll(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
-    JsonObject jsonObject = new JsonObject();
+    JsonObject jsonObject = new JsonObject()
+            .put("namespace", namespace);
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
@@ -79,9 +102,33 @@ public class ListApiCmdTest {
 
                 testContext.assertEquals(2, jsonArray.size());
                 ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("add_device", apiDefinition.name());
+                testContext.assertEquals("get_device", apiDefinition.name());
                 apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
-                testContext.assertEquals("update_device", apiDefinition.name());
+                testContext.assertEquals("add_device", apiDefinition.name());
+                async.complete();
+              } else {
+                ar.cause().printStackTrace();
+                testContext.fail();
+              }
+            });
+
+  }
+
+  @Test
+  public void testListByFullname(TestContext testContext) {
+    JsonObject jsonObject = new JsonObject()
+            .put("namespace", namespace)
+            .put("name", "get_device");
+
+    Async async = testContext.async();
+    cmd.handle(jsonObject)
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().getJsonArray("result");
+
+                testContext.assertEquals(1, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("get_device", apiDefinition.name());
                 async.complete();
               } else {
                 testContext.fail();
@@ -90,99 +137,77 @@ public class ListApiCmdTest {
   }
 
   @Test
-  public void testListByFullname(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
-    JsonObject jsonObject = new JsonObject()
-        .put("name", "update_device");
-
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
-
-            testContext.assertEquals(1, jsonArray.size());
-            ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("update_device", apiDefinition.name());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
-  }
-
-  @Test
   public void testListByWildcard(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
-        .put("name", "*device");
+            .put("namespace", namespace)
+            .put("name", "*device");
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().getJsonArray("result");
 
-            testContext.assertEquals(2, jsonArray.size());
-            ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("add_device", apiDefinition.name());
-            apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
-            testContext.assertEquals("update_device", apiDefinition.name());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+                testContext.assertEquals(2, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("get_device", apiDefinition.name());
+                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+                testContext.assertEquals("add_device", apiDefinition.name());
+                async.complete();
+              } else {
+                testContext.fail();
+              }
+            });
   }
 
   @Test
   public void testListByUndefinedWildcard(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
-        .put("name", "*zdferec");
+            .put("namespace", namespace)
+            .put("name", "*rererere");
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().getJsonArray("result");
 
-            testContext.assertEquals(0, jsonArray.size());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+                testContext.assertEquals(0, jsonArray.size());
+                async.complete();
+              } else {
+                testContext.fail();
+              }
+            });
   }
 
   @Test
   public void testListByStart(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
-        .put("name", "*")
-        .put("start", 1);
+            .put("namespace", namespace)
+            .put("name", "*")
+            .put("start", 1);
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+            .setHandler(ar -> {
+              if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().getJsonArray("result");
 
-            testContext.assertEquals(1, jsonArray.size());
-            ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("update_device", apiDefinition.name());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+                testContext.assertEquals(1, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("add_device", apiDefinition.name());
+                async.complete();
+              } else {
+                testContext.fail();
+              }
+            });
   }
 
   @Test
   public void testListByStartOut(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
-        .put("start", 2);
+            .put("namespace", namespace)
+            .put("start", 3);
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
@@ -200,9 +225,9 @@ public class ListApiCmdTest {
 
   @Test
   public void testListByLimit(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
-        .put("limit", 1);
+            .put("namespace", namespace)
+            .put("limit", 1);
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
@@ -212,7 +237,7 @@ public class ListApiCmdTest {
 
             testContext.assertEquals(1, jsonArray.size());
             ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("add_device", apiDefinition.name());
+            testContext.assertEquals("get_device", apiDefinition.name());
             async.complete();
           } else {
             testContext.fail();
@@ -222,9 +247,9 @@ public class ListApiCmdTest {
 
   @Test
   public void testListByLimitZero(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
-        .put("limit", 0);
+            .put("namespace", namespace)
+            .put("limit", 0);
 
     Async async = testContext.async();
     cmd.handle(jsonObject)
@@ -242,8 +267,8 @@ public class ListApiCmdTest {
 
   @Test
   public void testListByStartAndLimit(TestContext testContext) {
-    Assert.assertEquals(2, registry.filter(null).size());
     JsonObject jsonObject = new JsonObject()
+            .put("namespace", namespace)
         .put("start", 1)
         .put("limit", 1);
 
@@ -255,7 +280,7 @@ public class ListApiCmdTest {
 
             testContext.assertEquals(1, jsonArray.size());
             ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("update_device", apiDefinition.name());
+            testContext.assertEquals("add_device", apiDefinition.name());
             async.complete();
           } else {
             testContext.fail();

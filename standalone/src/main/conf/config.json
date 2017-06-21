@@ -1,8 +1,4 @@
 {
-  "service.discovery.strategy": {
-    "user" : "random",
-    "device" : "round_robin"
-  },
   "verticles" : {
     "ServiceDiscoveryVerticle" : {
       "class" : "com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle",
@@ -35,9 +31,11 @@
       "instances" : 1,
       "worker" : false,
       "config" : {
-        "project.namespace": "example",
-        "api.config.dir": "standalone/src/test/resources/router",
-        "api.config.auto_refresh": false
+        "router.dir" : {
+          "iotp" : {
+            "path" : "standalone/src/test/resources/router"
+          }
+        }
       }
     },
     "ApiDispatchVerticle" : {
@@ -48,6 +46,10 @@
         "http.port": 9000,
         "project.namespace": "example",
         "long_req_time" : 1000,
+        "service.discovery.strategy": {
+          "user" : "random",
+          "device" : "round_robin"
+        },
         "redis.host": "10.11.0.31",
         "redis.port": 6379,
         "redis.password": "",

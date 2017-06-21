@@ -17,6 +17,10 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-shell</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-dropwizard-metrics</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>

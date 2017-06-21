@@ -40,7 +40,7 @@ public class ServiceDiscoveryFilter implements Filter {
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    JsonObject serviceDiscoveryConfig = JsonUtils.extractByPrefix(config, "service.discovery", true);
+    JsonObject serviceDiscoveryConfig = JsonUtils.extractByPrefix(config, configPrefix, true);
     MoreServiceDiscoveryOptions options = new MoreServiceDiscoveryOptions(serviceDiscoveryConfig);
     this.discovery = MoreServiceDiscovery.create(vertx, options);
   }

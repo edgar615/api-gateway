@@ -11,6 +11,8 @@ import io.vertx.core.Launcher;
 public class DefinitionMain {
   public static void main(String[] args) {
     new Launcher().execute("run", ApiDefinitionVerticle.class.getName(),
-                           "--cluster");
+                           "--cluster",
+                           "--conf=H:\\dev\\workspace\\direwolves\\definition\\src\\main\\conf"
+                           + "\\definition.json");
   }
 }

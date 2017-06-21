@@ -17,10 +17,10 @@ import java.io.StringWriter;
  *
  * @author Edgar  Date 2017/6/19
  */
-@Name("api-get")
-@Summary("find an api")
-public class ApiGetCommand extends AnnotatedCommand {
-  private static final String ADDRESS = "direwolves.eb.api.get";
+@Name("api-delete")
+@Summary("delete an api")
+public class ApiDeleteCommand extends AnnotatedCommand {
+  private static final String ADDRESS = "direwolves.eb.api.delete";
 
   private String namespace;
 

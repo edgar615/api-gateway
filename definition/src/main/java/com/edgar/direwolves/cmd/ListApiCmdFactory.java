@@ -13,6 +13,6 @@ import io.vertx.core.json.JsonObject;
 public class ListApiCmdFactory implements ApiCmdFactory {
   @Override
   public ApiCmd create(Vertx vertx, JsonObject config) {
-    return new ListApiCmd();
+    return new ListApiCmd(vertx);
   }
 }
