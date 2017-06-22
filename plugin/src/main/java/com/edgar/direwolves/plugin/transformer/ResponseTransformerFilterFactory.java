@@ -22,6 +22,6 @@ public class ResponseTransformerFilterFactory implements FilterFactory {
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new ResponseTransformerFilter();
+    return new ResponseTransformerFilter(config);
   }
 }

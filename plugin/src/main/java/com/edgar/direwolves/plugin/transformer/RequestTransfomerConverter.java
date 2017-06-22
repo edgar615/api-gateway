@@ -11,7 +11,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/6/22
  */
-class TransfomerConverter {
+class RequestTransfomerConverter {
 
   static void fromJson(JsonObject jsonObject, RequestTransformer transformer) {
     removeBody(jsonObject, transformer);

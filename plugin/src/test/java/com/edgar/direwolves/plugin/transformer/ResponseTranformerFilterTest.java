@@ -48,7 +48,7 @@ public class ResponseTranformerFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = new ResponseTransformerFilter();
+    filter = new ResponseTransformerFilter(new JsonObject());
 
     filters.clear();
     filters.add(filter);
@@ -65,6 +65,66 @@ public class ResponseTranformerFilterTest {
     Assert.assertEquals(Filter.POST, filter.type());
   }
 
+  @Test
+  public void testGlobalTransformer(TestContext testContext) {
+    JsonObject config = new JsonObject()
+            .put("header.add", new JsonArray().add("gh2:gh2").add( "h1:h1"))
+            .put("header.remove", new JsonArray().add("h3").add( "h4"))
+            .put("header.replace", new JsonArray().add("h5:rh5").add( "h6:rh6"))
+            .put("body.add", new JsonArray().add("b2:b2").add( "b1:b1"))
+            .put("body.remove", new JsonArray().add("b3").add( "b4"))
+            .put("body.replace", new JsonArray().add("b5:rb5").add( "b6:rb6"));
+    filter = new ResponseTransformerFilter(new JsonObject().put("response_transformer", config));
+    filters.clear();
+    filters.add(filter);
+
+
+    ResponseTransformerPlugin plugin = (ResponseTransformerPlugin) ApiPlugin
+            .create(ResponseTransformerPlugin.class.getSimpleName());
+    plugin.removeHeader("h3");
+    plugin.removeHeader("h4");
+    plugin.removeBody("b3");
+    plugin.removeBody("b4");
+    plugin.replaceHeader("h5", "rh5");
+    plugin.replaceHeader("h6", "rh6");
+    plugin.replaceBody("b5", "rb5");
+    plugin.replaceBody("b6", "rb6");
+    plugin.addHeader("h2", "h2");
+    plugin.addHeader("h1", "h1");
+    plugin.addBody("b1", "b1");
+    plugin.addBody("b2", "b2");
+    apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", null, null, new JsonObject());
+
+    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
+            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition definition = ApiDefinition
+            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+    definition.addPlugin(plugin);
+    apiContext.setApiDefinition(definition);
+    apiContext.setResult(Result.createJsonObject(
+            200, new JsonObject().put("foo", "bar").put("b3", "b3").put("b5", "b5"),
+            ImmutableMultimap.of("h3", "h3", "h6", "h6")));
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              Result result = context.result();
+              System.out.println(result);
+              testContext.assertEquals(4, result.header().keys().size());
+              testContext.assertEquals(4, result.responseObject().size());
+              testContext.assertFalse(result.header().containsKey("rh5"));
+              testContext.assertTrue(result.header().containsKey("rh6"));
+              testContext.assertTrue(result.responseObject().containsKey("rb5"));
+              testContext.assertFalse(result.responseObject().containsKey("rb6"));
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
 
   @Test
   public void testResponseTransformer(TestContext testContext) {

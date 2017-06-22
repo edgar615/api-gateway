@@ -1,11 +1,7 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.stream.Collectors;
@@ -32,13 +28,8 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
       return null;
     }
     ResponseTransformerPlugin plugin = new ResponseTransformerPluginImpl();
-    JsonObject request = jsonObject.getJsonObject("response_transformer");
-    removeBody(request, plugin);
-    removeHeader(request, plugin);
-    replaceBody(request, plugin);
-    replaceHeader(request, plugin);
-    addBody(request, plugin);
-    addHeader(request, plugin);
+    JsonObject resp = jsonObject.getJsonObject("response_transformer");
+    ResponseTransformerConverter.fromJson(resp, plugin);
 
     return plugin;
   }
@@ -71,59 +62,5 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
                     .collect(Collectors.toList()));
   }
 
-  private void removeHeader(JsonObject endpoint, ResponseTransformerPlugin transformer) {
-    JsonArray removes = endpoint.getJsonArray("header.remove", new JsonArray());
-    for (int j = 0; j < removes.size(); j++) {
-      transformer.removeHeader(removes.getString(j));
-    }
-  }
 
-  private void removeBody(JsonObject endpoint, ResponseTransformerPlugin transformer) {
-    JsonArray removes = endpoint.getJsonArray("body.remove", new JsonArray());
-    for (int j = 0; j < removes.size(); j++) {
-      transformer.removeBody(removes.getString(j));
-    }
-  }
-
-  private void replaceHeader(JsonObject endpoint, ResponseTransformerPlugin transformer) {
-    JsonArray replaces = endpoint.getJsonArray("header.replace", new JsonArray());
-    for (int j = 0; j < replaces.size(); j++) {
-      String value = replaces.getString(j);
-      Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-      transformer
-              .replaceHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-    }
-  }
-
-  private void replaceBody(JsonObject endpoint, ResponseTransformerPlugin transformer) {
-    JsonArray replaces = endpoint.getJsonArray("body.replace", new JsonArray());
-    for (int j = 0; j < replaces.size(); j++) {
-      String value = replaces.getString(j);
-      Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-      transformer
-              .replaceBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-    }
-  }
-
-  private void addHeader(JsonObject endpoint, ResponseTransformerPlugin transformer) {
-    JsonArray adds = endpoint.getJsonArray("header.add", new JsonArray());
-    for (int j = 0; j < adds.size(); j++) {
-      String value = adds.getString(j);
-      Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-      transformer.addHeader(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-    }
-  }
-
-  private void addBody(JsonObject endpoint, ResponseTransformerPlugin transformer) {
-    JsonArray adds = endpoint.getJsonArray("body.add", new JsonArray());
-    for (int j = 0; j < adds.size(); j++) {
-      String value = adds.getString(j);
-      Iterable<String> iterable =
-              Splitter.on(":").omitEmptyStrings().trimResults().split(value);
-      transformer.addBody(Iterables.get(iterable, 0), Iterables.get(iterable, 1));
-    }
-  }
 }

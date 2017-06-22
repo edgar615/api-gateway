@@ -27,7 +27,7 @@ API版本：在响应头中增加API的版本，如果有过期时间说明过�
 
 AppKey的黑名单，白名单（全局、单独）
 
-所有的全局插件配置均可以动态修改
+所有的全局插件配置均可以动态修改(配置管理，eventbus)
 
 多种类型日志
 暂定的日志事件：
@@ -257,8 +257,6 @@ SlowReqDetected：慢请求检查
         ]
       }
 
-# http请求参数替换
-对所有API都支持
 
 ## Filter: HttpRequestReplaceFilter
 用于将请求参数中的带变量的参数用变量的替换，一般与request_transformer结合使用
@@ -298,6 +296,73 @@ header中的元素包括
     "x-auth-userId":"1",
     "x-auth-companyCode":"0",
     "x-policy-owner" : "individual"
+
+# Response转换
+## Plugin: ResponseTransformerPlugin
+将响应的结果按照一定的规则做转换，目前还是比较简单的版本，还未完全实现.
+
+配置示例：
+
+    "response_transformer": {
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ],
+      "header.remove": [
+        "Authorization"
+      ],
+      "header.replace": [
+        "x-app-verion:x-client-version"
+      ],
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "body.remove": [
+        "appKey",
+        "nonce"
+      ],
+      "body.replace": [
+        "x-app-verion:x-client-version"
+      ]
+    }
+
+- header.remove 数组，需要删除的响应头
+- body.remove 数组，需要删除的响应体
+- header.replace 数组，需要重命名的响应头，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- body.replace 数组，需要重命名的响应体，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- header.add 数组，需要增加的响应头，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+- body.add 数组，需要增加的响应体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+
+## Filter ResponseTransformerFilter
+- type POST
+- order 1000
+
+全局参数，对所有的请求都支持的响应转换
+
+    "response_transformer": {
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ],
+      "header.remove": [
+        "Authorization"
+      ],
+      "header.replace": [
+        "x-app-verion:x-client-version"
+      ],
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "body.remove": [
+        "appKey",
+        "nonce"
+      ],
+      "body.replace": [
+        "x-app-verion:x-client-version"
+      ]
+    }
 
 # 日志
 

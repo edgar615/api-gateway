@@ -25,7 +25,11 @@ import java.util.List;
  */
 public class ResponseTransformerFilter implements Filter {
 
-  ResponseTransformerFilter() {
+  private final ResponseTransformerPlugin globalPlugin = new ResponseTransformerPluginImpl();
+
+  ResponseTransformerFilter(JsonObject config) {
+    JsonObject jsonObject = config.getJsonObject("response_transformer", new JsonObject());
+    ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
   }
 
   @Override
@@ -43,17 +47,26 @@ public class ResponseTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.apiDefinition()
-                   .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
+    return true;
+//    return apiContext.apiDefinition()
+//                   .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+
+    doTransfomer(apiContext, globalPlugin);
     ResponseTransformerPlugin plugin =
             (ResponseTransformerPlugin) apiContext.apiDefinition()
                     .plugin(ResponseTransformerPlugin.class.getSimpleName());
 
-    Result result = apiContext.result();
+    if (plugin != null) {
+      doTransfomer(apiContext, plugin);
+    }
+    completeFuture.complete(apiContext);
+  }
+
+  private void doTransfomer(ApiContext apiContext, ResponseTransformerPlugin plugin) {Result result = apiContext.result();
     //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改
     boolean isArray = result.isArray();
     //body目前仅考虑JsonObject的替换
@@ -73,7 +86,6 @@ public class ResponseTransformerFilter implements Filter {
       apiContext.setResult(Result.createJsonArray(result.statusCode(),
                                                   result.responseArray(), header));
     }
-    completeFuture.complete(apiContext);
   }
 
   private Multimap<String, String> replaceHeader(ApiContext apiContext,
