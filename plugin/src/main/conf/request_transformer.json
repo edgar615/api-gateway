@@ -1,0 +1,35 @@
+{
+  "request_transformer": {
+    "header.add": [
+      "x-auth-userId:$user.userId",
+      "x-auth-companyCode:$user.companyCode",
+      "x-policy-owner:individual"
+    ],
+    "header.remove": [
+      "Authorization"
+    ],
+    "header.replace": [
+      "x-app-verion:x-client-version"
+    ],
+    "query.add": [
+      "userId:$user.userId"
+    ],
+    "query.remove": [
+      "appKey",
+      "nonce"
+    ],
+    "query.replace": [
+      "x-app-verion:x-client-version"
+    ],
+    "body.add": [
+      "userId:$user.userId"
+    ],
+    "body.remove": [
+      "appKey",
+      "nonce"
+    ],
+    "body.replace": [
+      "x-app-verion:x-client-version"
+    ]
+  }
+}

@@ -57,23 +57,27 @@ public class AclRestrictionFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
+    return !globalBlacklist.isEmpty()
+           || !globalWhitelist.isEmpty()
+           ||  apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     AclRestrictionPlugin plugin = (AclRestrictionPlugin) apiContext.apiDefinition()
             .plugin(AclRestrictionPlugin.class.getSimpleName());
+    List<String> blacklist = new ArrayList<>(globalBlacklist);
+    List<String> whitelist = new ArrayList<>(globalWhitelist);
+    if (plugin != null) {
+      blacklist.addAll(plugin.blacklist());
+      whitelist.addAll(plugin.whitelist());
+    }
     boolean allow;
     if (apiContext.principal() != null && apiContext.principal().containsKey(groupKey)) {
       String group = apiContext.principal().getString(groupKey);
-      List<String> blacklist = new ArrayList<>(plugin.blacklist());
-      blacklist.addAll(globalBlacklist);
       List<String> black = blacklist.stream()
               .filter(r -> checkGroup(r, group))
               .collect(Collectors.toList());
-      List<String> whitelist = new ArrayList<>(plugin.whitelist());
-      whitelist.addAll(globalWhitelist);
       List<String> white = whitelist.stream()
               .filter(r -> r.equalsIgnoreCase(group))
               .collect(Collectors.toList());

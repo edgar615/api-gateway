@@ -41,6 +41,6 @@ public class RequestTransformerFilterFactory implements FilterFactory {
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new RequestTransformerFilter();
+    return new RequestTransformerFilter(config);
   }
 }

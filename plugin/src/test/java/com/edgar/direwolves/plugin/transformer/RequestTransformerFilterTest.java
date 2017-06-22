@@ -14,6 +14,7 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -48,7 +49,7 @@ public class RequestTransformerFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = new RequestTransformerFilter();
+    filter = new RequestTransformerFilter(new JsonObject());
 
     filters.clear();
     filters.add(filter);
@@ -67,6 +68,91 @@ public class RequestTransformerFilterTest {
     Assert.assertEquals(15000, filter.order());
     Assert.assertEquals(Filter.PRE, filter.type());
   }
+
+  @Test
+  public void testGlobalTransformer(TestContext testContext) {
+
+    JsonObject config = new JsonObject()
+            .put("header.add", new JsonArray().add("gh2:gh2").add( "h1:h1"))
+            .put("header.remove", new JsonArray().add("h3").add( "h4"))
+            .put("header.replace", new JsonArray().add("h5:rh5").add( "h6:rh6"))
+            .put("query.add", new JsonArray().add("q2:q2").add( "q1:q1"))
+            .put("query.remove", new JsonArray().add("q3").add( "q4"))
+            .put("query.replace", new JsonArray().add("q5:rq5").add( "q6:rq6"))
+            .put("body.add", new JsonArray().add("b2:b2").add( "b1:b1"))
+            .put("body.remove", new JsonArray().add("b3").add( "b4"))
+            .put("body.replace", new JsonArray().add("b5:rb5").add( "b6:rb6"));
+    filter = new RequestTransformerFilter(new JsonObject().put("request_transformer", config));
+    filters.clear();
+    filters.add(filter);
+    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                                          "add_device");
+    httpRpcRequest.setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.GET)
+            .setPath("/")
+            .addParam("q3", "q3")
+            .addParam("q5", "q5")
+            .addHeader("h3", "h3")
+            .addHeader("h6", "h6");
+    apiContext.addRequest(httpRpcRequest);
+
+    httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+                                           "update_device");
+    httpRpcRequest.setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("q3", "q3")
+            .addParam("q6", "q6")
+            .addHeader("h3", "h3")
+            .addHeader("h5", "h5");
+    apiContext.addRequest(httpRpcRequest);
+    RequestTransformer transformer = createRequestTransformer();
+
+    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
+            .create(RequestTransformerPlugin.class.getSimpleName());
+    plugin.addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.assertEquals(2, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(3, request.params().size());
+              testContext.assertEquals(4, request.headers().size());
+              testContext.assertFalse(request.params().containsKey("q3"));
+              testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertFalse(request.params().containsKey("q5"));
+              testContext.assertFalse(request.headers().containsKey("h6"));
+              testContext.assertTrue(request.params().containsKey("rq5"));
+              testContext.assertTrue(request.headers().containsKey("rh6"));
+              testContext.assertNull(request.body());
+
+              request = (HttpRpcRequest) context.requests().get(1);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(3, request.params().size());
+              testContext.assertEquals(3, request.headers().size());
+              testContext.assertFalse(request.params().containsKey("q3"));
+              testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertFalse(request.params().containsKey("q6"));
+              testContext.assertFalse(request.headers().containsKey("h5"));
+              testContext.assertTrue(request.params().containsKey("rq6"));
+              testContext.assertTrue(request.headers().containsKey("rh5"));
+              testContext.assertNotNull(request.body());
+              async.complete();
+            }).onFailure(t ->{
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
 
   @Test
   public void testSingleRequestTransformer(TestContext testContext) {
@@ -182,7 +268,7 @@ public class RequestTransformerFilterTest {
               testContext.assertTrue(request.headers().containsKey("h5"));
               testContext.assertFalse(request.params().containsKey("rq6"));
               testContext.assertFalse(request.headers().containsKey("rh5"));
-              testContext.assertNull(request.body());
+              testContext.assertNotNull(request.body());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }

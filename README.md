@@ -11,7 +11,7 @@ TODO:
 
 全局的transformer
 
-请求配额控制QuotaLimit，响应头要说明对应信息
+~~请求配额控制QuotaLimit，响应头要说明对应信息~~
 
 请求频率控制（令牌桶）RateLimit，响应头要说明对应信息
 
@@ -27,6 +27,8 @@ API版本：在响应头中增加API的版本，如果有过期时间说明过�
 
 AppKey的黑名单，白名单（全局、单独）
 
+所有的全局插件配置均可以动态修改
+
 多种类型日志
 暂定的日志事件：
 HttpRpcRequested:内部的HTTP转发
@@ -39,6 +41,8 @@ QuotaExeeded：配额超过
 BreakerTripped：断路器开启
 BreakerReset：断路器重置
 SlowReqDetected：慢请求检查
+
+重写eventbus类型的endpoint
 
 监控
 
@@ -103,7 +107,7 @@ SlowReqDetected：慢请求检查
     "ip.whitelist": ["192.168.1.*"]
 
 # ACL限制
-## Plugin: IpRestriction
+## Plugin: AclRestriction
 对调用API的组（仅检查登录用户）增加白名单和黑名单限制
 
 配置示例：
@@ -158,7 +162,104 @@ SlowReqDetected：慢请求检查
 
     "app.codeKey" : "companyCode"
 
+# Request转换
+## Plugin: RequestTransformerPlugin
+将转发的请求参数按照一定的规则做转换
+
+配置示例：
+
+    "request_transformer": {
+        "name": "alarm_list",
+        "header.add": [
+          "x-auth-userId:$user.userId",
+          "x-auth-companyCode:$user.companyCode",
+          "x-policy-owner:individual"
+        ],
+        "header.remove": [
+          "Authorization"
+        ],
+        "header.replace": [
+          "x-app-verion:x-client-version"
+        ],
+        "query.add": [
+          "userId:$user.userId"
+        ],
+        "query.remove": [
+          "appKey",
+          "nonce"
+        ],
+        "query.replace": [
+          "x-app-verion:x-client-version"
+        ],
+        "body.add": [
+          "userId:$user.userId"
+        ],
+        "body.remove": [
+          "appKey",
+          "nonce"
+        ],
+        "body.replace": [
+          "x-app-verion:x-client-version"
+        ]
+      }
+
+- name endpoint的名称，必填项，只有这个名称的endpoint才会执行参数转换
+- header.remove 数组，需要删除的请求头
+- query.remove 数组，需要删除的请求参数
+- body.remove 数组，需要删除的请求体
+- header.replace 数组，需要重命名的请求头，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- query.replace 数组，需要重命名的请求参数，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- body.replace 数组，需要重命名的请求体，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- header.add 数组，需要增加的请求头，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+- query.add 数组，需要增加的请求参数，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+- body.add 数组，需要增加的请求体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+
+执行的顺序：remove replace add
+
+## Filter: RequestTransformerFilter
+
+- type PRE
+- order 15000
+
+全局参数，对所有的请求都支持的参数转换
+
+      "request_transformer": {
+        "header.add": [
+          "x-auth-userId:$user.userId",
+          "x-auth-companyCode:$user.companyCode",
+          "x-policy-owner:individual"
+        ],
+        "header.remove": [
+          "Authorization"
+        ],
+        "header.replace": [
+          "x-app-verion:x-client-version"
+        ],
+        "query.add": [
+          "userId:$user.userId"
+        ],
+        "query.remove": [
+          "appKey",
+          "nonce"
+        ],
+        "query.replace": [
+          "x-app-verion:x-client-version"
+        ],
+        "body.add": [
+          "userId:$user.userId"
+        ],
+        "body.remove": [
+          "appKey",
+          "nonce"
+        ],
+        "body.replace": [
+          "x-app-verion:x-client-version"
+        ]
+      }
+
 # http请求参数替换
+对所有API都支持
+
 ## Filter: HttpRequestReplaceFilter
 用于将请求参数中的带变量的参数用变量的替换，一般与request_transformer结合使用
 

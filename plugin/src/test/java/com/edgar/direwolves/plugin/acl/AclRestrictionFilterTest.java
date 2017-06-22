@@ -92,11 +92,11 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testGlobalBlackGroupShouldForbidden(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    plugin.addBlacklist("testGroup");
+//    AclRestrictionPlugin plugin =
+//            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+//    plugin.addBlacklist("testGroup");
+//    apiContext.apiDefinition().addPlugin(plugin);
     apiContext.setPrincipal(new JsonObject().put(groupKey, "guest"));
-    apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();

@@ -74,10 +74,10 @@ public class IpRestrictionFilterTest {
 
   @Test
   public void testGlobalBlackIpShouldForbidden(TestContext testContext) {
-    IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
-    plugin.addBlacklist("10.4.7.15");
-    plugin.addBlacklist("192.168.1.100");
-    apiContext.apiDefinition().addPlugin(plugin);
+//    IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
+//    plugin.addBlacklist("10.4.7.15");
+//    plugin.addBlacklist("192.168.1.100");
+//    apiContext.apiDefinition().addPlugin(plugin);
     apiContext.addVariable("request.client_ip", "86.10.1.1");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);

@@ -24,7 +24,11 @@ import java.util.Collection;
  */
 public class RequestTransformerFilter implements Filter {
 
-  RequestTransformerFilter() {
+  private final RequestTransformer globalTransfomer = RequestTransformer.create("global");
+
+  RequestTransformerFilter(JsonObject config) {
+    JsonObject jsonObject = config.getJsonObject("request_transformer", new JsonObject());
+    TransfomerConverter.fromJson(jsonObject, globalTransfomer);
   }
 
   @Override
@@ -42,11 +46,14 @@ public class RequestTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.apiDefinition()
-                   .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
-           && apiContext.requests().size() > 0
-           && apiContext.requests().stream()
+    return   apiContext.requests().size() > 0
+             && apiContext.requests().stream()
                    .anyMatch(e -> e instanceof HttpRpcRequest);
+//    return apiContext.apiDefinition()
+//                   .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
+//           && apiContext.requests().size() > 0;
+//           && apiContext.requests().stream()
+//                   .anyMatch(e -> e instanceof HttpRpcRequest);
   }
 
   @Override
@@ -54,29 +61,36 @@ public class RequestTransformerFilter implements Filter {
     for (int i = 0; i < apiContext.requests().size(); i++) {
       RpcRequest request = apiContext.requests().get(i);
       if (request instanceof HttpRpcRequest) {
+        doTransformer((HttpRpcRequest) request, globalTransfomer);
         transformer(apiContext, (HttpRpcRequest) request);
       }
     }
     completeFuture.complete(apiContext);
   }
 
-
   private void transformer(ApiContext apiContext, HttpRpcRequest request) {
     String name = request.name();
     RequestTransformerPlugin plugin =
             (RequestTransformerPlugin) apiContext.apiDefinition()
                     .plugin(RequestTransformerPlugin.class.getSimpleName());
+    if (plugin == null) {
+      return;
+    }
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
-      Multimap<String, String> params = tranformerParams(request.params(), transformer);
-      request.clearParams().addParams(params);
-      Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
-      request.clearHeaders().addHeaders(headers);
-      if (request.method() == HttpMethod.POST
-          || request.method() == HttpMethod.PUT) {
-        JsonObject body = tranformerBody(request.body(), transformer);
-        request.setBody(body);
-      }
+      doTransformer(request, transformer);
+    }
+  }
+
+  private void doTransformer(HttpRpcRequest request, RequestTransformer transformer) {
+    Multimap<String, String> params = tranformerParams(request.params(), transformer);
+    request.clearParams().addParams(params);
+    Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
+    request.clearHeaders().addHeaders(headers);
+    if (request.method() == HttpMethod.POST
+        || request.method() == HttpMethod.PUT) {
+      JsonObject body = tranformerBody(request.body(), transformer);
+      request.setBody(body);
     }
   }
 
@@ -119,7 +133,7 @@ public class RequestTransformerFilter implements Filter {
     transformer.bodyRemoved().forEach(b -> newBody.remove(b));
     transformer.bodyReplaced().forEach(entry -> {
       if (newBody.containsKey(entry.getKey())) {
-        Object value =  newBody.remove(entry.getKey());
+        Object value = newBody.remove(entry.getKey());
         newBody.put(entry.getValue(), value);
       }
     });
