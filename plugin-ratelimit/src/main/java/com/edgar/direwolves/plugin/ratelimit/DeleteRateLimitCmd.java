@@ -36,14 +36,14 @@ public class DeleteRateLimitCmd implements ApiSubCmd {
   @Override
   public void handle(ApiDefinition definition, JsonObject jsonObject) {
 
-    Validations.validate(jsonObject.getMap(), rules);
-    String type = jsonObject.getString("type");
-    String key = jsonObject.getString("key");
-    RateLimitPlugin plugin =
-            (RateLimitPlugin) definition.plugin(RateLimitPlugin.class.getSimpleName());
-    if (plugin != null) {
-      plugin.removeRateLimit(key, type);
-    }
+//    Validations.validate(jsonObject.getMap(), rules);
+//    String type = jsonObject.getString("type");
+//    String key = jsonObject.getString("key");
+//    RateLimiterPlugin plugin =
+//            (RateLimiterPlugin) definition.plugin(RateLimiterPlugin.class.getSimpleName());
+//    if (plugin != null) {
+//      plugin.removeRateLimiter(key, type);
+//    }
 
   }
 }

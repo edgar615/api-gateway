@@ -9,16 +9,14 @@ import io.vertx.core.json.JsonObject;
  * 流量控制的工厂类.
  * json配置
  * <pre>
- *    "rate_limit" : [
+ *    "rate_limiter" : [
  * {
- * "limit" : 1000,
- * "limit_by" : "token",
- * "type" : "hour"
+ * "burst" : 1000,
+ * "name" : "token"
  * },
  * {
- * "limit" : 100,
- * "limit_by" : "app_key",
- * "type" : "second"
+ * "burst" : 100,
+ * "name" : "device"
  * }
  * ]
  * </pre>
@@ -28,41 +26,39 @@ import io.vertx.core.json.JsonObject;
 public class RateLimitPluginFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("rate_limit")) {
+    if (!jsonObject.containsKey("rate_limiter")) {
       return null;
     }
-    JsonArray jsonArray = jsonObject.getJsonArray("rate_limit", new JsonArray());
-    RateLimitPlugin rateLimitPlugin = new RateLimitPluginImpl();
+    JsonArray jsonArray = jsonObject.getJsonArray("rate_limiter", new JsonArray());
+    RateLimiterPlugin rateLimiterPlugin = new RateLimiterPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {
-      JsonObject rateLimitJson = jsonArray.getJsonObject(i);
-      String type = rateLimitJson.getString("type");
-      String limitBy = rateLimitJson.getString("limit_by");
-      int limit = rateLimitJson.getInteger("limit");
-      rateLimitPlugin.addRateLimit(RateLimit.create(limitBy, type, limit));
+      JsonObject rateLimiterJson = jsonArray.getJsonObject(i);
+      String type = rateLimiterJson.getString("name");
+      long burst = rateLimiterJson.getLong("burst", 0l);
+      rateLimiterPlugin.addRateLimiter(new RateLimiter(type, burst));
     }
-    return rateLimitPlugin;
+    return rateLimiterPlugin;
   }
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    RateLimitPlugin rateLimitPlugin = (RateLimitPlugin) plugin;
-    JsonArray rateLimtArray = new JsonArray();
-    for (RateLimit rateLimit : rateLimitPlugin.rateLimits()) {
-      rateLimtArray.add(new JsonObject()
-                                .put("limit", rateLimit.limit())
-                                .put("limit_by", rateLimit.key())
-                                .put("type", rateLimit.type()));
+    RateLimiterPlugin rateLimiterPlugin = (RateLimiterPlugin) plugin;
+    JsonArray rateLimiterArray = new JsonArray();
+    for (RateLimiter rateLimiter : rateLimiterPlugin.rateLimiters()) {
+      rateLimiterArray.add(new JsonObject()
+                                .put("name", rateLimiter.name())
+                                .put("burst", rateLimiter.burst()));
     }
-    return new JsonObject().put("rate_limit", rateLimtArray);
+    return new JsonObject().put("rate_limiter", rateLimiterArray);
   }
 
   @Override
   public String name() {
-    return RateLimitPlugin.class.getSimpleName();
+    return RateLimiterPlugin.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new RateLimitPluginImpl();
+    return new RateLimiterPluginImpl();
   }
 }

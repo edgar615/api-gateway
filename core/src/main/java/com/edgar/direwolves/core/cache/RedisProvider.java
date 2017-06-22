@@ -79,7 +79,12 @@ public interface RedisProvider {
   void eval(String script, List<String> keys, List<String> args,
             Handler<AsyncResult<JsonArray>> handler);
 
-
+  /**
+   * 请求一个令牌，限流的实现
+   * @param rules 限流规则的集合
+   * @param handler 回调函数
+   */
+  void acquireToken(JsonArray rules, Handler<AsyncResult<JsonArray>> handler);
 
   static RedisProvider create(Vertx vertx, JsonObject config) {
     return factory.create(vertx, config);

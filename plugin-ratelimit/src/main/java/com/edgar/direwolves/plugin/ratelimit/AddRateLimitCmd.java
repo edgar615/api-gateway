@@ -41,20 +41,20 @@ public class AddRateLimitCmd implements ApiSubCmd {
   @Override
   public void handle(ApiDefinition definition, JsonObject jsonObject) {
 
-    Validations.validate(jsonObject.getMap(), rules);
-    String type = jsonObject.getString("type");
-    String key = jsonObject.getString("key");
-    long limit = jsonObject.getLong("limit");
-    RateLimit rateLimit = RateLimit.create(key, type, limit);
-    RateLimitPlugin plugin =
-            (RateLimitPlugin) definition.plugin(RateLimitPlugin.class.getSimpleName());
-    if (plugin != null) {
-      plugin.addRateLimit(rateLimit);
-    } else {
-      plugin = RateLimitPlugin.create();
-      plugin.addRateLimit(rateLimit);
-      definition.addPlugin(plugin);
-    }
+//    Validations.validate(jsonObject.getMap(), rules);
+//    String type = jsonObject.getString("type");
+//    String key = jsonObject.getString("key");
+//    long limit = jsonObject.getLong("limit");
+//    RateLimiterPolicy rateLimit = RateLimiterPolicy.create(key, type, limit);
+//    RateLimiterPlugin plugin =
+//            (RateLimiterPlugin) definition.plugin(RateLimiterPlugin.class.getSimpleName());
+//    if (plugin != null) {
+//      plugin.addRateLimiter(rateLimit);
+//    } else {
+//      plugin = RateLimiterPlugin.create();
+//      plugin.addRateLimiter(rateLimit);
+//      definition.addPlugin(plugin);
+//    }
 
   }
 }

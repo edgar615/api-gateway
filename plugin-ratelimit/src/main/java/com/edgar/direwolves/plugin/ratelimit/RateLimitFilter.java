@@ -12,8 +12,6 @@ import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 /**
  * Created by Edgar on 2017/1/22.
  *
@@ -65,33 +63,32 @@ public class RateLimitFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    RateLimitPlugin plugin =
-            (RateLimitPlugin) apiContext.apiDefinition()
-                    .plugin(RateLimitPlugin.class.getSimpleName());
-    return plugin != null && !plugin.rateLimits().isEmpty();
+    RateLimiterPlugin plugin =
+            (RateLimiterPlugin) apiContext.apiDefinition()
+                    .plugin(RateLimiterPlugin.class.getSimpleName());
+    return plugin != null && !plugin.rateLimiters().isEmpty();
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    if (Strings.isNullOrEmpty(scriptSha1)) {
-      completeFuture.complete(apiContext);
-    } else {
-
-      RateLimitPlugin plugin =
-              (RateLimitPlugin) apiContext.apiDefinition()
-                      .plugin(RateLimitPlugin.class.getSimpleName());
-      List<RateLimit> rateLimits = plugin.rateLimits();
-      for (RateLimit rateLimit : rateLimits) {
-        String type = rateLimit.type();
-        long limit = rateLimit.limit();
-        double rate = 0;
-//        if ("second".equalsIgnoreCase(type)) {
-//          rate = limit;
-//        } else ("minute".equalsIgnoreCase(type)) {
-//          rate = limit / 60;
-//        }
-      }
-
-    }
+//    if (Strings.isNullOrEmpty(scriptSha1)) {
+//      completeFuture.complete(apiContext);
+//    } else {
+//
+//      RateLimiterPlugin plugin =
+//              (RateLimiterPlugin) apiContext.apiDefinition()
+//                      .plugin(RateLimiterPlugin.class.getSimpleName());
+//      List<RateLimiterPolicy> rateLimits = plugin.rateLimits();
+//      for (RateLimiterPolicy rateLimit : rateLimits) {
+//        String type = rateLimit.type();
+//        long limit = rateLimit.limit();
+//        double rate = 0;
+////        if ("second".equalsIgnoreCase(type)) {
+////          rate = limit;
+////        } else ("minute".equalsIgnoreCase(type)) {
+////          rate = limit / 60;
+////        }
+//      }
+//    }
   }
 }
