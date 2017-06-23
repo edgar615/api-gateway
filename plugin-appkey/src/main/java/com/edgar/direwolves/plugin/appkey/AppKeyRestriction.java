@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.ip;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 
@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface IpRestriction extends ApiPlugin {
+public interface AppKeyRestriction extends ApiPlugin {
 
   /**
    * 增加白名单.
@@ -31,7 +31,7 @@ public interface IpRestriction extends ApiPlugin {
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
    * @return IpRestrictionPlugin
    */
-  IpRestriction addWhitelist(String ip);
+  AppKeyRestriction addWhitelist(String ip);
 
   /**
    * 增加黑名单.
@@ -41,7 +41,7 @@ public interface IpRestriction extends ApiPlugin {
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
    * @return IpRestrictionPlugin
    */
-  IpRestriction addBlacklist(String ip);
+  AppKeyRestriction addBlacklist(String ip);
 
   /**
    * 删除白名单.
@@ -49,7 +49,7 @@ public interface IpRestriction extends ApiPlugin {
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
    * @return IpRestrictionPlugin
    */
-  IpRestriction removeWhitelist(String ip);
+  AppKeyRestriction removeWhitelist(String ip);
 
   /**
    * 删除黑名单.
@@ -57,21 +57,21 @@ public interface IpRestriction extends ApiPlugin {
    * @param ip ip地址，未做严格校验.允许使用一个完整的IP地址192.168.1.1或者使用通配符192.168.1.*
    * @return IpRestrictionPlugin
    */
-  IpRestriction removeBlacklist(String ip);
+  AppKeyRestriction removeBlacklist(String ip);
 
   /**
    * 删除所有白名单.
    *
    * @return IpRestrictionPlugin
    */
-  IpRestriction clearWhitelist();
+  AppKeyRestriction clearWhitelist();
 
   /**
    * 删除所有黑名单.
    *
    * @return IpRestrictionPlugin
    */
-  IpRestriction clearBlacklist();
+  AppKeyRestriction clearBlacklist();
 
   /**
    * @return 白名单列表
@@ -83,12 +83,12 @@ public interface IpRestriction extends ApiPlugin {
    */
   List<String> blacklist();
 
-  static IpRestriction create() {
-    return new IpRestrictionImpl();
+  static AppKeyRestriction create() {
+    return new AppKeyRestrictionImpl();
   }
 
   @Override
   default String name() {
-    return IpRestriction.class.getSimpleName();
+    return AppKeyRestriction.class.getSimpleName();
   }
 }

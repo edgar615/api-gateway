@@ -28,7 +28,7 @@
     "name" : "companies",
     "query.add" : [ "state:1" ]
   } ],
-  "ip_restriction" : {
+  "ip.restriction" : {
       "whitelist" : ["127.0.0.1"],
       "blacklist" : ["*"]
    }

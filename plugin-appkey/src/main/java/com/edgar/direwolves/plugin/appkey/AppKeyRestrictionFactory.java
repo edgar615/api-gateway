@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.ip;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
@@ -9,17 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * IP控制策略的工厂类.
+ * AppKey控制策略的工厂类.
  *
  * @author Edgar  Date 2016/10/21
  */
-public class IpRestrictionFactory implements ApiPluginFactory {
+public class AppKeyRestrictionFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("ip.restriction")) {
+    if (!jsonObject.containsKey("appkey.restriction")) {
       return null;
     }
-    JsonObject config = jsonObject.getJsonObject("ip.restriction", new JsonObject());
+    JsonObject config = jsonObject.getJsonObject("appkey.restriction", new JsonObject());
     JsonArray whiteArray = config.getJsonArray("whitelist", new JsonArray());
     JsonArray blackArray = config.getJsonArray("blacklist", new JsonArray());
     List<String> whitelist = new ArrayList<>();
@@ -31,7 +31,7 @@ public class IpRestrictionFactory implements ApiPluginFactory {
       blacklist.add(blackArray.getString(i));
     }
 
-    IpRestriction aclRestriction = new IpRestrictionImpl();
+    AppKeyRestriction aclRestriction = new AppKeyRestrictionImpl();
     whitelist.forEach(w -> aclRestriction.addWhitelist(w));
     blacklist.forEach(b -> aclRestriction.addBlacklist(b));
     return aclRestriction;
@@ -39,19 +39,19 @@ public class IpRestrictionFactory implements ApiPluginFactory {
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    IpRestriction ipRestriction = (IpRestriction) plugin;
-    return new JsonObject().put("ip.restriction", new JsonObject()
-            .put("whitelist", new JsonArray(ipRestriction.whitelist()))
-            .put("blacklist", new JsonArray(ipRestriction.blacklist())));
+    AppKeyRestriction appKeyRestriction = (AppKeyRestriction) plugin;
+    return new JsonObject().put("appkey.restriction", new JsonObject()
+            .put("whitelist", new JsonArray(appKeyRestriction.whitelist()))
+            .put("blacklist", new JsonArray(appKeyRestriction.blacklist())));
   }
 
   @Override
   public String name() {
-    return IpRestriction.class.getSimpleName();
+    return AppKeyRestriction.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new IpRestrictionImpl();
+    return new AppKeyRestrictionImpl();
   }
 }

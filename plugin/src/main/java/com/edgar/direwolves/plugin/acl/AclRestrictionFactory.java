@@ -16,10 +16,10 @@ import java.util.List;
 public class AclRestrictionFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("acl_restriction")) {
+    if (!jsonObject.containsKey("acl.restriction")) {
       return null;
     }
-    JsonObject args = jsonObject.getJsonObject("acl_restriction", new JsonObject());
+    JsonObject args = jsonObject.getJsonObject("acl.restriction", new JsonObject());
     JsonArray whiteArray = args.getJsonArray("whitelist", new JsonArray());
     JsonArray blackArray = args.getJsonArray("blacklist", new JsonArray());
     List<String> whitelist = new ArrayList<>();
@@ -40,7 +40,7 @@ public class AclRestrictionFactory implements ApiPluginFactory {
   @Override
   public JsonObject encode(ApiPlugin plugin) {
     AclRestrictionPlugin aclRestrictionPlugin = (AclRestrictionPlugin) plugin;
-    return new JsonObject().put("acl_restriction", new JsonObject()
+    return new JsonObject().put("acl.restriction", new JsonObject()
             .put("whitelist", new JsonArray(aclRestrictionPlugin.whitelist()))
             .put("blacklist", new JsonArray(aclRestrictionPlugin.blacklist())));
   }

@@ -21,7 +21,7 @@ public class IpRestrictionTest {
             .put("blacklist", new JsonArray().add("127.0.0.1"));
     ApiPluginFactory factory = new IpRestrictionFactory();
     IpRestriction ip = (IpRestriction) factory.decode(new JsonObject()
-                                              .put("ip_restriction", jsonObject));
+                                              .put("ip.restriction", jsonObject));
     Assert.assertEquals(2, ip.whitelist().size());
     Assert.assertEquals(1, ip.blacklist().size());
   }
@@ -39,8 +39,8 @@ public class IpRestrictionTest {
 
     JsonObject jsonObject = ip.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("ip_restriction"));
-    JsonObject config = jsonObject.getJsonObject("ip_restriction");
+    Assert.assertTrue(jsonObject.containsKey("ip.restriction"));
+    JsonObject config = jsonObject.getJsonObject("ip.restriction");
     JsonArray blacklist = config.getJsonArray("blacklist");
     JsonArray whitelist = config.getJsonArray("whitelist");
     Assert.assertEquals(2, blacklist.size());

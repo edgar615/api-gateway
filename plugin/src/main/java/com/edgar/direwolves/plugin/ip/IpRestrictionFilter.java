@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * .client_ip</code>变量，如果这个IP属于白名单，直接允许访问（不在考虑黑名单）；如果这个IP属于黑名单，直接返回1004的错误.
  * <p>
  * <p>
- * 该filter的order=100
+ * 该filter的order=5
  * <p>
  * 该filter可以接受下列的配置参数
  * <pre>
@@ -55,7 +55,7 @@ public class IpRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 100;
+    return 5;
   }
 
   @Override

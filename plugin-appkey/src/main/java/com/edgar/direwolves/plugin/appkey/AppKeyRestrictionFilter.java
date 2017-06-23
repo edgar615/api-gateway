@@ -1,4 +1,7 @@
-package com.edgar.direwolves.plugin.acl;
+package com.edgar.direwolves.plugin.appkey;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -13,36 +16,36 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * ACL限制的filter.
- * 该filter从API上下文中读取读取调用方的group（角色），<code>user.group</code>变量，
- * 如果这个角色属于白名单，直接允许访问（不在考虑黑名单）；如果这个角色属于黑名单，直接返回1004的错误.
- * 如果没有user.group变量，直接返回1004的错误.
+ * AppKey限制的filter.
+ * 该filter从API上下文中读取读取调用方的appKey，<code>app
+ * .appKey</code>变量，如果这个appKey属于白名单，直接允许访问（不在考虑黑名单）；如果这个appKey属于黑名单，直接返回1004的错误.
  * <p>
- * *</pre>
- * *该filter可以接受下列的配置参数
+ * <p>
+ * 该filter的order=11
+ * <p>
+ * 该filter可以接受下列的配置参数
  * <pre>
- * user.groupKey 用户组的键值，默认值group
+ *   appkey.blacklist 全局的黑名单
+ *  appkey.whitelist 全局的白名单
  * </pre>
- * 该filter的order=1100
  * Created by edgar on 16-12-24.
  */
-public class AclRestrictionFilter implements Filter {
+public class AppKeyRestrictionFilter implements Filter {
+
   private final List<String> globalBlacklist = new ArrayList<>();
 
   private final List<String> globalWhitelist = new ArrayList<>();
 
-  private final String groupKey;
 
-  public AclRestrictionFilter(JsonObject config) {
-    JsonArray blackArray = config.getJsonArray("acl.blacklist", new JsonArray());
-    JsonArray whiteArray = config.getJsonArray("acl.whitelist", new JsonArray());
+  public AppKeyRestrictionFilter(JsonObject config) {
+    JsonArray blackArray = config.getJsonArray("appkey.blacklist", new JsonArray());
+    JsonArray whiteArray = config.getJsonArray("appkey.whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {
       globalBlacklist.add(blackArray.getString(i));
     }
     for (int i = 0; i < whiteArray.size(); i++) {
       globalWhitelist.add(whiteArray.getString(i));
     }
-    this.groupKey = config.getString("user.groupKey", "group");
   }
 
   @Override
@@ -52,43 +55,39 @@ public class AclRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 1100;
+    return 11;
   }
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.principal() == null) {
+    if (!apiContext.variables().containsKey("app.appKey")) {
       return true;
     }
     return !globalBlacklist.isEmpty()
            || !globalWhitelist.isEmpty()
-           ||  apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
+           || apiContext.apiDefinition().plugin(AppKeyRestriction.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    AclRestrictionPlugin plugin = (AclRestrictionPlugin) apiContext.apiDefinition()
-            .plugin(AclRestrictionPlugin.class.getSimpleName());
+    AppKeyRestriction plugin = (AppKeyRestriction) apiContext.apiDefinition()
+            .plugin(AppKeyRestriction.class.getSimpleName());
     List<String> blacklist = new ArrayList<>(globalBlacklist);
     List<String> whitelist = new ArrayList<>(globalWhitelist);
     if (plugin != null) {
       blacklist.addAll(plugin.blacklist());
       whitelist.addAll(plugin.whitelist());
     }
-    if (apiContext.principal() == null) {
-      completeFuture.complete(apiContext);
-      return;
-    }
-    String group = apiContext.principal().getString(groupKey, "anonymous");
+    String appKey = (String) apiContext.variables().getOrDefault("app.appKey", "anonymous");
     List<String> black = blacklist.stream()
-            .filter(r -> checkGroup(r, group))
+            .filter(r -> checkGroup(r, appKey))
             .collect(Collectors.toList());
     List<String> white = whitelist.stream()
-            .filter(r -> checkGroup(r, group))
+            .filter(r -> checkGroup(r, appKey))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
       completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-                                  .set("details", "The group is forbidden"));
+                                  .set("details", "The appKey is forbidden"));
     } else {
       completeFuture.complete(apiContext);
     }
@@ -101,5 +100,4 @@ public class AclRestrictionFilter implements Filter {
     }
     return rule.equalsIgnoreCase(group);
   }
-
 }

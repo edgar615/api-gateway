@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.acl;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
@@ -12,7 +12,7 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class AclRestrictionPluginTest {
+public class AppKeyRestrictionPluginTest {
 
   @Test
   public void testDecode() {
@@ -20,17 +20,17 @@ public class AclRestrictionPluginTest {
             .put("whitelist", new JsonArray().add("super").add("admin"))
             .put("blacklist", new JsonArray().add("user"));
     JsonObject jsonObject = new JsonObject()
-            .put("acl.restriction", config);
-    ApiPluginFactory factory = new AclRestrictionFactory();
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) factory.decode(jsonObject);
+            .put("appkey.restriction", config);
+    ApiPluginFactory factory = new AppKeyRestrictionFactory();
+    AppKeyRestriction acl = (AppKeyRestriction) factory.decode(jsonObject);
     Assert.assertEquals(2, acl.whitelist().size());
     Assert.assertEquals(1, acl.blacklist().size());
   }
 
   @Test
   public void testEncode() {
-    ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
+    AppKeyRestriction acl = (AppKeyRestriction) plugin;
     acl.addWhitelist("user")
             .addBlacklist("super")
             .addBlacklist("admin");
@@ -39,8 +39,8 @@ public class AclRestrictionPluginTest {
 
     JsonObject jsonObject = acl.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("acl.restriction"));
-    JsonObject config = jsonObject.getJsonObject("acl.restriction");
+    Assert.assertTrue(jsonObject.containsKey("appkey.restriction"));
+    JsonObject config = jsonObject.getJsonObject("appkey.restriction");
     JsonArray blacklist = config.getJsonArray("blacklist");
     JsonArray whitelist = config.getJsonArray("whitelist");
     Assert.assertEquals(2, blacklist.size());
@@ -49,8 +49,8 @@ public class AclRestrictionPluginTest {
 
   @Test
   public void testRemove() {
-    ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
+    AppKeyRestriction acl = (AppKeyRestriction) plugin;
     acl.addWhitelist("user")
             .addBlacklist("super")
             .addBlacklist("admin");
@@ -65,8 +65,8 @@ public class AclRestrictionPluginTest {
 
   @Test
   public void testRemoveAll() {
-    ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
+    AppKeyRestriction acl = (AppKeyRestriction) plugin;
     acl.addWhitelist("user")
             .addBlacklist("super")
             .addBlacklist("admin");

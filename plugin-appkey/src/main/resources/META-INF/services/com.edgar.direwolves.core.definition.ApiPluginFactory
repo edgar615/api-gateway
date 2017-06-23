@@ -1,3 +1,4 @@
 com.edgar.direwolves.plugin.appkey.AppKeyPluginFactory
 com.edgar.direwolves.plugin.appkey.AppKeyUpdatePluginFactory
 com.edgar.direwolves.plugin.appkey.AppCodeVertifyPluginFactory
+com.edgar.direwolves.plugin.appkey.AppKeyRestrictionFactory

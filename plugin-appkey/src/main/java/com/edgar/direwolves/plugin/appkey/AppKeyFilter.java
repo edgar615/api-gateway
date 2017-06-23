@@ -269,6 +269,7 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
                                 apiContext.headers(), newParams, apiContext.body
                               ());
       ApiContext.copyProperites(apiContext, newContext);
+      newContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
       newContext.addVariable("app.code", app.getInteger(codeKey, 0));
       newContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
       completeFuture.complete(newContext);

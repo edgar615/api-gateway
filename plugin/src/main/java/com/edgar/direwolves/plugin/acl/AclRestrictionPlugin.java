@@ -7,14 +7,14 @@ import java.util.List;
 /**
  * ACL限制策略.
  * <p>
- * 该插件对应的JSON配置的key为<b>acl_restriction</b>，它有两个属性:
+ * 该插件对应的JSON配置的key为<b>acl.restriction</b>，它有两个属性:
  * <pre>
  *   whitelist 白名单列表
  *   blacklist 黑名单列表
  * </pre>
  * json配置:
  * <pre>
- * "acl_restriction" : {
+ * "acl.restriction" : {
  *    "whitelist" : ["group1", "group2"],
  *    "blacklist" : ["guest"]
  * }

@@ -9,12 +9,6 @@ TODO:
 
 将缓存部分实现redis和clustermap（localmap）两种模式
 
-全局的transformer
-
-~~请求配额控制QuotaLimit，响应头要说明对应信息~~
-
-请求频率控制（令牌桶）RateLimit，响应头要说明对应信息
-
 request size limit(全局和单独)：限制过大流量的请求
 
 request termination 中断请求，用来做后端接口的升级维护
@@ -80,7 +74,7 @@ SlowReqDetected：慢请求检查
 
 配置示例：
 
-    "ip_restriction" : {
+    "ip.restriction" : {
          "whitelist" : ["192.168.0.1", "10.4.7.*"],
          "blacklist" : ["192.168.0.100"]
     }
@@ -94,7 +88,7 @@ SlowReqDetected：慢请求检查
 调用方的ip从上下文读取`request.client_ip`变量
 
 - type PRE
-- order 100
+- order 5
 
 全局参数
 
@@ -106,13 +100,46 @@ SlowReqDetected：慢请求检查
     "ip.blacklist": ["10.4.7.15"],
     "ip.whitelist": ["192.168.1.*"]
 
+# AppKey限制
+## Plugin: AppKeyRestriction
+对调用API的调用方，增加白名单和黑名单限制
+
+配置示例：
+
+    "appkey.restriction" : {
+         "whitelist" : ["mv44GDQTqOAswwysqYsb", "bZfCBHyDnzf4lnYtGBEC],
+         "blacklist" : ["BzOCHhUkIdPUXYjQiWth"]
+    }
+
+- whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+
+禁止访问对调用方会返回1004的错误码
+
+## Filter: AppKeyRestrictionFilter
+调用方的appKey从上下文读取`app.appKey`变量。如果是没有定义appKey，永远成功，所以这个拦截器要放在AppKey校验的后面
+
+- type PRE
+- order 1100
+
+全局参数
+
+    "appkey.blacklist": [],
+    "appkey.whitelist": []
+
+示例
+
+    "appkey.blacklist": ["guest"],
+    "appkey.whitelist": ["user"]
+
+
 # ACL限制
 ## Plugin: AclRestriction
 对调用API的组（仅检查登录用户）增加白名单和黑名单限制
 
 配置示例：
 
-    "acl_restriction" : {
+    "acl.restriction" : {
          "whitelist" : ["group1", "group2],
          "blacklist" : [guest]
     }
@@ -123,7 +150,7 @@ SlowReqDetected：慢请求检查
 禁止访问对调用方会返回1004的错误码
 
 ## Filter: AclRestrictionFilter
-调用方的ip从上下文读取`user.group`变量
+调用方的ip从上下文读取`user.group`变量。如果是未登陆用户，永远成功，所以这个拦截器要放在身份认证的后面
 
 - type PRE
 - order 1100

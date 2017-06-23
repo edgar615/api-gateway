@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.acl;
+package com.edgar.direwolves.plugin.appkey;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -32,7 +32,7 @@ import java.util.UUID;
  * Created by edgar on 16-10-28.
  */
 @RunWith(VertxUnitRunner.class)
-public class AclRestrictionFilterTest {
+public class AppKeyRestrictionFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -59,23 +59,22 @@ public class AclRestrictionFilterTest {
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    apiContext.setPrincipal(new JsonObject().put(groupKey, "testGroup"));
+    apiContext.addVariable("app.appKey", "testGroup");
 
-    filter = Filter.create(AclRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("acl.blacklist", new JsonArray().add("guest"))
-                                   .put("acl.whitelist", new JsonArray().add("group1"))
-                                   .put("user.groupKey", groupKey));
+    filter = Filter.create(AppKeyRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
+                           new JsonObject().put("appkey.blacklist", new JsonArray().add("guest"))
+                                   .put("appkey.whitelist", new JsonArray().add("group1")));
 
     filters.clear();
     filters.add(filter);
   }
 
   @Test
-  public void testNoGroupShouldSuccess(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+  public void testNoAppKeyShouldSuccess(TestContext testContext) {
+    AppKeyRestriction plugin =
+            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
-    apiContext.setPrincipal(null);
+    apiContext.variables().remove("app.appKey");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -84,21 +83,17 @@ public class AclRestrictionFilterTest {
             .andThen(context -> {
               async.complete();
             }).onFailure(t -> {
-      t.printStackTrace();
       testContext.fail();
-//      SystemException ex = (SystemException) t;
-//      testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
-//      async.complete();
     });
   }
 
   @Test
   public void testGlobalBlackGroupShouldForbidden(TestContext testContext) {
-//    AclRestrictionPlugin plugin =
-//            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+//    AppKeyRestriction plugin =
+//            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
 //    plugin.addBlacklist("testGroup");
 //    apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.setPrincipal(new JsonObject().put(groupKey, "guest"));
+    apiContext.addVariable("app.appKey", "guest");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -114,10 +109,10 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testGlobalWhiteShouldAlwaysAllow(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AppKeyRestriction plugin =
+            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("group1");
-    apiContext.setPrincipal(new JsonObject().put(groupKey, "group1"));
+    apiContext.addVariable("app.appKey", "group1");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -132,8 +127,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testBlackGroupShouldForbidden(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AppKeyRestriction plugin =
+            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -151,8 +146,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testWildcardBlackShouldForbidden(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AppKeyRestriction plugin =
+            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("*");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -170,8 +165,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testWhiteShouldAlwaysAllow(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AppKeyRestriction plugin =
+            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     plugin.addWhitelist("testGroup");
     apiContext.apiDefinition().addPlugin(plugin);
@@ -188,8 +183,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testWildcardWhiteShouldAlwaysAllow(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AppKeyRestriction plugin =
+            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     plugin.addWhitelist("*");
     Task<ApiContext> task = Task.create();
