@@ -1,5 +1,5 @@
 {
-  "request_transformer": {
+  "request.transformer": {
     "header.add": [
       "x-auth-userId:$user.userId",
       "x-auth-companyCode:$user.companyCode",

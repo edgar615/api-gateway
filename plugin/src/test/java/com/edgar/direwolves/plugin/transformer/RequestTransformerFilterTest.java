@@ -82,7 +82,7 @@ public class RequestTransformerFilterTest {
             .put("body.add", new JsonArray().add("b2:b2").add( "b1:b1"))
             .put("body.remove", new JsonArray().add("b3").add( "b4"))
             .put("body.replace", new JsonArray().add("b5:rb5").add( "b6:rb6"));
-    filter = new RequestTransformerFilter(new JsonObject().put("request_transformer", config));
+    filter = new RequestTransformerFilter(new JsonObject().put("request.transformer", config));
     filters.clear();
     filters.add(filter);
     HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),

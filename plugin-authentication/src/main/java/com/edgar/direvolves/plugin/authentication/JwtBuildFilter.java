@@ -24,7 +24,7 @@ import java.util.UUID;
  * 在校验通过之后，会在上下文中存入用户信息:
  * * 该filter可以接受下列的配置参数
  * <pre>
- *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ *   namespace 项目的命名空间，用来避免多个项目冲突，默认值""
  *   keystore.path 证书的路径，默认值keystore.jceks
  *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
  *   keystore.password 证书的密码，默认值secret
@@ -106,7 +106,7 @@ public class JwtBuildFilter implements Filter {
     }
     this.expires = config.getInteger("token.expires", 1800);
     this.userKey = config.getString("jwt.userClaimKey", "userId");
-    this.namespace = config.getString("project.namespace", "");
+    this.namespace = config.getString("namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;

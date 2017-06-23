@@ -74,7 +74,7 @@ public class ResponseTranformerFilterTest {
             .put("body.add", new JsonArray().add("b2:b2").add( "b1:b1"))
             .put("body.remove", new JsonArray().add("b3").add( "b4"))
             .put("body.replace", new JsonArray().add("b5:rb5").add( "b6:rb6"));
-    filter = new ResponseTransformerFilter(new JsonObject().put("response_transformer", config));
+    filter = new ResponseTransformerFilter(new JsonObject().put("response.transformer", config));
     filters.clear();
     filters.add(filter);
 

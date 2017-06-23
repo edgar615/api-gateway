@@ -4,7 +4,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 
 /**
  * 请求参数校验的插件.
- * 该插件对应的JSON配置的key为<b>url_arg</b>，它的值是一个json数组，数组中的每个元素包括三个属性:
+ * 该插件对应的JSON配置的key为<b>url.arg</b>，它的值是一个json数组，数组中的每个元素包括三个属性:
  * <pre>
  *   name 参数名称
  *   default_value 参数的默认值，如果请求的参数为null，使用默认值代替，默认值null
@@ -12,7 +12,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
  * </pre>
  * json配置:
  * <pre>
- * "url_arg" : [
+ * "url.arg" : [
  * {
  * "name" : "limit",
  * "default_value" : 10,

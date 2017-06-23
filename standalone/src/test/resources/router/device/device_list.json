@@ -5,7 +5,7 @@
   "authentication" : true,
   "scope" : "device:read",
   "appkey" : true,
-  "url_arg" : [ {
+  "url.arg" : [ {
     "name" : "limit",
     "default_value" : 10,
     "rules" : {
@@ -52,7 +52,7 @@
     "type" : "http",
     "path" : "/devices"
   } ],
-  "request_transformer" : [ {
+  "request.transformer" : [ {
     "name" : "query_device",
     "query.add" : [ "userId:$user.userId" ]
   } ]

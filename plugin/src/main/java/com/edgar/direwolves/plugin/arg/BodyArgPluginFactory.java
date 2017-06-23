@@ -15,7 +15,7 @@ import java.util.List;
  * <p>
  * Json配置
  * <Pre>
- * "body_arg" : [
+ * "body.arg" : [
  * {
  * "name" : "encryptKey",
  * "rules" : {
@@ -62,10 +62,10 @@ public class BodyArgPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("body_arg")) {
+    if (!jsonObject.containsKey("body.arg")) {
       return null;
     }
-    JsonArray jsonArray = jsonObject.getJsonArray("body_arg", new JsonArray());
+    JsonArray jsonArray = jsonObject.getJsonArray("body.arg", new JsonArray());
     BodyArgPlugin bodyArgPlugin = new BodyArgPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject parameterJson = jsonArray.getJsonObject(i);
@@ -89,7 +89,7 @@ public class BodyArgPluginFactory implements ApiPluginFactory {
     BodyArgPlugin bodyArgPlugin = (BodyArgPlugin) plugin;
 
     return new JsonObject()
-            .put("body_arg", createParamterArray(bodyArgPlugin.parameters()));
+            .put("body.arg", createParamterArray(bodyArgPlugin.parameters()));
   }
 
   private JsonArray createParamterArray(List<Parameter> parameters) {

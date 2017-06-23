@@ -152,6 +152,10 @@ public class RedisProviderVertxProxyHandler extends ProxyHandler {
           service.eval((java.lang.String)json.getValue("script"), convertList(json.getJsonArray("keys").getList()), convertList(json.getJsonArray("args").getList()), createHandler(msg));
           break;
         }
+        case "acquireToken": {
+          service.acquireToken((io.vertx.core.json.JsonArray)json.getValue("rules"), createHandler(msg));
+          break;
+        }
 
         default: {
           throw new IllegalStateException("Invalid action: " + action);

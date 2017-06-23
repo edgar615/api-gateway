@@ -7,9 +7,6 @@ import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Created by Edgar on 2016/10/21.
  *
@@ -21,10 +18,10 @@ public class RateLimiterPluginTest {
   public void testDecode() {
     JsonArray jsonArray = new JsonArray();
     JsonObject jsonObject = new JsonObject()
-            .put("rate_limiter", jsonArray);
+            .put("rate.limiter", jsonArray);
     jsonArray.add(new JsonObject().put("name", "second")
                           .put("burst", 100));
-    ApiPluginFactory factory = new RateLimitPluginFactory();
+    ApiPluginFactory factory = new RateLimiterPluginFactory();
     RateLimiterPlugin plugin = (RateLimiterPlugin) factory.decode(jsonObject);
     Assert.assertEquals(1, plugin.rateLimiters().size());
     Assert.assertEquals(100, plugin.rateLimiters().get(0).burst());
@@ -39,8 +36,8 @@ public class RateLimiterPluginTest {
     rateLimiterPlugin.addRateLimiter(new RateLimiter("user", 10000));
     Assert.assertEquals(2, rateLimiterPlugin.rateLimiters().size());
     JsonObject jsonObject = rateLimiterPlugin.encode();
-    Assert.assertTrue(jsonObject.containsKey("rate_limiter"));
-    JsonArray jsonArray = jsonObject.getJsonArray("rate_limiter");
+    Assert.assertTrue(jsonObject.containsKey("rate.limiter"));
+    JsonArray jsonArray = jsonObject.getJsonArray("rate.limiter");
     Assert.assertEquals(2, jsonArray.size());
     System.out.println(jsonObject);
   }

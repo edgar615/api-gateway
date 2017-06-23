@@ -15,7 +15,7 @@ import io.vertx.core.json.JsonObject;
  * EventBus类型的endpoint需要经过这个Filter转换为RpcRequest.
  * <p>
  * 请求头中的header将被忽略，如果是GET或DELETE请求，会将message设置为一个空JSON {}．
- * 然后再通过request_transformer插件将请求参数添加到message中
+ * 然后再通过request.transformer插件将请求参数添加到message中
  *
  * @author Edgar  Date 2016/11/18
  */

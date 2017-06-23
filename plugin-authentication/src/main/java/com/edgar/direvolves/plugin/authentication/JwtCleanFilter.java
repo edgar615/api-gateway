@@ -40,7 +40,7 @@ public class JwtCleanFilter implements Filter {
   JwtCleanFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.userKey = config.getString("jwt.userClaimKey", "userId");
-    this.namespace = config.getString("project.namespace", "");
+    this.namespace = config.getString("namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;

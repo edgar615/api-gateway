@@ -12,7 +12,7 @@
       "path": "/login"
     }
   ],
-  "body_arg": [
+  "body.arg": [
     {
       "name": "username",
       "rules": {
@@ -41,7 +41,7 @@
       }
     }
   ],
-  "request_transformer": [
+  "request.transformer": [
   {
     "name": "user_login",
     "body.add": [
@@ -49,10 +49,10 @@
     ]
   }
 ],
-  "response_transformer": {
+  "response.transformer": {
     "body.add": [
       "role:user"
     ]
   },
-  "jwt_build": true
+  "jwt.build": true
 }

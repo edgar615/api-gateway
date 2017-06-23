@@ -79,7 +79,7 @@ public class AppKeyFilterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("app.secretKey", secretKey)
             .put("app.codeKey", codeKey)
-            .put("project.namespace", namespace));
+            .put("namespace", namespace));
     filters.clear();
     filters.add(filter);
 
@@ -287,7 +287,7 @@ public class AppKeyFilterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("app.secretKey", secretKey)
             .put("app.codeKey", codeKey)
-            .put("project.namespace", namespace)
+            .put("namespace", namespace)
             .put("app.origin", new JsonArray()
                     .add(origin)));
     filters.clear();

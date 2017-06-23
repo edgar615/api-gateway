@@ -22,7 +22,7 @@ public class BackendVertifyPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("backend_vertify", false)) {
+    if (jsonObject.getBoolean("backend.vertify", false)) {
       return new BackendVertifyPlugin();
     }
     return null;
@@ -33,6 +33,6 @@ public class BackendVertifyPluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    return new JsonObject().put("backend_vertify", true);
+    return new JsonObject().put("backend.vertify", true);
   }
 }

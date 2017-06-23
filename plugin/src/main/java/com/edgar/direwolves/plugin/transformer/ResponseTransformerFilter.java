@@ -28,7 +28,7 @@ public class ResponseTransformerFilter implements Filter {
   private final ResponseTransformerPlugin globalPlugin = new ResponseTransformerPluginImpl();
 
   ResponseTransformerFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("response_transformer", new JsonObject());
+    JsonObject jsonObject = config.getJsonObject("response.transformer", new JsonObject());
     ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
   }
 

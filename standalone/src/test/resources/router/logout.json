@@ -14,5 +14,5 @@
       }
     }
   ],
-  "jwt_clean": true
+  "jwt.clean": true
 }

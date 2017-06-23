@@ -22,7 +22,7 @@ public class BackendAuthCodePluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("backend_code", false)) {
+    if (jsonObject.getBoolean("backend.code", false)) {
       return new BackendAuthCodePlugin();
     }
     return null;
@@ -33,6 +33,6 @@ public class BackendAuthCodePluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    return new JsonObject().put("backend_code", true);
+    return new JsonObject().put("backend.code", true);
   }
 }

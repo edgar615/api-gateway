@@ -16,7 +16,7 @@
       }
     }
   ],
-  "body_arg": [
+  "body.arg": [
     {
       "name": "username",
       "rules": {
@@ -34,6 +34,6 @@
       }
     }
   ],
-  "backend_vertify" : true,
-  "jwt_build": true
+  "backend.vertify" : true,
+  "jwt.build": true
 }

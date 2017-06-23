@@ -41,7 +41,7 @@ import java.util.Map;
  * </pre>
  * * 该filter可以接受下列的配置参数
  * <pre>
- *   project.namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ *   namespace 项目的命名空间，用来避免多个项目冲突，默认值""
  *   app.secretKey 密钥的键值，默认值appSecret
  *   app.codeKey 编码的键值，默认值appCode
  *   app.permissionKey 权限的键值，默认值permissions
@@ -145,7 +145,7 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     optionalRule.add("MD5");
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
-    this.namespace = config.getString("project.namespace", "");
+    this.namespace = config.getString("namespace", "");
     String address = RedisProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;

@@ -24,11 +24,11 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("response_transformer")) {
+    if (!jsonObject.containsKey("response.transformer")) {
       return null;
     }
     ResponseTransformerPlugin plugin = new ResponseTransformerPluginImpl();
-    JsonObject resp = jsonObject.getJsonObject("response_transformer");
+    JsonObject resp = jsonObject.getJsonObject("response.transformer");
     ResponseTransformerConverter.fromJson(resp, plugin);
 
     return plugin;
@@ -37,7 +37,7 @@ public class ResponseTransformerPluginFactory implements ApiPluginFactory {
   @Override
   public JsonObject encode(ApiPlugin plugin) {
     ResponseTransformerPlugin transformerPlugin = (ResponseTransformerPlugin) plugin;
-    return new JsonObject().put("response_transformer", toJson(transformerPlugin));
+    return new JsonObject().put("response.transformer", toJson(transformerPlugin));
   }
 
   private JsonObject toJson(ResponseTransformerPlugin transformer) {

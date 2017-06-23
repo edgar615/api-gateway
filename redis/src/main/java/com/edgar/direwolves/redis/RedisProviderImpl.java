@@ -11,6 +11,7 @@ import io.vertx.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +29,7 @@ public class RedisProviderImpl implements RedisProvider {
 
   RedisProviderImpl(Vertx vertx, RedisClient redisClient, Future<Void> completed) {
     this.redisClient = redisClient;
-    vertx.fileSystem().readFile("multi_token_bucket.lua", res -> {
+    vertx.fileSystem().readFile("lua/multi_token_bucket.lua", res -> {
       if (res.failed()) {
         completed.fail(res.cause());
         return;
@@ -44,14 +45,6 @@ public class RedisProviderImpl implements RedisProvider {
         }
       });
     });
-//    redisClient
-//        .subscribeMany(Arrays.asList(EXPIRED_SUB, DEL_SUB), res -> {
-//          if (res.succeeded()) {
-//            LOGGER.info("sub {}", res.result());
-//          } else {
-//            LOGGER.error("sub error {}", res.cause().getMessage());
-//          }
-//        });
   }
 
   @Override
@@ -117,19 +110,70 @@ public class RedisProviderImpl implements RedisProvider {
   }
 
   @Override
-  public void acquireToken(JsonArray rules, Handler<AsyncResult<JsonArray>> handler) {
+  public void acquireToken(JsonArray rules, Handler<AsyncResult<JsonObject>> handler) {
     if (tokenBucketScript == null) {
       handler.handle(Future.failedFuture("lua is not loaded yet"));
       return;
     }
-//    redisClient.evalsha(luaScript, keys, args, ar -> {
-//      if (ar.failed()) {
-//        ar.cause().printStackTrace();
-//        LOGGER.error("eval lua failed", ar.cause());
-//        handler.handle(Future.failedFuture("eval lua failed"));
-//        return;
-//      }
-//      handler.handle(Future.succeededFuture(ar.result()));
-//    });
+    if (rules.size() == 0) {
+      handler.handle(Future.failedFuture("rules cannot empty"));
+    }
+    JsonArray limitArray = new JsonArray();
+    for (int i = 0; i < rules.size(); i++) {
+      JsonObject rule = rules.getJsonObject(i);
+      try {
+        limitArray.add(new JsonArray().add(rule.getString("subject"))
+                               .add(rule.getLong("burst"))
+                               .add(rule.getLong("refillTime"))
+                               .add(rule.getLong("refillAmount")));
+      } catch (Exception e) {
+        handler.handle(Future.failedFuture(e));
+      }
+    }
+    List<String> keys = new ArrayList<>();
+    List<String> args = new ArrayList<>();
+    args.add(limitArray.encode());
+    args.add(System.currentTimeMillis() + "");
+    args.add("1");
+    redisClient.evalsha(tokenBucketScript, keys, args, ar -> {
+      if (ar.failed()) {
+        ar.cause().printStackTrace();
+        LOGGER.error("eval lua failed", ar.cause());
+        handler.handle(Future.failedFuture("eval lua failed"));
+        return;
+      }
+      createResult(ar.result(), rules, handler);
+    });
+  }
+
+  private void createResult(JsonArray jsonArray, JsonArray rules,
+                           Handler<AsyncResult<JsonObject>> handler) {
+    if (jsonArray.size() % 4 != 0) {
+      handler.handle(Future.failedFuture("The result must be a multiple of 4"));
+    }
+    boolean passed = true;
+    try {
+      List<JsonObject> details = new ArrayList<>();
+      for (int i = 0; i < jsonArray.size(); i += 4) {
+        Long value = jsonArray.getLong(i) == null ? 0 : jsonArray.getLong(i);
+        JsonObject detail = new JsonObject()
+                .put("subject", rules.getJsonObject(i % 3).getString("subject"))
+                .put("name", rules.getJsonObject(i % 3).getString("name"))
+                .put("passed", value == 1)
+                .put("remaining", jsonArray.getLong(i + 1))
+                .put("limit", jsonArray.getLong(i + 2))
+                .put("reset", jsonArray.getLong(i + 3));
+        details.add(detail);
+        if (value == 0) {
+          passed = false;
+        }
+      }
+      JsonObject result = new JsonObject()
+              .put("passed", passed)
+              .put("details", details);
+      handler.handle(Future.succeededFuture(result));
+    } catch (Exception e) {
+      handler.handle(Future.failedFuture(e));
+    }
   }
 }

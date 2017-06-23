@@ -7,7 +7,7 @@ local result = {}
 local passed = true;
 --计算请求是否满足每个限流规则
 for i, rate_limit in ipairs(rate_limits) do
-    local subject = "token.bucket." .. rate_limit[1] --桶的标识符
+    local subject = "tb." .. rate_limit[1] --桶的标识符
     local burst = math.max(tonumber(rate_limit[2]), 1) --桶中最大令牌数，最小值1，
     local refillTime = tonumber(rate_limit[3]) or 1000-- 向桶中添加令牌的周期，单位毫秒
     local refillAmount = math.max(tonumber(rate_limit[4]), 1) or 1 -- 每次refillTime向桶中添加的令牌数量，默认为1

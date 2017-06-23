@@ -80,7 +80,7 @@ public class AppKeyImporterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("app.secretKey", secretKey)
             .put("app.codeKey", codeKey)
-            .put("project.namespace", namespace)
+            .put("namespace", namespace)
             .put("app.importer", new JsonObject()
                     .put("scan-period", 2000)
                     .put("url", "/appkey/import")));

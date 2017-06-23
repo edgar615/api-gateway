@@ -15,7 +15,7 @@ public class JwtCleanPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-            .put("jwt_clean", true);
+            .put("jwt.clean", true);
     ApiPluginFactory factory = new JwtCleanPluginFactory();
     JwtCleanPlugin plugin = (JwtCleanPlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
@@ -29,7 +29,7 @@ public class JwtCleanPluginTest {
 
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.getBoolean("jwt_clean"));
+    Assert.assertTrue(jsonObject.getBoolean("jwt.clean"));
   }
 
 }

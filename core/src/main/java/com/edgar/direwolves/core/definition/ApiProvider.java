@@ -12,7 +12,8 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/1/3
  */
-@ProxyGen
+//@ProxyGen
+@Deprecated
 public interface ApiProvider {
 
   /**

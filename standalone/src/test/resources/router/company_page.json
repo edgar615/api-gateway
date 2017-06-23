@@ -2,7 +2,7 @@
   "name" : "company.page.1.0.0",
   "method" : "GET",
   "path" : "/companies/page",
-  "url_arg" : [  {
+  "url.arg" : [  {
     "name" : "pageSize",
     "default_value" : 10,
     "rules" : {

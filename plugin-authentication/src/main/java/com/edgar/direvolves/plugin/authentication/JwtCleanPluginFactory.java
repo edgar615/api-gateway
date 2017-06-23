@@ -22,7 +22,7 @@ public class JwtCleanPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("jwt_clean", false)) {
+    if (jsonObject.getBoolean("jwt.clean", false)) {
       return new JwtCleanPlugin();
     }
     return null;
@@ -30,6 +30,6 @@ public class JwtCleanPluginFactory implements ApiPluginFactory {
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    return new JsonObject().put("jwt_clean", true);
+    return new JsonObject().put("jwt.clean", true);
   }
 }

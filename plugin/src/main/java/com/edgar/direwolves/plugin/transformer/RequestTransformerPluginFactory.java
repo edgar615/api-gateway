@@ -25,11 +25,11 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("request_transformer")) {
+    if (!jsonObject.containsKey("request.transformer")) {
       return null;
     }
     RequestTransformerPlugin plugin = new RequestTransformerPluginImpl();
-    JsonArray jsonArray = jsonObject.getJsonArray("request_transformer", new JsonArray());
+    JsonArray jsonArray = jsonObject.getJsonArray("request.transformer", new JsonArray());
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject request = jsonArray.getJsonObject(i);
       String name = request.getString("name");
@@ -49,7 +49,7 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory {
     transformerPlugin.transformers().stream()
             .map(t -> toJson(t)
             ).forEach(j -> jsonArray.add(j));
-    return new JsonObject().put("request_transformer", jsonArray);
+    return new JsonObject().put("request.transformer", jsonArray);
   }
 
   private JsonObject toJson(RequestTransformer transformer) {

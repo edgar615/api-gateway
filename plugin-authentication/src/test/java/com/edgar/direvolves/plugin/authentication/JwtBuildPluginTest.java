@@ -15,7 +15,7 @@ public class JwtBuildPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-            .put("jwt_build", true);
+            .put("jwt.build", true);
     ApiPluginFactory factory = new JwtBuildPluginFactory();
     JwtBuildPlugin plugin = (JwtBuildPlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
@@ -29,7 +29,7 @@ public class JwtBuildPluginTest {
 
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.getBoolean("jwt_build"));
+    Assert.assertTrue(jsonObject.getBoolean("jwt.build"));
   }
 
 }

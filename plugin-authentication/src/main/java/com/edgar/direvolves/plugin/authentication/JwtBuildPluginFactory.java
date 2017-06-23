@@ -22,7 +22,7 @@ public class JwtBuildPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("jwt_build", false)) {
+    if (jsonObject.getBoolean("jwt.build", false)) {
       return new JwtBuildPluginImpl();
     }
     return null;
@@ -30,6 +30,6 @@ public class JwtBuildPluginFactory implements ApiPluginFactory {
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    return new JsonObject().put("jwt_build", true);
+    return new JsonObject().put("jwt.build", true);
   }
 }

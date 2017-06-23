@@ -2,7 +2,7 @@
   "name" : "appkey_list",
   "method" : "GET",
   "path" : "/companies",
-  "url_arg" : [ {
+  "url.arg" : [ {
     "name" : "limit",
     "default_value" : 100,
     "rules" : {
@@ -24,7 +24,7 @@
     "type" : "http",
     "path" : "/companies"
   } ],
-  "request_transformer" : [ {
+  "request.transformer" : [ {
     "name" : "companies",
     "query.add" : [ "state:1" ]
   } ],

@@ -26,7 +26,7 @@ public class RequestTransformerPluginTest {
             .put("body.add", new JsonArray().add("p1:v2").add("p2:v1"));
     jsonArray.add(request);
     RequestTransformerPlugin plugin = (RequestTransformerPlugin) new RequestTransformerPluginFactory()
-            .decode(new JsonObject().put("request_transformer", jsonArray));
+            .decode(new JsonObject().put("request.transformer", jsonArray));
     RequestTransformer transformer = plugin.transformer("add_device");
     Assert.assertEquals("add_device", transformer.name());
     Assert.assertEquals(2, transformer.headerRemoved().size());
@@ -69,7 +69,7 @@ public class RequestTransformerPluginTest {
     plugin.addTransformer(transformer);
 
     JsonObject jsonObject = plugin.encode();
-    Assert.assertTrue(jsonObject.containsKey("request_transformer"));
+    Assert.assertTrue(jsonObject.containsKey("request.transformer"));
   }
 
   @Test

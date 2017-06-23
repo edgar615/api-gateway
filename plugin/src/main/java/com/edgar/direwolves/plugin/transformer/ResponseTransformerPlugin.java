@@ -4,7 +4,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 
 /**
  * response的转换规则.
- * 该插件对应的JSON配置的key为<b>response_transformer</b>，它的值是一个json对象，包括三个属性:
+ * 该插件对应的JSON配置的key为<b>response.transformer</b>，它的值是一个json对象，包括三个属性:
  * <pre>
  *   header.remove 数组，需要删除的响应头
  *   body.remove 数组，需要删除的响应体
@@ -15,7 +15,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
  * </pre>
  * json配置:
  * <pre>
- * "response_transformer" : [
+ * "response.transformer" : [
  * {
  * "header.remove" : ["h1"],
  * "body.remove" : ["b1"],

@@ -84,7 +84,7 @@ public interface RedisProvider {
    * @param rules 限流规则的集合
    * @param handler 回调函数
    */
-  void acquireToken(JsonArray rules, Handler<AsyncResult<JsonArray>> handler);
+  void acquireToken(JsonArray rules, Handler<AsyncResult<JsonObject>> handler);
 
   static RedisProvider create(Vertx vertx, JsonObject config) {
     return factory.create(vertx, config);

@@ -21,7 +21,7 @@ public class ResponseTransformerPluginTest {
             .put("body.add", new JsonArray().add("p1:v2").add("p2:v1"));
     ResponseTransformerPlugin plugin =
             (ResponseTransformerPlugin) new ResponseTransformerPluginFactory()
-                    .decode(new JsonObject().put("response_transformer", request));
+                    .decode(new JsonObject().put("response.transformer", request));
     Assert.assertEquals(2, plugin.headerRemoved().size());
     Assert.assertEquals(2, plugin.bodyRemoved().size());
     Assert.assertEquals(2, plugin.headerReplaced().size());
@@ -51,7 +51,7 @@ public class ResponseTransformerPluginTest {
     transformer.removeHeader("h6");
 
     JsonObject jsonObject = transformer.encode();
-    Assert.assertTrue(jsonObject.containsKey("response_transformer"));
+    Assert.assertTrue(jsonObject.containsKey("response.transformer"));
   }
 
 }

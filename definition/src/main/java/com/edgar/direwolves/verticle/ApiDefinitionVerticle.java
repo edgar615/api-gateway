@@ -23,7 +23,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
     LOGGER.info("---| [Read Definition Config] [{}]", config().encodePrettily());
-    String namespace = config().getString("project.namespace", "");
+    String namespace = config().getString("namespace", "");
     String address = ApiProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;

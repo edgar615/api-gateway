@@ -28,7 +28,7 @@ public class BodyArgPluginTest {
             .put("name", "barcode");
     JsonArray urlArgs = new JsonArray()
             .add(arg1).add(arg2).add(arg3);
-    jsonObject.put("body_arg", urlArgs);
+    jsonObject.put("body.arg", urlArgs);
     BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().decode(jsonObject);
     Assert.assertEquals(3, plugin.parameters().size());
   }
@@ -44,8 +44,8 @@ public class BodyArgPluginTest {
                               .addRule(Rule.integer()));
     bodyArgPlugin.add(Parameter.create("barcode", null));
     JsonObject jsonObject = bodyArgPlugin.encode();
-    Assert.assertTrue(jsonObject.containsKey("body_arg"));
-    JsonArray jsonArray = jsonObject.getJsonArray("body_arg");
+    Assert.assertTrue(jsonObject.containsKey("body.arg"));
+    JsonArray jsonArray = jsonObject.getJsonArray("body.arg");
     Assert.assertEquals(3, jsonArray.size());
     System.out.println(jsonArray);
   }

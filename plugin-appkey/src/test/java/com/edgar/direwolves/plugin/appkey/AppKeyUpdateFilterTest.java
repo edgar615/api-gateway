@@ -58,7 +58,7 @@ public class AppKeyUpdateFilterTest {
 
     filter = Filter.create(AppKeyUpdateFilter.class.getSimpleName(), vertx,
                            new JsonObject()
-                                   .put("project.namespace", namespace)
+                                   .put("namespace", namespace)
                                    .put("jwt.userClaimKey", userKey));
 
     filters.clear();

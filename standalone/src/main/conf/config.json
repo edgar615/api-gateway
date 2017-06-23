@@ -44,7 +44,7 @@
       "worker" : false,
       "config" : {
         "http.port": 9000,
-        "project.namespace": "example",
+        "namespace": "example",
         "long_req_time" : 1000,
         "service.discovery.strategy": {
           "user" : "random",

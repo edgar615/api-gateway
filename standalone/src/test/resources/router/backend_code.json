@@ -12,7 +12,7 @@
       }
     }
   ],
-  "body_arg": [
+  "body.arg": [
     {
       "name": "username",
       "rules": {
@@ -20,7 +20,7 @@
       }
     }
   ],
-  "request_transformer": [
+  "request.transformer": [
     {
       "name": "backend",
       "body.add": [
@@ -28,11 +28,11 @@
       ]
     }
   ],
-  "response_transformer": {
+  "response.transformer": {
     "body.add": [
       "sign:$var.backend.sign",
       "code:$var.backend.code"
     ]
   },
-  "backend_code": true
+  "backend.code": true
 }

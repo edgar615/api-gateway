@@ -1,0 +1,10 @@
+{
+  "rate.limiter": {
+    "user_limiter": {
+      "key": "$user.userId",
+      "limit": 3,
+      "interval": 2,
+      "unit": "SECOND"
+    }
+  }
+}

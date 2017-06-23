@@ -14,7 +14,7 @@ import java.util.List;
  * URL参数控制的工厂类.
  * json配置
  * <pre>
- *   "url_arg" : [
+ *   "url.arg" : [
  * {
  * "name" : "limit",
  * "default_value" : 10,
@@ -49,10 +49,10 @@ public class UrlArgPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("url_arg")) {
+    if (!jsonObject.containsKey("url.arg")) {
       return null;
     }
-    JsonArray jsonArray = jsonObject.getJsonArray("url_arg", new JsonArray());
+    JsonArray jsonArray = jsonObject.getJsonArray("url.arg", new JsonArray());
     UrlArgPlugin urlArgPlugin = new UrlArgPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject parameterJson = jsonArray.getJsonObject(i);
@@ -76,7 +76,7 @@ public class UrlArgPluginFactory implements ApiPluginFactory {
     UrlArgPlugin urlArgPlugin = (UrlArgPlugin) plugin;
 
     return new JsonObject()
-            .put("url_arg", createParamterArray(urlArgPlugin.parameters()));
+            .put("url.arg", createParamterArray(urlArgPlugin.parameters()));
   }
 
   private JsonArray createParamterArray(List<Parameter> parameters) {

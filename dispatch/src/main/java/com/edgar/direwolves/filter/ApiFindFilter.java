@@ -36,7 +36,7 @@ public class ApiFindFilter implements Filter {
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    String namespace = config.getString("project.namespace", "");
+    String namespace = config.getString("namespace", "");
     String address = ApiProvider.class.getName();
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;

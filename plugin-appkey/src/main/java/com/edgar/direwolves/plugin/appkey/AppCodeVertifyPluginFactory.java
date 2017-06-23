@@ -20,7 +20,7 @@ public class AppCodeVertifyPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("app_code_vertify", false)) {
+    if (jsonObject.getBoolean("app.code.vertify", false)) {
       return new AppCodeVertifyPlugin();
     }
     return null;
@@ -31,6 +31,6 @@ public class AppCodeVertifyPluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    return new JsonObject().put("app_code_vertify", true);
+    return new JsonObject().put("app.code.vertify", true);
   }
 }

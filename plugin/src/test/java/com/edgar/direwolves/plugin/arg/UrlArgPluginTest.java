@@ -28,7 +28,7 @@ public class UrlArgPluginTest {
             .put("name", "barcode");
     JsonArray urlArgs = new JsonArray()
             .add(arg1).add(arg2).add(arg3);
-    jsonObject.put("url_arg", urlArgs);
+    jsonObject.put("url.arg", urlArgs);
     UrlArgPlugin plugin = (UrlArgPlugin) new UrlArgPluginFactory().decode(jsonObject);
     Assert.assertEquals(3, plugin.parameters().size());
   }
@@ -43,8 +43,8 @@ public class UrlArgPluginTest {
                              .addRule(Rule.integer()));
     urlArgPlugin.add(Parameter.create("barcode", null));
     JsonObject jsonObject = urlArgPlugin.encode();
-    Assert.assertTrue(jsonObject.containsKey("url_arg"));
-    JsonArray jsonArray = jsonObject.getJsonArray("url_arg");
+    Assert.assertTrue(jsonObject.containsKey("url.arg"));
+    JsonArray jsonArray = jsonObject.getJsonArray("url.arg");
     Assert.assertEquals(3, jsonArray.size());
     System.out.println(jsonArray);
   }

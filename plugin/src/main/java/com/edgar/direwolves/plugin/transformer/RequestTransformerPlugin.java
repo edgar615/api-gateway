@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * RPC请求参数的转换
- * 该插件对应的JSON配置的key为<b>request_transformer</b>，它的值是一个json数组，数组中的每个元素包括下列属性:
+ * 该插件对应的JSON配置的key为<b>request.transformer</b>，它的值是一个json数组，数组中的每个元素包括下列属性:
  * <pre>
  *   name endpoint的名称，必填项
  *   header.remove 数组，需要删除的请求头
@@ -21,7 +21,7 @@ import java.util.List;
  * </pre>
  * json配置:
  * <pre>
- * "request_transformer" : [
+ * "request.transformer" : [
  * {
  * "name" : "add_device",
  * "header.remove" : ["h1"],

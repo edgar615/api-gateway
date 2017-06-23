@@ -5,7 +5,7 @@
   "authentication" : true,
   "scope" : "device:write",
   "appkey" : true,
-  "body_arg" : [ {
+  "body.arg" : [ {
     "name" : "encryptKey",
     "rules" : {
       "required" : true,
@@ -25,7 +25,7 @@
     "type" : "http",
     "path" : "/devices/new"
   } ],
-  "request_transformer" : [ {
+  "request.transformer" : [ {
     "name" : "add_device",
     "body.add" : [ "userId:$user.userId", "username:$user.username", "companyCode:$user.companyCode" ],
     "header.add" : [ "x-auth-userId:$user.userId", "x-auth-username:$user.username", "x-auth-companyCode:$user.companyCode", "x-auth-fullname:$user.fullname", "x-auth-tel:$user.tel", "x-auth-mail:$user.mail", "x-auth-type:$user.type", "x-auth-role:$user.role" ]

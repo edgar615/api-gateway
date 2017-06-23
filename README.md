@@ -147,7 +147,7 @@ SlowReqDetected：慢请求检查
 
 配置示例：
 
-    "app_code_vertify": true
+    "app.code.vertify": true
 
 ## Filter: AppCodeVertifyFilter
 
@@ -168,7 +168,7 @@ SlowReqDetected：慢请求检查
 
 配置示例：
 
-    "request_transformer": {
+    "request.transformer": {
         "name": "alarm_list",
         "header.add": [
           "x-auth-userId:$user.userId",
@@ -223,7 +223,7 @@ SlowReqDetected：慢请求检查
 
 全局参数，对所有的请求都支持的参数转换
 
-      "request_transformer": {
+      "request.transformer": {
         "header.add": [
           "x-auth-userId:$user.userId",
           "x-auth-companyCode:$user.companyCode",
@@ -259,7 +259,7 @@ SlowReqDetected：慢请求检查
 
 
 ## Filter: HttpRequestReplaceFilter
-用于将请求参数中的带变量的参数用变量的替换，一般与request_transformer结合使用
+用于将请求参数中的带变量的参数用变量的替换，一般与request.transformer结合使用
 
 对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.(不考虑嵌套的集合),
 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
@@ -269,7 +269,7 @@ SlowReqDetected：慢请求检查
 
 示例
 
-    "request_transformer": [
+    "request.transformer": [
       {
         "name": "add_cateye",
         "body.add": [
@@ -303,7 +303,7 @@ header中的元素包括
 
 配置示例：
 
-    "response_transformer": {
+    "response.transformer": {
       "header.add": [
         "x-auth-userId:$user.userId",
         "x-auth-companyCode:$user.companyCode",
@@ -340,7 +340,7 @@ header中的元素包括
 
 全局参数，对所有的请求都支持的响应转换
 
-    "response_transformer": {
+    "response.transformer": {
       "header.add": [
         "x-auth-userId:$user.userId",
         "x-auth-companyCode:$user.companyCode",

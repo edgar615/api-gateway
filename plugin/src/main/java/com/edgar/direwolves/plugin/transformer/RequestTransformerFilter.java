@@ -27,7 +27,7 @@ public class RequestTransformerFilter implements Filter {
   private final RequestTransformer globalTransfomer = RequestTransformer.create("global");
 
   RequestTransformerFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("request_transformer", new JsonObject());
+    JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
     RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
   }
 

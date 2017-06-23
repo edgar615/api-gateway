@@ -22,5 +22,25 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-redis-client</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-unit</artifactId>
+            <version>${vertx.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

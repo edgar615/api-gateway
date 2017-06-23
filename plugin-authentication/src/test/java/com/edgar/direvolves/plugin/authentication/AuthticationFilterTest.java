@@ -171,7 +171,7 @@ public class AuthticationFilterTest {
                                           .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
                                           .put("jwt.user.unique", true)
-                                          .put("project.namespace", namespace));
+                                          .put("namespace", namespace));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -211,7 +211,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
-                                          .put("project.namespace", namespace));
+                                          .put("namespace", namespace));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -254,7 +254,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
-                                          .put("project.namespace", namespace)
+                                          .put("namespace", namespace)
                                           .put("jwt.user.unique", true));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
@@ -302,7 +302,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
-                                          .put("project.namespace", namespace)
+                                          .put("namespace", namespace)
                                           .put("jwt.user.unique", true));
     filters.add(filter);
 
@@ -347,7 +347,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("token.expires", 60 * 30)
                                           .put("jwt.userClaimKey", userKey)
-                                          .put("project.namespace", namespace));
+                                          .put("namespace", namespace));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();

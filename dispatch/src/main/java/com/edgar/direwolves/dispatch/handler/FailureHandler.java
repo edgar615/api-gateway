@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -38,8 +39,15 @@ public class FailureHandler implements Handler<RoutingContext> {
     if (throwable instanceof SystemException) {
       SystemException ex = (SystemException) throwable;
       statusCode = ex.getErrorCode().getStatusCode();
-      failureMsg.mergeIn(new JsonObject(ex.asMap()));
-
+      //resp.header:开头的错误信息表示需要在响应头上显示，而不是在响应体中显示
+      for (Map.Entry<String, Object> entry : ex.asMap().entrySet()) {
+        if (entry.getKey().startsWith("resp.header:")) {
+          response.putHeader(entry.getKey().substring("resp.header:".length()),
+                             entry.getValue().toString());
+        } else {
+          failureMsg.put(entry.getKey(), entry.getValue());
+        }
+      }
     } else if (throwable instanceof ValidationException) {
       SystemException ex = SystemException.create(DefaultErrorCode.INVALID_ARGS);
       ValidationException vex = (ValidationException) throwable;
@@ -61,8 +69,8 @@ public class FailureHandler implements Handler<RoutingContext> {
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
       LOGGER.error("---| [{}] [ERROR] [{}]", id,
-                  throwable.getMessage(),
-                  throwable
+                   throwable.getMessage(),
+                   throwable
       );
       printErrorMsg = true;
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)

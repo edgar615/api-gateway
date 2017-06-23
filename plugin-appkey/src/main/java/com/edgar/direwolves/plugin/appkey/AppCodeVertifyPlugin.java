@@ -7,7 +7,7 @@ import com.edgar.direwolves.core.definition.ApiPlugin;
 /**
  * 检查用户的appCode和appkey的appCode是否一致.
  * <p>
- * 该插件对应的JSON配置的key为<b>app_code_vertify</b>，它对应的值是一个bool值:
+ * 该插件对应的JSON配置的key为<b>app.code.vertify</b>，它对应的值是一个bool值:
  * <pre>
  *   true 开启校验
  *   false 关闭的校验

@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
  * <li>path 路径，可使用正则表达式，必填项</li>
  * <li>method 方法 GET POST PUT DELETE，必填项</li>
  * <li>scope 表示权限范围，默认为default</li>
- * <li>url_arg 查询参数，参考查询参数的定义</li>
- * <li>body_arg body参数，参考body参数的定义</li>
+ * <li>url.arg 查询参数，参考查询参数的定义</li>
+ * <li>body.arg body参数，参考body参数的定义</li>
  * <li>description 描述</li>
  * <li>failture_policy 远程调用遇到错误之后对处理策略，默认值fail：直接返回错误信息，如果有多个错误信息，会按照endpont的定义顺序取出第一条信息，origin
  * ：与远程调用对返回值保持一致，custom：自定义对错误信息</li>

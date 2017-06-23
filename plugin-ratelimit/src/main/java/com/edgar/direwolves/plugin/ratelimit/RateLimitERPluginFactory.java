@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
  * 流量控制的工厂类.
  * json配置
  * <pre>
- *    "rate_limiter" : [
+ *    "rate.limiter" : [
  * {
  * "burst" : 1000,
  * "name" : "token"
@@ -23,13 +23,13 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class RateLimitPluginFactory implements ApiPluginFactory {
+public class RateLimiterPluginFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("rate_limiter")) {
+    if (!jsonObject.containsKey("rate.limiter")) {
       return null;
     }
-    JsonArray jsonArray = jsonObject.getJsonArray("rate_limiter", new JsonArray());
+    JsonArray jsonArray = jsonObject.getJsonArray("rate.limiter", new JsonArray());
     RateLimiterPlugin rateLimiterPlugin = new RateLimiterPluginImpl();
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject rateLimiterJson = jsonArray.getJsonObject(i);
@@ -49,7 +49,7 @@ public class RateLimitPluginFactory implements ApiPluginFactory {
                                 .put("name", rateLimiter.name())
                                 .put("burst", rateLimiter.burst()));
     }
-    return new JsonObject().put("rate_limiter", rateLimiterArray);
+    return new JsonObject().put("rate.limiter", rateLimiterArray);
   }
 
   @Override
