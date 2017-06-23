@@ -1,7 +1,6 @@
 package com.edgar.direwolves.metric;
 
 import com.codahale.metrics.MetricRegistry;
-import com.hazelcast.internal.metrics.Metric;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,19 +1,20 @@
 package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiProvider;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.google.common.base.Strings;
-
-import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.metric.ApiMetrics;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * 该filter根据请求从API路由注册表中读取到对应的API定义.
@@ -32,16 +33,12 @@ public class ApiFindFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final ApiProvider apiProvider;
+  private final ApiDiscovery apiDiscovery;
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     String namespace = config.getString("namespace", "");
-    String address = ApiProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
-    this.apiProvider = ProxyHelper.createProxy(ApiProvider.class, vertx, address);
+    this.apiDiscovery = ApiDiscovery.create(vertx, namespace);
   }
 
   @Override
@@ -61,26 +58,31 @@ public class ApiFindFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    apiProvider.match(apiContext.method().name(), apiContext.path(), ar -> {
-      if (ar.succeeded()) {
-        try {
-          ApiDefinition apiDefinition = ApiDefinition.fromJson(ar.result());
-          apiContext.setApiDefinition(apiDefinition);
-
-          ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
-          completeFuture.complete(apiContext);
-        } catch (Exception e) {
-          Helper.logFailed(LOGGER, apiContext.id(),
-                           this.getClass().getSimpleName(),
-                           "failed match api");
-          completeFuture.fail(e);
-        }
-      } else {
+    JsonObject filter = new JsonObject()
+            .put("method", apiContext.method().name())
+            .put("path", apiContext.path());
+    apiDiscovery.getDefinitions(filter, ar -> {
+      if (ar.failed()) {
         Helper.logFailed(LOGGER, apiContext.id(),
                          this.getClass().getSimpleName(),
                          "failed match api");
         completeFuture.fail(ar.cause());
+        return;
       }
+      List<ApiDefinition> apiDefinitions = ar.result();
+      if (apiDefinitions.size() != 1) {
+        Helper.logFailed(LOGGER, apiContext.id(),
+                         this.getClass().getSimpleName(),
+                         "failed match api");
+        SystemException se = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+        se.set("details", apiContext.method().name() + " " + apiContext.path());
+        completeFuture.fail(se);
+      }
+      ApiDefinition apiDefinition = apiDefinitions.get(0);
+      apiContext.setApiDefinition(apiDefinition);
+
+      ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
+      completeFuture.complete(apiContext);
     });
   }
 

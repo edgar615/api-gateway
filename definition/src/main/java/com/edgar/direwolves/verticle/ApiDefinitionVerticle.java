@@ -2,8 +2,6 @@ package com.edgar.direwolves.verticle;
 
 import com.google.common.base.Strings;
 
-import com.edgar.direwolves.core.definition.ApiProvider;
-import com.edgar.direwolves.definition.ApiProviderImpl;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -23,13 +21,6 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
     LOGGER.info("---| [Read Definition Config] [{}]", config().encodePrettily());
-    String namespace = config().getString("namespace", "");
-    String address = ApiProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
-    ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
-    LOGGER.info("---| [Register ApiProvider] [{}]", address);
     initialize(startFuture);
   }
 

@@ -66,4 +66,9 @@ public class MockRedisProvider implements RedisProvider {
                    Handler<AsyncResult<JsonArray>> handler) {
 
   }
+
+  @Override
+  public void acquireToken(JsonArray rules, Handler<AsyncResult<JsonObject>> handler) {
+
+  }
 }

@@ -21,6 +21,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.consul.ConsulServiceImporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +50,16 @@ public class ServiceDiscoveryFilterTest {
 
   private ApiContext apiContext;
 
+  private ServiceDiscovery discovery;
+
   @Before
   public void testSetUp(TestContext testContext) {
     vertx = Vertx.vertx();
+    discovery = ServiceDiscovery.create(vertx);
+    discovery.registerServiceImporter(new ConsulServiceImporter(),new JsonObject()
+    .put("host", "localhost")
+    .put("port", 5601));
+
     mockConsulHttpVerticle = new MockConsulHttpVerticle();
     Async async = testContext.async();
     vertx.deployVerticle(mockConsulHttpVerticle, ar -> {
@@ -75,10 +84,11 @@ public class ServiceDiscoveryFilterTest {
                     Lists.newArrayList(httpEndpoint, eventbusEndpoint));
     apiContext.setApiDefinition(definition);
 
-    JsonObject config = new JsonObject()
-            .put("service.discovery", "consul://localhost:5601");
+    JsonObject config = new JsonObject();
     JsonObject strategy = new JsonObject();
-    config.put("service.discovery.select-strategy", strategy);
+    config.put("strategy", strategy);
+
+
     filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);
 
     filters.clear();

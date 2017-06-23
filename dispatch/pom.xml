@@ -40,12 +40,16 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-discovery-bridge-consul</artifactId>
+            <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-hazelcast</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>util</artifactId>
@@ -65,26 +69,6 @@
             <version>${project.parent.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>direwolves-definition</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.edgar</groupId>
-                    <artifactId>plugin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.edgar</groupId>
-                    <artifactId>plugin-appkey</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.edgar</groupId>
-                    <artifactId>plugin-authentication</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <build>

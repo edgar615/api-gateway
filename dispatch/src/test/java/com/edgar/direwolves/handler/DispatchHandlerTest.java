@@ -5,7 +5,6 @@ import static org.awaitility.Awaitility.await;
 import com.edgar.direwolves.ApiUtils;
 import com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle;
 import com.edgar.direwolves.filter.MockConsulHttpVerticle;
-import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -59,9 +58,9 @@ public class DispatchHandlerTest {
                          testContext.asyncAssertSuccess());
     add2Servers();
 
-    vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), testContext.asyncAssertSuccess());
-
-    ApiUtils.registerApi();
+//    vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), testContext.asyncAssertSuccess());
+//
+//    ApiUtils.registerApi(apiDiscovery);
 
     vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
                          new DeploymentOptions().setConfig(new JsonObject().put("http.port",

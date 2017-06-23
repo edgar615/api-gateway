@@ -4,31 +4,25 @@ import com.google.common.collect.Lists;
 
 import com.codahale.metrics.MetricRegistry;
 import com.edgar.direwolves.ApiUtils;
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiProvider;
-import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.definition.ApiProviderImpl;
-import com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle;
 import com.edgar.direwolves.metric.ApiMetrics;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
-import com.edgar.direwolves.verticle.ApiDefinitionVerticle;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.serviceproxy.ProxyHelper;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2017/1/9.
@@ -38,19 +32,19 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class ApiFindFilterTest {
 
+  ApiDiscovery apiDiscovery;
+
   private Vertx vertx;
 
-  private JsonObject config = new JsonObject();
+  private String namespace = UUID.randomUUID().toString();
 
-  private String address = ApiProvider.class.getName();
+  private JsonObject config = new JsonObject().put("namespace", namespace);
 
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
-
-    ProxyHelper.registerService(ApiProvider.class, vertx, new ApiProviderImpl(), address);
-
-    ApiUtils.registerApi();
+    apiDiscovery = ApiDiscovery.create(vertx, namespace);
+    ApiUtils.registerApi(apiDiscovery);
   }
 
   @Test
@@ -65,7 +59,7 @@ public class ApiFindFilterTest {
     Filters.doFilter(task, Lists.newArrayList(filter))
             .andThen(context -> {
               testContext.assertNotNull(context.apiDefinition());
-              testContext.assertEquals("add_device",context.apiDefinition().name());
+              testContext.assertEquals("add_device", context.apiDefinition().name());
               async.complete();
             }).onFailure(throwable -> {
       throwable.printStackTrace();
@@ -86,7 +80,9 @@ public class ApiFindFilterTest {
               testContext.fail();
             }).onFailure(throwable -> {
       throwable.printStackTrace();
-      testContext.assertTrue(throwable instanceof ReplyException);
+      testContext.assertTrue(throwable instanceof SystemException);
+      SystemException se = (SystemException) throwable;
+      testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, se.getErrorCode());
       async.complete();
     });
   }
