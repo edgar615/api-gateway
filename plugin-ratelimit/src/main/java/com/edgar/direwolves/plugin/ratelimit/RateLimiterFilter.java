@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -83,27 +85,7 @@ public class RateLimiterFilter implements Filter {
     RateLimiterPlugin plugin =
             (RateLimiterPlugin) apiContext.apiDefinition()
                     .plugin(RateLimiterPlugin.class.getSimpleName());
-    JsonArray limiter = new JsonArray();
-    plugin.rateLimiters().forEach(r -> {
-      Optional<RateLimiterPolicy> optional = policies.stream()
-              .filter(p -> p.name().equals(r.name()))
-              .findFirst();
-      if (optional.isPresent()) {
-        RateLimiterPolicy policy = optional.get();
-        String subject = policy.key();
-        if (subject.startsWith("$")
-            && apiContext.getValueByKeyword(subject) != null) {
-          subject = apiContext.getValueByKeyword(subject).toString();
-        }
-        JsonObject rule = new JsonObject()
-                .put("name", r.name())
-                .put("subject", r.name() + "." + subject)
-                .put("refillAmount", policy.limit())
-                .put("burst", r.burst())
-                .put("refillTime", policy.unit().toMillis(policy.interval()));
-        limiter.add(rule);
-      }
-    });
+    JsonArray limiter = createRule(apiContext, plugin);
     if (limiter.size() == 0) {
       completeFuture.complete(apiContext);
       return;
@@ -117,27 +99,62 @@ public class RateLimiterFilter implements Filter {
       if (result.getBoolean("passed", true)) {
         //增加响应头
         JsonArray details = result.getJsonArray("details", new JsonArray());
-        for (int i = 0; i < details.size(); i++) {
-          JsonObject detail = details.getJsonObject(i);
-          apiContext.addVariable("resp.header:X-Rate-Limit-Limit", detail.getLong("limit"));
-          apiContext.addVariable("resp.header:X-Rate-Limit-Remaining", detail.getLong("remaining"));
-          apiContext.addVariable("resp.header:X-Rate-Limit-Reset",
-                                 Math.round(detail.getLong("reset") / 1000));
-        }
+        Map<String, Object> ratelimitDetails = ratelimitDetails(limiter, details);
+        ratelimitDetails.forEach((k, v) -> apiContext.addVariable(k, v));
         completeFuture.complete(apiContext);
       } else {
         JsonArray details = result.getJsonArray("details", new JsonArray());
         SystemException se = SystemException.create(DefaultErrorCode.TOO_MANY_REQ);
-        for (int i = 0; i < details.size(); i++) {
-          JsonObject detail = details.getJsonObject(i);
-          se.set("resp.header:X-Rate-Limit-Limit", detail.getLong("limit"));
-          se.set("resp.header:X-Rate-Limit-Remaining", detail.getLong("remaining"));
-          se.set("resp.header:X-Rate-Limit-Reset",
-                                 Math.round(detail.getLong("reset") / 1000));
-        }
+        Map<String, Object> ratelimitDetails = ratelimitDetails(limiter, details);
+        ratelimitDetails.forEach((k, v) -> se.set(k, v));
         completeFuture.fail(se);
       }
     });
 
+  }
+
+  private Map<String, Object> ratelimitDetails(JsonArray limiters, JsonArray details) {
+    Map<String, Object> props = new HashMap<>();
+    for (int i = 0; i < details.size(); i++) {
+      JsonObject detail = details.getJsonObject(i);
+      JsonObject limiter = limiters.getJsonObject(i);
+      String name = limiter.getString("name");
+      props.put("resp.header:X-Rate-Limit-" + name +"-Limit", detail.getLong("limit"));
+      props.put("resp.header:X-Rate-Limit-" + name + "-Remaining", detail.getLong("remaining"));
+      props.put("resp.header:X-Rate-Limit-" + name + "-Reset",
+                             Math.round(detail.getLong("reset") / 1000));
+    }
+
+    return props;
+  }
+
+  private JsonArray createRule(ApiContext apiContext, RateLimiterPlugin plugin) {
+    JsonArray limiter = new JsonArray();
+    plugin.rateLimiters().forEach(r -> {
+      Optional<RateLimiterPolicy> optional = policies.stream()
+              .filter(p -> p.name().equals(r.name()))
+              .findFirst();
+      if (optional.isPresent()) {
+        RateLimiterPolicy policy = optional.get();
+        String subject = policy.key();
+        if (subject.startsWith("$")) {
+          if (apiContext.getValueByKeyword(subject) != null) {
+            subject = apiContext.getValueByKeyword(subject).toString();
+           } else {
+            subject = null;
+          }
+        }
+        if (subject != null) {
+          JsonObject rule = new JsonObject()
+                  .put("name", r.name())
+                  .put("subject", r.name() + "." + subject)
+                  .put("refillAmount", policy.limit())
+                  .put("burst", r.burst())
+                  .put("refillTime", policy.unit().toMillis(policy.interval()));
+          limiter.add(rule);
+        }
+      }
+    });
+    return limiter;
   }
 }
