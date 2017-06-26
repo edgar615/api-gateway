@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cache.RedisProvider;
+import com.edgar.direwolves.core.cmd.CmdRegister;
 import com.edgar.direwolves.dispatch.handler.BaseHandler;
 import com.edgar.direwolves.dispatch.handler.DispatchHandler;
 import com.edgar.direwolves.dispatch.handler.FailureHandler;
@@ -39,6 +40,10 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     if (!Strings.isNullOrEmpty(namespace)) {
       address = namespace + "." + address;
     }
+
+    //读取命令
+    Future<Void> importCmdFuture = Future.future();
+    new CmdRegister().initialize(vertx, config(), importCmdFuture);
 
     ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
                                 address);

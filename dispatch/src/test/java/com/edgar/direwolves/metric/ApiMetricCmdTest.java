@@ -1,4 +1,4 @@
-package com.edgar.direwolves.core.metric;
+package com.edgar.direwolves.metric;
 
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import io.vertx.core.Vertx;

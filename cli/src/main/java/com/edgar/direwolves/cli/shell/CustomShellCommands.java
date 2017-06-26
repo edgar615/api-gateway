@@ -6,6 +6,7 @@ import com.edgar.direwolves.cli.shell.api.ApiGetCommand;
 import com.edgar.direwolves.cli.shell.api.ApiImportCommand;
 import com.edgar.direwolves.cli.shell.api.ApiListCommand;
 import com.edgar.direwolves.cli.shell.cluster.NodeLsCommand;
+import com.edgar.direwolves.cli.shell.metric.MetricCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceCloseCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceIncrWeightCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceDecrWeightCommand;
@@ -17,8 +18,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.ext.dropwizard.impl.shell.MetricsInfo;
-import io.vertx.ext.dropwizard.impl.shell.MetricsLs;
 import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.command.CommandResolver;
@@ -54,6 +53,9 @@ public class CustomShellCommands implements CommandResolverFactory {
 //    handler.handle(Future.succeededFuture(() -> Stream
 //            .of(MetricsInfo.class, MetricsLs.class).map(cmd -> Command.create(vertx, cmd)).collect(
 //                    Collectors.toList())));
+
+    //metric
+    registry.registerCommand(MetricCommand.class);
     resolverHandler.handle(Future.succeededFuture(registry));
   }
 }

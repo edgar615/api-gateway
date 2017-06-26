@@ -23,6 +23,7 @@ import java.util.ServiceLoader;
  *
  * @author Edgar  Date 2017/3/30
  */
+@Deprecated
 public class RegisterBackendApi implements Initializable {
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {

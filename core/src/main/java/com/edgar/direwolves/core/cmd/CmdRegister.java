@@ -1,11 +1,9 @@
-package com.edgar.direwolves.verticle;
+package com.edgar.direwolves.core.cmd;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.cmd.ApiCmdFactory;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
@@ -27,8 +25,8 @@ import java.util.UUID;
  *
  * @author Edgar  Date 2017/3/30
  */
-public class RegisterApiCmd implements Initializable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterApiCmd.class);
+public class CmdRegister implements Initializable {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CmdRegister.class);
 
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {

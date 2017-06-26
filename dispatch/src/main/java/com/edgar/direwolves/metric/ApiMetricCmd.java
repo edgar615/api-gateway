@@ -1,5 +1,7 @@
-package com.edgar.direwolves.core.metric;
+package com.edgar.direwolves.metric;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -14,6 +16,8 @@ import io.vertx.ext.dropwizard.MetricsService;
 class ApiMetricCmd implements ApiCmd {
 
   private final MetricsService metricsService;
+
+//  private final String nodeId;
 
   ApiMetricCmd(Vertx vertx) {
     this.metricsService = MetricsService.create(vertx);

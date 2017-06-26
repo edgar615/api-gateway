@@ -4,4 +4,3 @@ com.edgar.direwolves.cmd.GetApiCmdFactory
 com.edgar.direwolves.cmd.ListApiCmdFactory
 com.edgar.direwolves.cmd.ImportApiCmdFactory
 com.edgar.direwolves.cmd.ApiPluginCmdFactory
-com.edgar.direwolves.core.metric.ApiMetricCmdFactory

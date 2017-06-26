@@ -2,6 +2,7 @@ package com.edgar.direwolves.verticle;
 
 import com.google.common.base.Strings;
 
+import com.edgar.direwolves.core.cmd.CmdRegister;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -30,13 +31,13 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     new ImportApi().initialize(vertx, config(), importApiFuture);
     //读取命令
     Future<Void> importCmdFuture = Future.future();
-    new RegisterApiCmd().initialize(vertx, config(), importCmdFuture);
+    new CmdRegister().initialize(vertx, config(), importCmdFuture);
 
     //注册API
-    Future<Void> backendApiFuture = Future.future();
-    new RegisterBackendApi().initialize(vertx, config(), backendApiFuture);
+//    Future<Void> backendApiFuture = Future.future();
+//    new RegisterBackendApi().initialize(vertx, config(), backendApiFuture);
 
-    CompositeFuture.all(importApiFuture, importCmdFuture, backendApiFuture)
+    CompositeFuture.all(importApiFuture, importCmdFuture)
             .setHandler(ar -> {
               if (ar.succeeded()) {
                 LOGGER.info("---| [Definition Start] [OK]");

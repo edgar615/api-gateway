@@ -1,17 +1,18 @@
 {
   "http.port": 9000,
-  "namespace": "test",
+  "namespace": "example",
   "long_req_time" : 1000,
-  "redis.host": "localhost",
+  "service.discovery.strategy": {
+    "user" : "random",
+    "device" : "round_robin"
+  },
+  "redis.host": "10.11.0.31",
   "redis.port": 6379,
-  "redis.password": "123456",
+  "redis.password": "",
   "redis.sub.keys": [
     "__keyevent@0__:expired",
     "__keyevent@0__:del"
   ],
-  "token.expires": 3600,
-  "api.config.dir": "/",
-  "api.config.auto_refresh": false,
   "keystore.path": "keystore.jceks",
   "keystore.type": "jceks",
   "keystore.password": "secret",
@@ -24,6 +25,7 @@
   "jwt.permissionsClaimKey": "permissions",
   "jwt.user.unique": true,
   "timeout.expires": 300,
+  "timeout.enable" : false,
   "strict_arg" : true,
   "strict_arg.query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
   "strict_arg.body.excludes" : [],
@@ -32,31 +34,15 @@
       "appKey": "RmOI7jCvDtfZ1RcAkea1",
       "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
       "appCode": 0,
-      "permissions": "all"
+      "scope": "all"
     }
   ],
+  "app.codeKey" : "companyCode",
+  "app.permissionKey" : "scope",
   "app.importer" : {
-    "scan-period": 5000,
+    "scan-period": 500000,
     "url": "/appkey/import"
   },
-  "log.ignore": ["oem_list"],
-  "backend.permitted" : ["18627874615"],
-  "verticles" : {
-    "ServiceDiscoveryVerticle" : {
-      "class" : "com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle",
-      "instances" : 1,
-      "worker" : false,
-      "config" : {
-        "importer": "zookeeper://10.11.0.31:2181",
-        "zookeeper.path": "/csst-microservice",
-        "consul.scan-period": 2000,
-        "weight.increase" : 1,
-        "weight.decrease" : 10,
-        "strategy": {
-          "user" : "random",
-          "device" : "round_robin"
-        }
-      }
-    }
-  }
+  "log.ignore": ["appkey_list"],
+  "backend.permitted" : ["18627874615"]
 }
