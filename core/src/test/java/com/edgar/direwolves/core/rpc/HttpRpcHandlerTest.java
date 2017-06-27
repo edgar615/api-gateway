@@ -15,6 +15,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2016/4/8.
@@ -238,5 +239,160 @@ public class HttpRpcHandlerTest {
         context.fail();
       }
     });
+  }
+
+  @Test
+  public void testTimeout(TestContext context) {
+    HttpRpcRequest rpcRequest = HttpRpcRequest.create("abc", "device")
+            .setPath("devices/1?type=2")
+            .setPort(8080)
+            .setHost("localhost")
+            .setHttpMethod(HttpMethod.GET)
+            .setTimeout(101)
+            .addHeader("x-req-id", UUID.randomUUID().toString())
+            .addParam("userId", "2")
+            .addParam("userId", "1");
+
+    Assert.assertEquals("http", rpcRequest.type());
+    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        RpcResponse rpcResponse = ar.result();
+        context.assertFalse(rpcResponse.isArray());
+        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+        context.assertEquals("type=2&userId=2",
+                             rpcResponse.responseObject().getString("query"));
+//        async.complete();
+      } else {
+        context.fail();
+      }
+    });
+
+    try {
+      TimeUnit.SECONDS.sleep(3);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 }

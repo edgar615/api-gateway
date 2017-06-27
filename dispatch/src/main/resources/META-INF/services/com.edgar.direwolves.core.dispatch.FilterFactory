@@ -7,3 +7,4 @@ com.edgar.direwolves.filter.ExtractResultFilterFactory
 com.edgar.direwolves.filter.EventbusRequestFilterFactory
 com.edgar.direwolves.filter.EventbusRequestReplaceFilterFactory
 com.edgar.direwolves.filter.DummyRequestFilterFactory
+com.edgar.direwolves.filter.RpcFilterFactory

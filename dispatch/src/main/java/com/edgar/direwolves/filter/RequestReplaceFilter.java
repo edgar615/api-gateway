@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
+import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -14,7 +15,17 @@ import java.util.Map;
 /**
  * Created by edgar on 17-3-10.
  */
-public abstract class RequestReplaceFilter {
+public abstract class RequestReplaceFilter  implements Filter {
+  @Override
+  public String type() {
+    return PRE;
+  }
+
+  @Override
+  public int order() {
+    return Integer.MAX_VALUE - 1;
+  }
+
   protected Multimap<String, String> replaceHeader(ApiContext apiContext,
                                                    Multimap<String, String> headers) {
     Multimap<String, String> newHeaders = ArrayListMultimap.create();

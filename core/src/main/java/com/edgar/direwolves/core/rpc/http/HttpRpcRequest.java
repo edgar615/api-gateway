@@ -118,10 +118,11 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.setBody(body());
     copyReq.addParams(params());
     copyReq.addHeaders(headers());
+    copyReq.setServerId(serverId);
     return copyReq;
   }
 
-  public String getServerId() {
+  public String serverId() {
     return serverId;
   }
 
@@ -230,6 +231,7 @@ public class HttpRpcRequest implements RpcRequest {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("HttpRpcRequest")
+            .add("serverId", serverId)
             .add("id", id)
             .add("name", name)
             .add("host", host)

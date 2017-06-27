@@ -49,7 +49,6 @@ public class ApiFindFilterTest {
 
   @Test
   public void testFoundApi(TestContext testContext) {
-    ApiMetrics apiMetrics = ApiMetrics.create(new MetricRegistry(), "test", 100);
     ApiContext apiContext =
             ApiContext.create(HttpMethod.POST, "/devices", null, null, null);
     Task<ApiContext> task = Task.create();

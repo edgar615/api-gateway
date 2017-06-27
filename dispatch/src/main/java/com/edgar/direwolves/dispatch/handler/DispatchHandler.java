@@ -54,23 +54,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
    */
   private final List<Filter> filters;
 
-  /**
-   * RPC处理类的MAP对象，key为RPC的类型，value为RPC的处理类.
-   */
-  private final Map<String, RpcHandler> handlers = new ConcurrentHashMap();
-
-  /**
-   * 未定义的RPC类型直接返回异常
-   */
-  private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
-
   private DispatchHandler(Vertx vertx, JsonObject config) {
 
-    RpcMetric metric = null;
-
-    Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
-            .stream().map(f -> f.create(vertx, config, metric))
-            .forEach(h -> handlers.put(h.type().toUpperCase(), h));
     List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(FilterFactory.class))
             .stream().map(f -> f.create(vertx, config))
             .collect(Collectors.toList());
@@ -101,7 +86,6 @@ public class DispatchHandler implements Handler<RoutingContext> {
     Task<ApiContext> task = Task.create();
     task.complete(ApiContextUtils.apiContext(rc));
     task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()));
-    task = task.flatMap("RPC", apiContext -> rpc(apiContext));
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
     task = task.andThen("Response", apiContext -> response(rc, apiContext));
 //    task = doFilter(task, f -> Filter.AFTER_RESP.equalsIgnoreCase(f.type()));
@@ -131,21 +115,6 @@ public class DispatchHandler implements Handler<RoutingContext> {
               .setChunked(true)
               .end(result.responseObject().encode());
     }
-  }
-
-  private Future<ApiContext> rpc(ApiContext apiContext) {
-    Future<ApiContext> future = Future.future();
-    List<Future<RpcResponse>> futures = apiContext.requests()
-            .stream().map(req -> handlers.getOrDefault(req.type().toUpperCase(), failureRpcHandler)
-                    .handle(req))
-            .collect(Collectors.toList());
-    Task.par(futures).andThen(responses -> {
-      for (RpcResponse response : responses) {
-        apiContext.addResponse(response);
-      }
-      future.complete(apiContext);
-    }).onFailure(throwable -> future.fail(throwable));
-    return future;
   }
 
 }

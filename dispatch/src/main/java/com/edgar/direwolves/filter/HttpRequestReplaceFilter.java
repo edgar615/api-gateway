@@ -29,16 +29,6 @@ public class HttpRequestReplaceFilter extends RequestReplaceFilter implements Fi
   }
 
   @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return Integer.MAX_VALUE;
-  }
-
-  @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.requests().stream()
             .anyMatch(e -> e instanceof HttpRpcRequest);
