@@ -4,6 +4,8 @@ import com.edgar.direvolves.plugin.authentication.AuthenticationPlugin;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -146,7 +148,7 @@ public class GetApiCmdTest {
               if (ar.succeeded()) {
                 testContext.fail();
               } else {
-                testContext.assertTrue(ar.cause() instanceof NoSuchElementException);
+                testContext.assertTrue(ar.cause() instanceof SystemException);
                 check1.set(true);
               }
             });

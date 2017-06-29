@@ -77,11 +77,16 @@ public class ApiFindFilter implements Filter {
         SystemException se = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
         se.set("details", apiContext.method().name() + " " + apiContext.path());
         completeFuture.fail(se);
+        return;
       }
       ApiDefinition apiDefinition = apiDefinitions.get(0);
       apiContext.setApiDefinition(apiDefinition);
 
-      ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
+      try {
+        ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
       completeFuture.complete(apiContext);
     });
   }

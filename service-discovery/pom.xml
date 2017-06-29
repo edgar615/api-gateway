@@ -11,6 +11,10 @@
 
     <artifactId>service-discovery</artifactId>
 
+    <properties>
+        <main.verticle>com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle</main.verticle>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -54,7 +58,7 @@
             <groupId>com.edgar</groupId>
             <artifactId>service-discovery-bridge-zookeeper</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
+            <!--<scope>test</scope>-->
         </dependency>
 
         <dependency>
@@ -63,4 +67,31 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>io.vertx.core.Launcher</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>ext/hazelcast-3.6.3.jar ext/hazelcast-3.6.3.jar ext/hazelcast-3.6.3.jar ext/hazelcast-3.6.3.jar</Class-Path>
+                            <Main-Verticle>${main.verticle}</Main-Verticle>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

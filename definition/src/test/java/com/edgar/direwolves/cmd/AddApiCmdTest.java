@@ -70,7 +70,7 @@ public class AddApiCmdTest {
     jsonObject.put("endpoints", endpoints);
 
     AtomicBoolean check2 = new AtomicBoolean();
-    cmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject))
+    cmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
             .setHandler(ar -> {
               if (ar.succeeded()) {
                 testContext.assertEquals(1, ar.result().getInteger("result"));
@@ -122,7 +122,7 @@ public class AddApiCmdTest {
     jsonObject.put("authentication", true);
 
     AtomicBoolean check2 = new AtomicBoolean();
-    cmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject))
+    cmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
             .setHandler(ar -> {
               if (ar.succeeded()) {
                 testContext.assertEquals(1, ar.result().getInteger("result"));

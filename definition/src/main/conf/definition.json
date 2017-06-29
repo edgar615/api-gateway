@@ -1,6 +1,9 @@
 {
   "router.dir" : {
-    "iotp" : {
+    "iotp-app" : {
+      "path" : "standalone/src/test/resources/router"
+    },
+    "iotp-om" : {
       "path" : "standalone/src/test/resources/router"
     }
   }

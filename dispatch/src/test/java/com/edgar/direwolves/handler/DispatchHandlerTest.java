@@ -40,6 +40,8 @@ public class DispatchHandlerTest {
 
   int port = Integer.parseInt(Randoms.randomNumber(4));
 
+  int consulPort = Integer.parseInt(Randoms.randomNumber(4));
+
   MockConsulHttpVerticle mockConsulHttpVerticle;
 
   AtomicBoolean started = new AtomicBoolean();
@@ -48,7 +50,7 @@ public class DispatchHandlerTest {
 
   private JsonObject config = new JsonObject()
           .put("namespace", namespace)
-          .put("consul.port", 5601)
+          .put("consul.port", consulPort)
           .put("http.port", port);
 
   @Before
@@ -61,7 +63,7 @@ public class DispatchHandlerTest {
     serviceDiscovery = ServiceDiscovery.create(vertx);
     serviceDiscovery.registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
             .put("host", "localhost")
-            .put("port", 5601));
+            .put("port", consulPort));
 
     vertx.deployVerticle(ApiDispatchVerticle.class.getName(),
                          new DeploymentOptions().setConfig(config),

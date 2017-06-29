@@ -10,7 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>direwolves-dispatch</artifactId>
-
+    <properties>
+        <main.verticle>com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle</main.verticle>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -49,6 +51,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
@@ -66,6 +69,29 @@
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>service-discovery</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-redis</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-plugin</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>plugin-authentication</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>plugin-appkey</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -96,6 +122,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addExtensions>true</addExtensions>
+                            <!--<addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>-->
+                            <mainClass>io.vertx.core.Launcher</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>lib/</Class-Path>
+                            <Main-Verticle>${main.verticle}</Main-Verticle>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
 
         </plugins>

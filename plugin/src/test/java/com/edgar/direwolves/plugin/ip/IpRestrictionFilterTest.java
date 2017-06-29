@@ -67,12 +67,6 @@ public class IpRestrictionFilterTest {
   }
 
   @Test
-  public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(100, filter.order());
-    Assert.assertEquals(Filter.PRE, filter.type());
-  }
-
-  @Test
   public void testGlobalBlackIpShouldForbidden(TestContext testContext) {
 //    IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
 //    plugin.addBlacklist("10.4.7.15");

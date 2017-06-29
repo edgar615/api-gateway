@@ -1,6 +1,7 @@
 package com.edgar.direwolves.verticle;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -12,12 +13,15 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2016/4/11.
@@ -27,37 +31,51 @@ import java.util.concurrent.TimeUnit;
 @RunWith(VertxUnitRunner.class)
 public class ApiDefinitionVerticleTest {
 
-  ApiDefinitionRegistry registry;
+  ApiDiscovery discovery;
+
+  String namespace;
 
   Vertx vertx;
 
   @Before
   public void setUp(TestContext testContext) {
-    registry = ApiDefinitionRegistry.create();
-    HttpEndpoint httpEndpoint = HttpEndpoint
-        .http("get_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition apiDefinition = ApiDefinition
-        .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-    registry.add(apiDefinition);
-
-    apiDefinition = ApiDefinition
-        .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-    registry.add(apiDefinition);
-
+    namespace = UUID.randomUUID().toString();
     vertx = Vertx.vertx();
     vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), testContext.asyncAssertSuccess());
-  }
 
-  @After
-  public void clear() {
-    registry.remove(null);
+    discovery = ApiDiscovery.create(vertx, namespace);
+    HttpEndpoint httpEndpoint = HttpEndpoint
+            .http("get_device", HttpMethod.GET, "devices/", "device");
+    ApiDefinition apiDefinition = ApiDefinition
+            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    AtomicBoolean check1 = new AtomicBoolean();
+    discovery.publish(apiDefinition, ar -> {
+      if (ar.succeeded()) {
+        check1.set(true);
+      } else {
+        ar.cause().printStackTrace();
+      }
+    });
+    Awaitility.await().until(() -> check1.get());
+
+    apiDefinition = ApiDefinition
+            .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+    AtomicBoolean check2 = new AtomicBoolean();
+    discovery.publish(apiDefinition, ar -> {
+      if (ar.succeeded()) {
+        check2.set(true);
+      } else {
+        ar.cause().printStackTrace();
+      }
+    });
+    Awaitility.await().until(() -> check2.get());
   }
 
   @Test
   public void testGetApiEventbus(TestContext testContext) {
     Async async = testContext.async();
     vertx.eventBus().<JsonObject>send("direwolves.eb.api.get",
-        new JsonObject().put("name", "get_device"), ar -> {
+        new JsonObject().put("name", "get_device").put("namespace", namespace), ar -> {
           if (ar.succeeded()) {
             System.out.println(ar.result().body());
             async.complete();
@@ -72,7 +90,7 @@ public class ApiDefinitionVerticleTest {
   public void testGetUndefinedApiEventbus(TestContext testContext) {
     Async async = testContext.async();
     vertx.eventBus().<JsonObject>send("direwolves.eb.api.get",
-        new JsonObject().put("name", Randoms.randomAlphabet(10)), ar-> {
+        new JsonObject().put("name", Randoms.randomAlphabet(10)).put("namespace", namespace), ar-> {
           if (ar.succeeded()) {
             testContext.fail();
           } else {

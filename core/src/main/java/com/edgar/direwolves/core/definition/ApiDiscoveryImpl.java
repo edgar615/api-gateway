@@ -1,5 +1,7 @@
 package com.edgar.direwolves.core.definition;
 
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -91,7 +93,8 @@ class ApiDiscoveryImpl implements ApiDiscovery {
       } else {
         List<ApiDefinition> definitions = ar.result();
         if (definitions.isEmpty()) {
-          resultHandler.handle(Future.failedFuture(new NoSuchElementException(name)));
+          resultHandler.handle(Future.failedFuture(SystemException.create(DefaultErrorCode
+                                                                                  .RESOURCE_NOT_FOUND).set("name", name)));
         } else {
           resultHandler.handle(Future.succeededFuture(definitions.get(0)));
         }

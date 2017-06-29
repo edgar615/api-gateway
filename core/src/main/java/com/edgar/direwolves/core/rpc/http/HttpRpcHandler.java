@@ -97,7 +97,20 @@ public class HttpRpcHandler implements RpcHandler {
     Future<RpcResponse> future = Future.future();
     circuitBreaker.<RpcResponse>execute(f -> {
       doRequest(httpRpcRequest, f);
-    }).setHandler(future.completer());
+    }).setHandler(ar -> {
+      if (ar.failed()) {
+        if (ar.cause() instanceof RuntimeException
+                 && "open circuit".equals(ar.cause().getMessage())) {
+          LOGGER.warn("---| [{}] [FAILED] [{}] [{}]",
+                      httpRpcRequest.id(),
+                      this.getClass().getSimpleName(),
+                      "BreakerTripped");
+        }
+        future.fail(ar.cause());
+      } else {
+        future.complete(ar.result());
+      }
+    });
     return future;
   }
 

@@ -4,6 +4,8 @@ import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.shareddata.Shareable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Edgar on 2017/6/27.
@@ -11,6 +13,8 @@ import io.vertx.core.shareddata.Shareable;
  * @author Edgar  Date 2017/6/27
  */
 public class CircuitBreakerRegistry implements Shareable {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CircuitBreakerRegistry.class);
 
   private final Vertx vertx;
 
@@ -20,11 +24,11 @@ public class CircuitBreakerRegistry implements Shareable {
     this.vertx = vertx;
     breaker = CircuitBreaker.create(name, vertx, new CircuitBreakerOptions())
             .openHandler(v -> {
-              System.out.println("Circuit opened");
+              LOGGER.info("BreakerTripped: {}", name);
             }).closeHandler(v -> {
-              System.out.println("Circuit closed");
+              LOGGER.info("BreakerClosed: {}", name);
             }).halfOpenHandler(v -> {
-              System.out.println("reset (half-open state)");
+              LOGGER.info("BreakerReseted: {}", name);
             });
   }
 
