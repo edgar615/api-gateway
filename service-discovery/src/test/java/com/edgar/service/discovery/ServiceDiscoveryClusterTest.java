@@ -60,6 +60,7 @@ public class ServiceDiscoveryClusterTest {
       complete.set(true);
     });
     Awaitility.await().until(() -> complete.get());
+
   }
 
   @Test

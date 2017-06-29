@@ -75,7 +75,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
 
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
@@ -86,12 +86,12 @@
                             <mainClass>io.vertx.core.Launcher</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>ext/hazelcast-3.6.3.jar ext/hazelcast-3.6.3.jar ext/hazelcast-3.6.3.jar ext/hazelcast-3.6.3.jar</Class-Path>
+                            <Class-Path>ext/hazelcast-3.6.3.jar ext/vertx-hazelcast-3.4.2.jar ext/logback-core-1.1.2.jar ext/logback-classic-1.1.2.jar</Class-Path>
                             <Main-Verticle>${main.verticle}</Main-Verticle>
                         </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>
