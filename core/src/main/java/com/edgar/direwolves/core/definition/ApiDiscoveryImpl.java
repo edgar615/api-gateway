@@ -8,6 +8,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2017/6/20
  */
 class ApiDiscoveryImpl implements ApiDiscovery {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiDiscovery.class);
   private final Vertx vertx;
 
   private final ApiDefinitionBackend backend;
@@ -63,6 +66,7 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     } else {
       accept = r -> r.match(filter);
     }
+    LOGGER.info("---| [api.filtered] [{}]", filter.encode());
     getDefinitions(accept, resultHandler);
   }
 
@@ -72,13 +76,15 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     Objects.requireNonNull(filter);
     backend.getDefinitions(ar -> {
       if (ar.failed()) {
+        LOGGER.error("---| [api.filtered]", ar.cause());
         resultHandler.handle(Future.failedFuture(ar.cause()));
       } else {
-        resultHandler.handle(Future.succeededFuture(
+        List<ApiDefinition> definitions =
                 ar.result().stream()
                         .filter(filter::apply)
-                        .collect(Collectors.toList())
-        ));
+                        .collect(Collectors.toList());
+        LOGGER.info("---| [api.filtered] [{}]", definitions.size());
+        resultHandler.handle(Future.succeededFuture(definitions));
       }
     });
   }
@@ -104,6 +110,6 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   @Override
   public void close() {
-//    LOGGER.info("Stopping service discovery");
+    LOGGER.info("Stopping api discovery");
   }
 }

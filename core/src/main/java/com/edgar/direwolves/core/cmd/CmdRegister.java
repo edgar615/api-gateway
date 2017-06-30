@@ -37,7 +37,7 @@ public class CmdRegister implements Initializable {
             .map(f -> f.create(vertx, config))
             .forEach(cmd -> {
               String address = cmdAddress(cmd.cmd());
-              LOGGER.info("---| [Register consumer] [{}]", address);
+              LOGGER.info("[cmd.consumer.register] [{}]", address);
               eb.<JsonObject>consumer(address, msg -> consumer(cmd, address, msg));
             });
     complete.complete();

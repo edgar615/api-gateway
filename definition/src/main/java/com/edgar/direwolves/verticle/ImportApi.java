@@ -7,6 +7,8 @@ import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.List;
  * @author Edgar  Date 2017/3/30
  */
 public class ImportApi implements Initializable {
+
+  Logger LOGGER = LoggerFactory.getLogger(ImportApi.class);
+
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {
     JsonObject apiConfig = config.getJsonObject("router.dir", new JsonObject());
@@ -29,6 +34,7 @@ public class ImportApi implements Initializable {
       Future<JsonObject> imported = cmd.handle(new JsonObject().put("path", path)
                                                        .put("namespace", namespace));
       futures.add(imported);
+      LOGGER.info("[api.import] [{}] [{}]", namespace, path);
     }
     if (futures.isEmpty()) {
       complete.complete();
@@ -41,6 +47,13 @@ public class ImportApi implements Initializable {
                 complete.complete();
               } else {
                 complete.fail(ar.cause());
+              }
+              for (int i = 0; i < ar.result().size(); i ++) {
+                if (ar.result().succeeded(i)) {
+                  LOGGER.info("[api.imported] [{}]", ar.result().resultAt(i).toString());
+                } else {
+                  LOGGER.error("[api.imported] [{}]", ar.result().cause(i));
+                }
               }
             });
 

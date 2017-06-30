@@ -23,6 +23,17 @@ API版本：在响应头中增加API的版本，如果有过期时间说明过�
 
 多种类型日志
 暂定的日志事件：
+
+## API Definition
+config.readed 读取配置
+api.import 导入API
+api.imported 导入API完成
+
+api.added 添加API
+api.deleted 删除
+api.all 查找所有
+api.finded 根据名称查找API
+
 HttpRpcRequested:内部的HTTP转发
 TokenCreated：创建token
 TokenUpdated：更新token
@@ -39,6 +50,39 @@ SlowReqDetected：慢请求检查
 监控
 
 后台
+
+打包
+***还未找到更好的方法*
+在整个开发编译过程中都不需要依赖hazelcast和logback组件，但是在在集群部署时依赖hazelcast，所以在打包的时候需要加入hazelcast，找到了三种方式：
+
+1. 将hazelcast引入依赖（不喜欢）
+2. 通过maven-jar-plugin增加Class-Path，然后通过`java -jar`启动
+
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <mainClass>io.vertx.core.Launcher</mainClass>
+                    </manifest>
+                    <manifestEntries>
+                        <Class-Path>ext/hazelcast-3.6.3.jar ext/vertx-hazelcast-3.4.2.jar ext/logback-core-1.1.2.jar ext/logback-classic-1.1.2.jar</Class-Path>
+                        <Main-Verticle>${main.verticle}</Main-Verticle>
+                    </manifestEntries>
+                </archive>
+            </configuration>
+        </plugin>
+
+
+
+3. 通过-cp指定classpath，**java -jar会忽略-cp**，所以我们只能通过-cp来运行Main方法
+
+java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle --cluster
+
+**windows用;分隔,linux用:分隔**
 
 配置项
 

@@ -1,7 +1,7 @@
 {
   "router.dir" : {
     "iotp-app" : {
-      "path" : "standalone/src/test/resources/router"
+      "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
     },
     "iotp-om" : {
       "path" : "standalone/src/test/resources/router"

@@ -63,7 +63,7 @@ public class ImportApiCmd implements ApiCmd {
     }, ar -> {
       if (ar.succeeded()) {
         List<Future> futures = addApiList(discovery, ar.result());
-        checkResult(futures, future);
+        checkResult(namespace, futures, future);
       } else {
         LOGGER.error("---| [Import Api] [FAILED] [{}]", ar.cause().getMessage());
         future.fail(ar.cause());
@@ -73,11 +73,12 @@ public class ImportApiCmd implements ApiCmd {
     return future;
   }
 
-  private void checkResult(List<Future> futures, Future<JsonObject> complete) {
+  private void checkResult(String namespace, List<Future> futures, Future<JsonObject> complete) {
     CompositeFuture.all(futures)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                complete.complete(new JsonObject().put("result", futures.size()));
+                complete.complete(new JsonObject().put("result", futures.size())
+                                          .put("namespace", namespace));
                 return;
               }
               complete.fail(ar.cause());
@@ -91,15 +92,8 @@ public class ImportApiCmd implements ApiCmd {
         ApiDefinition d = ApiDefinition.fromJson(new JsonObject(str));
         Future<ApiDefinition> addFuture = addApi(discovery, d);
         futures.add(addFuture);
-        addFuture.setHandler(ar -> {
-          if (ar.succeeded()) {
-            LOGGER.info("---| [Import Api] [OK] [{}] [{}]", d.name(), str);
-          } else {
-            LOGGER.error("---| [Import Api] [FAILED] [{}] [{}]", ar.cause().getMessage(), str);
-          }
-        });
       } catch (Exception e) {
-        LOGGER.error("---| [Import Api] [FAILED] [{}] [{}]", e.getMessage(), str);
+        LOGGER.error("[api.imported] [{}]",str,  e);
       }
     }
     return futures;
@@ -135,7 +129,7 @@ public class ImportApiCmd implements ApiCmd {
         String defineJson = buffer.toString();
         datas.add(defineJson);
       } catch (Exception e) {
-        LOGGER.error("---| [Read Api] [FAILED] [{}]", path
+        LOGGER.error("[file.readed] [FAILED] [{}]", path
                                                       + ":" + e.getMessage());
       }
     }

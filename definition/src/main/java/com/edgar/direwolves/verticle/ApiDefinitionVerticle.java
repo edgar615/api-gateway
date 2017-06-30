@@ -21,7 +21,8 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    LOGGER.info("---| [Read Definition Config] [{}]", config().encodePrettily());
+    LOGGER.info("[definition.start]");
+    LOGGER.info("---| [config.readed] [{}]", config().encodePrettily());
     initialize(startFuture);
   }
 
@@ -40,10 +41,10 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     CompositeFuture.all(importApiFuture, importCmdFuture)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                LOGGER.info("---| [Definition Start] [OK]");
+                LOGGER.info("[definition.started]");
                 startFuture.complete();
               } else {
-                LOGGER.error("---| [Definition Start] [FAILED]");
+                LOGGER.error("[definition.started]", ar.cause());
                 startFuture.fail(ar.cause());
               }
             });
