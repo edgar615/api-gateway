@@ -91,7 +91,8 @@ public class EventbusUtilsTest {
     EventbusUtils.consumer(vertx, address, msg -> {
       System.out.println(msg.body());
       Assert.assertEquals("request", msg.body().head().ext("msg-type"));
-      Event response = Event.create(msg.body().head().to(), msg.body().action());
+      Message message = Message.create(msg.body().head().id(), msg.body().action().content());
+      Event response = Event.create(msg.body().head().to(), message);
       EventbusUtils.reply(msg, Future.<Event>succeededFuture(response));
     });
 
@@ -101,7 +102,7 @@ public class EventbusUtilsTest {
       if (ar.succeeded()) {
         count.incrementAndGet();
         System.out.println(ar.result());
-        Assert.assertEquals("user.add", ar.result().action().resource());
+        Assert.assertEquals(event.head().id(), ar.result().action().resource());
       } else {
         ar.cause().printStackTrace();
       }
