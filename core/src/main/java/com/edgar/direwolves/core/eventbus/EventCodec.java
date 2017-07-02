@@ -1,6 +1,7 @@
 package com.edgar.direwolves.core.eventbus;
 
 import com.edgar.util.event.Event;
+import com.edgar.util.vertx.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.JsonObject;
@@ -23,7 +24,7 @@ public class EventCodec implements MessageCodec<Event, Event> {
     pos += 4;
     byte[] encoded = buffer.getBytes(pos, pos + length);
     JsonObject jsonObject = Buffer.buffer(encoded).toJsonObject();
-    return Event.fromMap(jsonObject.getMap());
+    return Event.fromMap(JsonUtils.toMap(jsonObject));
   }
 
   @Override
