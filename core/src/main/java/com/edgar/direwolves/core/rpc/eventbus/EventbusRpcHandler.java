@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.rpc.eventbus;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
@@ -10,6 +11,8 @@ import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.edgar.util.vertx.eventbus.Event;
+import com.edgar.util.vertx.eventbus.EventBuilder;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -69,7 +72,9 @@ public class EventbusRpcHandler implements RpcHandler {
 
   private void pubsub(EventbusRpcRequest request, Future<RpcResponse> completed) {
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
-    vertx.eventBus().publish(request.address(), request.message(), deliveryOptions);
+    Event event = createEvent(request);
+
+    vertx.eventBus().publish(request.address(), event, deliveryOptions);
     JsonObject result = new JsonObject()
             .put("result", 1);
 
@@ -86,18 +91,31 @@ public class EventbusRpcHandler implements RpcHandler {
   private DeliveryOptions createDeliveryOptions(EventbusRpcRequest request) {
     DeliveryOptions deliveryOptions = new DeliveryOptions()
             .addHeader("x-request-id", request.id());
-    Multimap<String, String> headers = request.headers();
-    for (String key : headers.keySet()) {
-      for (String value : headers.get(key)) {
-        deliveryOptions.addHeader(key, value);
-      }
+    if (!Strings.isNullOrEmpty(request.action())) {
+      deliveryOptions.addHeader("action", request.action());
     }
     return deliveryOptions;
   }
 
+  private Event createEvent(EventbusRpcRequest request) {
+    EventBuilder builder = Event.builder()
+            .setId(request.id())
+            .setAction(request.action())
+            .setAddress(request.address());
+    Multimap<String, String> headers = request.headers();
+    for (String key : headers.keySet()) {
+      for (String value : headers.get(key)) {
+        builder.addExt(key, value);
+      }
+    }
+    return builder.build();
+  }
+
+
   private void pointToPoint(EventbusRpcRequest request, Future<RpcResponse> completed) {
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
-    vertx.eventBus().send(request.address(), request.message(), deliveryOptions);
+    Event event = createEvent(request);
+    vertx.eventBus().send(request.address(), event, deliveryOptions);
     JsonObject result = new JsonObject()
             .put("result", 1);
     LOGGER.info("<------ [{}] [{}] [{}] [{}ms] [{} bytes]",
@@ -112,8 +130,9 @@ public class EventbusRpcHandler implements RpcHandler {
 
   private void reqResp(EventbusRpcRequest request, Future<RpcResponse> completed) {
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
+    Event event = createEvent(request);
     long srated = System.currentTimeMillis();
-    vertx.eventBus().<JsonObject>send(request.address(), request.message(), deliveryOptions, ar -> {
+    vertx.eventBus().<Event>send(request.address(), event, deliveryOptions, ar -> {
       long elapsedTime = System.currentTimeMillis() - srated;
       if (ar.succeeded()) {
         int bytes;
@@ -134,25 +153,14 @@ public class EventbusRpcHandler implements RpcHandler {
           completed.fail(new NullPointerException("result is null"));
           return;
         }
-        if (!ar.result().body().containsKey("result")) {
-          JsonObject result = ar.result().body();
-          completed.complete(RpcResponse.createJsonObject(request.id(), 200, result, elapsedTime));
+        if (event.header().getBoolean("is_array", true)) {
+          completed.complete(RpcResponse.createJsonArray(request.id(), 200,
+                                                         event.body().getJsonArray("result",
+                                                                                   new JsonArray()),
+                                                         elapsedTime));
         } else {
-          Object result = ar.result().body().getValue("result");
-          if (result instanceof JsonArray) {
-            completed.complete(
-                    RpcResponse
-                            .createJsonArray(request.id(), 200, (JsonArray) result, elapsedTime));
-          } else if (result instanceof JsonObject) {
-            completed.complete(
-                    RpcResponse
-                            .createJsonObject(request.id(), 200, (JsonObject) result, elapsedTime));
-          } else {
-            completed.complete(
-                    RpcResponse
-                            .createJsonObject(request.id(), 200, ar.result().body(), elapsedTime));
-          }
-
+          completed.complete(
+                  RpcResponse.createJsonObject(request.id(), 200, event.body(), elapsedTime));
         }
       } else {
         Helper.logFailed(LOGGER, request.id(),

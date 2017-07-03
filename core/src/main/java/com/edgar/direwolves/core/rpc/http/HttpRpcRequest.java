@@ -116,8 +116,8 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.setHttpMethod(httpMethod);
     copyReq.setTimeout(timeout);
     copyReq.setBody(body());
-    copyReq.addParams(params());
-    copyReq.addHeaders(headers());
+    copyReq.addParams(ArrayListMultimap.create(params));
+    copyReq.addHeaders(ArrayListMultimap.create(headers));
     copyReq.setServerId(serverId);
     return copyReq;
   }

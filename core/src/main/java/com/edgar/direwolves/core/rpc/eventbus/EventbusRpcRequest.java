@@ -1,12 +1,13 @@
 package com.edgar.direwolves.core.rpc.eventbus;
 
-import com.edgar.direwolves.core.definition.EventbusEndpoint;
-import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+
+import com.edgar.direwolves.core.definition.EventbusEndpoint;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -32,6 +33,13 @@ public class EventbusRpcRequest implements RpcRequest {
   private final String address;
 
   /**
+   * 三种策略：pub-sub、point-point、req-resp
+   */
+  private final String policy;
+
+  private final String action;
+
+  /**
    * 请求头
    */
   private Multimap<String, String> headers;
@@ -41,12 +49,9 @@ public class EventbusRpcRequest implements RpcRequest {
    */
   private JsonObject message;
 
-  /**
-   * 三种策略：pub-sub、point-point、req-resp
-   */
-  private final String policy;
-
-  EventbusRpcRequest(String id, String name, String address, String policy, Multimap<String, String> headers,
+  EventbusRpcRequest(String id, String name, String address, String policy,
+                     String action,
+                     Multimap<String, String> headers,
                      JsonObject message) {
     Preconditions.checkNotNull(id);
     Preconditions.checkNotNull(name);
@@ -58,6 +63,7 @@ public class EventbusRpcRequest implements RpcRequest {
     this.address = address;
     this.message = message;
     this.policy = policy;
+    this.action = action;
     if (headers == null) {
       this.headers = ArrayListMultimap.create();
     } else {
@@ -71,14 +77,19 @@ public class EventbusRpcRequest implements RpcRequest {
    * @param id      id
    * @param name    名称
    * @param address 地址
-   * @param headers  请求头
+   * @param headers 请求头
    * @param message 消息内容
    * @return EventbusRpcRequest
    */
   public static EventbusRpcRequest create(String id, String name, String address, String policy,
+                                          String action,
                                           Multimap<String, String> headers,
                                           JsonObject message) {
-    return new EventbusRpcRequest(id, name, address, policy, headers, message);
+    return new EventbusRpcRequest(id, name, address, policy, action, headers, message);
+  }
+
+  public String action() {
+    return action;
   }
 
   @Override
@@ -126,6 +137,7 @@ public class EventbusRpcRequest implements RpcRequest {
     this.headers.putAll(header);
     return this;
   }
+
   public void addMessage(String key, Object value) {
     this.message.put(key, value);
   }
@@ -136,18 +148,21 @@ public class EventbusRpcRequest implements RpcRequest {
 
   @Override
   public RpcRequest copy() {
-    return EventbusRpcRequest.create(id, name, address, policy, headers, message.copy());
+    return EventbusRpcRequest.create(id, name, address, policy, action,
+                                     ArrayListMultimap.create(headers),
+                                     message.copy());
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("EventbusRpcRequest")
-        .add("id", id)
-        .add("name", name)
-        .add("address", address)
-        .add("policy", policy)
-        .add("headers", headers)
-        .add("message", message.encode())
-        .toString();
+            .add("id", id)
+            .add("name", name)
+            .add("address", address)
+            .add("policy", policy)
+            .add("action", action)
+            .add("headers", headers)
+            .add("message", message.encode())
+            .toString();
   }
 }

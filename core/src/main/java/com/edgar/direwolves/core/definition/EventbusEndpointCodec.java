@@ -1,9 +1,10 @@
 package com.edgar.direwolves.core.definition;
 
 import com.google.common.base.Preconditions;
-
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -35,7 +36,7 @@ public class EventbusEndpointCodec implements EndpointCodec {
       Object value = header.getValue(key);
       if (value instanceof JsonArray) {
         JsonArray jsonArray = (JsonArray) value;
-        for (int i = 0; i < jsonArray.size(); i ++) {
+        for (int i = 0; i < jsonArray.size(); i++) {
           headers.put(key, jsonArray.getValue(i).toString());
         }
       } else {
@@ -43,7 +44,7 @@ public class EventbusEndpointCodec implements EndpointCodec {
       }
     }
 
-    return new EventbusEndpointImpl(name, address, policy, headers);
+    return new EventbusEndpointImpl(name, address, policy, jsonObject.getString("action"), headers);
   }
 
   @Override
@@ -54,12 +55,16 @@ public class EventbusEndpointCodec implements EndpointCodec {
       List<String> values = new ArrayList<>(eventbusEndpoint.headers().get(key));
       header.put(key, values);
     }
-    return new JsonObject()
+    JsonObject jsonObject = new JsonObject()
             .put("type", eventbusEndpoint.type())
             .put("name", eventbusEndpoint.name())
             .put("address", eventbusEndpoint.address())
             .put("policy", eventbusEndpoint.policy())
             .put("header", header);
+    if (!Strings.isNullOrEmpty(((EventbusEndpoint) endpoint).action())) {
+      jsonObject.put("action", ((EventbusEndpoint) endpoint).action());
+    }
+    return jsonObject;
   }
 
   @Override
