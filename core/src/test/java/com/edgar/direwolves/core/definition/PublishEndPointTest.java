@@ -14,7 +14,7 @@ public class PublishEndPointTest {
   @Test
   public void testToJson() {
     EventbusEndpoint endpoint =
-        EventbusEndpoint.publish("get_device", "service.device.get", null);
+        EventbusEndpoint.publish("get_device", "service.device.get", null, null);
 
     JsonObject jsonObject = Endpoints.toJson(endpoint);
 

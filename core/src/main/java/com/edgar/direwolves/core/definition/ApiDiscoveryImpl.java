@@ -1,9 +1,11 @@
 package com.edgar.direwolves.core.definition;
 
+import com.google.common.collect.Lists;
+
+import com.edgar.direwolves.core.utils.LoggerUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -11,9 +13,7 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,24 +24,40 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2017/6/20
  */
 class ApiDiscoveryImpl implements ApiDiscovery {
+
+  public static final String LOG_EVENT_NAME = "api.discovery";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDiscovery.class);
+
   private final Vertx vertx;
 
   private final ApiDefinitionBackend backend;
 
+  private final String name;
+
   public ApiDiscoveryImpl(Vertx vertx, String name) {
     this.vertx = vertx;
+    this.name = name;
     this.backend = new DefaultApiDefinitionBackend(vertx, name);
+    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "start",
+                     Lists.newArrayList("namespace"),
+                     Lists.newArrayList(this.name));
   }
 
   @Override
   public void publish(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
+    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.publish",
+                     Lists.newArrayList("namespace", "definition"),
+                     Lists.newArrayList(this.name, definition.toJson().encode()));
     backend.store(definition, resultHandler);
 //    vertx.eventBus().publish(announce, definition.toJson());
   }
 
   @Override
   public void unpublish(String name, Handler<AsyncResult<Void>> resultHandler) {
+    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.unpublish",
+                     Lists.newArrayList("namespace", "name"),
+                     Lists.newArrayList(this.name, name));
     backend.remove(name, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
@@ -66,7 +82,9 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     } else {
       accept = r -> r.match(filter);
     }
-    LOGGER.info("---| [api.filtered] [{}]", filter.encode());
+    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "filter",
+                     Lists.newArrayList("namespace", "filter"),
+                     Lists.newArrayList(this.name, filter.encode()));
     getDefinitions(accept, resultHandler);
   }
 
@@ -76,14 +94,19 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     Objects.requireNonNull(filter);
     backend.getDefinitions(ar -> {
       if (ar.failed()) {
-        LOGGER.error("---| [api.filtered]", ar.cause());
+        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "filter",
+                          Lists.newArrayList("namespace"),
+                          Lists.newArrayList(this.name)
+                , ar.cause());
         resultHandler.handle(Future.failedFuture(ar.cause()));
       } else {
         List<ApiDefinition> definitions =
                 ar.result().stream()
                         .filter(filter::apply)
                         .collect(Collectors.toList());
-        LOGGER.info("---| [api.filtered] [{}]", definitions.size());
+        LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "filter",
+                         Lists.newArrayList("namespace", "size"),
+                         Lists.newArrayList(this.name, definitions.size()));
         resultHandler.handle(Future.succeededFuture(definitions));
       }
     });
@@ -100,7 +123,8 @@ class ApiDiscoveryImpl implements ApiDiscovery {
         List<ApiDefinition> definitions = ar.result();
         if (definitions.isEmpty()) {
           resultHandler.handle(Future.failedFuture(SystemException.create(DefaultErrorCode
-                                                                                  .RESOURCE_NOT_FOUND).set("name", name)));
+                                                                                  .RESOURCE_NOT_FOUND)
+                                                           .set("name", name)));
         } else {
           resultHandler.handle(Future.succeededFuture(definitions.get(0)));
         }
@@ -110,6 +134,8 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   @Override
   public void close() {
-    LOGGER.info("Stopping api discovery");
+    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "close",
+                     Lists.newArrayList("namespace"),
+                     Lists.newArrayList(this.name));
   }
 }

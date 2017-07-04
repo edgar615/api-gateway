@@ -3,12 +3,15 @@ package com.edgar.direwolves.core.rpc;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
+import com.edgar.util.vertx.eventbus.Event;
+import com.edgar.util.vertx.eventbus.EventCodec;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -16,6 +19,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Edgar on 2016/4/8.
@@ -32,6 +37,7 @@ public class PointToPointRpcHandlerTest {
   @BeforeClass
   public static void startServer(TestContext context) {
     vertx = Vertx.vertx();
+    vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
 //    vertx.deployVerticle(DeviceHttpVerticle.class.getName(), context.asyncAssertSuccess());
   }
 
@@ -50,21 +56,23 @@ public class PointToPointRpcHandlerTest {
   public void pointToPointShouldAlwaysReturn200(TestContext context) {
     String address = UUID.randomUUID().toString();
     RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
-                                                      EventbusEndpoint.POINT_POINT, null, new
-                                                              JsonObject().put("id", 1));
+                                                      EventbusEndpoint.POINT_POINT, null, null,
+                                                      new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
+    AtomicBoolean complete = new AtomicBoolean();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         RpcResponse rpcResponse = ar.result();
         context.assertFalse(rpcResponse.isArray());
         context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
-        async.complete();
+        complete.set(true);
       } else {
         context.fail();
       }
     });
+
+    Awaitility.await().until(() -> complete.get());
   }
 
   @Test
@@ -72,29 +80,31 @@ public class PointToPointRpcHandlerTest {
 
     String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
-    Async async = context.async();
-    vertx.eventBus().<JsonObject>consumer(address, ar -> {
+    AtomicBoolean complete1 = new AtomicBoolean();
+    vertx.eventBus().<Event>consumer(address, ar -> {
       String eventId = ar.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(eventId);
-      async.complete();
+      complete1.set(true);
     });
 
     RpcRequest rpcRequest = EventbusRpcRequest
-            .create(id, "device", address, EventbusEndpoint.POINT_POINT, null, new
-                    JsonObject().put("id", 1));
+            .create(id, "device", address, EventbusEndpoint.POINT_POINT, null, null,
+                    new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async2 = context.async();
+    AtomicBoolean complete2 = new AtomicBoolean();
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         RpcResponse rpcResponse = ar.result();
         context.assertFalse(rpcResponse.isArray());
         context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
-        async2.complete();
+        complete2.set(true);
       } else {
         context.fail();
       }
     });
+    Awaitility.await().until(() -> complete2.get());
+    Awaitility.await().until(() -> complete1.get());
   }
 }

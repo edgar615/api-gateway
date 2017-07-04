@@ -47,7 +47,7 @@ public class RegisterBackendApi implements Initializable {
   private ApiDefinition cmdToApi(String namespace, ApiCmd cmd) {
     String address = cmdAddress(namespace, cmd.cmd());
     Endpoint endpoint =
-            EventbusEndpoint.reqResp(cmd.cmd(), address, null);
+            EventbusEndpoint.reqResp(cmd.cmd(), address, null, null);
     ApiDefinition apiDefinition =
             ApiDefinition.create(address, HttpMethod.POST, "backend/" + cmd.cmd(),
                                  Lists.newArrayList(endpoint));

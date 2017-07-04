@@ -2,6 +2,7 @@ package com.edgar.direwolves.dispatch.handler;
 
 import com.google.common.base.Joiner;
 
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.metric.ApiMetrics;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import io.vertx.core.Handler;
@@ -42,14 +43,20 @@ public class BaseHandler implements Handler<RoutingContext> {
     rc.put("x-request-id", id);
     long start = System.currentTimeMillis();
     rc.put("x-request-time", start);
-    LOGGER.info("---> [{}] [{}] [{}] [{}] [{}] [{}]", id,
-                rc.request().scheme(),
-                rc.request().method().name() + " " + rc.normalisedPath(),
-                mutiMapToString(rc.request().headers(), "no header"),
-                mutiMapToString(rc.request().params(), "no param"),
-                (rc.getBody() == null || rc.getBody().length() == 0) ? "no body" : rc.getBody()
-                        .toString()
-    );
+    Log.create(LOGGER)
+            .setApplication("api-gateway")
+            .setTraceId(id)
+            .setModule("dispatcher")
+            .setEvent("http.request.received")
+            .setMessage("--> [{} {}] [{}] [{}] [{}]")
+            .addArg(rc.request().method().name())
+            .addArg(rc.normalisedPath())
+            .addArg(mutiMapToString(rc.request().headers(), "no header"))
+            .addArg(mutiMapToString(rc.request().params(), "no param"))
+            .addArg((rc.getBody() == null || rc.getBody().length() == 0) ? "no body" : rc.getBody()
+                    .toString())
+            .ouput();
+
 
     rc.addHeadersEndHandler(v -> {
       rc.response().putHeader("x-server-time",
@@ -57,13 +64,18 @@ public class BaseHandler implements Handler<RoutingContext> {
     });
 
     rc.addBodyEndHandler(v -> {
-      LOGGER.info("<--- [{}] [{}] [{}] [{}] [{}ms] [{} bytes]", id,
-                  rc.request().scheme(),
-                  rc.response().getStatusCode(),
-                  mutiMapToString(rc.response().headers(), "no header"),
-                  System.currentTimeMillis() - start,
-                  rc.response().bytesWritten()
-      );
+      Log.create(LOGGER)
+              .setApplication("api-gateway")
+              .setTraceId(id)
+              .setModule("dispatcher")
+              .setEvent("http.request.reply")
+              .setMessage("<--- [{}] [{}] [{}ms] [{} bytes]")
+              .addArg( rc.response().getStatusCode())
+              .addArg(mutiMapToString(rc.response().headers(), "no header"))
+              .addArg(System.currentTimeMillis() - start)
+              .addArg(rc.response().bytesWritten())
+              .ouput();
+
       ApiMetrics.instance()
               .response(id, rc.response().getStatusCode(), System.currentTimeMillis() - start);
     });

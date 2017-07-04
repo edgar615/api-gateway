@@ -75,11 +75,11 @@ public class EventbusRequestFilterTest {
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     EventbusEndpoint reqResp =
-        EventbusEndpoint.reqResp("send_log", "send_log", ebHeaders);
+        EventbusEndpoint.reqResp("send_log", "send_log", null, ebHeaders);
     EventbusEndpoint point =
-        EventbusEndpoint.pointToPoint("point", "send_log", null);
+        EventbusEndpoint.pointToPoint("point", "send_log", null, null);
     EventbusEndpoint pub =
-        EventbusEndpoint.publish("pub", "send_log", null);
+        EventbusEndpoint.publish("pub", "send_log", null, null);
     ApiDefinition definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, reqResp, point, pub));
     apiContext.setApiDefinition(definition);
@@ -118,11 +118,11 @@ public class EventbusRequestFilterTest {
     com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
         HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
     EventbusEndpoint reqResp =
-        EventbusEndpoint.reqResp("send_log", "send_log",ebHeaders);
+        EventbusEndpoint.reqResp("send_log", "send_log",null, ebHeaders);
     EventbusEndpoint point =
-        EventbusEndpoint.pointToPoint("point", "send_log", null);
+        EventbusEndpoint.pointToPoint("point", "send_log", null, null);
     EventbusEndpoint pub =
-        EventbusEndpoint.publish("pub", "send_log", null);
+        EventbusEndpoint.publish("pub", "send_log",null,  null);
     ApiDefinition definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, reqResp, point, pub));
     apiContext.setApiDefinition(definition);

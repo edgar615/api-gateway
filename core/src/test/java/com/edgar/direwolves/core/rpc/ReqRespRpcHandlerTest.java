@@ -1,12 +1,15 @@
 package com.edgar.direwolves.core.rpc;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.edgar.util.vertx.eventbus.Event;
+import com.edgar.util.vertx.eventbus.EventCodec;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -36,6 +39,7 @@ public class ReqRespRpcHandlerTest {
   @BeforeClass
   public static void startServer(TestContext context) {
     vertx = Vertx.vertx();
+    vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
   }
 
   @Before
@@ -53,7 +57,7 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-                                                      null,
+                                                      null, null,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
@@ -62,9 +66,10 @@ public class ReqRespRpcHandlerTest {
       if (ar.succeeded()) {
         context.fail();
       } else {
+        ar.cause().printStackTrace();
         context.assertTrue(ar.cause() instanceof SystemException);
         SystemException ex = (SystemException) ar.cause();
-        context.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, ex.getErrorCode());
+        context.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE, ex.getErrorCode());
         async.complete();
       }
     });
@@ -76,21 +81,26 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<JsonObject>consumer(address, msg -> {
+    vertx.eventBus().<Event>consumer(address, msg -> {
       String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
 
       context.assertFalse(msg.headers().contains("action"));
-      msg.reply(new JsonObject().put("result", 1));
+      Event response
+              = Event.builder().setType("response")
+              .setReplyTo(msg.body().id())
+              .setAddress(msg.replyAddress())
+              .setBody(new JsonObject().put("result", 1))
+              .build();
+      msg.reply(response);
       async.complete();
     });
 
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-        null,
-        new
-            JsonObject().put("id", 1));
+                                                      null, null,
+                                                      new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async2 = context.async();
@@ -112,24 +122,28 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<JsonObject>consumer(address, msg -> {
+    vertx.eventBus().<Event>consumer(address, msg -> {
       String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
 
-      context.assertEquals("abcdefg",msg.headers().get("action"));
-          msg.reply(new JsonObject().put("result", 1));
+      context.assertEquals("abcdefg", msg.headers().get("action"));
+      Event response
+              = Event.builder().setType("response")
+              .setReplyTo(msg.body().id())
+              .setAddress(msg.replyAddress())
+              .setBody(new JsonObject().put("result", 1))
+              .build();
+      msg.reply(response);
       async.complete();
     });
 
     Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("action", "abcdefg");
 
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
-                                                     EventbusEndpoint.REQ_RESP,
-        headers,
-        new
-            JsonObject().put("id", 1));
+                                                      EventbusEndpoint.REQ_RESP,
+                                                      "abcdefg", headers,
+                                                      new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
     Async async2 = context.async();
@@ -141,6 +155,38 @@ public class ReqRespRpcHandlerTest {
         async2.complete();
       } else {
         context.fail();
+      }
+    });
+  }
+
+  @Test
+  public void testReplyError(TestContext context) {
+
+    String address = UUID.randomUUID().toString();
+    String id = UUID.randomUUID().toString();
+    Async async = context.async();
+    vertx.eventBus().<Event>consumer(address, msg -> {
+      String eventId = msg.headers().get("x-request-id");
+      context.assertEquals(id, eventId);
+      System.out.println(msg.headers());
+      context.assertFalse(msg.headers().contains("action"));
+      msg.fail(1012, "test");
+      async.complete();
+    });
+
+    RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
+                                                      EventbusEndpoint.REQ_RESP,
+                                                      null, null,
+                                                      new JsonObject().put("id", 1));
+
+    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+    Async async2 = context.async();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        context.fail();
+      } else {
+        ar.cause().printStackTrace();
+        async2.complete();
       }
     });
   }

@@ -77,7 +77,7 @@ public class DummyRequestFilterTest {
     DummyEndpoint dummyEndpoint =
         DummyEndpoint.dummy("dummy", new JsonObject().put("result", 1));
     EventbusEndpoint point =
-        EventbusEndpoint.pointToPoint("point", "send_log", null);
+        EventbusEndpoint.pointToPoint("point", "send_log", null, null);
     ApiDefinition definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, point, dummyEndpoint));
     apiContext.setApiDefinition(definition);

@@ -45,7 +45,7 @@ public interface EventbusEndpoint extends Endpoint {
    */
   static EventbusEndpoint reqResp(String name, String address, String action,
                                   Multimap<String, String> header) {
-    return new EventbusEndpointImpl(name, address, action, EventbusEndpoint.REQ_RESP, header);
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.REQ_RESP, action, header);
   }
 
   /**
@@ -58,7 +58,7 @@ public interface EventbusEndpoint extends Endpoint {
    */
   static EventbusEndpoint publish(String name, String address, String action,
                                   Multimap<String, String> header) {
-    return new EventbusEndpointImpl(name, address, action, EventbusEndpoint.PUB_SUB, header);
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.PUB_SUB, action, header);
   }
 
   /**
@@ -71,7 +71,7 @@ public interface EventbusEndpoint extends Endpoint {
    */
   static EventbusEndpoint pointToPoint(String name, String address, String action,
                                        Multimap<String, String> header) {
-    return new EventbusEndpointImpl(name, address, action, EventbusEndpoint.POINT_POINT, header);
+    return new EventbusEndpointImpl(name, address, EventbusEndpoint.POINT_POINT, action, header);
   }
 
   default String type() {

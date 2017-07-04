@@ -1,5 +1,8 @@
 package com.edgar.direwolves.core.definition;
 
+import com.google.common.collect.Lists;
+
+import com.edgar.direwolves.core.utils.LoggerUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.sharedata.SyncMap;
@@ -7,6 +10,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +25,10 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2017/6/20
  */
 class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionBackend.class);
+
+  public static final String LOG_EVENT_NAME = "api.discovery";
 
   private final Vertx vertx;
 
@@ -40,12 +47,15 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
     Objects.requireNonNull(definition, "definition is null");
     registry.put(definition.name(), definition.toJson().encode(), ar -> {
       if (ar.succeeded()) {
-        LOGGER.info("[api.added] [{}] [{}]", definition.name(),
-                    definition.toJson().encode());
+        LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.add.succeeded",
+                         Lists.newArrayList("namespace", "api", "data"),
+                         Lists.newArrayList(name, definition.name(), definition.toJson().encode()));
         resultHandler.handle(Future.succeededFuture(definition));
       } else {
-        LOGGER.error("[api.added] [{}] [{}]", definition.name(),
-                     definition.toJson().encode(), ar.cause());
+        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.add.failed",
+                          Lists.newArrayList("namespace", "api", "data"),
+                          Lists.newArrayList(name, definition.name(), definition.toJson().encode()),
+                          ar.cause());
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -58,15 +68,23 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
       if (ar.succeeded()) {
         if (ar.result() == null) {
           // Not found
-          LOGGER.warn("[api.deleted] [{}] [not found]", name);
+          LoggerUtils.warn(LOGGER, LOG_EVENT_NAME, "api.delete.failed",
+                           Lists.newArrayList("namespace", "api"),
+                           Lists.newArrayList(this.name, name),
+                           new NoStackTraceThrowable("Api: '" + name + "' not found"));
           resultHandler.handle(Future.failedFuture("Api: '" + name + "' not found"));
         } else {
-          LOGGER.info("[api.deleted] [{}] [{}]", name, ar.result());
+          LoggerUtils.warn(LOGGER, LOG_EVENT_NAME, "api.delete.succeeded",
+                           Lists.newArrayList("namespace", "api", "data"),
+                           Lists.newArrayList(this.name, name, ar.result()));
           resultHandler.handle(Future.succeededFuture(
                   ApiDefinition.fromJson(new JsonObject(ar.result()))));
         }
       } else {
-        LOGGER.error("[api.deleted] [{}]", name, ar.cause());
+        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.delete.failed",
+                          Lists.newArrayList("namespace", "api"),
+                          Lists.newArrayList(this.name, name),
+                          ar.cause());
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -76,13 +94,18 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
   public void getDefinitions(Handler<AsyncResult<List<ApiDefinition>>> resultHandler) {
     registry.getAll(ar -> {
       if (ar.succeeded()) {
-        LOGGER.info("[api.all] [{}]", ar.result().size());
+        LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.getall.succeeded",
+                         Lists.newArrayList("namespace", "size"),
+                         Lists.newArrayList(name, ar.result().size()));
         resultHandler.handle(Future.succeededFuture(ar.result().values().stream()
                                                             .map(s -> ApiDefinition
                                                                     .fromJson(new JsonObject(s)))
                                                             .collect(Collectors.toList())));
       } else {
-        LOGGER.error("[api.all]", name, ar.cause());
+        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.getall.failed",
+                          Lists.newArrayList("namespace"),
+                          Lists.newArrayList(name),
+                          ar.cause());
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -93,17 +116,25 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
     registry.get(name, ar -> {
       if (ar.succeeded()) {
         if (ar.result() != null) {
-          LOGGER.info("[ApiFinded] [{}] [{}]", name, ar.result());
+          LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.get.succeeded",
+                           Lists.newArrayList("namespace", "api", "data"),
+                           Lists.newArrayList(this.name, name, ar.result()));
           resultHandler.handle(Future.succeededFuture(
                   ApiDefinition.fromJson(new JsonObject(ar.result()))));
         } else {
-          LOGGER.warn("[ApiFinded] [{}] [not found]", name);
+          LoggerUtils.warn(LOGGER, LOG_EVENT_NAME, "api.get.failed",
+                           Lists.newArrayList("namespace", "api"),
+                           Lists.newArrayList(this.name, name),
+                           new NoStackTraceThrowable("Api: '" + name + "' not found"));
           SystemException ex = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
                   .set("name", name);
           resultHandler.handle(Future.failedFuture(ex));
         }
       } else {
-        LOGGER.error("[ApiFinded] [{}]", name, ar.cause());
+        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.get.failed",
+                          Lists.newArrayList("namespace", "api"),
+                          Lists.newArrayList(this.name, name),
+                          ar.cause());
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });

@@ -1,8 +1,10 @@
 package com.edgar.direwolves.verticle;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.cmd.CmdRegister;
+import com.edgar.direwolves.core.utils.LoggerUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -21,8 +23,9 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    LOGGER.info("[definition.start]");
-    LOGGER.info("---| [config.readed] [{}]", config().encodePrettily());
+    LoggerUtils.info(LOGGER, "config.read", "read definition config",
+                     Lists.newArrayList("config"),
+                     Lists.newArrayList(config().encode()));
     initialize(startFuture);
   }
 
@@ -34,17 +37,18 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, config(), importCmdFuture);
 
-    //注册API
-//    Future<Void> backendApiFuture = Future.future();
-//    new RegisterBackendApi().initialize(vertx, config(), backendApiFuture);
-
     CompositeFuture.all(importApiFuture, importCmdFuture)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                LOGGER.info("[definition.started]");
+                LoggerUtils.info(LOGGER, "verticle.deployed", "OK",
+                                 Lists.newArrayList("verticle"),
+                                 Lists.newArrayList("ApiDefinitionVerticle"));
                 startFuture.complete();
               } else {
-                LOGGER.error("[definition.started]", ar.cause());
+                LoggerUtils.error(LOGGER, "verticle.deployed", "FAILED",
+                                 Lists.newArrayList("verticle"),
+                                 Lists.newArrayList("ApiDefinitionVerticle"),
+                                  ar.cause());
                 startFuture.fail(ar.cause());
               }
             });

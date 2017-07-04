@@ -59,11 +59,11 @@ public class EventbusRpcHandler implements RpcHandler {
 
     Future<RpcResponse> future = Future.future();
     if (EventbusEndpoint.PUB_SUB.equalsIgnoreCase(request.policy())) {
-      pubsub(event,deliveryOptions,  future);
+      pubsub(event, deliveryOptions, future);
     } else if (EventbusEndpoint.POINT_POINT.equalsIgnoreCase(request.policy())) {
-      pointToPoint(event,deliveryOptions, future);
+      pointToPoint(event, deliveryOptions, future);
     } else if (EventbusEndpoint.REQ_RESP.equalsIgnoreCase(request.policy())) {
-      reqResp(event,deliveryOptions, future);
+      reqResp(event, deliveryOptions, future);
     } else {
       future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE));
     }
@@ -108,6 +108,11 @@ public class EventbusRpcHandler implements RpcHandler {
         builder.addExt(key, value);
       }
     }
+    if (request.message() == null) {
+      builder.setBody(new JsonObject());
+    } else {
+      builder.setBody(request.message());
+    }
     return builder.build();
   }
 
@@ -127,11 +132,16 @@ public class EventbusRpcHandler implements RpcHandler {
     completed.complete(RpcResponse.createJsonObject(event.id(), 200, result, 0));
   }
 
-  private void reqResp(Event event, DeliveryOptions options,Future<RpcResponse> completed) {
+  private void reqResp(Event event, DeliveryOptions options, Future<RpcResponse> completed) {
     long srated = System.currentTimeMillis();
     vertx.eventBus().<Event>send(event.address(), event, options, ar -> {
       long elapsedTime = System.currentTimeMillis() - srated;
       if (ar.succeeded()) {
+        if (!(ar.result().body() instanceof Event)) {
+          completed.fail(SystemException.create(DefaultErrorCode.INVALID_TYPE)
+                                 .set("details", "expected:Event"));
+          return;
+        }
         Event response = ar.result().body();
 
         int bytes;
@@ -152,10 +162,10 @@ public class EventbusRpcHandler implements RpcHandler {
           completed.fail(new NullPointerException("result is null"));
           return;
         }
-        if (response.header().getBoolean("is_array", true)) {
+        if (response.header().getBoolean("is_array", false)) {
           completed.complete(RpcResponse.createJsonArray(event.id(), 200,
                                                          response.body().getJsonArray("result",
-                                                                                   new JsonArray()),
+                                                                                      new JsonArray()),
                                                          elapsedTime));
         } else {
           completed.complete(
@@ -170,8 +180,8 @@ public class EventbusRpcHandler implements RpcHandler {
           ReplyException ex = (ReplyException) ar.cause();
           if (ex.failureType() == ReplyFailure.NO_HANDLERS) {
             SystemException resourceNotFoundEx =
-                    SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
-                            .set("details", "No handlers for address " + event.address());
+                    SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                            .set("details", "No handlers: " + event.address());
             completed.fail(resourceNotFoundEx);
           } else {
             completed.fail(ar.cause());

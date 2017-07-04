@@ -62,7 +62,8 @@ public class EventBusRequestFilter implements Filter {
       if (message == null) {
         message = new JsonObject();
       }
-      return EventbusRpcRequest.create(id, name, address, policy, header, message);
+      return EventbusRpcRequest.create(id, name, address, policy,
+                                       ((EventbusEndpoint) endpoint).action(), header, message);
 
     }
     return null;

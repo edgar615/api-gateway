@@ -78,7 +78,7 @@ public class ServiceDiscoveryFilterTest {
             HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     EventbusEndpoint eventbusEndpoint =
-            EventbusEndpoint.reqResp("send_log", "send_log", null);
+            EventbusEndpoint.reqResp("send_log", "send_log", null, null);
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/",
                     Lists.newArrayList(httpEndpoint, eventbusEndpoint));
