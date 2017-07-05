@@ -4,7 +4,10 @@ import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.vertx.eventbus.Event;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -27,20 +30,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/1/19
  */
 @RunWith(VertxUnitRunner.class)
-public class ImportApiCmdTest {
+public class ImportApiCmdTest extends BaseApiCmdTest {
 
-  Vertx vertx;
+  @Test
+  public void testMissNameShouldThrowValidationException(TestContext testContext) {
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.import")
+            .setBody(new JsonObject())
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        ar.cause().printStackTrace();
+        testContext.assertTrue(ar.cause() instanceof ReplyException);
+        testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
+                                 ReplyException.class.cast(ar.cause()).failureCode());
+        check.set(true);
+      }
+    });
+    Awaitility.await().until(() -> check.get());
 
-  ApiDiscovery discovery;
-
-  String namespace;
-  ApiCmd cmd;
-  @Before
-  public void setUp() {
-    namespace = UUID.randomUUID().toString();
-    vertx = Vertx.vertx();
-    discovery = ApiDiscovery.create(vertx, namespace);
-    cmd = new ImportApiCmdFactory().create(vertx, new JsonObject());
   }
 
   @Test
@@ -49,15 +60,17 @@ public class ImportApiCmdTest {
             .put("namespace", namespace)
         .put("path", "src/test/resources/api");
     AtomicBoolean check1 = new AtomicBoolean();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                System.out.println(ar.result());
-                check1.set(true);
-              } else {
-                testContext.fail();
-              }
-            });
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.import")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+      if (ar.succeeded()) {
+        check1.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
     Awaitility.await().until(() -> check1.get());
 
     AtomicBoolean check3 = new AtomicBoolean();
@@ -80,15 +93,17 @@ public class ImportApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/api/device_add.json");
     AtomicBoolean check1 = new AtomicBoolean();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                System.out.println(ar.result());
-                check1.set(true);
-              } else {
-                testContext.fail();
-              }
-            });
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.import")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+      if (ar.succeeded()) {
+        check1.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
     Awaitility.await().until(() -> check1.get());
 
     AtomicBoolean check3 = new AtomicBoolean();
@@ -111,15 +126,17 @@ public class ImportApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/invalid");
     AtomicBoolean check1 = new AtomicBoolean();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                System.out.println(ar.result());
-                check1.set(true);
-              } else {
-                testContext.fail();
-              }
-            });
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.import")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+      if (ar.succeeded()) {
+        check1.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
     Awaitility.await().until(() -> check1.get());
 
     AtomicBoolean check3 = new AtomicBoolean();

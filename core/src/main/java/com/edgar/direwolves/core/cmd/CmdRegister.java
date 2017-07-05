@@ -4,7 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import com.edgar.direwolves.core.utils.LoggerUtils;
+import com.edgar.direwolves.core.eventbus.EventbusUtils;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
@@ -40,26 +41,29 @@ public class CmdRegister implements Initializable {
             .map(f -> f.create(vertx, config))
             .forEach(cmd -> {
               String address = cmdAddress(cmd.cmd());
-              LoggerUtils.info(LOGGER, "cmd.registered", "register consumer",
-                               Lists.newArrayList("address"),
-                               Lists.newArrayList(address));
+              Log.create(LOGGER)
+                      .setModule("api.cmd")
+                      .setEvent("cmd.register")
+                      .addData("address", address)
+                      .addData("cmd", cmd.cmd())
+                      .info();
 
-              eb.<Event>consumer(address, msg -> consumer(cmd, address, msg));
+              eb.<Event>consumer(address, msg -> consumer(cmd, msg));
             });
     complete.complete();
   }
 
-  public void consumer(ApiCmd cmd, String address, Message<Event> msg) {
+  public void consumer(ApiCmd cmd,  Message<Event> msg) {
     Event event = msg.body();
-    MultiMap headers = msg.headers();
-    String id = headers.get("x-request-id");
+    Log.create(LOGGER)
+            .setTraceId(event.id())
+            .setModule("api.cmd")
+            .setEvent(cmd.cmd()+ ".received")
+            .addData("event", event)
+            .info();
+
     long started = System.currentTimeMillis();
-    if (Strings.isNullOrEmpty(id)) {
-      id = UUID.randomUUID().toString();
-    }
-    EventUtils.inLog(LOGGER, event);
-    Future<JsonObject> future = cmd.handle(event.body());
-    final String finalId = id;
+    Future<JsonObject> future = cmd.handle(event.body().put("traceId", event.id()));
     future.setHandler(ar -> {
       long duration = System.currentTimeMillis() - started;
       if (ar.succeeded()) {
@@ -74,52 +78,32 @@ public class CmdRegister implements Initializable {
                 .setAddress(msg.replyAddress())
                 .setBody(ar.result())
                 .build();
-        EventUtils.outLog(LOGGER, response, "response");
-        msg.reply(ar.result());
+        Log.create(LOGGER)
+                .setTraceId(event.id())
+                .setModule("api.cmd")
+                .setEvent(cmd.cmd() +".reply")
+                .addData("event", response)
+                .setMessage("{}ms; {}bytes")
+                .addArg(duration)
+                .addArg(bytes)
+                .info();
+        msg.reply(response);
       } else {
-        LOGGER.error("<===  [{}] [FAILED] [{}ms] [{}]", finalId,
-                     duration,
-                     ar.cause().getMessage(),
-                     ar.cause());
-        eventbusFailureHandler(msg, ar.cause());
+        Log.create(LOGGER)
+                .setTraceId(event.id())
+                .setModule("api.cmd")
+                .setEvent(cmd.cmd() +".reply")
+                .setThrowable(ar.cause())
+                .setMessage("{}ms")
+                .addArg(duration)
+                .error();
+        EventbusUtils.onFailure(msg, ar.cause());
       }
     });
-  }
-
-  /**
-   * 将Multimap转换为字符串用来记录日志.
-   *
-   * @param multimap      Multimap
-   * @param defaultString 如果Multimap是空，返回的默认字符串
-   * @return 字符串
-   */
-  private String convertToString(MultiMap multimap, String defaultString) {
-    StringBuilder s = new StringBuilder();
-    for (String key : multimap.names()) {
-      s.append(key)
-              .append(":")
-              .append(Joiner.on(",").join(multimap.getAll(key)))
-              .append(";");
-    }
-    if (s.length() == 0) {
-      return defaultString;
-    }
-    return s.toString();
   }
 
   private String cmdAddress( String cmd) {
     return "direwolves.eb." + cmd;
   }
 
-  private void eventbusFailureHandler(Message<Event> msg, Throwable throwable) {
-    if (throwable instanceof SystemException) {
-      SystemException ex = (SystemException) throwable;
-      msg.fail(ex.getErrorCode().getNumber(), ex.getMessage());
-    } else if (throwable instanceof ValidationException) {
-      msg.fail(DefaultErrorCode.INVALID_ARGS.getNumber(),
-               DefaultErrorCode.INVALID_ARGS.getMessage());
-    } else {
-      msg.fail(999, throwable.getMessage());
-    }
-  }
 }

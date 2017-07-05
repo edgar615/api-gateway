@@ -1,6 +1,7 @@
 package com.edgar.direwolves.dispatch.verticle;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
@@ -30,8 +31,6 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-
-    LOGGER.info("config->{}", config().encodePrettily());
 
     RedisProvider redisProvider = RedisProvider.create(vertx, config());
 

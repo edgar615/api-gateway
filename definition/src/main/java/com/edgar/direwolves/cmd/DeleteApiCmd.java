@@ -65,7 +65,6 @@ class DeleteApiCmd implements ApiCmd {
                 future.fail(ar.cause());
                 return;
               }
-              List<ApiDefinition> definitions = ar.result();
               List<String> names = ar.result()
                       .stream()
                       .map(d -> d.name())

@@ -55,7 +55,7 @@ public class BaseHandler implements Handler<RoutingContext> {
             .addArg(mutiMapToString(rc.request().params(), "no param"))
             .addArg((rc.getBody() == null || rc.getBody().length() == 0) ? "no body" : rc.getBody()
                     .toString())
-            .ouput();
+            .info();
 
 
     rc.addHeadersEndHandler(v -> {
@@ -74,7 +74,7 @@ public class BaseHandler implements Handler<RoutingContext> {
               .addArg(mutiMapToString(rc.response().headers(), "no header"))
               .addArg(System.currentTimeMillis() - start)
               .addArg(rc.response().bytesWritten())
-              .ouput();
+              .info();
 
       ApiMetrics.instance()
               .response(id, rc.response().getStatusCode(), System.currentTimeMillis() - start);

@@ -16,6 +16,7 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2016/2/18
  */
+@Deprecated
 public class FailureTransformer implements Function<Throwable, SystemException> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FailureTransformer.class);

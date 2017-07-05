@@ -1,5 +1,7 @@
 package com.edgar.direwolves.core.utils;
 
+import com.google.common.base.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +28,10 @@ public class Log {
 
   private Logger logger = defaultLogger;
 
-  private LogLevel level = LogLevel.INFO;
-
   /**
-   * 模块
+   * 应用
    */
-  private String application;
+  private String application = "api-gateway";
 
   /**
    * 方法或者事件
@@ -66,59 +66,79 @@ public class Log {
     return new Log(logger);
   }
 
-  /**
-   * 日志格式为 [{应用，traceId}] [模块，方法（或者事件）]
-   */
-  public void ouput() {
+  public void trace() {
     try {
-      String logFormat = "[{},{}] [{},{}] " + message;
-      List<Object> logArgs = new ArrayList<>();
-      logArgs.add(application);
-      logArgs.add(traceId);
-      logArgs.add(module);
-      logArgs.add(event);
-      logArgs.addAll(args);
-      if (level == LogLevel.TRACE) {
+      if (logger.isTraceEnabled()) {
+        LogData logData = new LogData().get();
         if (throwable != null) {
-          logger.trace(logFormat, logArgs.toArray(), throwable);
+          logger.trace(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
         } else {
-          logger.trace(logFormat, logArgs.toArray());
-        }
-      } else if (level == LogLevel.DEBUG) {
-        if (throwable != null) {
-          logger.debug(logFormat, logArgs.toArray(), throwable);
-        } else {
-          logger.debug(logFormat, logArgs.toArray());
-        }
-      } else if (level == LogLevel.INFO) {
-        if (throwable != null) {
-          logger.info(logFormat, logArgs.toArray(), throwable);
-        } else {
-          logger.info(logFormat, logArgs.toArray());
-        }
-      } else if (level == LogLevel.WARN) {
-        if (throwable != null) {
-          logger.warn(logFormat, logArgs.toArray(), throwable);
-        } else {
-          logger.warn(logFormat, logArgs.toArray());
-        }
-      } else if (level == LogLevel.ERROR) {
-        if (throwable != null) {
-          logger.error(logFormat, logArgs.toArray(), throwable);
-        } else {
-          logger.error(logFormat, logArgs.toArray());
+          logger.trace(logData.getLogFormat(), logData.getLogArgs().toArray());
         }
       }
-
-
     } catch (Exception e) {
       defaultLogger.error("log error", e);
     }
   }
 
-  public Log setLevel(LogLevel level) {
-    this.level = level;
-    return this;
+  public void debug() {
+    try {
+      if (logger.isDebugEnabled()) {
+        LogData logData = new LogData().get();
+        if (throwable != null) {
+          logger.debug(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
+        } else {
+          logger.debug(logData.getLogFormat(), logData.getLogArgs().toArray());
+        }
+      }
+    } catch (Exception e) {
+      defaultLogger.error("log error", e);
+    }
+  }
+
+  public void info() {
+    try {
+      if (logger.isInfoEnabled()) {
+        LogData logData = new LogData().get();
+        if (throwable != null) {
+          logger.info(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
+        } else {
+          logger.info(logData.getLogFormat(), logData.getLogArgs().toArray());
+        }
+      }
+    } catch (Exception e) {
+      defaultLogger.error("log error", e);
+    }
+  }
+
+  public void warn() {
+    try {
+      if (logger.isWarnEnabled()) {
+        LogData logData = new LogData().get();
+        if (throwable != null) {
+          logger.warn(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
+        } else {
+          logger.warn(logData.getLogFormat(), logData.getLogArgs().toArray());
+        }
+      }
+    } catch (Exception e) {
+      defaultLogger.error("log error", e);
+    }
+  }
+
+  public void error() {
+    try {
+      if (logger.isErrorEnabled()) {
+        LogData logData = new LogData().get();
+        if (throwable != null) {
+          logger.error(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
+        } else {
+          logger.error(logData.getLogFormat(), logData.getLogArgs().toArray());
+        }
+      }
+    } catch (Exception e) {
+      defaultLogger.error("log error", e);
+    }
   }
 
   public Log setApplication(String application) {
@@ -151,19 +171,69 @@ public class Log {
     return this;
   }
 
+  public Log addData(String key, Object data) {
+    this.data.put(key, data);
+    return this;
+  }
+
+  public Log addDatas(Map<String, Object> data) {
+    this.data.putAll(data);
+    return this;
+  }
+
   public Log addArg(Object arg) {
     this.args.add(arg);
     return this;
   }
 
-  private String dataFormat(Map<String, Object> data) {
-    StringBuilder sb = new StringBuilder();
-    for (String field : data.keySet()) {
-      sb.append(field)
-              .append(":")
-              .append(data.get(field))
-              .append("; ");
+  private class LogData {
+    private String logFormat;
+
+    private List<Object> logArgs;
+
+    public String getLogFormat() {
+      return logFormat;
     }
-    return sb.toString();
+
+    public List<Object> getLogArgs() {
+      return logArgs;
+    }
+
+    public LogData get() {
+      logFormat = "[{},{}] [{},{}]";
+      logArgs = new ArrayList<>();
+      logArgs.add(application);
+      if (traceId == null) {
+        logArgs.add("");
+      } else {
+        logArgs.add(traceId);
+      }
+      logArgs.add(module);
+      logArgs.add(event);
+
+      if (Strings.isNullOrEmpty(message)) {
+        logFormat += " [no msg]";
+      } else {
+        logFormat += " [" + message + "]";
+        logArgs.addAll(args);
+      }
+
+      if (!data.isEmpty()) {
+        logFormat += " [{}]";
+        logArgs.add(dataFormat(data));
+      }
+      return this;
+    }
+
+    private String dataFormat(Map<String, Object> data) {
+      StringBuilder sb = new StringBuilder();
+      for (String field : data.keySet()) {
+        sb.append(field)
+                .append(":")
+                .append(data.get(field))
+                .append("; ");
+      }
+      return sb.toString();
+    }
   }
 }

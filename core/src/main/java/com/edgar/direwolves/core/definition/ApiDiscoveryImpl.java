@@ -1,8 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
-import com.google.common.collect.Lists;
-
-import com.edgar.direwolves.core.utils.LoggerUtils;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
@@ -25,7 +23,7 @@ import java.util.stream.Collectors;
  */
 class ApiDiscoveryImpl implements ApiDiscovery {
 
-  public static final String LOG_EVENT_NAME = "api.discovery";
+  public static final String MODULE_NAME = "api.discovery";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDiscovery.class);
 
@@ -39,25 +37,33 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     this.vertx = vertx;
     this.name = name;
     this.backend = new DefaultApiDefinitionBackend(vertx, name);
-    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "start",
-                     Lists.newArrayList("namespace"),
-                     Lists.newArrayList(this.name));
+    Log.create(LOGGER)
+            .setModule(MODULE_NAME)
+            .setEvent("start")
+            .addData("namespace", this.name)
+            .info();
   }
 
   @Override
   public void publish(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
-    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.publish",
-                     Lists.newArrayList("namespace", "definition"),
-                     Lists.newArrayList(this.name, definition.toJson().encode()));
+    Log.create(LOGGER)
+            .setModule(MODULE_NAME)
+            .setEvent("api.publish")
+            .addData("namespace", this.name)
+            .addData("definition", definition.toJson().encode())
+            .info();
     backend.store(definition, resultHandler);
 //    vertx.eventBus().publish(announce, definition.toJson());
   }
 
   @Override
   public void unpublish(String name, Handler<AsyncResult<Void>> resultHandler) {
-    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.unpublish",
-                     Lists.newArrayList("namespace", "name"),
-                     Lists.newArrayList(this.name, name));
+    Log.create(LOGGER)
+            .setModule(MODULE_NAME)
+            .setEvent("api.unpublish")
+            .addData("namespace", this.name)
+            .addData("name", name)
+            .info();
     backend.remove(name, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
@@ -82,9 +88,13 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     } else {
       accept = r -> r.match(filter);
     }
-    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "filter",
-                     Lists.newArrayList("namespace", "filter"),
-                     Lists.newArrayList(this.name, filter.encode()));
+    Log.create(LOGGER)
+            .setModule(MODULE_NAME)
+            .setEvent("api.filter")
+            .addData("namespace", this.name)
+            .addData("filter", filter)
+            .info();
+
     getDefinitions(accept, resultHandler);
   }
 
@@ -94,19 +104,24 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     Objects.requireNonNull(filter);
     backend.getDefinitions(ar -> {
       if (ar.failed()) {
-        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "filter",
-                          Lists.newArrayList("namespace"),
-                          Lists.newArrayList(this.name)
-                , ar.cause());
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.filter")
+                .addData("namespace", this.name)
+                .setThrowable(ar.cause())
+                .error();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       } else {
         List<ApiDefinition> definitions =
                 ar.result().stream()
                         .filter(filter::apply)
                         .collect(Collectors.toList());
-        LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "filter",
-                         Lists.newArrayList("namespace", "size"),
-                         Lists.newArrayList(this.name, definitions.size()));
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.filter")
+                .addData("namespace", this.name)
+                .addData("size", definitions.size())
+                .info();
         resultHandler.handle(Future.succeededFuture(definitions));
       }
     });
@@ -134,8 +149,10 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   @Override
   public void close() {
-    LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "close",
-                     Lists.newArrayList("namespace"),
-                     Lists.newArrayList(this.name));
+    Log.create(LOGGER)
+            .setModule(MODULE_NAME)
+            .setEvent("close")
+            .addData("namespace", this.name)
+            .info();
   }
 }

@@ -1,10 +1,8 @@
 package com.edgar.direwolves.verticle;
 
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.cmd.ImportApiCmd;
 import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.utils.LoggerUtils;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.vertx.spi.Initializable;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -37,9 +35,12 @@ public class ImportApi implements Initializable {
       Future<JsonObject> imported = cmd.handle(new JsonObject().put("path", path)
                                                        .put("namespace", namespace));
       futures.add(imported);
-      LoggerUtils.info(LOGGER, "api.import", "start",
-                       Lists.newArrayList("namespace", "path"),
-                       Lists.newArrayList(namespace, path));
+      Log.create(LOGGER)
+              .setModule("definition")
+              .setEvent("api.import")
+              .addData("namespace", namespace)
+              .addData("path", path)
+              .info();
     }
     if (futures.isEmpty()) {
       complete.complete();
@@ -55,14 +56,17 @@ public class ImportApi implements Initializable {
               }
               for (int i = 0; i < ar.result().size(); i ++) {
                 if (ar.result().succeeded(i)) {
-                  LoggerUtils.info(LOGGER, "api.import", "OK",
-                                   Lists.newArrayList("result"),
-                                   Lists.newArrayList(ar.result().resultAt(i).toString()));
+                  Log.create(LOGGER)
+                          .setModule("definition")
+                          .setEvent("api.import.succeeded")
+                          .addData("result", ar.result().resultAt(i))
+                          .info();
                 } else {
-                  LoggerUtils.error(LOGGER, "api.import", "FAILED",
-                                   Lists.newArrayList(),
-                                   Lists.newArrayList(),
-                                   ar.result().cause(i));
+                  Log.create(LOGGER)
+                          .setModule("definition")
+                          .setEvent("api.import.failed")
+                          .setThrowable(ar.cause())
+                          .error();
                 }
               }
             });

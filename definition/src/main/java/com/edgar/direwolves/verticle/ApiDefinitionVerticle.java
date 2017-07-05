@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.cmd.CmdRegister;
-import com.edgar.direwolves.core.utils.LoggerUtils;
+import com.edgar.direwolves.core.utils.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -23,9 +23,12 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    LoggerUtils.info(LOGGER, "config.read", "read definition config",
-                     Lists.newArrayList("config"),
-                     Lists.newArrayList(config().encode()));
+    Log.create(LOGGER)
+            .setModule("definition")
+            .setEvent("config.read")
+            .addData("config", config())
+            .info();
+
     initialize(startFuture);
   }
 
@@ -40,15 +43,19 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
     CompositeFuture.all(importApiFuture, importCmdFuture)
             .setHandler(ar -> {
               if (ar.succeeded()) {
-                LoggerUtils.info(LOGGER, "verticle.deployed", "OK",
-                                 Lists.newArrayList("verticle"),
-                                 Lists.newArrayList("ApiDefinitionVerticle"));
+                Log.create(LOGGER)
+                        .setModule("definition")
+                        .setEvent("verticle.deployed")
+                        .addData("verticle", this.getClass())
+                        .info();
                 startFuture.complete();
               } else {
-                LoggerUtils.error(LOGGER, "verticle.deployed", "FAILED",
-                                 Lists.newArrayList("verticle"),
-                                 Lists.newArrayList("ApiDefinitionVerticle"),
-                                  ar.cause());
+                Log.create(LOGGER)
+                        .setModule("definition")
+                        .setEvent("verticle.deployed")
+                        .addData("verticle", this.getClass())
+                        .setThrowable(ar.cause())
+                        .info();
                 startFuture.fail(ar.cause());
               }
             });

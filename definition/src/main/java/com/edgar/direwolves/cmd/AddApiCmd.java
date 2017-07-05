@@ -8,7 +8,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
-import com.edgar.direwolves.core.utils.LoggerUtils;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
@@ -42,9 +42,13 @@ class AddApiCmd implements ApiCmd {
 
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    LoggerUtils.info(LOGGER, "cmd.handled", cmd(),
-                     Lists.newArrayList("data"),
-                     Lists.newArrayList(jsonObject.encode()));
+//    Log.create(LOGGER)
+//            .setTraceId(jsonObject.getString("traceId"))
+//            .setModule("api.cmd")
+//            .setEvent(cmd())
+//            .addData("data", jsonObject.encode())
+//            .info();
+
     Validations.validate(jsonObject.getMap(), rules);
     String namespace = jsonObject.getString("namespace");
     String data = jsonObject.getString("data");

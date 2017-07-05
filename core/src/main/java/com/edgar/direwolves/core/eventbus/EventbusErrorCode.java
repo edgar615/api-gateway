@@ -5,6 +5,7 @@ import com.edgar.util.exception.ErrorCode;
 /**
  * Created by edgar on 17-7-1.
  */
+@Deprecated
 public class EventbusErrorCode implements ErrorCode {
 
   private final int number;

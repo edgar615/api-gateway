@@ -1,8 +1,6 @@
 package com.edgar.direwolves.core.definition;
 
-import com.google.common.collect.Lists;
-
-import com.edgar.direwolves.core.utils.LoggerUtils;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.sharedata.SyncMap;
@@ -26,9 +24,9 @@ import java.util.stream.Collectors;
  */
 class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionBackend.class);
+  public static final String MODULE_NAME = "api.discovery";
 
-  public static final String LOG_EVENT_NAME = "api.discovery";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionBackend.class);
 
   private final Vertx vertx;
 
@@ -47,15 +45,23 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
     Objects.requireNonNull(definition, "definition is null");
     registry.put(definition.name(), definition.toJson().encode(), ar -> {
       if (ar.succeeded()) {
-        LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.add.succeeded",
-                         Lists.newArrayList("namespace", "api", "data"),
-                         Lists.newArrayList(name, definition.name(), definition.toJson().encode()));
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.add.succeeded")
+                .addData("namespace", name)
+                .addData("api", definition.name())
+                .addData("definition", definition.toJson().encode())
+                .info();
         resultHandler.handle(Future.succeededFuture(definition));
       } else {
-        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.add.failed",
-                          Lists.newArrayList("namespace", "api", "data"),
-                          Lists.newArrayList(name, definition.name(), definition.toJson().encode()),
-                          ar.cause());
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.add.failed")
+                .addData("namespace", name)
+                .addData("api", definition.name())
+                .addData("definition", definition.toJson().encode())
+                .setThrowable(ar.cause())
+                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -68,23 +74,34 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
       if (ar.succeeded()) {
         if (ar.result() == null) {
           // Not found
-          LoggerUtils.warn(LOGGER, LOG_EVENT_NAME, "api.delete.failed",
-                           Lists.newArrayList("namespace", "api"),
-                           Lists.newArrayList(this.name, name),
-                           new NoStackTraceThrowable("Api: '" + name + "' not found"));
+          Log.create(LOGGER)
+                  .setModule(MODULE_NAME)
+                  .setEvent("api.delete.failed")
+                  .addData("namespace", this.name)
+                  .addData("api", name)
+                  .setThrowable(new NoStackTraceThrowable("Api: '" + name + "' not found"))
+                  .info();
           resultHandler.handle(Future.failedFuture("Api: '" + name + "' not found"));
         } else {
-          LoggerUtils.warn(LOGGER, LOG_EVENT_NAME, "api.delete.succeeded",
-                           Lists.newArrayList("namespace", "api", "data"),
-                           Lists.newArrayList(this.name, name, ar.result()));
+          Log.create(LOGGER)
+                  .setModule(MODULE_NAME)
+                  .setEvent("api.delete.succeeded")
+                  .addData("namespace", this.name)
+                  .addData("api", name)
+                  .addData("definition", ar.result())
+                  .info();
+
           resultHandler.handle(Future.succeededFuture(
                   ApiDefinition.fromJson(new JsonObject(ar.result()))));
         }
       } else {
-        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.delete.failed",
-                          Lists.newArrayList("namespace", "api"),
-                          Lists.newArrayList(this.name, name),
-                          ar.cause());
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.delete.failed")
+                .addData("namespace", this.name)
+                .addData("api", name)
+                .setThrowable(new NoStackTraceThrowable("Api: '" + name + "' not found"))
+                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -94,18 +111,25 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
   public void getDefinitions(Handler<AsyncResult<List<ApiDefinition>>> resultHandler) {
     registry.getAll(ar -> {
       if (ar.succeeded()) {
-        LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.getall.succeeded",
-                         Lists.newArrayList("namespace", "size"),
-                         Lists.newArrayList(name, ar.result().size()));
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.getall.succeeded")
+                .addData("namespace", this.name)
+                .addData("size", ar.result().size())
+                .setThrowable(ar.cause())
+                .info();
+
         resultHandler.handle(Future.succeededFuture(ar.result().values().stream()
                                                             .map(s -> ApiDefinition
                                                                     .fromJson(new JsonObject(s)))
                                                             .collect(Collectors.toList())));
       } else {
-        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.getall.failed",
-                          Lists.newArrayList("namespace"),
-                          Lists.newArrayList(name),
-                          ar.cause());
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.getall.failed")
+                .addData("namespace", this.name)
+                .setThrowable(ar.cause())
+                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -116,25 +140,37 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
     registry.get(name, ar -> {
       if (ar.succeeded()) {
         if (ar.result() != null) {
-          LoggerUtils.info(LOGGER, LOG_EVENT_NAME, "api.get.succeeded",
-                           Lists.newArrayList("namespace", "api", "data"),
-                           Lists.newArrayList(this.name, name, ar.result()));
+          Log.create(LOGGER)
+                  .setModule(MODULE_NAME)
+                  .setEvent("api.get.succeeded")
+                  .addData("namespace", this.name)
+                  .addData("api", name)
+                  .addData("definition", ar.result())
+                  .setThrowable(ar.cause())
+                  .info();
+
           resultHandler.handle(Future.succeededFuture(
                   ApiDefinition.fromJson(new JsonObject(ar.result()))));
         } else {
-          LoggerUtils.warn(LOGGER, LOG_EVENT_NAME, "api.get.failed",
-                           Lists.newArrayList("namespace", "api"),
-                           Lists.newArrayList(this.name, name),
-                           new NoStackTraceThrowable("Api: '" + name + "' not found"));
+          Log.create(LOGGER)
+                  .setModule(MODULE_NAME)
+                  .setEvent("api.get.failed")
+                  .addData("namespace", this.name)
+                  .addData("api", name)
+                  .setThrowable(new NoStackTraceThrowable("Api: '" + name + "' not found"))
+                  .info();
           SystemException ex = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
                   .set("name", name);
           resultHandler.handle(Future.failedFuture(ex));
         }
       } else {
-        LoggerUtils.error(LOGGER, LOG_EVENT_NAME, "api.get.failed",
-                          Lists.newArrayList("namespace", "api"),
-                          Lists.newArrayList(this.name, name),
-                          ar.cause());
+        Log.create(LOGGER)
+                .setModule(MODULE_NAME)
+                .setEvent("api.get.failed")
+                .addData("namespace", this.name)
+                .addData("api", name)
+                .setThrowable(ar.cause())
+                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });

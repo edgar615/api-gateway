@@ -3,7 +3,10 @@ package com.edgar.direwolves.cmd;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.vertx.eventbus.Event;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -23,94 +26,61 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/1/19
  */
 @RunWith(VertxUnitRunner.class)
-public class ListApiCmdTest {
-
-
-  ApiDiscovery discovery;
-
-  ApiCmd cmd;
-
-  String namespace;
-
-  Vertx vertx;
+public class ListApiCmdTest extends BaseApiCmdTest {
 
   @Before
   public void setUp() {
-    namespace = UUID.randomUUID().toString();
-    vertx = Vertx.vertx();
-    discovery = ApiDiscovery.create(vertx, namespace);
-    cmd = new ListApiCmdFactory().create(vertx, new JsonObject());
+    super.setUp();
 
-    AddApiCmd addApiCmd = new AddApiCmd(vertx);
-    JsonObject jsonObject = new JsonObject()
-            .put("name", "add_device")
-            .put("method", "POST")
-            .put("path", "/devices");
-    JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "http")
-                         .put("name", "add_device")
-                         .put("service", "device")
-                         .put("method", "POST")
-                         .put("path", "/devices"));
-    jsonObject.put("endpoints", endpoints);
+    addMockApi();
+  }
 
-    AtomicBoolean check1 = new AtomicBoolean();
-    addApiCmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                check1.set(true);
-              } else {
-                ar.cause().printStackTrace();
-              }
-            });
-    Awaitility.await().until(() -> check1.get());
+  @Test
+  public void testMissNameShouldThrowValidationException(TestContext testContext) {
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(new JsonObject())
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        testContext.fail();
+      } else {
+        ar.cause().printStackTrace();
+        testContext.assertTrue(ar.cause() instanceof ReplyException);
+        testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
+                                 ReplyException.class.cast(ar.cause()).failureCode());
+        check.set(true);
+      }
+    });
+    Awaitility.await().until(() -> check.get());
 
-    jsonObject = new JsonObject()
-            .put("name", "get_device")
-            .put("method", "GET")
-            .put("path", "/devices");
-    endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "http")
-                         .put("name", "get_device")
-                         .put("service", "device")
-                         .put("method", "GET")
-                         .put("path", "/devices"));
-    jsonObject.put("endpoints", endpoints);
-
-    AtomicBoolean check2 = new AtomicBoolean();
-    addApiCmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                check2.set(true);
-              } else {
-                ar.cause().printStackTrace();
-              }
-            });
-    Awaitility.await().until(() -> check2.get());
   }
 
   @Test
   public void testListAll(TestContext testContext) {
     JsonObject jsonObject = new JsonObject()
             .put("namespace", namespace);
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                JsonArray jsonArray = ar.result().getJsonArray("result");
-
-                testContext.assertEquals(2, jsonArray.size());
-                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("add_device", apiDefinition.name());
-                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
-                testContext.assertEquals("get_device", apiDefinition.name());
-                async.complete();
-              } else {
-                ar.cause().printStackTrace();
-                testContext.fail();
-              }
-            });
+        testContext.assertEquals(2, jsonArray.size());
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+        testContext.assertEquals("add_device", apiDefinition.name());
+        apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+        testContext.assertEquals("get_device", apiDefinition.name());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
 
   }
 
@@ -120,20 +90,23 @@ public class ListApiCmdTest {
             .put("namespace", namespace)
             .put("name", "get_device");
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-                testContext.assertEquals(1, jsonArray.size());
-                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("get_device", apiDefinition.name());
-                async.complete();
-              } else {
-                testContext.fail();
-              }
-            });
+        testContext.assertEquals(1, jsonArray.size());
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+        testContext.assertEquals("get_device", apiDefinition.name());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
   }
 
   @Test
@@ -142,22 +115,26 @@ public class ListApiCmdTest {
             .put("namespace", namespace)
             .put("name", "*device");
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-                testContext.assertEquals(2, jsonArray.size());
-                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("add_device", apiDefinition.name());
-                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
-                testContext.assertEquals("get_device", apiDefinition.name());
-                async.complete();
-              } else {
-                testContext.fail();
-              }
-            });
+        testContext.assertEquals(2, jsonArray.size());
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+        testContext.assertEquals("add_device", apiDefinition.name());
+        apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+        testContext.assertEquals("get_device", apiDefinition.name());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
   @Test
@@ -166,18 +143,22 @@ public class ListApiCmdTest {
             .put("namespace", namespace)
             .put("name", "*rererere");
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-                testContext.assertEquals(0, jsonArray.size());
-                async.complete();
-              } else {
-                testContext.fail();
-              }
-            });
+        testContext.assertEquals(0, jsonArray.size());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
   @Test
@@ -187,20 +168,24 @@ public class ListApiCmdTest {
             .put("name", "*")
             .put("start", 1);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-                testContext.assertEquals(1, jsonArray.size());
-                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-                testContext.assertEquals("get_device", apiDefinition.name());
-                async.complete();
-              } else {
-                testContext.fail();
-              }
-            });
+        testContext.assertEquals(1, jsonArray.size());
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+        testContext.assertEquals("get_device", apiDefinition.name());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
   @Test
@@ -209,18 +194,22 @@ public class ListApiCmdTest {
             .put("namespace", namespace)
             .put("start", 3);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-            testContext.assertEquals(0, jsonArray.size());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+        testContext.assertEquals(0, jsonArray.size());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
   @Test
@@ -229,20 +218,24 @@ public class ListApiCmdTest {
             .put("namespace", namespace)
             .put("limit", 1);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-            testContext.assertEquals(1, jsonArray.size());
-            ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("add_device", apiDefinition.name());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+        testContext.assertEquals(1, jsonArray.size());
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+        testContext.assertEquals("add_device", apiDefinition.name());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
   @Test
@@ -251,18 +244,22 @@ public class ListApiCmdTest {
             .put("namespace", namespace)
             .put("limit", 0);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-            testContext.assertEquals(0, jsonArray.size());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+        testContext.assertEquals(0, jsonArray.size());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
   @Test
@@ -272,20 +269,24 @@ public class ListApiCmdTest {
         .put("start", 1)
         .put("limit", 1);
 
-    Async async = testContext.async();
-    cmd.handle(jsonObject)
-        .setHandler(ar -> {
-          if (ar.succeeded()) {
-            JsonArray jsonArray = ar.result().getJsonArray("result");
+    AtomicBoolean check = new AtomicBoolean();
+    Event event = Event.builder()
+            .setAddress("direwolves.eb.api.list")
+            .setBody(jsonObject)
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+      if (ar.succeeded()) {
+        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
 
-            testContext.assertEquals(1, jsonArray.size());
-            ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-            testContext.assertEquals("get_device", apiDefinition.name());
-            async.complete();
-          } else {
-            testContext.fail();
-          }
-        });
+        testContext.assertEquals(1, jsonArray.size());
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+        testContext.assertEquals("get_device", apiDefinition.name());
+        check.set(true);
+      } else {
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check.get());
   }
 
 }

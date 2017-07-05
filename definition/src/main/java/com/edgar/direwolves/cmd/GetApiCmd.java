@@ -15,6 +15,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 根据名称获取某个API定义，
@@ -43,17 +44,28 @@ class GetApiCmd implements ApiCmd {
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
     Validations.validate(jsonObject.getMap(), rules);
+    Validations.validate(jsonObject.getMap(), rules);
     String namespace = jsonObject.getString("namespace");
-    String name = jsonObject.getString("name");
+    String name = jsonObject.getString("name", "*");
+    JsonObject filter = new JsonObject();
+    if (name != null) {
+      filter.put("name", name);
+    }
     Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, namespace)
-            .getDefinition(name, ar -> {
-              if (ar.failed()) {
-                future.fail(ar.cause());
-                return;
-              }
-              future.complete(ar.result().toJson());
-            });
+    ApiDiscovery discovery = ApiDiscovery.create(vertx, namespace);
+    discovery.getDefinitions(filter, ar -> {
+      if (ar.failed()) {
+        future.fail(ar.cause());
+        return;
+      }
+      if (ar.result().isEmpty()) {
+        future.fail(SystemException.create(DefaultErrorCode
+                                                   .RESOURCE_NOT_FOUND)
+                            .set("name", name));
+      } else {
+        future.complete(ar.result().get(0).toJson());
+      }
+    });
     return future;
 
   }
