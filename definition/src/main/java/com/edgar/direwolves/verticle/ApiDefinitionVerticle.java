@@ -1,14 +1,10 @@
 package com.edgar.direwolves.verticle;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
 import com.edgar.direwolves.core.cmd.CmdRegister;
 import com.edgar.direwolves.core.utils.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +31,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   public void initialize(Future<Void> startFuture) {
     //读取路由
     Future<Void> importApiFuture = Future.future();
-    new ImportApi().initialize(vertx, config(), importApiFuture);
+    new ApiImporter().initialize(vertx, config(), importApiFuture);
     //读取命令
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, config(), importCmdFuture);

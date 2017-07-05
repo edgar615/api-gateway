@@ -19,9 +19,9 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/3/30
  */
-public class ImportApi implements Initializable {
+public class ApiImporter implements Initializable {
 
-  Logger LOGGER = LoggerFactory.getLogger(ImportApi.class);
+  Logger LOGGER = LoggerFactory.getLogger(ApiImporter.class);
 
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {

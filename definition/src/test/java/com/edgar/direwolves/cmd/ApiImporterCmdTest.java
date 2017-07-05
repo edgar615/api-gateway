@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/1/19
  */
 @RunWith(VertxUnitRunner.class)
-public class ImportApiCmdTest extends BaseApiCmdTest {
+public class ApiImporterCmdTest extends BaseApiCmdTest {
 
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
