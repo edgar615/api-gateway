@@ -12,7 +12,7 @@
     <artifactId>service-discovery</artifactId>
 
     <properties>
-        <main.verticle>com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle</main.verticle>
+        <main.verticle>com.edgar.servicediscovery.verticle.ServiceDiscoveryVerticle</main.verticle>
     </properties>
 
     <dependencies>

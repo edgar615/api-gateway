@@ -80,7 +80,7 @@ SlowReqDetected：慢请求检查
 
 3. 通过-cp指定classpath，**java -jar会忽略-cp**，所以我们只能通过-cp来运行Main方法
 
-java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle --cluster
+java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle --cluster
 
 **windows用;分隔,linux用:分隔**
 
@@ -122,7 +122,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run com.edgar.service.discover
     }
 
 - whitelist：白名单的数组，支持*的通配符，只要调用方的ip符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-- blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+- blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符合黑名单规则，且不符合白名单规则，都不允许继续请求
 
 禁止访问对调用方会返回1004的错误码
 
@@ -154,7 +154,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run com.edgar.service.discover
     }
 
 - whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
 
 禁止访问对调用方会返回1004的错误码
 
@@ -187,7 +187,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run com.edgar.service.discover
     }
 
 - whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合黑名单规则，都不允许继续请求
+- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
 
 禁止访问对调用方会返回1004的错误码
 
@@ -210,7 +210,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run com.edgar.service.discover
     "user.groupKey" : "role"
 
 
-# AppCode校验
+# AppCode校验（项目的特殊需求）
 ## Plugin: AppCodeVertifyPlugin
 校验appKey对应的appCode属性(上下文中的app.code)和用户对应的appCode属性(可以由app.codeKey指定)是否一致。
 

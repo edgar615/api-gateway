@@ -86,7 +86,7 @@ public class ServiceDiscoveryFilterTest {
 
     JsonObject config = new JsonObject();
     JsonObject strategy = new JsonObject();
-    config.put("strategy", strategy);
+    config.put("service.discovery.strategy", strategy);
 
 
     filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);
