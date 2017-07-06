@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch.handler;
+package com.edgar.direwolves.dispatch;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;

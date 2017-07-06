@@ -34,7 +34,7 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
 
-  private final String configPrefix = "service.discovery";
+  private final String configPrefix = "service.discovery.";
 
   private final Vertx vertx;
 

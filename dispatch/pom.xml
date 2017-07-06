@@ -11,7 +11,7 @@
 
     <artifactId>direwolves-dispatch</artifactId>
     <properties>
-        <main.verticle>com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle</main.verticle>
+        <main.verticle>com.edgar.direwolves.verticle.ApiDispatchVerticle</main.verticle>
     </properties>
     <dependencies>
         <dependency>

@@ -126,8 +126,9 @@ public class HttpRpcRequest implements RpcRequest {
     return serverId;
   }
 
-  public void setServerId(String serverId) {
+  public HttpRpcRequest setServerId(String serverId) {
     this.serverId = serverId;
+    return this;
   }
 
   public int port() {

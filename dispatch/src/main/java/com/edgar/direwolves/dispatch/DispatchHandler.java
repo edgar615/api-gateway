@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch.handler;
+package com.edgar.direwolves.dispatch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -7,14 +7,8 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.FilterFactory;
 import com.edgar.direwolves.core.dispatch.Result;
-import com.edgar.direwolves.core.rpc.FailureRpcHandler;
-import com.edgar.direwolves.core.rpc.RpcHandler;
-import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
-import com.edgar.direwolves.core.rpc.RpcMetric;
-import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -23,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 

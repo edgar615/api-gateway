@@ -11,10 +11,15 @@ import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
+import com.edgar.util.vertx.JsonUtils;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.circuitbreaker.CircuitBreaker;
+import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +51,23 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
 
   private final Vertx vertx;
 
+  private final String configPrefix = "circuit.breaker.";
+
+  private JsonObject config;
+
   RpcFilter(Vertx vertx, JsonObject config) {
 
     this.vertx = vertx;
     RpcMetric metric = null;
+    this.config = JsonUtils.extractByPrefix(config, configPrefix, true);
 
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
             .stream().map(f -> f.create(vertx, config, metric))
             .forEach(h -> handlers.put(h.type().toUpperCase(), h));
 
-    this.breakerMap = vertx.sharedData().getLocalMap("circuit.breaker.registry");
+    this.breakerMap = vertx.sharedData()
+            .getLocalMap(config.getString("registry",
+                                          "vertx.circuit.breaker.registry"));
   }
 
   @Override
@@ -76,6 +88,9 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+    if (breakerMap.size() % 1000 == 0) {
+      breakerMap.clear();
+    }
     List<Future<RpcResponse>> futures = apiContext.requests()
             .stream().map(req -> circuitBreakerExecute(req))
             .collect(Collectors.toList());
@@ -93,8 +108,9 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
       HttpRpcRequest httpRpcRequest = (HttpRpcRequest) req;
       CircuitBreakerRegistry registry
               = breakerMap.putIfAbsent(httpRpcRequest.serverId(),
-                                       new CircuitBreakerRegistry(vertx,
-                                                                  httpRpcRequest.serverId()));
+                                       new CircuitBreakerRegistry(vertx, httpRpcRequest.serverId(),
+                                                                  new CircuitBreakerOptions(
+                                                                          config)));
       if (registry == null) {
         registry = breakerMap.get(httpRpcRequest.serverId());
       }
@@ -106,12 +122,23 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
                 .setHandler(f.completer());
       }).setHandler(ar -> {
         if (ar.failed()) {
+          if (ar.cause() instanceof NoStackTraceThrowable
+              && "operation timeout".equals(ar.cause().getMessage())) {
+            future.fail(SystemException.create(DefaultErrorCode.TIME_OUT)
+                                .set("timeout", config.getLong("timeout", 10000l)));
+            return;
+          }
           if (ar.cause() instanceof RuntimeException
               && "open circuit".equals(ar.cause().getMessage())) {
             LOGGER.warn("---| [{}] [FAILED] [{}] [{}]",
                         httpRpcRequest.id(),
                         this.getClass().getSimpleName(),
                         "BreakerTripped");
+            future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
+                                .set("details", String.format("Please try again after %dms",
+                                                              config.getLong("resetTimeout",
+                                                                             30000l))));
+            return;
           }
           future.fail(ar.cause());
         } else {

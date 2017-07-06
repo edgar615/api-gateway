@@ -1,15 +1,14 @@
-package com.edgar.direwolves.dispatch.verticle;
+package com.edgar.direwolves.verticle;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.cmd.CmdRegister;
-import com.edgar.direwolves.dispatch.handler.BaseHandler;
-import com.edgar.direwolves.dispatch.handler.DispatchHandler;
-import com.edgar.direwolves.dispatch.handler.FailureHandler;
+import com.edgar.direwolves.dispatch.BaseHandler;
+import com.edgar.direwolves.dispatch.DispatchHandler;
+import com.edgar.direwolves.dispatch.FailureHandler;
 import com.edgar.direwolves.metric.ApiMetrics;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;

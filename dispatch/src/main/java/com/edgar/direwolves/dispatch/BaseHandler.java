@@ -1,4 +1,4 @@
-package com.edgar.direwolves.dispatch.handler;
+package com.edgar.direwolves.dispatch;
 
 import com.google.common.base.Joiner;
 
@@ -76,8 +76,8 @@ public class BaseHandler implements Handler<RoutingContext> {
               .addArg(rc.response().bytesWritten())
               .info();
 
-      ApiMetrics.instance()
-              .response(id, rc.response().getStatusCode(), System.currentTimeMillis() - start);
+//      ApiMetrics.instance()
+//              .response(id, rc.response().getStatusCode(), System.currentTimeMillis() - start);
     });
     rc.next();
   }

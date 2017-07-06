@@ -1,0 +1,10 @@
+{
+  "circuit.breaker.maxFailures" : 5,
+  "circuit.breaker.maxRetries" : 0,
+  "circuit.breaker.resetTimeout" : 60000,
+  "circuit.breaker.timeout" : 3000,
+  "circuit.breaker.metricsRollingWindow" : 10000,
+  "circuit.breaker.notificationPeriod" : 2000,
+  "circuit.breaker.notificationAddress" : "vertx.circuit-breaker",
+  "circuit.breaker.registry" : "vertx.circuit.breaker.registry"
+}

@@ -1,12 +1,14 @@
 package com.edgar.direwolves.handler;
 
-import com.edgar.direwolves.dispatch.handler.BaseHandler;
+import com.edgar.direwolves.dispatch.BaseHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2016/11/1.
@@ -21,6 +23,18 @@ public class DeviceHttpVerticle extends AbstractVerticle {
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
     router.route().handler(BaseHandler.create());
+    router.get("/devices/timeout").handler(rc -> {
+      try {
+        TimeUnit.SECONDS.sleep(2);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      JsonArray devices = new JsonArray();
+      devices.add(new JsonObject().put("id", 1))
+              .add(new JsonObject().put("id", 2));
+      rc.response()
+              .end(devices.encode());
+    });
     router.get("/devices/error").handler(rc -> {
       JsonObject device = new JsonObject().put("code", 999)
               .put("message", "undefined");

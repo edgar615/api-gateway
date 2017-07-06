@@ -14,6 +14,7 @@ import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -59,9 +60,9 @@ public class ServiceDiscoveryFilterTest {
   public void testSetUp(TestContext testContext) {
     vertx = Vertx.vertx();
     discovery = ServiceDiscovery.create(vertx);
-    discovery.registerServiceImporter(new ConsulServiceImporter(),new JsonObject()
-    .put("host", "localhost")
-    .put("port", 5601));
+    discovery.registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
+            .put("host", "localhost")
+            .put("port", 5601));
 
     mockConsulHttpVerticle = new MockConsulHttpVerticle();
     Async async = testContext.async();
@@ -209,7 +210,8 @@ public class ServiceDiscoveryFilterTest {
     Awaitility.await().until(() -> selectedIds.size() == 1);
 
     String server = selectedIds.get(0);
-    CircuitBreakerRegistry registry = new CircuitBreakerRegistry(vertx, server);
+    CircuitBreakerRegistry registry = new CircuitBreakerRegistry(vertx, server,
+                                                                 new CircuitBreakerOptions());
     registry.get().open();
 
     vertx.sharedData().getLocalMap("circuit.breaker.registry").put(server, registry);

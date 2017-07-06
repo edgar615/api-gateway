@@ -1,6 +1,6 @@
 package com.edgar.direwolves;
 
-import com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle;
+import com.edgar.direwolves.verticle.ApiDispatchVerticle;
 import io.vertx.core.Launcher;
 
 /**

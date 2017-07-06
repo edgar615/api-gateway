@@ -3,8 +3,8 @@ package com.edgar.direwolves.handler;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.dispatch.handler.BaseHandler;
-import com.edgar.direwolves.dispatch.handler.FailureHandler;
+import com.edgar.direwolves.dispatch.BaseHandler;
+import com.edgar.direwolves.dispatch.FailureHandler;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;

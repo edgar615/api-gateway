@@ -20,9 +20,9 @@ class CircuitBreakerRegistry implements Shareable {
 
   private final CircuitBreaker breaker;
 
-  CircuitBreakerRegistry(Vertx vertx, String name) {
+  CircuitBreakerRegistry(Vertx vertx, String name, CircuitBreakerOptions options) {
     this.vertx = vertx;
-    breaker = CircuitBreaker.create(name, vertx, new CircuitBreakerOptions())
+    breaker = CircuitBreaker.create(name, vertx, options)
             .openHandler(v -> {
               LOGGER.info("BreakerTripped: {}", name);
             }).closeHandler(v -> {
