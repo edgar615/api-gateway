@@ -3,7 +3,6 @@ package com.edgar.direwolves.core.rpc.http;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
-import com.edgar.direwolves.core.circuitbreaker.CircuitBreakerRegistry;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcMetric;
@@ -13,7 +12,6 @@ import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -27,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Edgar on 2016/12/30.
@@ -38,19 +35,13 @@ public class HttpRpcHandler implements RpcHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpRpcHandler.class);
 
-  private final Map<String, CircuitBreakerRegistry> breakerMap;
-
   private final HttpClient httpClient;
 
   private final RpcMetric metric;
 
-  private final Vertx vertx;
-
   protected HttpRpcHandler(Vertx vertx, JsonObject config, RpcMetric metric) {
-    this.vertx = vertx;
     this.metric = metric;
     this.httpClient = vertx.createHttpClient();
-    this.breakerMap = vertx.sharedData().getLocalMap("circuit.breaker.registry");
   }
 
   @Override
@@ -87,34 +78,8 @@ public class HttpRpcHandler implements RpcHandler {
                 MultimapUtils.convertToString(httpRpcRequest.params(), "no param"),
                 httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode()
     );
-    CircuitBreakerRegistry registry
-            = breakerMap.putIfAbsent(httpRpcRequest.serverId(),
-                                     new CircuitBreakerRegistry(vertx, httpRpcRequest.serverId()));
-    if (registry == null) {
-      registry = breakerMap.get(httpRpcRequest.serverId());
-    }
-    CircuitBreaker circuitBreaker = registry.get();
-    Future<RpcResponse> future = Future.future();
-    circuitBreaker.<RpcResponse>execute(f -> {
-      doRequest(httpRpcRequest, f);
-    }).setHandler(ar -> {
-      if (ar.failed()) {
-        if (ar.cause() instanceof RuntimeException
-                 && "open circuit".equals(ar.cause().getMessage())) {
-          LOGGER.warn("---| [{}] [FAILED] [{}] [{}]",
-                      httpRpcRequest.id(),
-                      this.getClass().getSimpleName(),
-                      "BreakerTripped");
-        }
-        future.fail(ar.cause());
-      } else {
-        future.complete(ar.result());
-      }
-    });
-    return future;
-  }
 
-  private void doRequest(HttpRpcRequest httpRpcRequest, Future<RpcResponse> future) {
+    Future<RpcResponse> future = Future.future();
     String path = requestPath(httpRpcRequest);
     final long startTime = System.currentTimeMillis();
     HttpClientRequest request =
@@ -125,8 +90,8 @@ public class HttpRpcHandler implements RpcHandler {
     request.handler(response -> {
       response.bodyHandler(body -> {
         LOGGER.debug("<------ [{}] [{}] [{}] [{}]",
-                     httpRpcRequest.id(),
-                     httpRpcRequest.type().toUpperCase(),
+                     rpcRequest.id(),
+                     rpcRequest.type().toUpperCase(),
                      response.statusCode(),
                      body.toString()
         );
@@ -137,8 +102,8 @@ public class HttpRpcHandler implements RpcHandler {
                                    body,
                                    System.currentTimeMillis() - startTime);
         LOGGER.info("<------ [{}] [{}] [{}] [{}] [{}ms] [{} bytes]",
-                    httpRpcRequest.id(),
-                    httpRpcRequest.type().toUpperCase(),
+                    rpcRequest.id(),
+                    rpcRequest.type().toUpperCase(),
                     "OK",
                     rpcResponse.statusCode(),
                     rpcResponse.elapsedTime(),
@@ -151,7 +116,7 @@ public class HttpRpcHandler implements RpcHandler {
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
-          Helper.logFailed(LOGGER, httpRpcRequest.id(),
+          Helper.logFailed(LOGGER, rpcRequest.id(),
                            this.getClass().getSimpleName(),
                            throwable.getMessage());
           future.fail(throwable);
@@ -163,14 +128,7 @@ public class HttpRpcHandler implements RpcHandler {
     timeout(httpRpcRequest, request);
 
     endRequest(httpRpcRequest, request);
-  }
-
-  public String urlEncode(String path) {
-    try {
-      return URLEncoder.encode(path, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      return path;
-    }
+    return future;
   }
 
   private boolean checkBody(HttpRpcRequest request) {
@@ -245,5 +203,13 @@ public class HttpRpcHandler implements RpcHandler {
       }
     }
     return path;
+  }
+
+  public String urlEncode(String path) {
+    try {
+      return URLEncoder.encode(path, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return path;
+    }
   }
 }

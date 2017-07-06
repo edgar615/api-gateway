@@ -61,6 +61,7 @@ public class ServiceProviderImpl implements ServiceProvider {
       }
       if (ar.result().isEmpty()) {
         handler.handle(Future.succeededFuture(null));
+        return;
       }
       List<Record> instances = new CopyOnWriteArrayList<>(ar.result());
       handler.handle(Future.succeededFuture(providerStrategy.get(instances)));

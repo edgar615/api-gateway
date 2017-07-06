@@ -1,4 +1,4 @@
-package com.edgar.direwolves.core.circuitbreaker;
+package com.edgar.direwolves.filter;
 
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Edgar  Date 2017/6/27
  */
-public class CircuitBreakerRegistry implements Shareable {
+class CircuitBreakerRegistry implements Shareable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CircuitBreakerRegistry.class);
 
@@ -20,7 +20,7 @@ public class CircuitBreakerRegistry implements Shareable {
 
   private final CircuitBreaker breaker;
 
-  public CircuitBreakerRegistry(Vertx vertx, String name) {
+  CircuitBreakerRegistry(Vertx vertx, String name) {
     this.vertx = vertx;
     breaker = CircuitBreaker.create(name, vertx, new CircuitBreakerOptions())
             .openHandler(v -> {

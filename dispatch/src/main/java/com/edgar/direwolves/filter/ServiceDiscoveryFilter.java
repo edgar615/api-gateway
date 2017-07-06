@@ -1,6 +1,5 @@
 package com.edgar.direwolves.filter;
 
-import com.edgar.direwolves.core.circuitbreaker.CircuitBreakerRegistry;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
@@ -8,10 +7,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Helper;
-import com.edgar.servicediscovery.MoreServiceDiscoveryOptions;
-import com.edgar.servicediscovery.ProviderStrategy;
-import com.edgar.servicediscovery.ServiceProvider;
-import com.edgar.servicediscovery.ServiceProviderImpl;
+import com.edgar.servicediscovery.ServiceProviderRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.JsonUtils;
@@ -21,13 +17,11 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -42,11 +36,9 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private final String configPrefix = "service.discovery";
 
-  private final ServiceDiscovery discovery;
-
   private final Vertx vertx;
 
-  private final Map<String, ServiceProvider> providerMap = new ConcurrentHashMap<>();
+  private final ServiceProviderRegistry providerRegistry;
 
   private final CircuitbreakerPredicate circuitbreakerPredicate;
 
@@ -55,8 +47,7 @@ public class ServiceDiscoveryFilter implements Filter {
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.config = JsonUtils.extractByPrefix(config, configPrefix, true);
-    MoreServiceDiscoveryOptions options = new MoreServiceDiscoveryOptions(config);
-    this.discovery = ServiceDiscovery.create(vertx);
+    providerRegistry = ServiceProviderRegistry.create(vertx, config);
     circuitbreakerPredicate = new CircuitbreakerPredicate(vertx);
   }
 
@@ -101,33 +92,9 @@ public class ServiceDiscoveryFilter implements Filter {
 
   }
 
-  private ServiceProvider getOrCreateProvider(String name) {
-    return providerMap.computeIfAbsent(name, k -> createProvider(name));
-  }
-
-  private ServiceProvider createProvider(String serviceName) {
-    JsonObject strategyConfig = config.getJsonObject("strategy", new JsonObject());
-    String strategyName = strategyConfig.getString(serviceName, "round_robin");
-    ProviderStrategy strategy = ProviderStrategy.roundRobin();
-    if ("random".equalsIgnoreCase(strategyName)) {
-      strategy = ProviderStrategy.random();
-    }
-    if ("round_robin".equalsIgnoreCase(strategyName)) {
-      strategy = ProviderStrategy.roundRobin();
-    }
-    if ("sticky".equalsIgnoreCase(strategyName)) {
-      strategy = ProviderStrategy.sticky(ProviderStrategy.roundRobin());
-    }
-    if ("weight_round_robin".equalsIgnoreCase(strategyName)) {
-      strategy = ProviderStrategy.weightRoundRobin();
-    }
-    return new ServiceProviderImpl(discovery, serviceName, strategy);
-  }
-
   private Future<Record> serviceFuture(String service) {
     Future<Record> future = Future.future();
-
-    getOrCreateProvider(service)
+    providerRegistry.get(service)
             .getInstance(r -> circuitbreakerPredicate.test(r), ar -> {
               if (ar.failed()) {
                 future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)

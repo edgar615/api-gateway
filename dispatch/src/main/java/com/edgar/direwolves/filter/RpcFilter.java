@@ -8,12 +8,16 @@ import com.edgar.direwolves.core.rpc.FailureRpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import com.edgar.direwolves.core.rpc.RpcMetric;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -22,13 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * 该filter用于将请求参数中的带变量用真实值替换.
- * 该filter的order=2147483647，int的最大值.
- * <b>params和headers中的所有值都是String</b>
- * 对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.(不考虑嵌套的集合)
- * 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
+ * 执行RPC调用。该Filter应该放在PRE类型的最后面或者POST类型的最前面.
  */
 public class RpcFilter extends RequestReplaceFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RpcFilter.class);
 
   /**
    * RPC处理类的MAP对象，key为RPC的类型，value为RPC的处理类.
@@ -40,13 +42,20 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
    */
   private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
 
+  private final Map<String, CircuitBreakerRegistry> breakerMap;
+
+  private final Vertx vertx;
+
   RpcFilter(Vertx vertx, JsonObject config) {
 
+    this.vertx = vertx;
     RpcMetric metric = null;
 
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
             .stream().map(f -> f.create(vertx, config, metric))
-            .forEach(h -> handlers.put(h.type().toUpperCase(), h));;
+            .forEach(h -> handlers.put(h.type().toUpperCase(), h));
+
+    this.breakerMap = vertx.sharedData().getLocalMap("circuit.breaker.registry");
   }
 
   @Override
@@ -68,8 +77,7 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     List<Future<RpcResponse>> futures = apiContext.requests()
-            .stream().map(req -> handlers.getOrDefault(req.type().toUpperCase(), failureRpcHandler)
-                    .handle(req))
+            .stream().map(req -> circuitBreakerExecute(req))
             .collect(Collectors.toList());
     Task.par(futures).andThen(responses -> {
       for (RpcResponse response : responses) {
@@ -77,6 +85,45 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
       }
       completeFuture.complete(apiContext);
     }).onFailure(throwable -> completeFuture.fail(throwable));
+  }
+
+  private Future<RpcResponse> circuitBreakerExecute(RpcRequest req) {
+    if (req instanceof HttpRpcRequest) {
+      Future<RpcResponse> future = Future.future();
+      HttpRpcRequest httpRpcRequest = (HttpRpcRequest) req;
+      CircuitBreakerRegistry registry
+              = breakerMap.putIfAbsent(httpRpcRequest.serverId(),
+                                       new CircuitBreakerRegistry(vertx,
+                                                                  httpRpcRequest.serverId()));
+      if (registry == null) {
+        registry = breakerMap.get(httpRpcRequest.serverId());
+      }
+      CircuitBreaker circuitBreaker = registry.get();
+      circuitBreaker.<RpcResponse>execute(f -> {
+        RpcHandler handler =
+                handlers.getOrDefault(httpRpcRequest.type().toUpperCase(), failureRpcHandler);
+        handler.handle(req)
+                .setHandler(f.completer());
+      }).setHandler(ar -> {
+        if (ar.failed()) {
+          if (ar.cause() instanceof RuntimeException
+              && "open circuit".equals(ar.cause().getMessage())) {
+            LOGGER.warn("---| [{}] [FAILED] [{}] [{}]",
+                        httpRpcRequest.id(),
+                        this.getClass().getSimpleName(),
+                        "BreakerTripped");
+          }
+          future.fail(ar.cause());
+        } else {
+          future.complete(ar.result());
+        }
+      });
+
+      return future;
+    } else {
+      return handlers.getOrDefault(req.type().toUpperCase(), failureRpcHandler).handle(req);
+    }
+
   }
 
 }
