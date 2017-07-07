@@ -6,3 +6,4 @@ com.edgar.direwolves.plugin.transformer.RequestTransformerPluginFactory
 com.edgar.direwolves.plugin.transformer.ResponseTransformerPluginFactory
 com.edgar.direwolves.plugin.authorization.AuthorisePluginFactory
 com.edgar.direwolves.plugin.arg.StrictArgPluginFactory
+com.edgar.direwolves.plugin.fallback.CircuitFallbackPluginFactory

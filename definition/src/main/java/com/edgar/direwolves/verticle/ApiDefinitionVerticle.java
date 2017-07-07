@@ -20,8 +20,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
     Log.create(LOGGER)
-            .setModule("definition")
-            .setEvent("config.read")
+            .setEvent("definition.config.read")
             .addData("config", config())
             .info();
 
@@ -40,15 +39,13 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
             .setHandler(ar -> {
               if (ar.succeeded()) {
                 Log.create(LOGGER)
-                        .setModule("definition")
-                        .setEvent("verticle.deployed")
+                        .setEvent("definition.deployed.succeeed")
                         .addData("verticle", this.getClass())
                         .info();
                 startFuture.complete();
               } else {
                 Log.create(LOGGER)
-                        .setModule("definition")
-                        .setEvent("verticle.deployed")
+                        .setEvent("definition.deployed.failed")
                         .addData("verticle", this.getClass())
                         .setThrowable(ar.cause())
                         .info();

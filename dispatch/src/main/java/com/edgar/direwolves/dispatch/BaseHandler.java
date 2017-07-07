@@ -3,7 +3,7 @@ package com.edgar.direwolves.dispatch;
 import com.google.common.base.Joiner;
 
 import com.edgar.direwolves.core.utils.Log;
-import com.edgar.direwolves.metric.ApiMetrics;
+import com.edgar.direwolves.core.utils.LogType;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -44,11 +44,10 @@ public class BaseHandler implements Handler<RoutingContext> {
     long start = System.currentTimeMillis();
     rc.put("x-request-time", start);
     Log.create(LOGGER)
-            .setApplication("api-gateway")
             .setTraceId(id)
-            .setModule("dispatcher")
+            .setLogType(LogType.SR)
             .setEvent("http.request.received")
-            .setMessage("--> [{} {}] [{}] [{}] [{}]")
+            .setMessage("[{} {}] [{}] [{}] [{}]")
             .addArg(rc.request().method().name())
             .addArg(rc.normalisedPath())
             .addArg(mutiMapToString(rc.request().headers(), "no header"))
@@ -65,12 +64,11 @@ public class BaseHandler implements Handler<RoutingContext> {
 
     rc.addBodyEndHandler(v -> {
       Log.create(LOGGER)
-              .setApplication("api-gateway")
               .setTraceId(id)
-              .setModule("dispatcher")
+              .setLogType(LogType.SS)
               .setEvent("http.request.reply")
-              .setMessage("<--- [{}] [{}] [{}ms] [{} bytes]")
-              .addArg( rc.response().getStatusCode())
+              .setMessage(" [{}] [{}] [{}ms] [{} bytes]")
+              .addArg(rc.response().getStatusCode())
               .addArg(mutiMapToString(rc.response().headers(), "no header"))
               .addArg(System.currentTimeMillis() - start)
               .addArg(rc.response().bytesWritten())

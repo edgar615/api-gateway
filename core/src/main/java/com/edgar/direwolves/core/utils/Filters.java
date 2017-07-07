@@ -30,7 +30,7 @@ public class Filters {
   public static void sort(List<Filter> filters) {
     Collections.sort(filters, (Filter o1, Filter o2) -> {
       if ("PRE".equalsIgnoreCase(o1.type())
-              && "POST".equalsIgnoreCase(o2.type())) {
+          && "POST".equalsIgnoreCase(o2.type())) {
         return -1;
       }
       if ("POST".equalsIgnoreCase(o1.type())
@@ -74,11 +74,13 @@ public class Filters {
           } catch (Exception e) {
             //ignore
           }
-          LOGGER.info("---| [{}] [OK] [{}] [{}] [{}ms]",
-                      apiContext.id(),
-                      filter.getClass().getSimpleName(),
-                      filter.type(),
-                      System.currentTimeMillis() - filterStarted );
+
+          Log.create(LOGGER)
+                  .setTraceId(apiContext.id())
+                  .setEvent(filter.getClass().getSimpleName())
+                  .setMessage("{}ms")
+                  .addArg(System.currentTimeMillis() - filterStarted)
+                  .info();
         }
       });
     }

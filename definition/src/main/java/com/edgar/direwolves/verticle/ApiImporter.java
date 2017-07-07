@@ -36,7 +36,6 @@ public class ApiImporter implements Initializable {
                                                        .put("namespace", namespace));
       futures.add(imported);
       Log.create(LOGGER)
-              .setModule("definition")
               .setEvent("api.import")
               .addData("namespace", namespace)
               .addData("path", path)
@@ -57,13 +56,11 @@ public class ApiImporter implements Initializable {
               for (int i = 0; i < ar.result().size(); i ++) {
                 if (ar.result().succeeded(i)) {
                   Log.create(LOGGER)
-                          .setModule("definition")
                           .setEvent("api.import.succeeded")
                           .addData("result", ar.result().resultAt(i))
                           .info();
                 } else {
                   Log.create(LOGGER)
-                          .setModule("definition")
                           .setEvent("api.import.failed")
                           .setThrowable(ar.cause())
                           .error();

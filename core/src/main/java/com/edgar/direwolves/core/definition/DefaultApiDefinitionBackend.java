@@ -45,23 +45,8 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
     Objects.requireNonNull(definition, "definition is null");
     registry.put(definition.name(), definition.toJson().encode(), ar -> {
       if (ar.succeeded()) {
-        Log.create(LOGGER)
-                .setModule(MODULE_NAME)
-                .setEvent("api.add.succeeded")
-                .addData("namespace", name)
-                .addData("api", definition.name())
-                .addData("definition", definition.toJson().encode())
-                .info();
         resultHandler.handle(Future.succeededFuture(definition));
       } else {
-        Log.create(LOGGER)
-                .setModule(MODULE_NAME)
-                .setEvent("api.add.failed")
-                .addData("namespace", name)
-                .addData("api", definition.name())
-                .addData("definition", definition.toJson().encode())
-                .setThrowable(ar.cause())
-                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -74,34 +59,12 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
       if (ar.succeeded()) {
         if (ar.result() == null) {
           // Not found
-          Log.create(LOGGER)
-                  .setModule(MODULE_NAME)
-                  .setEvent("api.delete.failed")
-                  .addData("namespace", this.name)
-                  .addData("api", name)
-                  .setThrowable(new NoStackTraceThrowable("Api: '" + name + "' not found"))
-                  .info();
           resultHandler.handle(Future.failedFuture("Api: '" + name + "' not found"));
         } else {
-          Log.create(LOGGER)
-                  .setModule(MODULE_NAME)
-                  .setEvent("api.delete.succeeded")
-                  .addData("namespace", this.name)
-                  .addData("api", name)
-                  .addData("definition", ar.result())
-                  .info();
-
           resultHandler.handle(Future.succeededFuture(
                   ApiDefinition.fromJson(new JsonObject(ar.result()))));
         }
       } else {
-        Log.create(LOGGER)
-                .setModule(MODULE_NAME)
-                .setEvent("api.delete.failed")
-                .addData("namespace", this.name)
-                .addData("api", name)
-                .setThrowable(new NoStackTraceThrowable("Api: '" + name + "' not found"))
-                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -111,25 +74,11 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
   public void getDefinitions(Handler<AsyncResult<List<ApiDefinition>>> resultHandler) {
     registry.getAll(ar -> {
       if (ar.succeeded()) {
-        Log.create(LOGGER)
-                .setModule(MODULE_NAME)
-                .setEvent("api.getall.succeeded")
-                .addData("namespace", this.name)
-                .addData("size", ar.result().size())
-                .setThrowable(ar.cause())
-                .info();
-
         resultHandler.handle(Future.succeededFuture(ar.result().values().stream()
                                                             .map(s -> ApiDefinition
                                                                     .fromJson(new JsonObject(s)))
                                                             .collect(Collectors.toList())));
       } else {
-        Log.create(LOGGER)
-                .setModule(MODULE_NAME)
-                .setEvent("api.getall.failed")
-                .addData("namespace", this.name)
-                .setThrowable(ar.cause())
-                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -140,37 +89,14 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
     registry.get(name, ar -> {
       if (ar.succeeded()) {
         if (ar.result() != null) {
-          Log.create(LOGGER)
-                  .setModule(MODULE_NAME)
-                  .setEvent("api.get.succeeded")
-                  .addData("namespace", this.name)
-                  .addData("api", name)
-                  .addData("definition", ar.result())
-                  .setThrowable(ar.cause())
-                  .info();
-
           resultHandler.handle(Future.succeededFuture(
                   ApiDefinition.fromJson(new JsonObject(ar.result()))));
         } else {
-          Log.create(LOGGER)
-                  .setModule(MODULE_NAME)
-                  .setEvent("api.get.failed")
-                  .addData("namespace", this.name)
-                  .addData("api", name)
-                  .setThrowable(new NoStackTraceThrowable("Api: '" + name + "' not found"))
-                  .info();
           SystemException ex = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
                   .set("name", name);
           resultHandler.handle(Future.failedFuture(ex));
         }
       } else {
-        Log.create(LOGGER)
-                .setModule(MODULE_NAME)
-                .setEvent("api.get.failed")
-                .addData("namespace", this.name)
-                .addData("api", name)
-                .setThrowable(ar.cause())
-                .info();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
     });

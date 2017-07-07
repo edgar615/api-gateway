@@ -38,8 +38,7 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     this.name = name;
     this.backend = new DefaultApiDefinitionBackend(vertx, name);
     Log.create(LOGGER)
-            .setModule(MODULE_NAME)
-            .setEvent("start")
+            .setEvent("api.discovery.start")
             .addData("namespace", this.name)
             .info();
   }
@@ -47,7 +46,6 @@ class ApiDiscoveryImpl implements ApiDiscovery {
   @Override
   public void publish(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
     Log.create(LOGGER)
-            .setModule(MODULE_NAME)
             .setEvent("api.publish")
             .addData("namespace", this.name)
             .addData("definition", definition.toJson().encode())
@@ -59,7 +57,6 @@ class ApiDiscoveryImpl implements ApiDiscovery {
   @Override
   public void unpublish(String name, Handler<AsyncResult<Void>> resultHandler) {
     Log.create(LOGGER)
-            .setModule(MODULE_NAME)
             .setEvent("api.unpublish")
             .addData("namespace", this.name)
             .addData("name", name)
@@ -89,7 +86,6 @@ class ApiDiscoveryImpl implements ApiDiscovery {
       accept = r -> r.match(filter);
     }
     Log.create(LOGGER)
-            .setModule(MODULE_NAME)
             .setEvent("api.filter")
             .addData("namespace", this.name)
             .addData("filter", filter)
@@ -105,7 +101,6 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     backend.getDefinitions(ar -> {
       if (ar.failed()) {
         Log.create(LOGGER)
-                .setModule(MODULE_NAME)
                 .setEvent("api.filter")
                 .addData("namespace", this.name)
                 .setThrowable(ar.cause())
@@ -117,7 +112,6 @@ class ApiDiscoveryImpl implements ApiDiscovery {
                         .filter(filter::apply)
                         .collect(Collectors.toList());
         Log.create(LOGGER)
-                .setModule(MODULE_NAME)
                 .setEvent("api.filter")
                 .addData("namespace", this.name)
                 .addData("size", definitions.size())
@@ -150,8 +144,7 @@ class ApiDiscoveryImpl implements ApiDiscovery {
   @Override
   public void close() {
     Log.create(LOGGER)
-            .setModule(MODULE_NAME)
-            .setEvent("close")
+            .setEvent("api.discovery.close")
             .addData("namespace", this.name)
             .info();
   }

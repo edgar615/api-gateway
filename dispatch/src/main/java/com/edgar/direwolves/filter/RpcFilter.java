@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.plugin.fallback.CircuitFallbackPlugin;
 import com.edgar.direwolves.core.rpc.FailureRpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
@@ -20,6 +21,7 @@ import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.NoStackTraceThrowable;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +94,7 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
       breakerMap.clear();
     }
     List<Future<RpcResponse>> futures = apiContext.requests()
-            .stream().map(req -> circuitBreakerExecute(req))
+            .stream().map(req -> execute(apiContext, req))
             .collect(Collectors.toList());
     Task.par(futures).andThen(responses -> {
       for (RpcResponse response : responses) {
@@ -102,53 +104,77 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
     }).onFailure(throwable -> completeFuture.fail(throwable));
   }
 
-  private Future<RpcResponse> circuitBreakerExecute(RpcRequest req) {
+  private Future<RpcResponse> execute(ApiContext apiContext, RpcRequest req) {
     if (req instanceof HttpRpcRequest) {
-      Future<RpcResponse> future = Future.future();
-      HttpRpcRequest httpRpcRequest = (HttpRpcRequest) req;
-      CircuitBreakerRegistry registry
-              = breakerMap.putIfAbsent(httpRpcRequest.serverId(),
-                                       new CircuitBreakerRegistry(vertx, httpRpcRequest.serverId(),
-                                                                  new CircuitBreakerOptions(
-                                                                          config)));
-      if (registry == null) {
-        registry = breakerMap.get(httpRpcRequest.serverId());
-      }
-      CircuitBreaker circuitBreaker = registry.get();
-      circuitBreaker.<RpcResponse>execute(f -> {
-        RpcHandler handler =
-                handlers.getOrDefault(httpRpcRequest.type().toUpperCase(), failureRpcHandler);
-        handler.handle(req)
-                .setHandler(f.completer());
-      }).setHandler(ar -> {
-        if (ar.failed()) {
-          if (ar.cause() instanceof NoStackTraceThrowable
-              && "operation timeout".equals(ar.cause().getMessage())) {
-            future.fail(SystemException.create(DefaultErrorCode.TIME_OUT)
-                                .set("timeout", config.getLong("timeout", 10000l)));
-            return;
-          }
-          if (ar.cause() instanceof RuntimeException
-              && "open circuit".equals(ar.cause().getMessage())) {
-            LOGGER.warn("---| [{}] [FAILED] [{}] [{}]",
-                        httpRpcRequest.id(),
-                        this.getClass().getSimpleName(),
-                        "BreakerTripped");
-            future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
-                                .set("details", String.format("Please try again after %dms",
-                                                              config.getLong("resetTimeout",
-                                                                             30000l))));
-            return;
-          }
-          future.fail(ar.cause());
-        } else {
-          future.complete(ar.result());
-        }
-      });
-
+      Future future = Future.future();
+      circuitBreakerExecute(apiContext, (HttpRpcRequest) req)
+              .setHandler(ar -> {
+                if (ar.failed()) {
+                  if (ar.cause() instanceof NoStackTraceThrowable
+                      && "operation timeout".equals(ar.cause().getMessage())) {
+                    future.fail(SystemException.create(DefaultErrorCode.TIME_OUT)
+                                        .set("timeout", config.getLong("timeout", 10000l)));
+                    return;
+                  }
+                  if (ar.cause() instanceof RuntimeException
+                      && "open circuit".equals(ar.cause().getMessage())) {
+                    LOGGER.warn("---| [{}] [FAILED] [{}] [{}]",
+                                req.id(),
+                                this.getClass().getSimpleName(),
+                                "BreakerTripped");
+                    future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
+                                        .set("details", String.format("Please try again after %dms",
+                                                                      config.getLong("resetTimeout",
+                                                                                     30000l))));
+                    return;
+                  }
+                  future.fail(ar.cause());
+                } else {
+                  future.complete(ar.result());
+                }
+              });
       return future;
     } else {
       return handlers.getOrDefault(req.type().toUpperCase(), failureRpcHandler).handle(req);
+    }
+  }
+
+  private Future<RpcResponse> circuitBreakerExecute(ApiContext apiContext, HttpRpcRequest req) {
+    CircuitBreakerRegistry registry
+            = breakerMap.putIfAbsent(req.serverId(),
+                                     new CircuitBreakerRegistry(vertx, req.serverId(),
+                                                                new CircuitBreakerOptions(
+                                                                        config)));
+    if (registry == null) {
+      registry = breakerMap.get(req.serverId());
+    }
+    CircuitBreaker circuitBreaker = registry.get();
+    long start = System.currentTimeMillis();
+    Future<RpcResponse> rpcFuture
+            = handlers
+            .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
+            .handle(req);
+    CircuitFallbackPlugin plugin
+            = (CircuitFallbackPlugin) apiContext.apiDefinition()
+            .plugin(CircuitFallbackPlugin.class.getSimpleName());
+    if (plugin != null && plugin.fallback().containsKey(req.name())) {
+      return circuitBreaker.<RpcResponse>executeWithFallback(
+              f -> rpcFuture.setHandler(f.completer())
+              , throwable -> {
+                long duration = System.currentTimeMillis() - start;
+                Object fallback = plugin.fallback().getValue(req.name());
+                if (fallback instanceof JsonObject) {
+                  return RpcResponse
+                          .createJsonObject(req.id(), 200, (JsonObject) fallback, duration);
+                }
+                if (fallback instanceof JsonArray) {
+                  return RpcResponse
+                          .createJsonArray(req.id(), 200, (JsonArray) fallback, duration);
+                }
+                return null;
+              });
+    } else {
+      return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
     }
 
   }

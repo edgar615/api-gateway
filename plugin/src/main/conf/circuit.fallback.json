@@ -1,5 +1,5 @@
 {
-  "request.fallback": {
+  "circuit.fallback": {
     "add_device": {
       "foo": "bar"
     },

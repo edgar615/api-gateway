@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.fallback;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import io.vertx.core.json.JsonObject;
@@ -8,16 +8,16 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/7/6
  */
-public class RequestFallbackPlugin implements ApiPlugin {
+public class CircuitFallbackPlugin implements ApiPlugin {
 
   private final JsonObject fallback = new JsonObject();
 
   @Override
   public String name() {
-    return RequestFallbackPlugin.class.getSimpleName();
+    return CircuitFallbackPlugin.class.getSimpleName();
   }
 
-  public RequestFallbackPlugin setFallback(JsonObject fallback) {
+  public CircuitFallbackPlugin setFallback(JsonObject fallback) {
     this.fallback.mergeIn(fallback);
     return this;
   }

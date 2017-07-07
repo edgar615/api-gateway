@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin;
+package com.edgar.direwolves.plugin.fallback;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
@@ -9,23 +9,23 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/7/6
  */
-public class RequestFallbackPluginFactory implements ApiPluginFactory {
+public class CircuitFallbackPluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
-    return RequestFallbackPlugin.class.getSimpleName();
+    return CircuitFallbackPlugin.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new RequestFallbackPlugin();
+    return new CircuitFallbackPlugin();
   }
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("request.fallback")) {
+    if (!jsonObject.containsKey("circuit.fallback")) {
       return null;
     }
-    return new RequestFallbackPlugin().setFallback(jsonObject.getJsonObject("request.fallback"));
+    return new CircuitFallbackPlugin().setFallback(jsonObject.getJsonObject("circuit.fallback"));
   }
 
   @Override
@@ -33,8 +33,8 @@ public class RequestFallbackPluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    RequestFallbackPlugin fallbackPlugin = (RequestFallbackPlugin) plugin;
+    CircuitFallbackPlugin fallbackPlugin = (CircuitFallbackPlugin) plugin;
     return new JsonObject()
-            .put("request.fallback", fallbackPlugin.fallback());
+            .put("circuit.fallback", fallbackPlugin.fallback());
   }
 }

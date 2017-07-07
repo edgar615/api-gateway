@@ -1,7 +1,7 @@
 {
   "verticles" : {
     "ServiceDiscoveryVerticle" : {
-      "class" : "com.edgar.service.discovery.verticle.ServiceDiscoveryVerticle",
+      "class" : "com.edgar.servicediscovery.verticle.ServiceDiscoveryVerticle",
       "instances" : 1,
       "worker" : false,
       "config" : {
@@ -39,7 +39,7 @@
       }
     },
     "ApiDispatchVerticle" : {
-      "class" : "com.edgar.direwolves.dispatch.verticle.ApiDispatchVerticle",
+      "class" : "com.edgar.direwolves.verticle.ApiDispatchVerticle",
       "instances" : 1,
       "worker" : false,
       "config" : {

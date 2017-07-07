@@ -6,6 +6,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.cmd.CmdRegister;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.dispatch.BaseHandler;
 import com.edgar.direwolves.dispatch.DispatchHandler;
 import com.edgar.direwolves.dispatch.FailureHandler;
@@ -30,7 +31,10 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-
+    Log.create(LOGGER)
+            .setEvent("dispatch.config.read")
+            .addData("config", config())
+            .info();
     RedisProvider redisProvider = RedisProvider.create(vertx, config());
 
     String namespace = config().getString("namespace", "");
@@ -68,10 +72,20 @@ public class ApiDispatchVerticle extends AbstractVerticle {
             .requestHandler(router::accept)
             .listen(config().getInteger("http.port", 8080), ar -> {
               if (ar.succeeded()) {
+                Log.create(LOGGER)
+                        .setEvent("dispatch.start.succeeded")
+                        .addData("namespace", namespace)
+                        .addData("port", config().getInteger("http.port", 8080))
+                        .info();
                 LOGGER.info("---| [Diaptacher Start] [OK] [{}]", config().getInteger("http.port", 8080));
                 startFuture.complete();
               } else {
-                LOGGER.error("---| [Diaptacher Start] [FAILED] [{}]", config().getInteger("http.port", 8080), ar.cause());
+                Log.create(LOGGER)
+                        .setEvent("dispatch.start.failed")
+                        .addData("namespace", namespace)
+                        .addData("port", config().getInteger("http.port", 8080))
+                        .setThrowable(ar.cause())
+                        .error();
                 startFuture.fail(ar.cause());
               }
             });

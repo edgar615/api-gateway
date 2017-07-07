@@ -43,6 +43,8 @@ public class Log {
    */
   private String module;
 
+  private LogType logType = LogType.LOG;
+
   /**
    * 简要描述
    */
@@ -70,11 +72,7 @@ public class Log {
     try {
       if (logger.isTraceEnabled()) {
         LogData logData = new LogData().get();
-        if (throwable != null) {
-          logger.trace(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
-        } else {
-          logger.trace(logData.getLogFormat(), logData.getLogArgs().toArray());
-        }
+        logger.trace(logData.getLogFormat(), logData.getLogArgs().toArray());
       }
     } catch (Exception e) {
       defaultLogger.error("log error", e);
@@ -85,11 +83,7 @@ public class Log {
     try {
       if (logger.isDebugEnabled()) {
         LogData logData = new LogData().get();
-        if (throwable != null) {
-          logger.debug(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
-        } else {
-          logger.debug(logData.getLogFormat(), logData.getLogArgs().toArray());
-        }
+        logger.debug(logData.getLogFormat(), logData.getLogArgs().toArray());
       }
     } catch (Exception e) {
       defaultLogger.error("log error", e);
@@ -100,11 +94,7 @@ public class Log {
     try {
       if (logger.isInfoEnabled()) {
         LogData logData = new LogData().get();
-        if (throwable != null) {
-          logger.info(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
-        } else {
-          logger.info(logData.getLogFormat(), logData.getLogArgs().toArray());
-        }
+        logger.info(logData.getLogFormat(), logData.getLogArgs().toArray());
       }
     } catch (Exception e) {
       defaultLogger.error("log error", e);
@@ -115,11 +105,7 @@ public class Log {
     try {
       if (logger.isWarnEnabled()) {
         LogData logData = new LogData().get();
-        if (throwable != null) {
-          logger.warn(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
-        } else {
-          logger.warn(logData.getLogFormat(), logData.getLogArgs().toArray());
-        }
+        logger.warn(logData.getLogFormat(), logData.getLogArgs().toArray());
       }
     } catch (Exception e) {
       defaultLogger.error("log error", e);
@@ -130,15 +116,16 @@ public class Log {
     try {
       if (logger.isErrorEnabled()) {
         LogData logData = new LogData().get();
-        if (throwable != null) {
-          logger.error(logData.getLogFormat(), logData.getLogArgs().toArray(), throwable);
-        } else {
-          logger.error(logData.getLogFormat(), logData.getLogArgs().toArray());
-        }
+        logger.error(logData.getLogFormat(), logData.getLogArgs().toArray());
       }
     } catch (Exception e) {
       defaultLogger.error("log error", e);
     }
+  }
+
+  public Log setLogType(LogType logType) {
+    this.logType = logType;
+    return this;
   }
 
   public Log setApplication(String application) {
@@ -200,7 +187,7 @@ public class Log {
     }
 
     public LogData get() {
-      logFormat = "[{},{}] [{},{}]";
+      logFormat = "[{},{}] [{}] [{}] [{}]";
       logArgs = new ArrayList<>();
       logArgs.add(application);
       if (traceId == null) {
@@ -208,19 +195,22 @@ public class Log {
       } else {
         logArgs.add(traceId);
       }
-      logArgs.add(module);
-      logArgs.add(event);
+      logArgs.add(logType.name());
+      logArgs.add(event == null ? "log" : event);
 
-      if (Strings.isNullOrEmpty(message)) {
-        logFormat += " [no msg]";
+      if (data.isEmpty()) {
+        logArgs.add("no data");
       } else {
-        logFormat += " [" + message + "]";
+        logArgs.add(dataFormat(data));
+      }
+
+      if (!Strings.isNullOrEmpty(message)) {
+        logFormat += " " + message ;
         logArgs.addAll(args);
       }
 
-      if (!data.isEmpty()) {
-        logFormat += " [{}]";
-        logArgs.add(dataFormat(data));
+      if (throwable != null) {
+        logArgs.add(throwable);
       }
       return this;
     }
@@ -231,7 +221,7 @@ public class Log {
         sb.append(field)
                 .append(":")
                 .append(data.get(field))
-                .append("; ");
+                .append(";");
       }
       return sb.toString();
     }

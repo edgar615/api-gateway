@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.eventbus.EventbusUtils;
 import com.edgar.direwolves.core.utils.Log;
+import com.edgar.direwolves.core.utils.LogType;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
@@ -42,8 +43,7 @@ public class CmdRegister implements Initializable {
             .forEach(cmd -> {
               String address = cmdAddress(cmd.cmd());
               Log.create(LOGGER)
-                      .setModule("api.cmd")
-                      .setEvent("cmd.register")
+                      .setEvent("api.cmd.register")
                       .addData("address", address)
                       .addData("cmd", cmd.cmd())
                       .info();
@@ -57,8 +57,8 @@ public class CmdRegister implements Initializable {
     Event event = msg.body();
     Log.create(LOGGER)
             .setTraceId(event.id())
-            .setModule("api.cmd")
-            .setEvent(cmd.cmd()+ ".received")
+           .setLogType(LogType.SER)
+            .setEvent(cmd.cmd())
             .addData("event", event)
             .info();
 
@@ -80,8 +80,8 @@ public class CmdRegister implements Initializable {
                 .build();
         Log.create(LOGGER)
                 .setTraceId(event.id())
-                .setModule("api.cmd")
-                .setEvent(cmd.cmd() +".reply")
+                .setLogType(LogType.SES)
+                .setEvent(cmd.cmd())
                 .addData("event", response)
                 .setMessage("{}ms; {}bytes")
                 .addArg(duration)
@@ -91,10 +91,10 @@ public class CmdRegister implements Initializable {
       } else {
         Log.create(LOGGER)
                 .setTraceId(event.id())
-                .setModule("api.cmd")
+                .setLogType(LogType.SES)
                 .setEvent(cmd.cmd() +".reply")
                 .setThrowable(ar.cause())
-                .setMessage("{}ms")
+                .setMessage("duration:{}ms")
                 .addArg(duration)
                 .error();
         EventbusUtils.onFailure(msg, ar.cause());

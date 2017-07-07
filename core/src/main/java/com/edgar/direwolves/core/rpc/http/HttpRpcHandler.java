@@ -9,6 +9,8 @@ import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
+import com.edgar.direwolves.core.utils.LogType;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -69,16 +71,17 @@ public class HttpRpcHandler implements RpcHandler {
       metric.request(httpRpcRequest.serverId());
     }
 
-    LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}] [{}]",
-                httpRpcRequest.id(),
-                type().toUpperCase(),
-                httpRpcRequest.host() + ":" + httpRpcRequest.port(),
-                httpRpcRequest.method().name() + " " + httpRpcRequest.path(),
-                MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"),
-                MultimapUtils.convertToString(httpRpcRequest.params(), "no param"),
-                httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode()
-    );
-
+    Log.create(LOGGER)
+            .setTraceId(httpRpcRequest.id())
+            .setLogType(LogType.CS)
+            .setEvent(type().toUpperCase())
+            .addData("server",  httpRpcRequest.host() + ":" + httpRpcRequest.port())
+            .setMessage("[{}] [{}] [{}] [{}]")
+            .addArg( httpRpcRequest.method().name() + " " + httpRpcRequest.path())
+            .addArg( MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
+            .addArg(    MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
+            .addArg( httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
+            .info();
     Future<RpcResponse> future = Future.future();
     String path = requestPath(httpRpcRequest);
     final long startTime = System.currentTimeMillis();

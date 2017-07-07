@@ -6,6 +6,9 @@ import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.google.common.collect.Lists;
+
+import com.edgar.util.vertx.eventbus.Event;
+import com.edgar.util.vertx.eventbus.EventCodec;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
@@ -41,6 +44,7 @@ public class ApiDefinitionVerticleTest {
   public void setUp(TestContext testContext) {
     namespace = UUID.randomUUID().toString();
     vertx = Vertx.vertx();
+    vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
     vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), testContext.asyncAssertSuccess());
 
     discovery = ApiDiscovery.create(vertx, namespace);
@@ -74,8 +78,11 @@ public class ApiDefinitionVerticleTest {
   @Test
   public void testGetApiEventbus(TestContext testContext) {
     Async async = testContext.async();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get",
-        new JsonObject().put("name", "get_device").put("namespace", namespace), ar -> {
+    Event event = Event.builder()
+            .setBody(new JsonObject().put("name", "get_device").put("namespace", namespace))
+            .build();
+    vertx.eventBus().<Event>send("direwolves.eb.api.get",
+        event, ar -> {
           if (ar.succeeded()) {
             System.out.println(ar.result().body());
             async.complete();
@@ -89,8 +96,11 @@ public class ApiDefinitionVerticleTest {
   @Test
   public void testGetUndefinedApiEventbus(TestContext testContext) {
     Async async = testContext.async();
+    Event event = Event.builder()
+            .setBody(new JsonObject().put("name", Randoms.randomAlphabet(10)).put("namespace", namespace))
+            .build();
     vertx.eventBus().<JsonObject>send("direwolves.eb.api.get",
-        new JsonObject().put("name", Randoms.randomAlphabet(10)).put("namespace", namespace), ar-> {
+        event, ar-> {
           if (ar.succeeded()) {
             testContext.fail();
           } else {
