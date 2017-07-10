@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -165,15 +166,19 @@ public class JwtBuildFilter implements Filter {
                         "save token:" + userCacheKey);
             completeFuture.complete(apiContext);
           } catch (Exception e) {
-            Helper.logFailed(LOGGER, apiContext.id(),
-                             this.getClass().getSimpleName(),
-                             e.getMessage());
+            Log.create(LOGGER)
+                    .setTraceId(apiContext.id())
+                    .setEvent("token.generate.failed")
+                    .setThrowable(e)
+                    .error();
             completeFuture.fail(e);
           }
         } else {
-          Helper.logFailed(LOGGER, apiContext.id(),
-                           this.getClass().getSimpleName(),
-                           ar.cause().getMessage());
+          Log.create(LOGGER)
+                  .setTraceId(apiContext.id())
+                  .setEvent("token.generate.failed")
+                  .setThrowable(ar.cause())
+                  .error();
           completeFuture.fail(ar.cause());
         }
       });

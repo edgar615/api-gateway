@@ -92,26 +92,20 @@ public class HttpRpcHandler implements RpcHandler {
                     .putHeader("content-type", "application/json");
     request.handler(response -> {
       response.bodyHandler(body -> {
-        LOGGER.debug("<------ [{}] [{}] [{}] [{}]",
-                     rpcRequest.id(),
-                     rpcRequest.type().toUpperCase(),
-                     response.statusCode(),
-                     body.toString()
-        );
-
         RpcResponse rpcResponse =
                 RpcResponse.create(httpRpcRequest.id(),
                                    response.statusCode(),
                                    body,
                                    System.currentTimeMillis() - startTime);
-        LOGGER.info("<------ [{}] [{}] [{}] [{}] [{}ms] [{} bytes]",
-                    rpcRequest.id(),
-                    rpcRequest.type().toUpperCase(),
-                    "OK",
-                    rpcResponse.statusCode(),
-                    rpcResponse.elapsedTime(),
-                    body.getBytes().length
-        );
+        Log.create(LOGGER)
+                .setTraceId(rpcRequest.id())
+                .setLogType(LogType.CR)
+                .setEvent("HTTP")
+                .setMessage(" [{}] [{}ms] [{} bytes]")
+                .addArg(rpcResponse.statusCode())
+                .addArg(rpcResponse.elapsedTime())
+                .addArg(body.getBytes().length)
+                .info();
         if (metric != null) {
           metric.response(httpRpcRequest.serverId(), rpcResponse.statusCode(),
                           rpcResponse.elapsedTime());
@@ -119,9 +113,12 @@ public class HttpRpcHandler implements RpcHandler {
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
-          Helper.logFailed(LOGGER, rpcRequest.id(),
-                           this.getClass().getSimpleName(),
-                           throwable.getMessage());
+          Log.create(LOGGER)
+                  .setTraceId(rpcRequest.id())
+                  .setLogType(LogType.CR)
+                  .setEvent("HTTP")
+                 .setThrowable(throwable)
+                  .error();
           future.fail(throwable);
         }
       });

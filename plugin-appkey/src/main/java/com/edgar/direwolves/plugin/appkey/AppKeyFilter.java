@@ -9,6 +9,7 @@ import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -208,9 +209,11 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
           JsonObject app = ar.result();
           checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
         } else {
-          Helper.logFailed(LOGGER, apiContext.id(),
-                           this.getClass().getSimpleName(),
-                           "undefined AppKey:" + appKey);
+          Log.create(LOGGER)
+                  .setTraceId(apiContext.id())
+                  .setEvent("appkey.undefined")
+                  .addData("appkey", appKey)
+                  .error();
           completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                       .set("details", "Undefined AppKey:" + appKey));
         }
@@ -252,12 +255,13 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     String secret = app.getString(secretKey, "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
     if (!clientSignValue.equals(serverSignValue)) {
-      Helper.logFailed(LOGGER, apiContext.id(),
-                       this.getClass().getSimpleName(),
-                       "sign incorrect:" + serverSignValue);
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("sign.tripped")
+              .addData("baseString", baseString(params))
+              .error();
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                  .set("details", "The sign is incorrect, baseString->"
-                                                  + baseString(params)));
+                                  .set("details", "The sign is incorrect"));
     } else {
 //      Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
 ////      newParams.removeAll("sign");

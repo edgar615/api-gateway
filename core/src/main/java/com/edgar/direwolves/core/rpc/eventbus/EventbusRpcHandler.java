@@ -7,7 +7,8 @@ import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
-import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
+import com.edgar.direwolves.core.utils.LogType;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -48,14 +49,15 @@ public class EventbusRpcHandler implements RpcHandler {
     EventbusRpcRequest request = (EventbusRpcRequest) rpcRequest;
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     Event event = createEvent(request);
-    LOGGER.info("------> [{}] [{}] [{}] [{}] [{}] [{}]",
-                request.id(),
-                type().toUpperCase(),
-                request.policy(),
-                request.address(),
-                MultimapUtils.convertToString(request.headers(), "no header"),
-                request.message() == null ? "no body" : request.message().encode()
-    );
+    Log.create(LOGGER)
+            .setTraceId(request.id())
+            .setLogType(LogType.CES)
+            .setEvent(type().toUpperCase())
+            .addData("address", request.address())
+            .setMessage("[{}] [{}]")
+            .addArg(MultimapUtils.convertToString(request.headers(), "no header"))
+            .addArg(request.message() == null ? "no body" : request.message().encode())
+            .info();
 
     Future<RpcResponse> future = Future.future();
     if (EventbusEndpoint.PUB_SUB.equalsIgnoreCase(request.policy())) {
@@ -77,13 +79,14 @@ public class EventbusRpcHandler implements RpcHandler {
     JsonObject result = new JsonObject()
             .put("result", 1);
 
-    LOGGER.info("<------ [{}] [{}]",
-                event.id(),
-                event.type(),
-                "OK",
-                0,
-                result.encode().getBytes().length
-    );
+    Log.create(LOGGER)
+            .setTraceId(event.id())
+            .setLogType(LogType.CER)
+            .setEvent("EVENTBUS." + event.type())
+            .setMessage(" [{}ms] [{} bytes]")
+            .addArg(0)
+            .addArg(result.encode().getBytes().length)
+            .info();
     completed.complete(RpcResponse.createJsonObject(event.id(), 200, result, 0));
   }
 
@@ -122,13 +125,14 @@ public class EventbusRpcHandler implements RpcHandler {
     JsonObject result = new JsonObject()
             .put("result", 1);
 
-    LOGGER.info("<------ [{}] [{}]",
-                event.id(),
-                event.type(),
-                "OK",
-                0,
-                result.encode().getBytes().length
-    );
+    Log.create(LOGGER)
+            .setTraceId(event.id())
+            .setLogType(LogType.CER)
+            .setEvent("EVENTBUS." + event.type())
+            .setMessage(" [{}ms] [{} bytes]")
+            .addArg(0)
+            .addArg(result.encode().getBytes().length)
+            .info();
     completed.complete(RpcResponse.createJsonObject(event.id(), 200, result, 0));
   }
 
@@ -150,14 +154,14 @@ public class EventbusRpcHandler implements RpcHandler {
         } else {
           bytes = ar.result().toString().getBytes().length;
         }
-
-        LOGGER.info("<------ [{}] [{}] [{}] [{}ms] [{} bytes]",
-                    event.id(),
-                    response.type().toUpperCase(),
-                    "OK",
-                    elapsedTime,
-                    bytes
-        );
+        Log.create(LOGGER)
+                .setTraceId(event.id())
+                .setLogType(LogType.CER)
+                .setEvent("EVENTBUS." + event.type())
+                .setMessage(" [{}ms] [{} bytes]")
+                .addArg(elapsedTime)
+                .addArg(bytes)
+                .info();
         if (ar.result().body() == null) {
           completed.fail(new NullPointerException("result is null"));
           return;
@@ -172,9 +176,12 @@ public class EventbusRpcHandler implements RpcHandler {
                   RpcResponse.createJsonObject(event.id(), 200, response.body(), elapsedTime));
         }
       } else {
-        Helper.logFailed(LOGGER, event.id(),
-                         this.getClass().getSimpleName(),
-                         ar.cause().getMessage());
+        Log.create(LOGGER)
+                .setTraceId(event.id())
+                .setLogType(LogType.CER)
+                .setEvent("EVENTBUS")
+                .setThrowable(ar.cause())
+                .error();
 
         if (ar.cause() instanceof ReplyException) {
           ReplyException ex = (ReplyException) ar.cause();

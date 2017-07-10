@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
@@ -111,9 +112,11 @@ public class AuthenticationFilter implements Filter {
                   apiContext.setPrincipal(principal);
                   completeFuture.complete(apiContext);
                 } else {
-                  Helper.logFailed(LOGGER, apiContext.id(),
-                                   this.getClass().getSimpleName(),
-                                   ar.cause().getMessage());
+                  Log.create(LOGGER)
+                          .setTraceId(apiContext.id())
+                          .setEvent("authentication.failed")
+                          .setThrowable(ar.cause())
+                          .error();
                   completeFuture.fail(ar.cause());
                 }
               });
@@ -135,9 +138,12 @@ public class AuthenticationFilter implements Filter {
         return authorization.substring(AUTH_PREFIX.length());
       }
     }
-    Helper.logFailed(LOGGER, apiContext.id(),
-                     this.getClass().getSimpleName(),
-                     "Authorization is undefined");
+    Log.create(LOGGER)
+            .setTraceId(apiContext.id())
+            .setEvent("authentication.failed")
+            .setMessage("Authorization is undefined")
+            .error();
+
     throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
             .set("details", "Request header: Authorization is undefined");
   }

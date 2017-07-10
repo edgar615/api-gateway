@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.servicediscovery.ServiceProviderRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -129,9 +130,12 @@ public class ServiceDiscoveryFilter implements Filter {
               .filter(r -> httpEndpoint.service().equalsIgnoreCase(r.getName()))
               .collect(Collectors.toList());
       if (instances.isEmpty()) {
-        Helper.logFailed(LOGGER, apiContext.id(),
-                         this.getClass().getSimpleName(),
-                         "Service not found, endpoint:" + endpoint.name());
+        Log.create(LOGGER)
+                .setTraceId(apiContext.id())
+                .setEvent("service.discovery.failed")
+                .setMessage("service:{} not found")
+                .addArg(endpoint.name())
+                .error();
         throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                 .set("details", "Service not found, endpoint:" + endpoint.name());
       }

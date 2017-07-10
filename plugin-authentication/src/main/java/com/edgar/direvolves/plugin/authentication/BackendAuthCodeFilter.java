@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -82,9 +83,13 @@ public class BackendAuthCodeFilter implements Filter {
     }
     String username = apiContext.body().getString("username");
     if (!allowedPermitted.contains(username)) {
-      Helper.logFailed(LOGGER, apiContext.id(),
-                       this.getClass().getSimpleName(),
-                       username + " not allowed");
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("backend.authentication.failed")
+              .setMessage("{} not allowed")
+              .addArg(username)
+              .error();
+
       throw SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", username + " not allowed");
     }
@@ -99,9 +104,11 @@ public class BackendAuthCodeFilter implements Filter {
       apiContext.addVariable("backend.sign", chaimSeg + "." + sign);
       completeFuture.complete(apiContext);
     } catch (IOException e) {
-      Helper.logFailed(LOGGER, apiContext.id(),
-                       this.getClass().getSimpleName(),
-                       e.getMessage());
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("backend.authentication.failed")
+              .setThrowable(e)
+              .error();
       throw SystemException.wrap(DefaultErrorCode.UNKOWN, e);
     }
   }
