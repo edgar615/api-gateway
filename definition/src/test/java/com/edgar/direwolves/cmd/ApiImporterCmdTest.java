@@ -1,27 +1,15 @@
 package com.edgar.direwolves.cmd;
 
-import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.vertx.eventbus.Event;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**

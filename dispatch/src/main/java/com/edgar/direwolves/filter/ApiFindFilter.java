@@ -4,7 +4,6 @@ import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.util.exception.DefaultErrorCode;

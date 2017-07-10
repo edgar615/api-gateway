@@ -8,8 +8,8 @@ import com.edgar.direwolves.cli.shell.api.ApiListCommand;
 import com.edgar.direwolves.cli.shell.cluster.NodeLsCommand;
 import com.edgar.direwolves.cli.shell.metric.MetricCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceCloseCommand;
-import com.edgar.direwolves.cli.shell.service.ServiceIncrWeightCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceDecrWeightCommand;
+import com.edgar.direwolves.cli.shell.service.ServiceIncrWeightCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceInfoCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceLsCommand;
 import com.edgar.direwolves.cli.shell.service.ServiceOpenCommand;
@@ -18,13 +18,9 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.ext.shell.command.Command;
 import io.vertx.ext.shell.command.CommandRegistry;
 import io.vertx.ext.shell.command.CommandResolver;
 import io.vertx.ext.shell.spi.CommandResolverFactory;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CustomShellCommands implements CommandResolverFactory {
 

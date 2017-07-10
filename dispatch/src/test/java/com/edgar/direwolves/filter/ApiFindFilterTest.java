@@ -2,13 +2,11 @@ package com.edgar.direwolves.filter;
 
 import com.google.common.collect.Lists;
 
-import com.codahale.metrics.MetricRegistry;
 import com.edgar.direwolves.ApiUtils;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;

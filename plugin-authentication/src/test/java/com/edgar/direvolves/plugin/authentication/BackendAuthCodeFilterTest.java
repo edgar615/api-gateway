@@ -1,12 +1,9 @@
 package com.edgar.direvolves.plugin.authentication;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
@@ -30,10 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/10/31.

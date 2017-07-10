@@ -1,8 +1,9 @@
 package com.edgar.direwolves.verticle;
 
+import com.google.common.collect.Lists;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
-import com.google.common.collect.Lists;
 import io.vertx.core.http.HttpMethod;
 import org.junit.After;
 import org.junit.Assert;

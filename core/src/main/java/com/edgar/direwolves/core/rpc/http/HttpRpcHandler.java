@@ -8,7 +8,6 @@ import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
-import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.LogType;
 import com.edgar.direwolves.core.utils.MultimapUtils;

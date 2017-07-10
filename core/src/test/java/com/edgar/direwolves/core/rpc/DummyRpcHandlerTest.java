@@ -1,10 +1,7 @@
 package com.edgar.direwolves.core.rpc;
 
-import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.dummy.DummyHandlerFactory;
 import com.edgar.direwolves.core.rpc.dummy.DummyRequest;
-import com.edgar.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
-import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -16,8 +13,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.UUID;
 
 /**
  * Created by Edgar on 2016/4/8.

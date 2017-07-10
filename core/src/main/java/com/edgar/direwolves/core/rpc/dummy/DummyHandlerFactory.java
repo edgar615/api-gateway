@@ -1,11 +1,9 @@
 package com.edgar.direwolves.core.rpc.dummy;
 
 import com.edgar.direwolves.core.definition.DummyEndpoint;
-import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import com.edgar.direwolves.core.rpc.RpcMetric;
-import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 

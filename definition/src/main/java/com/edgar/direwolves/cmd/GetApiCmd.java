@@ -1,21 +1,17 @@
 package com.edgar.direwolves.cmd;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 根据名称获取某个API定义，

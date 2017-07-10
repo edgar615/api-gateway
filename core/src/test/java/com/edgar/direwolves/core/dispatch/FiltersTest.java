@@ -1,9 +1,10 @@
 package com.edgar.direwolves.core.dispatch;
 
-import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.util.vertx.task.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+
+import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.util.vertx.task.Task;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;

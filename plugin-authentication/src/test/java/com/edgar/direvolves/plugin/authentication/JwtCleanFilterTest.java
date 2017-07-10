@@ -1,5 +1,9 @@
 package com.edgar.direvolves.plugin.authentication;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
@@ -10,8 +14,6 @@ import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.vertx.task.Task;
-import com.google.common.base.Splitter;
-import com.google.common.collect.*;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -25,7 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**

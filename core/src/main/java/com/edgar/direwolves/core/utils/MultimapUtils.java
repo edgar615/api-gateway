@@ -3,7 +3,6 @@ package com.edgar.direwolves.core.utils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import io.vertx.core.MultiMap;
 
 import java.util.List;
 

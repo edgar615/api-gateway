@@ -1,7 +1,5 @@
 package com.edgar.direwolves.metric;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

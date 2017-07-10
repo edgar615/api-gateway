@@ -4,8 +4,8 @@ import static org.awaitility.Awaitility.await;
 
 import com.edgar.direwolves.ApiUtils;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
-import com.edgar.direwolves.verticle.ApiDispatchVerticle;
 import com.edgar.direwolves.filter.MockConsulHttpVerticle;
+import com.edgar.direwolves.verticle.ApiDispatchVerticle;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -16,7 +16,6 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.consul.ConsulServiceImporter;
-import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

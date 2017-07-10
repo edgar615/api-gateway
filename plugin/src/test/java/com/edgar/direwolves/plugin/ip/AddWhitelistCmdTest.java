@@ -3,7 +3,6 @@ package com.edgar.direwolves.plugin.ip;
 import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.http.HttpMethod;

@@ -1,15 +1,9 @@
 package com.edgar.direwolves.cmd;
 
-import com.edgar.direvolves.plugin.authentication.AuthenticationPlugin;
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
-import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.eventbus.Event;
 import io.vertx.core.eventbus.ReplyException;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.awaitility.Awaitility;

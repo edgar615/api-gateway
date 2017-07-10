@@ -1,10 +1,10 @@
 package com.edgar.direwolves.plugin.authorization;
 
+import com.google.common.collect.Lists;
+
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.util.validation.ValidationException;
-import com.google.common.collect.Lists;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

@@ -1,7 +1,5 @@
 package com.edgar.direwolves.core.rpc;
 
-import io.vertx.core.json.JsonObject;
-
 public interface RpcRequest {
 
   /**

@@ -7,7 +7,6 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.cmd.ApiSubCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.util.validation.Rule;
-import com.edgar.util.validation.Validations;
 import io.vertx.core.json.JsonObject;
 
 /**

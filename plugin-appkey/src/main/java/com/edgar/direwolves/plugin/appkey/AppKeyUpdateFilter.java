@@ -1,16 +1,15 @@
 package com.edgar.direwolves.plugin.appkey;
 
+import com.google.common.base.Strings;
+
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
-import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
-
-import java.util.UUID;
 
 /**
  * 由于目前缺少有效的机制更新appKey，目前采用一种临时方案处理appkey的更新.

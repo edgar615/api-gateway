@@ -13,7 +13,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 

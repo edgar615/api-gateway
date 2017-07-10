@@ -6,12 +6,10 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
-import com.edgar.direwolves.core.utils.Helper;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.servicediscovery.ServiceProviderRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
-import com.edgar.util.vertx.JsonUtils;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.circuitbreaker.CircuitBreakerState;
 import io.vertx.core.Future;
@@ -34,8 +32,6 @@ import java.util.stream.Collectors;
 public class ServiceDiscoveryFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
-
-  private final String configPrefix = "service.discovery.";
 
   private final Vertx vertx;
 

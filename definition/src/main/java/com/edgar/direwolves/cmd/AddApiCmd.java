@@ -1,22 +1,16 @@
 package com.edgar.direwolves.cmd;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiDiscovery;
-import com.edgar.direwolves.core.utils.Log;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 新增或修改API，
