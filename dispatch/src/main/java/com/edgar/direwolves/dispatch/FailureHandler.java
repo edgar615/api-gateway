@@ -1,6 +1,6 @@
 package com.edgar.direwolves.dispatch;
 
-import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
@@ -68,10 +68,6 @@ public class FailureHandler implements Handler<RoutingContext> {
       statusCode = ex.getErrorCode().getStatusCode();
       failureMsg.mergeIn(new JsonObject(ex.asMap()));
     } else {
-      LOGGER.error("---| [{}] [ERROR] [{}]", id,
-                   throwable.getMessage(),
-                   throwable
-      );
       printErrorMsg = true;
       SystemException ex = SystemException.wrap(DefaultErrorCode.UNKOWN, throwable)
               .set("details", throwable.getMessage());
@@ -80,12 +76,18 @@ public class FailureHandler implements Handler<RoutingContext> {
     }
 
     if (printErrorMsg) {
-      Helper.logError(LOGGER, id, FailureHandler.class.getSimpleName(),
-                      "encode exception: " + failureMsg.encode(),
-                      throwable);
+      Log.create(LOGGER)
+              .setTraceId(id)
+              .setEvent("http.request.failed")
+              .setMessage(failureMsg.encode())
+              .setThrowable(throwable)
+              .error();
     } else {
-      Helper.logFailed(LOGGER, id, FailureHandler.class.getSimpleName(),
-                       "encode exception: " + failureMsg.encode());
+      Log.create(LOGGER)
+              .setTraceId(id)
+              .setEvent("http.request.failed")
+              .setMessage(failureMsg.encode())
+              .error();
     }
     response.putHeader("x-request-id", id)
             .setStatusCode(statusCode).end(failureMsg.encode());
@@ -100,14 +102,14 @@ public class FailureHandler implements Handler<RoutingContext> {
     } else {
       ReplyFailure replyFailure = ex.failureType();
       if (replyFailure == ReplyFailure.NO_HANDLERS) {
-        jsonObject.put("code", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getNumber())
-                .put("message", DefaultErrorCode.EVENTBUS_NO_HANDLERS.getMessage());
+        jsonObject.put("code", DefaultErrorCode.SERVICE_UNAVAILABLE.getNumber())
+                .put("message", DefaultErrorCode.SERVICE_UNAVAILABLE.getMessage());
       } else if (replyFailure == ReplyFailure.TIMEOUT) {
-        jsonObject.put("code", DefaultErrorCode.EVENTBUS_TIMOUT.getNumber())
-                .put("message", DefaultErrorCode.EVENTBUS_TIMOUT.getMessage());
+        jsonObject.put("code", DefaultErrorCode.TIME_OUT.getNumber())
+                .put("message", DefaultErrorCode.TIME_OUT.getMessage());
       } else if (replyFailure == ReplyFailure.RECIPIENT_FAILURE) {
-        jsonObject.put("code", DefaultErrorCode.EVENTBUS_REJECTED.getNumber())
-                .put("message", DefaultErrorCode.EVENTBUS_REJECTED.getMessage());
+        jsonObject.put("code", ex.failureCode())
+                .put("message", ex.getMessage());
       } else {
         jsonObject.put("code", DefaultErrorCode.UNKOWN.getNumber())
                 .put("message", DefaultErrorCode.UNKOWN.getMessage());

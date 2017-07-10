@@ -5,6 +5,7 @@ import com.edgar.direwolves.core.definition.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Helper;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -63,17 +64,19 @@ public class ApiFindFilter implements Filter {
             .put("path", apiContext.path());
     apiDiscovery.getDefinitions(filter, ar -> {
       if (ar.failed()) {
-        Helper.logFailed(LOGGER, apiContext.id(),
-                         this.getClass().getSimpleName(),
-                         "failed match api");
+        Log.create(LOGGER)
+                .setTraceId(apiContext.id())
+                .setEvent("api.discovery.failed")
+                .error();
         completeFuture.fail(ar.cause());
         return;
       }
       List<ApiDefinition> apiDefinitions = ar.result();
       if (apiDefinitions.size() != 1) {
-        Helper.logFailed(LOGGER, apiContext.id(),
-                         this.getClass().getSimpleName(),
-                         "failed match api");
+        Log.create(LOGGER)
+                .setTraceId(apiContext.id())
+                .setEvent("api.discovery.failed")
+                .error();
         SystemException se = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
         se.set("details", apiContext.method().name() + " " + apiContext.path());
         completeFuture.fail(se);

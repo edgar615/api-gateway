@@ -53,15 +53,13 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final String configPrefix = "circuit.breaker.";
-
   private JsonObject config;
 
   RpcFilter(Vertx vertx, JsonObject config) {
 
     this.vertx = vertx;
     RpcMetric metric = null;
-    this.config = JsonUtils.extractByPrefix(config, configPrefix, true);
+    this.config = config.getJsonObject("circuit.breaker", new JsonObject());
 
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
             .stream().map(f -> f.create(vertx, config, metric))

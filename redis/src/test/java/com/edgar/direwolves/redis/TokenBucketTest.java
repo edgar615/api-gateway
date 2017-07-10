@@ -43,7 +43,7 @@ public class TokenBucketTest {
             .put("redis.host","10.11.0.31");
     redisProvider = new RedisProviderFactory().create(vertx, config);
     try {
-      TimeUnit.SECONDS.sleep(1);
+      TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

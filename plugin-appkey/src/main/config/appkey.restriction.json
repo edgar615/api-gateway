@@ -1,5 +1,5 @@
 {
-  "ip.restriction" : {
+  "appkey.restriction" : {
     "blacklist": [],
     "whitelist": []
   }

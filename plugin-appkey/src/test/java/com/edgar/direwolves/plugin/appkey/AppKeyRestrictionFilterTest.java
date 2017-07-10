@@ -61,9 +61,11 @@ public class AppKeyRestrictionFilterTest {
     apiContext.setApiDefinition(definition);
     apiContext.addVariable("app.appKey", "testGroup");
 
+    JsonObject config =  new JsonObject().put("blacklist", new JsonArray().add("guest"))
+            .put("whitelist", new JsonArray().add("group1"));
+
     filter = Filter.create(AppKeyRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("appkey.blacklist", new JsonArray().add("guest"))
-                                   .put("appkey.whitelist", new JsonArray().add("group1")));
+                         new JsonObject().put("appkey.restriction", config) );
 
     filters.clear();
     filters.add(filter);

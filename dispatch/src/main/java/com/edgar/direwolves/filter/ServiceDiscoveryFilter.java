@@ -46,7 +46,7 @@ public class ServiceDiscoveryFilter implements Filter {
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.config = JsonUtils.extractByPrefix(config, configPrefix, true);
+    this.config = config.getJsonObject("service.discovery", new JsonObject());
     providerRegistry = ServiceProviderRegistry.create(vertx, config);
     circuitbreakerPredicate = new CircuitbreakerPredicate(vertx);
   }

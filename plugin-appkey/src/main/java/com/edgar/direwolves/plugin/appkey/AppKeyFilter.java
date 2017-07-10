@@ -259,20 +259,20 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
                                   .set("details", "The sign is incorrect, baseString->"
                                                   + baseString(params)));
     } else {
-      Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
-      newParams.removeAll("sign");
-      newParams.removeAll("signMethod");
-      newParams.removeAll("v");
-      newParams.removeAll("appKey");
-      ApiContext newContext =
-              ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
-                                apiContext.headers(), newParams, apiContext.body
-                              ());
-      ApiContext.copyProperites(apiContext, newContext);
-      newContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
-      newContext.addVariable("app.code", app.getInteger(codeKey, 0));
-      newContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
-      completeFuture.complete(newContext);
+//      Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
+////      newParams.removeAll("sign");
+////      newParams.removeAll("signMethod");
+////      newParams.removeAll("v");
+////      newParams.removeAll("appKey");
+//      ApiContext newContext =
+//              ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
+//                                apiContext.headers(), newParams, apiContext.body
+//                              ());
+//      ApiContext.copyProperites(apiContext, newContext);
+      apiContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
+      apiContext.addVariable("app.code", app.getInteger(codeKey, 0));
+      apiContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
+      completeFuture.complete(apiContext);
     }
   }
 

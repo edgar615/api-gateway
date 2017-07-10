@@ -1,5 +1,0 @@
-{
-  "strict_arg" : true,
-  "strict_arg.query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
-  "strict_arg.body.excludes" : []
-}

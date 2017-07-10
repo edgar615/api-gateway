@@ -56,11 +56,14 @@ public class ServiceDiscoveryFilterTest {
 
   private ServiceDiscovery discovery;
 
+  private ConsulServiceImporter importer;
+
   @Before
   public void testSetUp(TestContext testContext) {
     vertx = Vertx.vertx();
     discovery = ServiceDiscovery.create(vertx);
-    discovery.registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
+    importer = new ConsulServiceImporter();
+    discovery.registerServiceImporter(importer, new JsonObject()
             .put("host", "localhost")
             .put("port", 5601));
 
@@ -89,8 +92,8 @@ public class ServiceDiscoveryFilterTest {
     apiContext.setApiDefinition(definition);
 
     JsonObject config = new JsonObject();
-    JsonObject strategy = new JsonObject();
-    config.put("service.discovery.strategy", strategy);
+    config.put("service.discovery", new JsonObject()
+            .put("strategy", new JsonObject()));
 
 
     filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);
@@ -103,6 +106,11 @@ public class ServiceDiscoveryFilterTest {
   @After
   public void tearDown(TestContext testContext) {
 //    vertx.close(testContext.asyncAssertSuccess());
+    AtomicBoolean complete = new AtomicBoolean();
+    importer.close(ar -> {
+      complete.set(true);
+    });
+    Awaitility.await().until(() -> complete.set(true));
   }
 
   @Test

@@ -1,0 +1,7 @@
+{
+  "strict.arg" : {
+    "enable" : true,
+    "query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
+    "body.excludes" : []
+  }
+}

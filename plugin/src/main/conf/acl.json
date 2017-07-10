@@ -1,5 +1,7 @@
 {
-  "acl.blacklist": [],
-  "acl.whitelist": [],
-  "user.groupKey": "group"
+  "acl.restriction" : {
+    "blacklist": [],
+    "whitelist": [],
+    "groupKey": "group"
+  }
 }

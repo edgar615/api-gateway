@@ -38,8 +38,9 @@ public class AppKeyRestrictionFilter implements Filter {
 
 
   public AppKeyRestrictionFilter(JsonObject config) {
-    JsonArray blackArray = config.getJsonArray("appkey.blacklist", new JsonArray());
-    JsonArray whiteArray = config.getJsonArray("appkey.whitelist", new JsonArray());
+    JsonObject jsonObject = config.getJsonObject("appkey.restriction", new JsonObject());
+    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {
       globalBlacklist.add(blackArray.getString(i));
     }

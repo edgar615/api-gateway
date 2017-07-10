@@ -61,10 +61,12 @@ public class AclRestrictionFilterTest {
     apiContext.setApiDefinition(definition);
     apiContext.setPrincipal(new JsonObject().put(groupKey, "testGroup"));
 
+    JsonObject config = new JsonObject().put("blacklist", new JsonArray().add("guest"))
+            .put("whitelist", new JsonArray().add("group1"))
+            .put("groupKey", groupKey);
     filter = Filter.create(AclRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("acl.blacklist", new JsonArray().add("guest"))
-                                   .put("acl.whitelist", new JsonArray().add("group1"))
-                                   .put("user.groupKey", groupKey));
+                           new JsonObject()
+                                   .put("acl.restriction", config));
 
     filters.clear();
     filters.add(filter);

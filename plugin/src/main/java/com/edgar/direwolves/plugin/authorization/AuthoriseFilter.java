@@ -5,11 +5,14 @@ import com.google.common.collect.Sets;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -24,7 +27,7 @@ import java.util.Set;
  *   该filter的order=1100
  */
 public class AuthoriseFilter implements Filter {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthoriseFilter.class);
   AuthoriseFilter(Vertx vertx, JsonObject config) {
   }
 
@@ -67,6 +70,12 @@ public class AuthoriseFilter implements Filter {
     if (userMatch && appMatch) {
       completeFuture.complete(apiContext);
     } else {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("authorise.failed")
+              .addData("userMatch", userMatch)
+              .addData("appMatch", appMatch)
+              .warn();
       SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED);
       if (!userMatch) {
         ex.set("details", "User does not have permission");

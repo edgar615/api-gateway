@@ -58,9 +58,10 @@ public class IpRestrictionFilterTest {
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
+    JsonObject config = new JsonObject().put("blacklist", new JsonArray().add("86.10.*"))
+            .put("whitelist", new JsonArray().add("86.10.2.*"));
     filter = Filter.create(IpRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("ip.blacklist", new JsonArray().add("86.10.*"))
-                               .put("ip.whitelist", new JsonArray().add("86.10.2.*")));
+                           new JsonObject().put("ip.restriction", config));
 
     filters.clear();
     filters.add(filter);

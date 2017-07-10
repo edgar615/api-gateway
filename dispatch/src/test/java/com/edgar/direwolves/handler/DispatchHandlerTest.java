@@ -16,6 +16,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.consul.ConsulServiceImporter;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +54,7 @@ public class DispatchHandlerTest {
           .put("consul.port", consulPort)
           .put("http.port", port);
 
+  private ConsulServiceImporter importer;
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
@@ -61,13 +63,19 @@ public class DispatchHandlerTest {
     ApiUtils.registerApi(apiDiscovery);
 
     serviceDiscovery = ServiceDiscovery.create(vertx);
-    serviceDiscovery.registerServiceImporter(new ConsulServiceImporter(), new JsonObject()
+
+    importer = new ConsulServiceImporter();
+    serviceDiscovery.registerServiceImporter(importer, new JsonObject()
             .put("host", "localhost")
             .put("port", consulPort));
 
+    System.out.println(config);
     vertx.deployVerticle(ApiDispatchVerticle.class.getName(),
                          new DeploymentOptions().setConfig(config),
                          ar -> {
+                           if (ar.failed()) {
+                             ar.cause().printStackTrace();
+                           }
                            started.set(true);
                          });
 
@@ -109,6 +117,12 @@ public class DispatchHandlerTest {
 
   @After
   public void tearDown(TestContext testContext) {
+//    AtomicBoolean complete = new AtomicBoolean();
+//    importer.close(ar -> {
+//      complete.set(true);
+//    });
+//    Awaitility.await().until(() -> complete.set(true));
+
     vertx.close(ar -> {
       started.set(false);
     });

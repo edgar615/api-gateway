@@ -1,10 +1,12 @@
 {
   "http.port": 9000,
   "namespace": "example",
-  "long_req_time" : 1000,
-  "service.discovery.strategy": {
-    "user" : "random",
-    "device" : "round_robin"
+  "long_req_time": 1000,
+  "service.discovery": {
+    "strategy": {
+      "user": "random",
+      "device": "round_robin"
+    }
   },
   "redis.host": "10.11.0.31",
   "redis.port": 6379,
@@ -25,10 +27,19 @@
   "jwt.permissionsClaimKey": "permissions",
   "jwt.user.unique": true,
   "timeout.expires": 300,
-  "timeout.enable" : false,
-  "strict_arg" : true,
-  "strict_arg.query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
-  "strict_arg.body.excludes" : [],
+  "timeout.enable": false,
+  "strict.arg": {
+    "enable": true,
+    "query.excludes": [
+      "appKey",
+      "sign",
+      "signMethod",
+      "v",
+      "nonce",
+      "timestamp"
+    ],
+    "body.excludes": []
+  },
   "app.origin": [
     {
       "appKey": "RmOI7jCvDtfZ1RcAkea1",
@@ -37,20 +48,36 @@
       "scope": "all"
     }
   ],
-  "app.codeKey" : "companyCode",
-  "app.permissionKey" : "scope",
-  "app.importer" : {
+  "app.codeKey": "companyCode",
+  "app.permissionKey": "scope",
+  "app.importer": {
     "scan-period": 500000,
     "url": "/appkey/import"
   },
-  "log.ignore": ["appkey_list"],
-  "backend.permitted" : ["18627874615"],
-  "circuit.breaker.maxFailures" : 5,
-  "circuit.breaker.maxRetries" : 0,
-  "circuit.breaker.resetTimeout" : 60000,
-  "circuit.breaker.timeout" : 3000,
-  "circuit.breaker.metricsRollingWindow" : 10000,
-  "circuit.breaker.notificationPeriod" : 2000,
-  "circuit.breaker.notificationAddress" : "vertx.circuit-breaker",
-  "circuit.breaker.registry" : "vertx.circuit.breaker.registry"
+  "log.ignore": [
+    "appkey_list"
+  ],
+  "backend.permitted": [
+    "18627874615"
+  ],
+  "request.transformer": {
+    "query.remove": [
+      "appKey",
+      "nonce",
+      "v",
+      "timestamp",
+      "signMethod",
+      "sign"
+    ]
+  },
+  "circuit.breaker" : {
+    "maxFailures" : 5,
+    "maxRetries" : 0,
+    "resetTimeout" : 60000,
+    "timeout" : 3000,
+    "metricsRollingWindow" : 10000,
+    "notificationPeriod" : 2000,
+    "notificationAddress" : "vertx.circuit-breaker",
+    "registry" : "vertx.circuit.breaker.registry"
+  }
 }

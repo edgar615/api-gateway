@@ -4,10 +4,14 @@ import com.google.common.collect.ArrayListMultimap;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.validation.ValidationException;
+import com.edgar.util.vertx.JsonUtils;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,14 +21,17 @@ import java.util.Set;
  * 如果请求体或者请求参数中包括了未定义的参数，直接抛出ValidationException
  * 该filter可以接受下列的配置参数
  * <pre>
- *   strict_arg bool值是否启用，默认值false
- *   strict_arg.query.excludes 数组，请求参数中允许的例外
- *   strict_arg.body.excludes 数组，请求体中允许的例外
+ *   strict.arg.enable bool值是否启用，默认值false
+ *   strict.arg.query.excludes 数组，请求参数中允许的例外
+ *   strict.arg.body.excludes 数组，请求体中允许的例外
  * </pre>
  * 该filter的order=99
  * Created by edgar on 16-10-28.
  */
 public class StrictArgFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(StrictArgFilter.class);
+
+  private final String configPrefix = "strict.arg.";
 
   private final Set<String> excludeQuery = new HashSet<>();
 
@@ -33,15 +40,16 @@ public class StrictArgFilter implements Filter {
   private final boolean enabled;
 
   StrictArgFilter(JsonObject config) {
-    JsonArray queryArray = config.getJsonArray("strict_arg.query.excludes", new JsonArray());
+    JsonObject jsonObject = config.getJsonObject("strict.arg", new JsonObject());
+    JsonArray queryArray = jsonObject.getJsonArray("query.excludes", new JsonArray());
     for (int i = 0; i < queryArray.size(); i++) {
       excludeQuery.add(queryArray.getString(i));
     }
-    JsonArray bodyArray = config.getJsonArray("strict_arg.body.excludes", new JsonArray());
+    JsonArray bodyArray = jsonObject.getJsonArray("body.excludes", new JsonArray());
     for (int i = 0; i < bodyArray.size(); i++) {
       excludeBody.add(bodyArray.getString(i));
     }
-    this.enabled = config.getBoolean("strict_arg", false);
+    this.enabled = jsonObject.getBoolean("enable", false);
   }
 
   @Override
@@ -78,6 +86,10 @@ public class StrictArgFilter implements Filter {
               .forEach(k -> error.put(k, "prohibited"));
     }
     if (!error.isEmpty()) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("arg.validation.tripped")
+              .warn();
       throw new ValidationException(error);
     }
 

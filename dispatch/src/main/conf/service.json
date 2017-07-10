@@ -1,6 +1,8 @@
 {
-  "service.discovery.strategy": {
-    "user" : "random",
-    "device" : "round_robin"
+  "service.discovery": {
+    "strategy": {
+      "user": "random",
+      "device": "round_robin"
+    }
   }
 }

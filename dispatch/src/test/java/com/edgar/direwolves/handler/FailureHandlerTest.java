@@ -142,7 +142,7 @@ public class FailureHandlerTest {
                    resp.bodyHandler(body -> {
                      System.out.println(body.toString());
                      testContext.assertTrue(resp.statusCode() == 400);
-                     testContext.assertEquals(DefaultErrorCode.EVENTBUS_REJECTED.getNumber(), new
+                     testContext.assertEquals(-1, new
                              JsonObject(body.toString()).getInteger("code"));
                      async.complete();
                    });

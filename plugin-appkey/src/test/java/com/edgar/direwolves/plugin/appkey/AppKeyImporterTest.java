@@ -155,10 +155,10 @@ public class AppKeyImporterTest {
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              testContext.assertFalse(context.params().containsKey("sign"));
-              testContext.assertFalse(context.params().containsKey("signMethod"));
-              testContext.assertFalse(context.params().containsKey("v"));
-              testContext.assertFalse(context.params().containsKey("appKey"));
+              testContext.assertTrue(context.params().containsKey("sign"));
+              testContext.assertTrue(context.params().containsKey("signMethod"));
+              testContext.assertTrue(context.params().containsKey("v"));
+              testContext.assertTrue(context.params().containsKey("appKey"));
               async.complete();
             })
             .onFailure(t -> {

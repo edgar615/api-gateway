@@ -50,8 +50,10 @@ public class StrictArgFilterTest {
 
   @Test
   public void testOrderAndType(TestContext testContext) {
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true);
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("strict_arg", true));
+                           new JsonObject().put("strict.arg", jsonObject));
     Assert.assertEquals(99, filter.order());
     Assert.assertEquals(Filter.PRE, filter.type());
   }
@@ -76,8 +78,10 @@ public class StrictArgFilterTest {
   @Test
   public void unDefinedUrlArgPluginShouldFailed(TestContext testContext) {
     createApiContext();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true);
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("strict_arg", true));
+                           new JsonObject().put("strict.arg", jsonObject));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -99,9 +103,13 @@ public class StrictArgFilterTest {
   public void unDefinedUrlArgPluginButExcludeArgShouldSuccess(TestContext
                                                                       testContext) {
     createApiContext();
+
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("query.excludes", new JsonArray().add("appKey").add("sign"));
+
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.query.excludes", new JsonArray().add("appKey").add("sign"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -119,9 +127,11 @@ public class StrictArgFilterTest {
   public void unDefinedUrlArgPluginButNotExcludeArgShouldFailed(TestContext
                                                                         testContext) {
     createApiContext();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("query.excludes", new JsonArray().add("appKey"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -142,9 +152,11 @@ public class StrictArgFilterTest {
   @Test
   public void definedUrlArgPluginButExcludeArgShouldSuccess(TestContext testContext) {
     createApiContext();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("query.excludes", new JsonArray().add("appKey"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
 
@@ -178,8 +190,10 @@ public class StrictArgFilterTest {
   @Test
   public void definedUrlArgPluginShouldFailed(TestContext testContext) {
     createApiContext();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true);
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     UrlArgPlugin plugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
@@ -211,9 +225,11 @@ public class StrictArgFilterTest {
   @Test
   public void definedUrlArgPluginExcludeArgShouldSuccess(TestContext testContext) {
     createApiContext();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("query.excludes", new JsonArray().add("appKey"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.query.excludes", new JsonArray().add("appKey"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     UrlArgPlugin plugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
@@ -240,8 +256,10 @@ public class StrictArgFilterTest {
   @Test
   public void unDefinedBodyArgPluginShouldFailed(TestContext testContext) {
     createApiContext2();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true);
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -263,9 +281,12 @@ public class StrictArgFilterTest {
   public void unDefinedBodyArgPluginButExcludeArgShouldSuccess(TestContext
                                                                        testContext) {
     createApiContext2();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("body.excludes", new JsonArray().add("type").add("name"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.body.excludes", new JsonArray().add("type").add("name"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
+
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -283,9 +304,11 @@ public class StrictArgFilterTest {
   public void unDefinedBodyArgPluginButNotExcludeArgShouldFailed(TestContext
                                                                          testContext) {
     createApiContext2();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("body.excludes", new JsonArray().add("type"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.body.excludes", new JsonArray().add("type"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -307,9 +330,11 @@ public class StrictArgFilterTest {
   @Test
   public void definedBodyArgPluginButNotExcludeArgShouldFailed(TestContext testContext) {
     createApiContext2();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("body.excludes", new JsonArray().add("name"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.body.excludes", new JsonArray().add("name"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());
@@ -342,9 +367,11 @@ public class StrictArgFilterTest {
   @Test
   public void definedBodyArgPluginButExcludeArgShouldSuccess(TestContext testContext) {
     createApiContext2();
+    JsonObject jsonObject = new JsonObject()
+            .put("enable", true)
+            .put("body.excludes", new JsonArray().add("name"));
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject()
-            .put("strict_arg.body.excludes", new JsonArray().add("name"))
-            .put("strict_arg", true));
+            .put("strict.arg", jsonObject));
     filters.add(filter);
 
     BodyArgPlugin plugin = (BodyArgPlugin) ApiPlugin.create(BodyArgPlugin.class.getSimpleName());

@@ -5,11 +5,14 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +35,17 @@ import java.util.stream.Collectors;
  */
 public class IpRestrictionFilter implements Filter {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(IpRestrictionFilter.class);
+
   private final List<String> globalBlacklist = new ArrayList<>();
 
   private final List<String> globalWhitelist = new ArrayList<>();
 
 
   public IpRestrictionFilter(JsonObject config) {
-    JsonArray blackArray = config.getJsonArray("ip.blacklist", new JsonArray());
-    JsonArray whiteArray = config.getJsonArray("ip.whitelist", new JsonArray());
+    JsonObject jsonObject = config.getJsonObject("ip.restriction", new JsonObject());
+    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {
       globalBlacklist.add(blackArray.getString(i));
     }
@@ -83,6 +89,10 @@ public class IpRestrictionFilter implements Filter {
             .filter(r -> checkIp(r, clientIp))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("ip.restriction.tripped")
+              .warn();
       completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
                                   .set("details", "The ip is forbidden"));
     } else {

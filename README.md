@@ -110,6 +110,27 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 - token.expires int 过期时间exp，单位秒，默认值1800
 - timestamp_check.expires int 请求的过期时间,单位秒，默认值300
 
+# API查找
+## Filter: ApiFindFilter
+根据请求地址，在API路由规则中寻找匹配的API。
+如果未找到对应的API，范围资源不存在的异常。
+
+- type PRE
+- order -2147483648 （int的最小值）
+
+# 路径参数（变量）
+## Filter: PathParamFilter
+将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.
+参数名为param0  0表示第几个正则表达式，从0开始计算；参数值为正则表达式在请求路径中的值.
+所有的参数名将保存在上下文变量中，可以通过$var.param0变量来获得
+
+- type PRE
+- order -2147483638
+
+示例：
+
+    API定义的路径为/devices/([\d+]+)，请求的路径为/devices/1，那么对应的参数名为param0，参数值为1
+
 # IP限制
 ## Plugin: IpRestriction
 对调用方的ip增加白名单和黑名单限制
@@ -134,13 +155,17 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 全局参数
 
-    "ip.blacklist": [],
-    "ip.whitelist": []
+    "ip.restriction" : {
+      "blacklist": [],
+      "whitelist": []
+    }
 
 示例
 
-    "ip.blacklist": ["10.4.7.15"],
-    "ip.whitelist": ["192.168.1.*"]
+    "ip.restriction" : {
+      "blacklist": ["10.4.7.15"],
+      "whitelist": ["192.168.1.*"]]
+    }
 
 # AppKey限制
 ## Plugin: AppKeyRestriction
@@ -166,14 +191,17 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 全局参数
 
-    "appkey.blacklist": [],
-    "appkey.whitelist": []
+    "appkey.restriction" : {
+         "whitelist" : [],
+         "blacklist" : []
+    }
 
 示例
 
-    "appkey.blacklist": ["guest"],
-    "appkey.whitelist": ["user"]
-
+    "appkey.restriction" : {
+         "whitelist" : ["mv44GDQTqOAswwysqYsb", "bZfCBHyDnzf4lnYtGBEC],
+         "blacklist" : ["BzOCHhUkIdPUXYjQiWth"]
+    }
 
 # ACL限制
 ## Plugin: AclRestriction
@@ -199,16 +227,19 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 全局参数
 
-    "acl.blacklist": [],
-    "acl.whitelist": []
-    "user.groupKey" 编码的键值，默认值group
+    "acl.restriction" : {
+      "blacklist": [],
+      "whitelist": [],
+      "groupKey": "group"
+    }
 
 示例
 
-    "acl.blacklist": ["guest"],
-    "acl.whitelist": ["user"],
-    "user.groupKey" : "role"
-
+    "acl.restriction" : {
+      "blacklist": ["guest],
+      "whitelist": ["user],
+      "groupKey": "role"
+    }
 
 # AppCode校验（项目的特殊需求）
 ## Plugin: AppCodeVertifyPlugin
@@ -230,6 +261,23 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 示例
 
     "app.codeKey" : "companyCode"
+
+# 授权校验
+## Plugin: AuthorisePlugin
+校验对应的appkey或者用户是否有API的访问权限。
+
+配置示例：
+
+    "scope": "device:write"
+
+device:write表示API的权限字符串
+
+## Filter: AuthoriseFilter
+如果调用方通过了AppKey的校验，会在上下文中保存`app.permissions`的变量，如果`app.permissions`中不包括接口的scope，拒绝访问.
+如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量，如果`permissions`中不包括接口的scope，拒绝访问.
+
+- type PRE
+- order 1100
 
 # Request转换
 ## Plugin: RequestTransformerPlugin
@@ -292,39 +340,39 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 全局参数，对所有的请求都支持的参数转换
 
-      "request.transformer": {
-        "header.add": [
-          "x-auth-userId:$user.userId",
-          "x-auth-companyCode:$user.companyCode",
-          "x-policy-owner:individual"
-        ],
-        "header.remove": [
-          "Authorization"
-        ],
-        "header.replace": [
-          "x-app-verion:x-client-version"
-        ],
-        "query.add": [
-          "userId:$user.userId"
-        ],
-        "query.remove": [
-          "appKey",
-          "nonce"
-        ],
-        "query.replace": [
-          "x-app-verion:x-client-version"
-        ],
-        "body.add": [
-          "userId:$user.userId"
-        ],
-        "body.remove": [
-          "appKey",
-          "nonce"
-        ],
-        "body.replace": [
-          "x-app-verion:x-client-version"
-        ]
-      }
+     "request.transformer": {
+       "header.add": [
+         "x-auth-userId:$user.userId",
+         "x-auth-companyCode:$user.companyCode",
+         "x-policy-owner:individual"
+       ],
+       "header.remove": [
+         "Authorization"
+       ],
+       "header.replace": [
+         "x-app-verion:x-client-version"
+       ],
+       "query.add": [
+         "userId:$user.userId"
+       ],
+       "query.remove": [
+         "appKey",
+         "nonce"
+       ],
+       "query.replace": [
+         "x-app-verion:x-client-version"
+       ],
+       "body.add": [
+         "userId:$user.userId"
+       ],
+       "body.remove": [
+         "appKey",
+         "nonce"
+       ],
+       "body.replace": [
+         "x-app-verion:x-client-version"
+       ]
+     }
 
 
 ## Filter: HttpRequestReplaceFilter
@@ -452,102 +500,3 @@ HTTP调用支持断路器模式，eventbus暂不支持
         "x-app-verion:x-client-version"
       ]
     }
-
-# 日志
-
-## ---> 表示API请求
-格式
-
-	---> [x-request-id] [HTTP] [HTTP方法 请求地址] [请求头，用;分隔，无请求头输出no header] [请求参数，用;分隔，无参数输出no param] [请求体，无请求体输出no body]
-
-示例
-
-	---> [d3af2bf8-b640-4c6a-97fb-d3181d83f941] [http] [GET /appkey/import] [content-type:application/json;Host:127.0.0.1:9003;] [no param] [no body]
-
-## ---| 表示内部调用过程
-格式
-
-	---| [x-request-id] [OK | FAILED] [方法] [描述]
-
-示例
-
-	---| [3682506f-5587-4ff7-83b5-302e91f977c0] [OK] [ApiFindFilter] [PRE]
-	---| [3682506f-5587-4ff7-83b5-302e91f977c0] [OK] [ResponseTransformerFilter] [POST]
-	---| [be923e13-972d-4bf0-b5c0-62a4b876026d] [FAILED] [ApiFindFilter] [failed match api]
-
-## ------> 表示远程调用
-### HTTP格式
-
-	------> [远程调用ID] [HTTP] [远程调用地址] [HTTP方法 请求地址] [请求头，用;分隔，无请求头输出no header] [请求参数，用;分隔，无参数输出no param] [请求体，无请求体输出no body]
-
-示例
-
-	------> [d3af2bf8-b640-4c6a-97fb-d3181d83f941.1] [HTTP] [localhost:52624] [GET /companies] [x-request-id:d3af2bf8-b640-4c6a-97fb-d3181d83f941.1;] [limit:100;start:0;state:1;] [no body]
-
-### DUMMY格式
-
-	------> [远程调用ID] [DUMMY] [JSON对象]
-
-示例
-
-	------> [0c7963ab-3126-40e3-8305-92fb6fa42269.1] [DUMMY] [{"userId":-188,"username":"backend","permissions":"all","role":"backend"}]
-
-### Eventbus格式
-
-	------> [远程调用ID] [EVENTBUS] [pub-sub | point-point | req-resp] [事件地址] [事件头，用;分隔，无请求头输出no header] [请求体，无请求体输出no body]
-
-示例
-
-	------> [1da1a8a5-94c8-4492-a623-fbe3164b5faf.1] [EVENTBUS] [req-resp] [example.direwolves.eb.api.list] [no header] [{}]
-
-## <------ 表示远程调用返回
-### HTTP格式
-
-	<------ [远程调用ID] [HTTP] [OK|FAILED] [响应码] [耗时] [响应字节数]
-
-示例
-
-	<------ [d3af2bf8-b640-4c6a-97fb-d3181d83f941.1] [HTTP] [OK] [200] [18ms] [4807 bytes]
-
-### DUMMY格式
-
-	<------ [远程调用ID] [DUMMY] [OK|FAILED] [耗时] [响应字节数]
-
-示例
-
-	<------ [0c7963ab-3126-40e3-8305-92fb6fa42269.1] [DUMMY] [OK] [0ms] [73 bytes]
-
-### Eventbus格式
-
-	<------ [远程调用ID] [EVENTBUS] [OK|FAILED] [耗时] [响应字节数]
-
-示例
-
-	<------ [1da1a8a5-94c8-4492-a623-fbe3164b5faf.1] [EVENTBUS] [OK] [18ms] [3991 bytes]
-
-## <--- 表示API响应
-格式
-
-	<--- [x-request-id] [http] [响应码] [响应头，用;分隔，无请求头输出no header] [耗时] [响应字节数]
-
-示例
-
-	<--- [d3af2bf8-b640-4c6a-97fb-d3181d83f941] [http] [200] [content-type:application/json;charset=utf-8;x-request-id:d3af2bf8-b640-4c6a-97fb-d3181d83f941;Transfer-Encoding:chunked;x-response-time:37ms;] [38ms] [4807 bytes]
-
-## ======> 表示发送消息
-格式
-
-	======> [消息ID] [类型：MESSAGE | REQUEST | RESPONSE] [OK | FAILED] [消息主题或地址] [消息标识] [消息头，没有消息头的显示no header] [消息内容，没有消息内容的显示no body]
-
-示例
-
-	======> [4f82021b-84b8-44a1-9b0f-6d4b024b966d] [MESSAGE] [OK] [user-1ddd54a] [user.insert] [header{from=user-12, to=user-1ddd54a, group=user, action=MESSAGE, id=4f82021b-84b8-44a1-9b0f-6d4b024b966d, timestamp=1489650972, sequence=null}] [Message{content={foo=bar}, resource=user.insert, caption=insert, description=null}]
-
-## <====== 表示收到的消息
-格式
-
-	<====== [消息ID] [类型MESSAGE | REQUEST | RESPONSE] [消息主题或地址] [消息标识]  [消息头，没有消息头的显示no header] [消息内容，没有消息内容的显示no body]
-
-示例
-
-	  <====== [8eea6dc7-17d5-4ce8-a36d-f8a9a3514b6a] [MESSAGE] [user-1ddd54a] [user.insert] [header{from=user-12, to=user-1ddd54a, group=user, action=MESSAGE, id=8eea6dc7-17d5-4ce8-a36d-f8a9a3514b6a, timestamp=1489650972, sequence=null}] [Message{content={foo=bar}, resource=user.insert, caption=insert, description=null}]

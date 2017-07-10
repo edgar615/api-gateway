@@ -69,9 +69,10 @@ public class RpcFilterTest {
     await().until(() -> started.get());
 
     JsonObject config = new JsonObject()
-            .put("circuit.breaker.maxFailures", 3)
-            .put("circuit.breaker.timeout", 1000);
-    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, config);
+            .put("maxFailures", 3)
+            .put("timeout", 1000);
+    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
+    .put("circuit.breaker", config));
 
     filters.clear();
     filters.add(filter);
@@ -176,10 +177,11 @@ public class RpcFilterTest {
   public void testCircuitBreakerOpen(TestContext testContext) {
 
     JsonObject config = new JsonObject()
-            .put("circuit.breaker.maxFailures", 1)
-            .put("circuit.breaker.resetTimeout", 2000)
-            .put("circuit.breaker.timeout", 500);
-    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, config);
+            .put("maxFailures", 1)
+            .put("resetTimeout", 2000)
+            .put("timeout", 500);
+    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("circuit.breaker", config));
 
     filters.clear();
     filters.add(filter);
@@ -311,10 +313,11 @@ public class RpcFilterTest {
   public void testFallback(TestContext testContext) {
 
     JsonObject config = new JsonObject()
-            .put("circuit.breaker.maxFailures", 1)
-            .put("circuit.breaker.resetTimeout", 2000)
-            .put("circuit.breaker.timeout", 500);
-    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, config);
+            .put("maxFailures", 1)
+            .put("resetTimeout", 2000)
+            .put("timeout", 500);
+    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("circuit.breaker", config));
 
     filters.clear();
     filters.add(filter);

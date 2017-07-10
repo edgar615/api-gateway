@@ -2,11 +2,14 @@ package com.edgar.direwolves.plugin.acl;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +27,17 @@ import java.util.stream.Collectors;
  * user.groupKey 用户组的键值，默认值group
  * </pre>
  * 该filter的order=1100
+ * <p>
+ * 接受的参数：
+ * "acl.blacklist": [], 黑名单列表
+ * "acl.whitelist": []， 白名单列表
+ * "user.groupKey" 编码的键值，默认值group
  * Created by edgar on 16-12-24.
  */
 public class AclRestrictionFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AclRestrictionFilter.class);
+
   private final List<String> globalBlacklist = new ArrayList<>();
 
   private final List<String> globalWhitelist = new ArrayList<>();
@@ -34,15 +45,16 @@ public class AclRestrictionFilter implements Filter {
   private final String groupKey;
 
   public AclRestrictionFilter(JsonObject config) {
-    JsonArray blackArray = config.getJsonArray("acl.blacklist", new JsonArray());
-    JsonArray whiteArray = config.getJsonArray("acl.whitelist", new JsonArray());
+    JsonObject jsonObject = config.getJsonObject("acl.restriction", new JsonObject());
+    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {
       globalBlacklist.add(blackArray.getString(i));
     }
     for (int i = 0; i < whiteArray.size(); i++) {
       globalWhitelist.add(whiteArray.getString(i));
     }
-    this.groupKey = config.getString("user.groupKey", "group");
+    this.groupKey = jsonObject.getString("groupKey", "group");
   }
 
   @Override
@@ -62,7 +74,7 @@ public class AclRestrictionFilter implements Filter {
     }
     return !globalBlacklist.isEmpty()
            || !globalWhitelist.isEmpty()
-           ||  apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
+           || apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
   }
 
   @Override
@@ -87,6 +99,10 @@ public class AclRestrictionFilter implements Filter {
             .filter(r -> checkGroup(r, group))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("acl.restriction.tripped")
+              .warn();
       completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
                                   .set("details", "The group is forbidden"));
     } else {
