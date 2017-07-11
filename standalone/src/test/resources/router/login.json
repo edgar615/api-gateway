@@ -1,8 +1,8 @@
 {
-  "name": "user_login",
+  "name": "user.login.1.0.0",
   "method": "POST",
   "path": "/login",
-  "scope": "user:write",
+  "appkey": true,
   "endpoints": [
     {
       "type": "http",
@@ -39,19 +39,38 @@
           4
         ]
       }
+    },
+    {
+      "name": "language",
+      "default_value": 1,
+      "rules": {
+        "optional": [
+          1,
+          2
+        ]
+      }
     }
   ],
   "request.transformer": [
-  {
-    "name": "user_login",
-    "body.add": [
-      "type:1"
-    ]
-  }
-],
+    {
+      "name": "user_login",
+      "body.add": [
+        "type:1",
+        "companyCode:$var.app.code"
+      ],
+      "header.add": [
+        "x-client-name:$header.x-client-name",
+        "x-client-version:$header.x-client-version",
+        "x-client-type:$header.x-client-type",
+        "x-client-phone-model:$header.x-client-phone-model",
+        "x-client-os-version:$header.x-client-os-version",
+        "x-client-screen-resolution:$header.x-client-screen-resolution"
+      ]
+    }
+  ],
   "response.transformer": {
     "body.add": [
-      "role:user"
+      "group:user"
     ]
   },
   "jwt.build": true
