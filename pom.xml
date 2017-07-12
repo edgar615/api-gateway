@@ -22,6 +22,7 @@
         <module>metric</module>
         <module>service-discovery</module>
         <module>service-discovery-bridge-zookeeper</module>
+        <module>benchmark</module>
     </modules>
 
     <properties>
