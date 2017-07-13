@@ -1,7 +1,8 @@
 package com.edgar.direwolves.cmd;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.cmd.CmdRegister;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.vertx.eventbus.Event;
 import com.edgar.util.vertx.eventbus.EventCodec;
 import io.vertx.core.Future;
@@ -31,7 +32,7 @@ public class BaseApiCmdTest {
     namespace = UUID.randomUUID().toString();
     vertx = Vertx.vertx();
     vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
-    discovery = ApiDiscovery.create(vertx, namespace);
+    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, new JsonObject(), importCmdFuture);
 //    cmd = new AddApiCmdFactory().create(vertx, new JsonObject());

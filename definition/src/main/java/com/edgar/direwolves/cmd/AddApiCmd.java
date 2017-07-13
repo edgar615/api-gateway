@@ -3,9 +3,10 @@ package com.edgar.direwolves.cmd;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
@@ -48,7 +49,7 @@ class AddApiCmd implements ApiCmd {
     String data = jsonObject.getString("data");
     ApiDefinition apiDefinition = ApiDefinition.fromJson(new JsonObject(data));
     Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, namespace)
+    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace))
             .publish(apiDefinition, ar -> {
               if (ar.failed()) {
                 future.fail(ar.cause());

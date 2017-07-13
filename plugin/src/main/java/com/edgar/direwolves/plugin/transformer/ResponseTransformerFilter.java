@@ -21,6 +21,32 @@ import java.util.List;
  * <p>
  * 执行的顺序为: remove add
  * 该filter的order=1000
+ * <p>
+ * 接受的参数
+ * <p>
+ * "response.transformer": {
+ * "header.add": [
+ * "x-auth-userId:$user.userId",
+ * "x-auth-companyCode:$user.companyCode",
+ * "x-policy-owner:individual"
+ * ],
+ * "header.remove": [
+ * "Authorization"
+ * ],
+ * "header.replace": [
+ * "x-app-verion:x-client-version"
+ * ],
+ * "body.add": [
+ * "userId:$user.userId"
+ * ],
+ * "body.remove": [
+ * "appKey",
+ * "nonce"
+ * ],
+ * "body.replace": [
+ * "x-app-verion:x-client-version"
+ * ]
+ * }
  * Created by edgar on 16-9-20.
  */
 public class ResponseTransformerFilter implements Filter {
@@ -66,7 +92,8 @@ public class ResponseTransformerFilter implements Filter {
     completeFuture.complete(apiContext);
   }
 
-  private void doTransfomer(ApiContext apiContext, ResponseTransformerPlugin plugin) {Result result = apiContext.result();
+  private void doTransfomer(ApiContext apiContext, ResponseTransformerPlugin plugin) {
+    Result result = apiContext.result();
     //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改
     boolean isArray = result.isArray();
     //body目前仅考虑JsonObject的替换
@@ -169,7 +196,7 @@ public class ResponseTransformerFilter implements Filter {
     transformer.bodyRemoved().forEach(b -> newBody.remove(b));
     transformer.bodyReplaced().forEach(entry -> {
       if (newBody.containsKey(entry.getKey())) {
-        Object value =  newBody.remove(entry.getKey());
+        Object value = newBody.remove(entry.getKey());
         newBody.put(entry.getValue(), value);
       }
     });

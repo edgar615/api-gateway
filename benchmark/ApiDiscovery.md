@@ -3,7 +3,11 @@
 于是使用了闭锁等待测试方法的返回（可能不太准确）
 
 # ApiDiscovery
-使用LocalMap，不使用clusterMap的时候
+APIDiscovery参考了ServiceDiscovery的实现，在内部使用一个Map——单机使用LocalMap，集群使用SyncMap，然后使用executeBlocking
+方法来执行操作，发现每次查找API
+都需要两到三毫秒。
+
+所以针对使用LocalMap的场景做了测试
 ## 没有定义API
 当没有定义任何路由时，基准测试的返回如下
 
@@ -96,5 +100,28 @@
 
 上面的测试结果说明LocalMap存在着少许性能损耗，而这里的性能损耗有可能是因为DefaultApiDefinitionBackend会使用executeBlocking操作LocalMap：
 所以这里确定了两个优化方案：
+
 1. 尝试取消DefaultApiDefinitionBackend的executeBlocking
 2. 尝试使用一个HashMap缓存LocalMap中的API
+
+基于下面两个原因，我决定采用第二种方式来优化：
+
+1. vert.x的AsyncMap并没有提供getAll的方法，直接在SyncMap上取消executeBlocking，可能会降低整个eventloop的性能 （并未测试）
+2. 未来会扩展Backend使用redis或者DB来存储，到时候依然会存在较多性能损耗
+
+
+使用缓存的话需要考虑下面的问题：
+
+如果每个API都先从本地缓存中寻找，缓存没有找到合适的API就到backend中查找，找到之后放入本地缓存。
+由于API的比较一般都是通过路径进行正则匹配来查找，所以如果backedend中也没有找到对应的API，本地缓存无法写入一个NULL值——因为路径是可变的。所以对于不存在的API，会存在缓存穿透的问题
+
+如果所有对API的操作之间在缓存中进行，不向backend发送请求——缓存数据的更新通过与backend之间的eventbus来通知。这样需要考虑以下问题：
+
+    第一次启动是如何将所有的API加载到缓存
+    如果缓存和backend的数据不一致怎么办
+    如果缓存模块先启动，在启动backend模块怎么办
+
+由于第二种的实现太繁琐，所以我们直接采用第一种方式，在ApiFinder和ApiDiscovery之间增加一个本地缓存（可以设置过期时间），这样绝大多数正确的请求都可以被快速访问。
+即使出现数据不一致的情况，在缓存过期被淘汰之后，依然可以从Backend中取回正确的数据。
+
+对应缓存穿透的问题目前没有很好的解决方法，暂时考虑通过增加黑名单策略屏蔽非法的请求来尽量减少缓存穿透引起的损耗——虽然这种损耗也可以接受

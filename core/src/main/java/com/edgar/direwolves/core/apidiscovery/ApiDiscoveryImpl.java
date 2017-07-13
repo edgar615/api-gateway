@@ -1,5 +1,7 @@
-package com.edgar.direwolves.core.definition;
+package com.edgar.direwolves.core.apidiscovery;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDefinitionBackend;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -23,8 +25,6 @@ import java.util.stream.Collectors;
  */
 class ApiDiscoveryImpl implements ApiDiscovery {
 
-  public static final String MODULE_NAME = "api.discovery";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDiscovery.class);
 
   private final Vertx vertx;
@@ -33,10 +33,19 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   private final String name;
 
-  public ApiDiscoveryImpl(Vertx vertx, String name) {
+  private final String publishedAddress;
+
+  private final String unpublishedAddress;
+
+  public ApiDiscoveryImpl(Vertx vertx, ApiDiscoveryOptions options) {
+    Objects.requireNonNull(options.getName());
+    Objects.requireNonNull(options.getPublishedAddress());
+    Objects.requireNonNull(options.getUnpublishedAddress());
     this.vertx = vertx;
-    this.name = name;
+    this.name = options.getName();
     this.backend = new DefaultApiDefinitionBackend(vertx, name);
+    this.publishedAddress = this.name + "." + options.getPublishedAddress();
+    this.unpublishedAddress = this.name + "." + options.getUnpublishedAddress();
     Log.create(LOGGER)
             .setEvent("api.discovery.start")
             .addData("namespace", this.name)
@@ -50,8 +59,12 @@ class ApiDiscoveryImpl implements ApiDiscovery {
             .addData("namespace", this.name)
             .addData("definition", definition.toJson().encode())
             .info();
-    backend.store(definition, resultHandler);
-//    vertx.eventBus().publish(announce, definition.toJson());
+    backend.store(definition, ar -> {
+      if (ar.succeeded()) {
+        vertx.eventBus().publish(publishedAddress, definition.toJson());
+      }
+      resultHandler.handle(ar);
+    });
   }
 
   @Override
@@ -66,10 +79,10 @@ class ApiDiscoveryImpl implements ApiDiscovery {
         resultHandler.handle(Future.failedFuture(ar.cause()));
         return;
       }
-//      ApiDefinition definition = ar.result();
-//      if (definition != null) {
-//        vertx.eventBus().publish(announce, definition.toJson());
-//      }
+      ApiDefinition definition = ar.result();
+      if (definition != null) {
+        vertx.eventBus().publish(unpublishedAddress, definition.toJson());
+      }
       resultHandler.handle(Future.succeededFuture());
     });
 

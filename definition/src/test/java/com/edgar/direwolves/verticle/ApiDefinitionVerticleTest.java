@@ -2,8 +2,9 @@ package com.edgar.direwolves.verticle;
 
 import com.google.common.collect.Lists;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -45,7 +46,7 @@ public class ApiDefinitionVerticleTest {
     vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
     vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), testContext.asyncAssertSuccess());
 
-    discovery = ApiDiscovery.create(vertx, namespace);
+    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     HttpEndpoint httpEndpoint = HttpEndpoint
             .http("get_device", HttpMethod.GET, "devices/", "device");
     ApiDefinition apiDefinition = ApiDefinition

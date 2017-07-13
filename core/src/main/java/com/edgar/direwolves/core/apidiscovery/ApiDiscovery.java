@@ -1,5 +1,6 @@
-package com.edgar.direwolves.core.definition;
+package com.edgar.direwolves.core.apidiscovery;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -17,8 +18,8 @@ public interface ApiDiscovery {
 
   void close();
 
-  static ApiDiscovery create(Vertx vertx, String name) {
-    return new ApiDiscoveryImpl(vertx, name);
+  static ApiDiscovery create(Vertx vertx, ApiDiscoveryOptions options) {
+    return new ApiDiscoveryImpl(vertx, options);
   }
 
   /**

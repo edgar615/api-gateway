@@ -1,7 +1,10 @@
-package com.edgar.direwolves.core.definition;
+package com.edgar.direwolves.core.apidiscovery;
 
 import com.google.common.collect.Lists;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -39,7 +42,7 @@ public class ApiDiscoveryTest {
   public void setUp() {
     namespace = UUID.randomUUID().toString();
    vertx = Vertx.vertx();
-    discovery = ApiDiscovery.create(vertx, namespace);
+    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
   }
 
   @After
@@ -258,7 +261,7 @@ public class ApiDiscoveryTest {
               .deployVerticle(new AbstractVerticle() {
                 @Override
                 public void start() throws Exception {
-                  apiDiscovery = ApiDiscovery.create(vertx, name);
+                  apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(name));
                   for (ApiDefinition definition : definitions) {
                     apiDiscovery.publish(definition,
                                          ar -> seq.incrementAndGet());

@@ -4,10 +4,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.cmd.ApiSubCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
@@ -74,7 +75,7 @@ class ApiPluginCmd implements ApiCmd {
       return future;
     }
 
-    ApiDiscovery discovery = ApiDiscovery.create(vertx, namespace);
+    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     discovery.getDefinitions(filter, ar -> {
       if (ar.failed()) {
         future.fail(ar.cause());

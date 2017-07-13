@@ -3,7 +3,7 @@ package com.edgar.direwolves;
 import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import io.vertx.core.http.HttpMethod;

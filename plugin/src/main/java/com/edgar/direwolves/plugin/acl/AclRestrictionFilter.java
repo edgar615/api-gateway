@@ -29,9 +29,11 @@ import java.util.stream.Collectors;
  * 该filter的order=1100
  * <p>
  * 接受的参数：
- * "acl.blacklist": [], 黑名单列表
- * "acl.whitelist": []， 白名单列表
- * "user.groupKey" 编码的键值，默认值group
+ * "acl.restriction" : {
+ * "blacklist": ["guest],
+ * "whitelist": ["user],
+ * "groupKey": "role"
+ * }
  * Created by edgar on 16-12-24.
  */
 public class AclRestrictionFilter implements Filter {

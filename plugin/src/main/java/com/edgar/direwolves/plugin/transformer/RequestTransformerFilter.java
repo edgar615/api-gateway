@@ -19,7 +19,43 @@ import java.util.Collection;
  * <p>
  * 执行的顺序为: remove replace add
  * <p>
- * 该filter的order=15000
+ * 该filter的order=15000。
+ * <p>
+ * 接受的参数
+ * <p>
+ * "request.transformer": {
+ * "header.add": [
+ * "x-auth-userId:$user.userId",
+ * "x-auth-companyCode:$user.companyCode",
+ * "x-policy-owner:individual"
+ * ],
+ * "header.remove": [
+ * "Authorization"
+ * ],
+ * "header.replace": [
+ * "x-app-verion:x-client-version"
+ * ],
+ * "query.add": [
+ * "userId:$user.userId"
+ * ],
+ * "query.remove": [
+ * "appKey",
+ * "nonce"
+ * ],
+ * "query.replace": [
+ * "x-app-verion:x-client-version"
+ * ],
+ * "body.add": [
+ * "userId:$user.userId"
+ * ],
+ * "body.remove": [
+ * "appKey",
+ * "nonce"
+ * ],
+ * "body.replace": [
+ * "x-app-verion:x-client-version"
+ * ]
+ * }
  * Created by edgar on 16-9-20.
  */
 public class RequestTransformerFilter implements Filter {
@@ -46,8 +82,8 @@ public class RequestTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return   apiContext.requests().size() > 0
-             && apiContext.requests().stream()
+    return apiContext.requests().size() > 0
+           && apiContext.requests().stream()
                    .anyMatch(e -> e instanceof HttpRpcRequest);
 //    return apiContext.apiDefinition()
 //                   .plugin(RequestTransformerPlugin.class.getSimpleName()) != null

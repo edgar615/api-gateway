@@ -1,5 +1,7 @@
-package com.edgar.direwolves.core.definition;
+package com.edgar.direwolves.core.apidiscovery;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.ApiDefinitionBackend;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.sharedata.SyncMap;

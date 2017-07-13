@@ -1,7 +1,8 @@
 package com.edgar.direwolves.filter;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Log;
@@ -38,7 +39,7 @@ public class ApiFindFilter implements Filter {
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     String namespace = config.getString("namespace", "");
-    this.apiDiscovery = ApiDiscovery.create(vertx, namespace);
+    this.apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
   }
 
   @Override

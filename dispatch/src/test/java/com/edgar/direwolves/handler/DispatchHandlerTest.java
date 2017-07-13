@@ -3,7 +3,7 @@ package com.edgar.direwolves.handler;
 import static org.awaitility.Awaitility.await;
 
 import com.edgar.direwolves.ApiUtils;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.filter.MockConsulHttpVerticle;
 import com.edgar.direwolves.verticle.ApiDispatchVerticle;
 import com.edgar.util.base.Randoms;

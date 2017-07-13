@@ -1,8 +1,8 @@
 package com.edgar.dirwolves.benchmark;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDiscovery;
-import com.edgar.direwolves.verticle.ApiDefinitionRegistry;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.verticle.ApiImporter;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -86,7 +86,7 @@ public class ApiDiscoveryBenchmarks3 {
 
     public ApiBackend() {
       vertx = Vertx.vertx();
-      apiDiscovery = ApiDiscovery.create(vertx, "app");
+      apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
       JsonObject app = new JsonObject()
               .put("path", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
       JsonObject om = new JsonObject()

@@ -33,6 +33,28 @@ import java.util.stream.Collectors;
 
 /**
  * 执行RPC调用。该Filter应该放在PRE类型的最后面或者POST类型的最前面.
+ * <p>
+ * 接受的参数
+ * <p>
+ * "circuit.breaker" : {
+ * "maxFailures" : 5,
+ * "maxRetries" : 0,
+ * "resetTimeout" : 60000,
+ * "timeout" : 3000,
+ * "metricsRollingWindow" : 10000,
+ * "notificationPeriod" : 2000,
+ * "notificationAddress" : "vertx.circuit-breaker",
+ * "registry" : "vertx.circuit.breaker.registry"
+ * }
+ * <p>
+ * - maxFailures  针对一个服务的请求失败多少次之后开启断路器，默认值5
+ * - maxRetries 请求失败后的重试次数，默认值0
+ * - resetTimeout 断路器打开之后，等待多长时间重置为半开状态，单位毫秒，默认值30000
+ * - timeout 一个请求多长时间没有返回任务超时（失败）， 单位毫秒，默认值10000
+ * - metricsRollingWindow 度量的时间窗口 单位毫秒，默认值10000
+ * - notificationPeriod  通知周期，单位毫秒，默认值2000
+ * - notificationAddress  通知地址，默认值vertx.circuit-breaker
+ * - registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
  */
 public class RpcFilter extends RequestReplaceFilter implements Filter {
 
