@@ -1,6 +1,7 @@
 package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
+import com.edgar.direwolves.core.apidiscovery.ApiLocalCache;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
@@ -34,12 +35,12 @@ public class ApiFindFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final ApiDiscovery apiDiscovery;
+  private final ApiLocalCache apiLocalCache;
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     String namespace = config.getString("namespace", "");
-    this.apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
+    this.apiLocalCache = ApiLocalCache.create(vertx, new ApiDiscoveryOptions().setName(namespace));
   }
 
   @Override
@@ -59,10 +60,7 @@ public class ApiFindFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    JsonObject filter = new JsonObject()
-            .put("method", apiContext.method().name())
-            .put("path", apiContext.path());
-    apiDiscovery.getDefinitions(filter, ar -> {
+    apiLocalCache.getDefinitions(apiContext.method().name(), apiContext.path(), ar -> {
       if (ar.failed()) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())

@@ -3,7 +3,7 @@ package com.edgar.dirwolves.benchmark;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
-import com.edgar.direwolves.verticle.ApiImporter;
+import com.edgar.direwolves.verticle.ImportApi;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -36,7 +36,7 @@ public class ApiDiscoveryBenchmarks2 {
               .put("path", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api\\device");
       JsonObject config = new JsonObject()
               .put("router.dir", new JsonObject().put("app", app));
-      new ApiImporter().initialize(vertx, config, Future.<Void>future());
+      new ImportApi().initialize(vertx, config, Future.<Void>future());
       try {
         TimeUnit.SECONDS.sleep(3);
       } catch (InterruptedException e) {

@@ -28,9 +28,17 @@ class GetApiCmd implements ApiCmd {
 
   private final Vertx vertx;
 
-  GetApiCmd(Vertx vertx) {this.vertx = vertx;
+  private final JsonObject configuration = new JsonObject();
+
+  GetApiCmd(Vertx vertx, JsonObject config) {this.vertx = vertx;
     rules.put("namespace", Rule.required());
     rules.put("name", Rule.required());
+    if (config.containsKey("publishedAddress")) {
+      configuration.put("publishedAddress", config.getString("publishedAddress"));
+    }
+    if (config.containsKey("unpublishedAddress")) {
+      configuration.put("unpublishedAddress", config.getString("unpublishedAddress"));
+    }
   }
 
   @Override

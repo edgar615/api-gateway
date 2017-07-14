@@ -3,10 +3,10 @@ package com.edgar.direwolves.cmd;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
@@ -25,9 +25,18 @@ class AddApiCmd implements ApiCmd {
 
   private final Vertx vertx;
 
-  AddApiCmd(Vertx vertx) {this.vertx = vertx;
+  private final JsonObject configuration = new JsonObject();
+
+  AddApiCmd(Vertx vertx, JsonObject config) {
+    this.vertx = vertx;
     rules.put("namespace", Rule.required());
     rules.put("data", Rule.required());
+    if (config.containsKey("publishedAddress")) {
+      configuration.put("publishedAddress", config.getString("publishedAddress"));
+    }
+    if (config.containsKey("unpublishedAddress")) {
+      configuration.put("unpublishedAddress", config.getString("unpublishedAddress"));
+    }
   }
 
   @Override
@@ -49,7 +58,7 @@ class AddApiCmd implements ApiCmd {
     String data = jsonObject.getString("data");
     ApiDefinition apiDefinition = ApiDefinition.fromJson(new JsonObject(data));
     Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace))
+    ApiDiscovery.create(vertx, new ApiDiscoveryOptions(configuration).setName(namespace))
             .publish(apiDefinition, ar -> {
               if (ar.failed()) {
                 future.fail(ar.cause());

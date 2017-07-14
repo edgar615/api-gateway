@@ -1,15 +1,16 @@
-package com.edgar.direwolves.cmd;
+package com.edgar.direwolves.core.apidiscovery;
 
-import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.vertx.eventbus.Event;
-import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.awaitility.Awaitility;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -18,47 +19,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/1/19
  */
 @RunWith(VertxUnitRunner.class)
-public class ApiImporterCmdTest extends BaseApiCmdTest {
+public class FileApiImporterTest {
 
-  @Test
-  public void testMissNameShouldThrowValidationException(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(new JsonObject())
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        ar.cause().printStackTrace();
-        testContext.assertTrue(ar.cause() instanceof ReplyException);
-        testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
-                                 ReplyException.class.cast(ar.cause()).failureCode());
-        check.set(true);
-      }
-    });
-    Awaitility.await().until(() -> check.get());
+  private Vertx vertx;
 
+  @Before
+  public void setUp() {
+    vertx = Vertx.vertx();
   }
 
   @Test
   public void testImportDirSuccess(TestContext testContext) {
+    String namespace = UUID.randomUUID().toString();
+    ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                    new ApiDiscoveryOptions().setName(namespace));
     JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-        .put("path", "src/test/resources/api");
+            .put("path", "src/test/resources/api");
+
+    ApiImporter apiImporter = new FileApiImporter();
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    discovery.registerServiceImporter(apiImporter, jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
+        ar.cause().printStackTrace();
         testContext.fail();
       }
     });
+
     Awaitility.await().until(() -> check1.get());
 
     AtomicBoolean check3 = new AtomicBoolean();
@@ -76,19 +64,18 @@ public class ApiImporterCmdTest extends BaseApiCmdTest {
 
   @Test
   public void testImportFileSuccess(TestContext testContext) {
-
+    String namespace = UUID.randomUUID().toString();
+    ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                 new ApiDiscoveryOptions().setName(namespace));
     JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
             .put("path", "src/test/resources/api/device_add.json");
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    ApiImporter apiImporter = new FileApiImporter();
+    discovery.registerServiceImporter(apiImporter, jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
+        ar.cause().printStackTrace();
         testContext.fail();
       }
     });
@@ -109,19 +96,19 @@ public class ApiImporterCmdTest extends BaseApiCmdTest {
 
   @Test
   public void testInvalidJsonShouldNotAddAnyApi(TestContext testContext) {
-
+    String namespace = UUID.randomUUID().toString();
     JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
             .put("path", "src/test/resources/invalid");
+    ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                 new ApiDiscoveryOptions().setName(namespace));
+
+    ApiImporter apiImporter = new FileApiImporter();
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    discovery.registerServiceImporter(apiImporter, jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
+        ar.cause().printStackTrace();
         testContext.fail();
       }
     });

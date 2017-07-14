@@ -19,19 +19,21 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/3/30
  */
-public class ApiImporter implements Initializable {
+public class ImportApi implements Initializable {
 
-  Logger LOGGER = LoggerFactory.getLogger(ApiImporter.class);
+  Logger LOGGER = LoggerFactory.getLogger(ImportApi.class);
 
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {
-    JsonObject apiConfig = config.getJsonObject("router.dir", new JsonObject());
+    JsonObject discoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
+    JsonObject importer = discoveryConfig.getJsonObject("importer", new JsonObject());
+    discoveryConfig.remove("importer");
 
     List<Future> futures = new ArrayList<>();
-    for (String namespace : apiConfig.fieldNames()) {
-      JsonObject _config = apiConfig.getJsonObject(namespace);
-      String path = _config.getString("path");
-      ApiCmd cmd = new ImportApiCmd(vertx);
+    for (String namespace : importer.fieldNames()) {
+      JsonObject _config = importer.getJsonObject(namespace);
+      String path = _config.getString("file");
+      ApiCmd cmd = new ImportApiCmd(vertx, config);
       Future<JsonObject> imported = cmd.handle(new JsonObject().put("path", path)
                                                        .put("namespace", namespace));
       futures.add(imported);
@@ -53,7 +55,7 @@ public class ApiImporter implements Initializable {
               } else {
                 complete.fail(ar.cause());
               }
-              for (int i = 0; i < ar.result().size(); i ++) {
+              for (int i = 0; i < ar.result().size(); i++) {
                 if (ar.result().succeeded(i)) {
                   Log.create(LOGGER)
                           .setEvent("api.import.succeeded")

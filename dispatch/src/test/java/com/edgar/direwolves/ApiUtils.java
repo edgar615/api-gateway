@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import io.vertx.core.http.HttpMethod;
+import org.awaitility.Awaitility;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,6 +66,8 @@ public class ApiUtils {
     apiDiscovery.publish(apiDefinition, ar -> {
       seq.incrementAndGet();
     });
+
+    Awaitility.await().until(() -> seq.get() == 6);
   }
 
 }

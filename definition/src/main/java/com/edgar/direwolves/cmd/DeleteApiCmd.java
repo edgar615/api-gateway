@@ -3,9 +3,9 @@ package com.edgar.direwolves.cmd;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.CompositeFuture;
@@ -35,10 +35,18 @@ class DeleteApiCmd implements ApiCmd {
 
   private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  DeleteApiCmd(Vertx vertx) {
+  private final JsonObject configuration = new JsonObject();
+
+  DeleteApiCmd(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     rules.put("namespace", Rule.required());
     rules.put("name", Rule.required());
+    if (config.containsKey("publishedAddress")) {
+      configuration.put("publishedAddress", config.getString("publishedAddress"));
+    }
+    if (config.containsKey("unpublishedAddress")) {
+      configuration.put("unpublishedAddress", config.getString("unpublishedAddress"));
+    }
   }
 
   @Override
@@ -56,27 +64,29 @@ class DeleteApiCmd implements ApiCmd {
       filter.put("name", name);
     }
     Future<JsonObject> future = Future.future();
-    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-            discovery.getDefinitions(filter, ar -> {
-              if (ar.failed()) {
-                future.fail(ar.cause());
-                return;
-              }
-              List<String> names = ar.result()
-                      .stream()
-                      .map(d -> d.name())
-                      .collect(Collectors.toList());
-              if (names.isEmpty()) {
-                future.complete(succeedResult());
-              } else {
-                deleteByName(discovery, names, future);
-              }
-            });
+    ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                 new ApiDiscoveryOptions(configuration)
+                                                         .setName(namespace));
+    discovery.getDefinitions(filter, ar -> {
+      if (ar.failed()) {
+        future.fail(ar.cause());
+        return;
+      }
+      List<String> names = ar.result()
+              .stream()
+              .map(d -> d.name())
+              .collect(Collectors.toList());
+      if (names.isEmpty()) {
+        future.complete(succeedResult());
+      } else {
+        deleteByName(discovery, names, future);
+      }
+    });
     return future;
   }
 
   private void deleteByName(ApiDiscovery discovery, List<String> names,
-                            Future<JsonObject>          complete) {
+                            Future<JsonObject> complete) {
     List<Future> futures = new ArrayList<>();
     for (String name : names) {
       Future<Void> future = Future.future();

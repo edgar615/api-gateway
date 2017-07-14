@@ -4,6 +4,7 @@ import static org.awaitility.Awaitility.await;
 
 import com.edgar.direwolves.ApiUtils;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.filter.MockConsulHttpVerticle;
 import com.edgar.direwolves.verticle.ApiDispatchVerticle;
 import com.edgar.util.base.Randoms;
@@ -58,7 +59,7 @@ public class DispatchHandlerTest {
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
 
-    apiDiscovery = ApiDiscovery.create(vertx, namespace);
+    apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     ApiUtils.registerApi(apiDiscovery);
 
     serviceDiscovery = ServiceDiscovery.create(vertx);

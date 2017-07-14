@@ -4,7 +4,7 @@ import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.apidiscovery.ApiLocalCache;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.verticle.ApiImporter;
+import com.edgar.direwolves.verticle.ImportApi;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -40,7 +40,7 @@ public class ApiLocalCacheBenchmarks {
                       .put("path", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
       JsonObject config = new JsonObject()
               .put("router.dir", new JsonObject().put("app", app).put("om", om));
-      new ApiImporter().initialize(vertx, config, Future.<Void>future());
+      new ImportApi().initialize(vertx, config, Future.<Void>future());
       try {
         TimeUnit.SECONDS.sleep(2);
       } catch (InterruptedException e) {

@@ -45,6 +45,7 @@ class ApiLocalCacheImpl implements ApiLocalCache {
     String unpublishedAddress = options.getName() + "." + options.getUnpublishedAddress();
     vertx.eventBus().<JsonObject>consumer(publishedAddress, msg -> {
       ApiDefinition apiDefinition = ApiDefinition.fromJson(msg.body());
+      definitions.removeIf(d -> d.name().equalsIgnoreCase(apiDefinition.name()));
       definitions.add(apiDefinition);
     });
 

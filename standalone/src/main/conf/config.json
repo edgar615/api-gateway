@@ -31,10 +31,14 @@
       "instances": 1,
       "worker": false,
       "config": {
-        "router.dir": {
-          "example": {
-            "path": "standalone/src/test/resources/router"
-          }
+        "api.discovery" : {
+          "importer" : {
+            "example" : {
+              "file" : "standalone/src/test/resources/router"
+            }
+          },
+          "publishedAddress" : "direwolves.api.published",
+          "unpublishedAddress" : "direwolves.api.unpublished"
         }
       }
     },

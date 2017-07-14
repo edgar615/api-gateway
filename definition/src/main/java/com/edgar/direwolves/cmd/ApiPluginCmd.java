@@ -39,12 +39,19 @@ class ApiPluginCmd implements ApiCmd {
 
   private final List<ApiSubCmd> subCmdList
           = Lists.newArrayList(ServiceLoader.load(ApiSubCmd.class));
+  private final JsonObject configuration = new JsonObject();
 
-  ApiPluginCmd(Vertx vertx) {
+  ApiPluginCmd(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     rules.put("namespace", Rule.required());
     rules.put("name", Rule.required());
     rules.put("subcmd", Rule.required());
+    if (config.containsKey("publishedAddress")) {
+      configuration.put("publishedAddress", config.getString("publishedAddress"));
+    }
+    if (config.containsKey("unpublishedAddress")) {
+      configuration.put("unpublishedAddress", config.getString("unpublishedAddress"));
+    }
   }
 
   @Override

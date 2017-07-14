@@ -39,7 +39,7 @@ public class BaseApiCmdTest {
   }
 
   protected void addMockApi() {
-    AddApiCmd addApiCmd = new AddApiCmd(vertx);
+    AddApiCmd addApiCmd = new AddApiCmd(vertx, new JsonObject());
     JsonObject jsonObject = new JsonObject()
             .put("name", "add_device")
             .put("method", "POST")

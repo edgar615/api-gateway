@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,8 @@ class ApiDiscoveryImpl implements ApiDiscovery {
   private final String publishedAddress;
 
   private final String unpublishedAddress;
+
+  private final Set<ApiImporter> importers = new CopyOnWriteArraySet<>();
 
   public ApiDiscoveryImpl(Vertx vertx, ApiDiscoveryOptions options) {
     Objects.requireNonNull(options.getName());
@@ -152,6 +156,49 @@ class ApiDiscoveryImpl implements ApiDiscovery {
         }
       }
     });
+  }
+
+  @Override
+  public ApiDiscovery registerServiceImporter(ApiImporter importer, JsonObject config,
+                                              Handler<AsyncResult<Void>> completionHandler) {
+    JsonObject conf;
+    if (config == null) {
+      conf = new JsonObject();
+    } else {
+      conf = config;
+    }
+
+    Future<Void> completed = Future.future();
+    completed.setHandler(
+            ar -> {
+              if (ar.failed()) {
+                Log.create(LOGGER)
+                        .setEvent("api.importer.started")
+                        .addData("namespace", this.name)
+                        .addData("importer", importer)
+                        .setMessage("Cannot start the api importer")
+                        .setThrowable(ar.cause())
+                        .error();
+                if (completionHandler != null) {
+                  completionHandler.handle(Future.failedFuture(ar.cause()));
+                }
+              } else {
+                importers.add(importer);
+                Log.create(LOGGER)
+                        .setEvent("api.importer.started")
+                        .addData("namespace", this.name)
+                        .addData("importer", importer)
+                        .setMessage("Api importer started")
+                        .info();
+                if (completionHandler != null) {
+                  completionHandler.handle(Future.succeededFuture(null));
+                }
+              }
+            }
+    );
+
+    importer.start(vertx, this, conf, completed);
+    return this;
   }
 
   @Override

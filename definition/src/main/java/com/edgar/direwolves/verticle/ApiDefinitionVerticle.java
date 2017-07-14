@@ -1,12 +1,18 @@
 package com.edgar.direwolves.verticle;
 
+import com.edgar.direwolves.cmd.ImportApiCmd;
+import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.cmd.CmdRegister;
 import com.edgar.direwolves.core.utils.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * API定义的Verticle，从指定的路径<code>api.config.dir</code>读取API定义.
@@ -30,7 +36,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   public void initialize(Future<Void> startFuture) {
     //读取路由
     Future<Void> importApiFuture = Future.future();
-    new ApiImporter().initialize(vertx, config(), importApiFuture);
+    new ImportApi().initialize(vertx, config(), importApiFuture);
     //读取命令
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, config(), importCmdFuture);

@@ -303,6 +303,10 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
     Record record = new Record();
     record.setName(instance.getName());
     String payload = instance.getPayload();
+    JsonObject meta = new JsonObject(payload);
+    if (meta.containsKey("version")) {
+      record.getMetadata().put("version", meta.getString("version"));
+    }
     record.getMetadata().put("zookeeper-payload", payload);
     record.getMetadata().put("zookeeper-service-type", instance.getServiceType().toString());
     record.getMetadata().put("zookeeper-host", instance.getAddress());

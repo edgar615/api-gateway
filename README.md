@@ -21,29 +21,9 @@ API版本：在响应头中增加API的版本，如果有过期时间说明过�
 
 所有的全局插件配置均可以动态修改(配置管理，eventbus)
 
-多种类型日志
-暂定的日志事件：
+基于版本/用户的灰度发布（在nginx上处理可能更好）
 
 ## API Definition
-config.readed 读取配置
-api.import 导入API
-api.imported 导入API完成
-
-api.added 添加API
-api.deleted 删除
-api.all 查找所有
-api.finded 根据名称查找API
-
-HttpRpcRequested:内部的HTTP转发
-TokenCreated：创建token
-TokenUpdated：更新token
-TokenDeleted：注销token
-AuthFailure：身份认证失败
-RateLimitExceeded：超过限流
-QuotaExeeded：配额超过
-BreakerTripped：断路器开启
-BreakerReset：断路器重置
-SlowReqDetected：慢请求检查
 
 重写eventbus类型的endpoint
 

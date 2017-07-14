@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.ApiUtils;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
+import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
@@ -21,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2017/1/9.
@@ -41,7 +43,7 @@ public class ApiFindFilterTest {
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
-    apiDiscovery = ApiDiscovery.create(vertx, namespace);
+    apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     ApiUtils.registerApi(apiDiscovery);
   }
 
@@ -53,6 +55,11 @@ public class ApiFindFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     Filters.doFilter(task, Lists.newArrayList(filter))
             .andThen(context -> {
               testContext.assertNotNull(context.apiDefinition());
