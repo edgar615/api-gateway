@@ -1,5 +1,6 @@
 package com.edgar.direwolves.cmd;
 
+import com.edgar.direwolves.core.apidiscovery.ApiLocalCache;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.vertx.eventbus.Event;
@@ -82,6 +83,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
 
   @Test
   public void testAddApiSuccess(TestContext testContext) {
+
     AtomicBoolean check1 = new AtomicBoolean();
     discovery.getDefinitions(new JsonObject(), ar -> {
       if (ar.failed()) {
@@ -133,6 +135,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
       check3.set(true);
     });
     Awaitility.await().until(() -> check3.get());
+
   }
 
   @Test

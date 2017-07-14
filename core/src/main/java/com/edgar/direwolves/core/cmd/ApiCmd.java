@@ -39,4 +39,13 @@ public interface ApiCmd {
     return new JsonObject()
         .put("result", 1);
   }
+
+  default void setConfig(JsonObject config, JsonObject privateConfig) {
+    if (config.containsKey("publishedAddress")) {
+      privateConfig.put("publishedAddress", config.getString("publishedAddress"));
+    }
+    if (config.containsKey("unpublishedAddress")) {
+      privateConfig.put("unpublishedAddress", config.getString("unpublishedAddress"));
+    }
+  }
 }

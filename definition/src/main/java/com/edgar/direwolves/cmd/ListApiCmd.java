@@ -36,12 +36,7 @@ class ListApiCmd implements ApiCmd {
   ListApiCmd(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     rules.put("namespace", Rule.required());
-    if (config.containsKey("publishedAddress")) {
-      configuration.put("publishedAddress", config.getString("publishedAddress"));
-    }
-    if (config.containsKey("unpublishedAddress")) {
-      configuration.put("unpublishedAddress", config.getString("unpublishedAddress"));
-    }
+    setConfig(config, configuration);
   }
 
   @Override
