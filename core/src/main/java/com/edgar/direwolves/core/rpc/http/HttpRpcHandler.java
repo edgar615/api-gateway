@@ -108,7 +108,7 @@ public class HttpRpcHandler implements RpcHandler {
                         duration.getEndedOn() - duration.getCreatedon())
                 .addData("rt", duration.getRepliedOn() == 0 ? 0 :
                         duration.getRepliedOn() - duration.getCreatedon())
-                .addData("tt", duration.getBodyHandledOn() == 0 ? 0 :
+                .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
                         duration.getBodyHandledOn() - duration.getCreatedon())
                 .setMessage(" [{}] [{}ms] [{} bytes]")
                 .addArg(rpcResponse.statusCode())
@@ -132,7 +132,7 @@ public class HttpRpcHandler implements RpcHandler {
                           duration.getEndedOn() - duration.getCreatedon())
                   .addData("rt", duration.getRepliedOn() == 0 ? 0 :
                           duration.getRepliedOn() - duration.getCreatedon())
-                  .addData("tt", duration.getBodyHandledOn() == 0 ? 0 :
+                  .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
                           duration.getBodyHandledOn() - duration.getCreatedon())
                   .setThrowable(throwable)
                   .error();
