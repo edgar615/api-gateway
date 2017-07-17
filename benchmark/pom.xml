@@ -65,6 +65,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-dispatch</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>1.19</version>

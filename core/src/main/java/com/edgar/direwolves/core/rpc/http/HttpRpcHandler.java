@@ -74,32 +74,42 @@ public class HttpRpcHandler implements RpcHandler {
             .setTraceId(httpRpcRequest.id())
             .setLogType(LogType.CS)
             .setEvent(type().toUpperCase())
-            .addData("server",  httpRpcRequest.host() + ":" + httpRpcRequest.port())
+            .addData("server", httpRpcRequest.host() + ":" + httpRpcRequest.port())
             .setMessage("[{}] [{}] [{}] [{}]")
-            .addArg( httpRpcRequest.method().name() + " " + httpRpcRequest.path())
-            .addArg( MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
-            .addArg(    MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
-            .addArg( httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
+            .addArg(httpRpcRequest.method().name() + " " + httpRpcRequest.path())
+            .addArg(MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
+            .addArg(MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
+            .addArg(httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
             .info();
     Future<RpcResponse> future = Future.future();
     String path = requestPath(httpRpcRequest);
-    final long startTime = System.currentTimeMillis();
+    final Duration duration = new Duration();
     HttpClientRequest request =
             httpClient
                     .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
                              path)
                     .putHeader("content-type", "application/json");
     request.handler(response -> {
+      duration.setRepliedOn(System.currentTimeMillis());
       response.bodyHandler(body -> {
+        duration.setBodyHandledOn(System.currentTimeMillis());
         RpcResponse rpcResponse =
                 RpcResponse.create(httpRpcRequest.id(),
                                    response.statusCode(),
                                    body,
-                                   System.currentTimeMillis() - startTime);
+                                   duration.duration());
         Log.create(LOGGER)
                 .setTraceId(rpcRequest.id())
                 .setLogType(LogType.CR)
                 .setEvent("HTTP")
+                .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+                                                                  duration.getCreatedon())
+                .addData("et", duration.getEndedOn() == 0 ? 0 :
+                        duration.getEndedOn() - duration.getCreatedon())
+                .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+                        duration.getRepliedOn() - duration.getCreatedon())
+                .addData("tt", duration.getBodyHandledOn() == 0 ? 0 :
+                        duration.getBodyHandledOn() - duration.getCreatedon())
                 .setMessage(" [{}] [{}ms] [{} bytes]")
                 .addArg(rpcResponse.statusCode())
                 .addArg(rpcResponse.elapsedTime())
@@ -116,11 +126,23 @@ public class HttpRpcHandler implements RpcHandler {
                   .setTraceId(rpcRequest.id())
                   .setLogType(LogType.CR)
                   .setEvent("HTTP")
-                 .setThrowable(throwable)
+                  .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+                                                                    duration.getCreatedon())
+                  .addData("et", duration.getEndedOn() == 0 ? 0 :
+                          duration.getEndedOn() - duration.getCreatedon())
+                  .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+                          duration.getRepliedOn() - duration.getCreatedon())
+                  .addData("tt", duration.getBodyHandledOn() == 0 ? 0 :
+                          duration.getBodyHandledOn() - duration.getCreatedon())
+                  .setThrowable(throwable)
                   .error();
           future.fail(throwable);
         }
       });
+    }).connectionHandler(conn -> {
+      duration.setConnectedOn(System.currentTimeMillis());
+    }).endHandler(v -> {
+      duration.setEndedOn(System.currentTimeMillis());
     });
     header(httpRpcRequest, request);
     exceptionHandler(future, request, httpRpcRequest.serverId());
@@ -128,6 +150,14 @@ public class HttpRpcHandler implements RpcHandler {
 
     endRequest(httpRpcRequest, request);
     return future;
+  }
+
+  public String urlEncode(String path) {
+    try {
+      return URLEncoder.encode(path, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return path;
+    }
   }
 
   private boolean checkBody(HttpRpcRequest request) {
@@ -204,11 +234,78 @@ public class HttpRpcHandler implements RpcHandler {
     return path;
   }
 
-  public String urlEncode(String path) {
-    try {
-      return URLEncoder.encode(path, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      return path;
+  /**
+   * 为了更准确的度量http请求的性能，需要记录HTTP各个阶段的时间。
+   */
+  private class Duration {
+
+    /**
+     * 创建时间
+     */
+    private long createdon = System.currentTimeMillis();
+
+    /**
+     * 发送请求时间
+     */
+    private long endedOn;
+
+    /**
+     * 连接时间
+     */
+    private long connectedOn;
+
+    /**
+     * 服务端响应时间
+     */
+    private long repliedOn;
+
+    /**
+     * body处理时间：body处理会比收到response慢一点点
+     */
+    private long bodyHandledOn;
+
+    public long duration() {
+      return bodyHandledOn - createdon;
+    }
+
+    public long getCreatedon() {
+      return createdon;
+    }
+
+    public void setCreatedon(long createdon) {
+      this.createdon = createdon;
+    }
+
+    public long getEndedOn() {
+      return endedOn;
+    }
+
+    public void setEndedOn(long endedOn) {
+      this.endedOn = endedOn;
+    }
+
+    public long getConnectedOn() {
+      return connectedOn;
+    }
+
+    public void setConnectedOn(long connectedOn) {
+      this.connectedOn = connectedOn;
+    }
+
+    public long getRepliedOn() {
+      return repliedOn;
+    }
+
+    public void setRepliedOn(long repliedOn) {
+      this.repliedOn = repliedOn;
+    }
+
+    public long getBodyHandledOn() {
+      return bodyHandledOn;
+    }
+
+    public void setBodyHandledOn(long bodyHandledOn) {
+      this.bodyHandledOn = bodyHandledOn;
     }
   }
 }

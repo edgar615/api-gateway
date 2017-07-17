@@ -1,4 +1,4 @@
-package com.edgar.dirwolves.benchmark;
+package com.edgar.dirwolves.benchmark.apidiscovery;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
@@ -93,12 +93,13 @@ public class ApiDiscoveryBenchmarks4 {
       vertx = Vertx.vertx();
       apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
       JsonObject app = new JsonObject()
-              .put("path", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
       JsonObject om = new JsonObject()
-              .put("path", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
       JsonObject config = new JsonObject()
-              .put("router.dir", new JsonObject().put("app", app).put("om", om));
-      new ImportApi().initialize(vertx, config, Future.<Void>future());
+              .put("importer", new JsonObject().put("app", app).put("om", om));
+      new ImportApi().initialize(vertx, new JsonObject().put("api.discovery", config), Future
+              .<Void>future());
 
       try {
         TimeUnit.SECONDS.sleep(3);

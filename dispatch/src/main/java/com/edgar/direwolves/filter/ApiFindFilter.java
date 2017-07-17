@@ -83,11 +83,11 @@ public class ApiFindFilter implements Filter {
       ApiDefinition apiDefinition = apiDefinitions.get(0);
       apiContext.setApiDefinition(apiDefinition);
 
-      try {
-        ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+//      try {
+//        ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
+//      } catch (Exception e) {
+//        e.printStackTrace();
+//      }
       completeFuture.complete(apiContext);
     });
   }

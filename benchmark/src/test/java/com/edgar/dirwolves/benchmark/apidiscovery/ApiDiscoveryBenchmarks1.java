@@ -1,9 +1,11 @@
-package com.edgar.dirwolves.benchmark;
+package com.edgar.dirwolves.benchmark.apidiscovery;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
+import com.edgar.direwolves.verticle.ImportApi;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -19,7 +21,21 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2017/7/12
  */
 @State(Scope.Benchmark)
-public class ApiDiscoveryEmptyApiBenchmarks {
+//@BenchmarkMode(Mode.Throughput)
+//@OutputTimeUnit(TimeUnit.MILLISECONDS)
+//@Fork(1)
+public class ApiDiscoveryBenchmarks1 {
+//  public static void main(String[] args) throws RunnerException {
+//    Options opt = new OptionsBuilder()
+//            .include(ApiDiscoveryBenchmarks1.class.getSimpleName())
+//            .forks(1)
+//            .param("count", "1", "10", "50", "100")
+//            .build();
+//    new Runner(opt).run();
+//  }
+
+//  @Param({"1", "10", "50", "100"})
+//  private int count = 1;
 
   @State(Scope.Benchmark)
   public static class ApiBackend {
@@ -30,6 +46,14 @@ public class ApiDiscoveryEmptyApiBenchmarks {
     public ApiBackend() {
       vertx = Vertx.vertx();
       apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
+      JsonObject app = new JsonObject()
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
+      JsonObject om = new JsonObject()
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
+      JsonObject config = new JsonObject()
+              .put("importer", new JsonObject().put("app", app).put("om", om));
+      new ImportApi().initialize(vertx, new JsonObject().put("api.discovery", config), Future
+              .<Void>future());
       try {
         TimeUnit.SECONDS.sleep(3);
       } catch (InterruptedException e) {
@@ -58,9 +82,9 @@ public class ApiDiscoveryEmptyApiBenchmarks {
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
   @OperationsPerInvocation(100)
-  public void testThroughput(ApiBackend backend) {
+  public void testApi(ApiBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
+    pool.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
       latch.countDown();
     });
     try {

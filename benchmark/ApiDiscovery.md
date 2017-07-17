@@ -115,13 +115,19 @@ APIDiscovery参考了ServiceDiscovery的实现，在内部使用一个Map——�
 如果每个API都先从本地缓存中寻找，缓存没有找到合适的API就到backend中查找，找到之后放入本地缓存。
 由于API的比较一般都是通过路径进行正则匹配来查找，所以如果backedend中也没有找到对应的API，本地缓存无法写入一个NULL值——因为路径是可变的。所以对于不存在的API，会存在缓存穿透的问题
 
-如果所有对API的操作之间在缓存中进行，不向backend发送请求——缓存数据的更新通过与backend之间的eventbus来通知。这样需要考虑以下问题：
+所以我们直接在本地缓存创建时就调用backend搜索到所有数据保存在本地缓存中，所有对API的操作之间在缓存中进行，不向backend发送请求——缓存数据的更新通过与backend之间的eventbus来通知。
 
-    第一次启动是如何将所有的API加载到缓存
-    如果缓存和backend的数据不一致怎么办
-    如果缓存模块先启动，在启动backend模块怎么办
+增加缓存之后，性能有了显著提高：
 
-由于第二种的实现太繁琐，所以我们直接采用第一种方式，在ApiFinder和ApiDiscovery之间增加一个本地缓存（可以设置过期时间），这样绝大多数正确的请求都可以被快速访问。
-即使出现数据不一致的情况，在缓存过期被淘汰之后，依然可以从Backend中取回正确的数据。
-
-对应缓存穿透的问题目前没有很好的解决方法，暂时考虑通过增加黑名单策略屏蔽非法的请求来尽量减少缓存穿透引起的损耗——虽然这种损耗也可以接受
+    Benchmark                                                        Mode     Cnt      Score     Error   Units
+    ApiLocalCacheBenchmarks.testApi                                 thrpt      20  18122.845 ± 140.583  ops/ms
+    ApiLocalCacheBenchmarks.testAverage                              avgt      20     ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime                         sample  402978     ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.00    sample             ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.50    sample             ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.90    sample             ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.95    sample             ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.99    sample             ≈ 10⁻⁴             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.999   sample             ≈ 10⁻³             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p0.9999  sample              0.010             ms/op
+    ApiLocalCacheBenchmarks.testSampleTime:testSampleTime·p1.00    sample              0.034             ms/op
