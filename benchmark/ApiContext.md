@@ -32,6 +32,10 @@
 
 修改代码后重新测试，性能已经提高了3倍左右：
 
+    factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
+                .map(f -> f.encode(this))
+                .findFirst().orElseGet(() -> new JsonObject());
+
     Benchmark                                                        Mode     Cnt       Score     Error   Units
     ApiDefinitionBenchmarks.testApi                                 thrpt      20    9976.775 ± 106.616  ops/ms
     ApiDefinitionBenchmarks.testAverage                              avgt      20      99.051 ±   1.344   ns/op
