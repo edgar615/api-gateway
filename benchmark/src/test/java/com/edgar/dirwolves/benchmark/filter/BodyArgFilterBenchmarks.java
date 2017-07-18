@@ -1,12 +1,16 @@
 package com.edgar.dirwolves.benchmark.filter;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.direwolves.plugin.arg.BodyArgFilter;
+import com.edgar.direwolves.plugin.arg.BodyArgFilterFactory;
 import com.edgar.direwolves.plugin.arg.BodyArgPlugin;
 import com.edgar.direwolves.plugin.arg.BodyArgPluginFactory;
 import com.edgar.direwolves.plugin.arg.Parameter;
@@ -44,7 +48,6 @@ public class BodyArgFilterBenchmarks {
   @OperationsPerInvocation(100)
   public void testApi(ApiFilter apiFilter, ApiContextBuilder builder) {
     ApiContext apiContext = builder.apiContext();
-    System.out.println(apiContext);
 
     final CountDownLatch latch = new CountDownLatch(1);
     Task<ApiContext> task = Task.create();
@@ -111,10 +114,14 @@ public class BodyArgFilterBenchmarks {
   public static class ApiContextBuilder {
     private ApiContext apiContext;
     public ApiContextBuilder() {
+      Multimap<String, String> params = ArrayListMultimap.create();
+      params.put("encryptKey", "0000000000000000");
+      params.put("barcode", "LH10312ACCF23C4F3A5");
+
       JsonObject body = new JsonObject()
               .put("encryptKey", "0000000000000000")
               .put("barcode", "LH10312ACCF23C4F3A5");
-      apiContext = ApiContext.create(HttpMethod.POST, "/devices", null, null, body);
+      apiContext = ApiContext.create(HttpMethod.POST, "/devices", params, null, body);
 
       HttpEndpoint httpEndpoint = HttpEndpoint.http("device.add", HttpMethod.POST, "/devices", "device");
       ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
@@ -146,7 +153,7 @@ public class BodyArgFilterBenchmarks {
     public ApiFilter() {
       vertx = Vertx.vertx();
 
-      filters.add(new UrlArgFilterFactory().create(vertx, new JsonObject()));
+      filters.add(new BodyArgFilterFactory().create(vertx, new JsonObject()));
       try {
         TimeUnit.SECONDS.sleep(2);
       } catch (InterruptedException e) {

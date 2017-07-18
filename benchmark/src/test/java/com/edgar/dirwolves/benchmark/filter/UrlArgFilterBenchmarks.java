@@ -1,24 +1,21 @@
 package com.edgar.dirwolves.benchmark.filter;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
-import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.filter.ApiFindFilterFactory;
+import com.edgar.direwolves.plugin.arg.BodyArgPlugin;
+import com.edgar.direwolves.plugin.arg.BodyArgPluginFactory;
 import com.edgar.direwolves.plugin.arg.Parameter;
-import com.edgar.direwolves.plugin.arg.UrlArgFilter;
 import com.edgar.direwolves.plugin.arg.UrlArgFilterFactory;
 import com.edgar.direwolves.plugin.arg.UrlArgPlugin;
-import com.edgar.direwolves.plugin.arg.UrlArgPluginFactory;
-import com.edgar.direwolves.verticle.ImportApi;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.vertx.task.Task;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -48,7 +45,6 @@ public class UrlArgFilterBenchmarks {
   @OperationsPerInvocation(100)
   public void testApi(ApiFilter apiFilter, ApiContextBuilder builder) {
     ApiContext apiContext = builder.apiContext();
-    System.out.println(apiContext);
 
     final CountDownLatch latch = new CountDownLatch(1);
     Task<ApiContext> task = Task.create();
@@ -67,7 +63,7 @@ public class UrlArgFilterBenchmarks {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
   @OperationsPerInvocation(100)
   public void testAverage(ApiFilter apiFilter, ApiContextBuilder builder) {
@@ -90,7 +86,7 @@ public class UrlArgFilterBenchmarks {
 
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
   @OperationsPerInvocation(100)
   public void testSampleTime(ApiFilter apiFilter, ApiContextBuilder builder) {
@@ -115,15 +111,19 @@ public class UrlArgFilterBenchmarks {
   public static class ApiContextBuilder {
     private ApiContext apiContext;
     public ApiContextBuilder() {
-      JsonObject body = new JsonObject()
-              .put("encryptKey", "0000000000000000")
-              .put("barcode", "LH10312ACCF23C4F3A5");
-      apiContext = ApiContext.create(HttpMethod.POST, "/devices", null, null, body);
+      Multimap<String, String> params = ArrayListMultimap.create();
+      params.put("encryptKey", "0000000000000000");
+      params.put("barcode", "LH10312ACCF23C4F3A5");
+
+//      JsonObject body = new JsonObject()
+//              .put("encryptKey", "0000000000000000")
+//              .put("barcode", "LH10312ACCF23C4F3A5");
+      apiContext = ApiContext.create(HttpMethod.POST, "/devices", params, null, null);
 
       HttpEndpoint httpEndpoint = HttpEndpoint.http("device.add", HttpMethod.POST, "/devices", "device");
       ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
                                                          Lists.newArrayList(httpEndpoint));
-      UrlArgPlugin plugin = (UrlArgPlugin) new UrlArgPluginFactory().create();
+      UrlArgPlugin plugin = (UrlArgPlugin) new BodyArgPluginFactory().create();
       Parameter parameter = Parameter.create("barcode", null);
       parameter.addRule(Rule.required());
       parameter.addRule(Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));

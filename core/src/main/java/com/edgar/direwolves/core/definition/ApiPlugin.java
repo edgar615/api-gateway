@@ -8,6 +8,8 @@ import io.vertx.core.json.JsonObject;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
+import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +42,10 @@ public interface ApiPlugin {
   }
 
   default JsonObject encode() {
-    return factory(this.name()).encode(this);
+    return factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
+            .map(f -> f.encode(this))
+            .findFirst().orElseGet(() -> new JsonObject());
+//    return factory(this.name()).encode(this);
   }
 
 }
