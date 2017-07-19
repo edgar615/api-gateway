@@ -159,24 +159,27 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   }
 
   private Future<RpcResponse> circuitBreakerExecute(ApiContext apiContext, HttpRpcRequest req) {
-    CircuitBreakerRegistry registry
-            = breakerMap.putIfAbsent(req.serverId(),
-                                     new CircuitBreakerRegistry(vertx, req.serverId(),
-                                                                new CircuitBreakerOptions(
-                                                                        config)));
-    if (registry == null) {
-      registry = breakerMap.get(req.serverId());
-    }
-    CircuitBreaker circuitBreaker = registry.get();
-    long start = System.currentTimeMillis();
+//    LOGGER.error("BREAKER:" + breakerMap.size());
+//    CircuitBreakerRegistry registry
+//            = breakerMap.putIfAbsent(req.serverId(),
+//                                     new CircuitBreakerRegistry(vertx, req.serverId(),
+//                                                                new CircuitBreakerOptions(
+//                                                                        config)));
+//    if (registry == null) {
+//      registry = breakerMap.get(req.serverId());
+//    }
+//    CircuitBreaker circuitBreaker = registry.get();
+//    LOGGER.error("circuitBreaker:" + circuitBreaker);
+//    long start = System.currentTimeMillis();
     Future<RpcResponse> rpcFuture
             = handlers
             .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
             .handle(req);
-    CircuitFallbackPlugin plugin
-            = (CircuitFallbackPlugin) apiContext.apiDefinition()
-            .plugin(CircuitFallbackPlugin.class.getSimpleName());
-    return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
+    return rpcFuture;
+//    CircuitFallbackPlugin plugin
+//            = (CircuitFallbackPlugin) apiContext.apiDefinition()
+//            .plugin(CircuitFallbackPlugin.class.getSimpleName());
+
 //    if (plugin != null && plugin.fallback().containsKey(req.name())) {
 //      return circuitBreaker.<RpcResponse>executeWithFallback(
 //              f -> rpcFuture.setHandler(f.completer())
