@@ -176,25 +176,26 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
     CircuitFallbackPlugin plugin
             = (CircuitFallbackPlugin) apiContext.apiDefinition()
             .plugin(CircuitFallbackPlugin.class.getSimpleName());
-    if (plugin != null && plugin.fallback().containsKey(req.name())) {
-      return circuitBreaker.<RpcResponse>executeWithFallback(
-              f -> rpcFuture.setHandler(f.completer())
-              , throwable -> {
-                long duration = System.currentTimeMillis() - start;
-                Object fallback = plugin.fallback().getValue(req.name());
-                if (fallback instanceof JsonObject) {
-                  return RpcResponse
-                          .createJsonObject(req.id(), 200, (JsonObject) fallback, duration);
-                }
-                if (fallback instanceof JsonArray) {
-                  return RpcResponse
-                          .createJsonArray(req.id(), 200, (JsonArray) fallback, duration);
-                }
-                return null;
-              });
-    } else {
-      return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
-    }
+    return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
+//    if (plugin != null && plugin.fallback().containsKey(req.name())) {
+//      return circuitBreaker.<RpcResponse>executeWithFallback(
+//              f -> rpcFuture.setHandler(f.completer())
+//              , throwable -> {
+//                long duration = System.currentTimeMillis() - start;
+//                Object fallback = plugin.fallback().getValue(req.name());
+//                if (fallback instanceof JsonObject) {
+//                  return RpcResponse
+//                          .createJsonObject(req.id(), 200, (JsonObject) fallback, duration);
+//                }
+//                if (fallback instanceof JsonArray) {
+//                  return RpcResponse
+//                          .createJsonArray(req.id(), 200, (JsonArray) fallback, duration);
+//                }
+//                return null;
+//              });
+//    } else {
+//      return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
+//    }
 
   }
 
