@@ -1,4 +1,4 @@
-package com.edgar.dirwolves.benchmark.filter;
+package com.edgar.dirwolves.benchmark.definition;
 
 import com.google.common.collect.Lists;
 
@@ -18,15 +18,7 @@ import com.edgar.direwolves.plugin.ip.IpRestrictionFactory;
 import com.edgar.util.validation.Rule;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OperationsPerInvocation;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -36,16 +28,16 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2017/7/17
  */
 @State(Scope.Benchmark)
-public class ApiDefinitionBenchmarks {
+public class ApiDefinitionDecodeBenchmarks {
 
-  private ApiDefinition apiDefinition;
+  private JsonObject jsonObject;
 
   @Setup
   public void setup() {
 
     HttpEndpoint httpEndpoint =
             HttpEndpoint.http("device.add", HttpMethod.POST, "/devices", "device");
-    apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
+    ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
                                          Lists.newArrayList(httpEndpoint));
     BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().create();
     Parameter parameter = Parameter.create("barcode", null);
@@ -79,6 +71,9 @@ public class ApiDefinitionBenchmarks {
     AppKeyPlugin appKeyPlugin = (AppKeyPlugin) new AppKeyPluginFactory().create();
     apiDefinition.addPlugin(appKeyPlugin);
 
+    jsonObject = apiDefinition.toJson();
+    System.out.println(jsonObject.encode());
+
   }
 
 
@@ -87,8 +82,8 @@ public class ApiDefinitionBenchmarks {
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
   @OperationsPerInvocation(100)
-  public JsonObject testApi() {
-    return apiDefinition.toJson();
+  public ApiDefinition testApi() {
+    return ApiDefinition.fromJson(jsonObject);
   }
 
   @Benchmark
@@ -96,17 +91,8 @@ public class ApiDefinitionBenchmarks {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
   @OperationsPerInvocation(100)
-  public JsonObject testAverage() {
-    return apiDefinition.toJson();
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public JsonObject testSampleTime() {
-    return apiDefinition.toJson();
+  public ApiDefinition testAverage() {
+    return ApiDefinition.fromJson(jsonObject);
   }
 
 

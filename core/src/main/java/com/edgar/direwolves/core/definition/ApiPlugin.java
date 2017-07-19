@@ -7,10 +7,8 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.function.BinaryOperator;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Created by Edgar on 2016/10/21.
@@ -32,20 +30,19 @@ public interface ApiPlugin {
 
   static ApiPluginFactory factory(String name) {
     Preconditions.checkNotNull(name, "name cannot null");
-    List<ApiPluginFactory> apiPluginFactories =
-            factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
-                    .collect(Collectors.toList());
-    if (apiPluginFactories.isEmpty()) {
-      throw new NoSuchElementException("no such factory->" + name);
+    Optional<ApiPluginFactory> optional
+            = factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
+            .findAny();
+    if (optional.isPresent()) {
+      return optional.get();
     }
-    return apiPluginFactories.get(0);
+    throw new NoSuchElementException("no such factory->" + name);
   }
 
   default JsonObject encode() {
     return factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
             .map(f -> f.encode(this))
             .findFirst().orElseGet(() -> new JsonObject());
-//    return factory(this.name()).encode(this);
   }
 
 }
