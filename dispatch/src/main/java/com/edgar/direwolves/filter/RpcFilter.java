@@ -159,46 +159,42 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   }
 
   private Future<RpcResponse> circuitBreakerExecute(ApiContext apiContext, HttpRpcRequest req) {
-//    LOGGER.error("BREAKER:" + breakerMap.size());
-//    CircuitBreakerRegistry registry
-//            = breakerMap.putIfAbsent(req.serverId(),
-//                                     new CircuitBreakerRegistry(vertx, req.serverId(),
-//                                                                new CircuitBreakerOptions(
-//                                                                        config)));
-//    if (registry == null) {
-//      registry = breakerMap.get(req.serverId());
-//    }
-//    CircuitBreaker circuitBreaker = registry.get();
-//    LOGGER.error("circuitBreaker:" + circuitBreaker);
-//    long start = System.currentTimeMillis();
+    if (!breakerMap.containsKey(req.serverId())) {
+      breakerMap.putIfAbsent(req.serverId(),
+                                     new CircuitBreakerRegistry(vertx, req.serverId(),
+                                                                new CircuitBreakerOptions(
+                                                                        config)));
+    }
+    CircuitBreaker circuitBreaker = breakerMap.get(req.serverId()).get();
+    long start = System.currentTimeMillis();
     Future<RpcResponse> rpcFuture
             = handlers
             .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
             .handle(req);
-    return rpcFuture;
-//    CircuitFallbackPlugin plugin
-//            = (CircuitFallbackPlugin) apiContext.apiDefinition()
-//            .plugin(CircuitFallbackPlugin.class.getSimpleName());
+//    return rpcFuture;
+    CircuitFallbackPlugin plugin
+            = (CircuitFallbackPlugin) apiContext.apiDefinition()
+            .plugin(CircuitFallbackPlugin.class.getSimpleName());
 
-//    if (plugin != null && plugin.fallback().containsKey(req.name())) {
-//      return circuitBreaker.<RpcResponse>executeWithFallback(
-//              f -> rpcFuture.setHandler(f.completer())
-//              , throwable -> {
-//                long duration = System.currentTimeMillis() - start;
-//                Object fallback = plugin.fallback().getValue(req.name());
-//                if (fallback instanceof JsonObject) {
-//                  return RpcResponse
-//                          .createJsonObject(req.id(), 200, (JsonObject) fallback, duration);
-//                }
-//                if (fallback instanceof JsonArray) {
-//                  return RpcResponse
-//                          .createJsonArray(req.id(), 200, (JsonArray) fallback, duration);
-//                }
-//                return null;
-//              });
-//    } else {
-//      return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
-//    }
+    if (plugin != null && plugin.fallback().containsKey(req.name())) {
+      return circuitBreaker.<RpcResponse>executeWithFallback(
+              f -> rpcFuture.setHandler(f.completer())
+              , throwable -> {
+                long duration = System.currentTimeMillis() - start;
+                Object fallback = plugin.fallback().getValue(req.name());
+                if (fallback instanceof JsonObject) {
+                  return RpcResponse
+                          .createJsonObject(req.id(), 200, (JsonObject) fallback, duration);
+                }
+                if (fallback instanceof JsonArray) {
+                  return RpcResponse
+                          .createJsonArray(req.id(), 200, (JsonArray) fallback, duration);
+                }
+                return null;
+              });
+    } else {
+      return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
+    }
 
   }
 
