@@ -25,8 +25,8 @@ public interface ApiDiscovery extends ApiPublisher {
    * @param completionHandler importer启动之后的回调函数
    * @return ApiDiscovery
    */
-  ApiDiscovery registerServiceImporter(ApiImporter importer, JsonObject config,
-                                       Handler<AsyncResult<Void>> completionHandler);
+  ApiDiscovery registerImporter(ApiImporter importer, JsonObject config,
+                                Handler<AsyncResult<Void>> completionHandler);
 
   void close();
 

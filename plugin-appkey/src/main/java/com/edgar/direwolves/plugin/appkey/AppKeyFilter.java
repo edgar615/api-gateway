@@ -165,8 +165,8 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     if (config.containsKey("app.importer")) {
       JsonObject importedConfig = config.getJsonObject("app.importer");
       importedConfig.put("http.port", config.getInteger("http.port", 9000));
-      AppKeyImporter importer = new AppKeyImporter(vertx, this, importedConfig);
-      importer.start();
+      HttpAppKeyImporter importer = new HttpAppKeyImporter(vertx, this, importedConfig);
+      importer.init();
     }
   }
 

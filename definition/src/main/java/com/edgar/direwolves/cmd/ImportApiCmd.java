@@ -6,20 +6,12 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.apidiscovery.FileApiImporter;
 import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 新增或修改API，
@@ -54,7 +46,7 @@ public class ImportApiCmd implements ApiCmd {
     String namespace = jsonObject.getString("namespace");
     Future<JsonObject> future = Future.future();
     ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-    discovery.registerServiceImporter(new FileApiImporter(), jsonObject, ar -> {
+    discovery.registerImporter(new FileApiImporter(), jsonObject, ar -> {
       if (ar.succeeded()) {
           future.complete(succeedResult());
       } else {

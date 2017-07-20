@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by edgar on 16-10-31.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyImporterTest {
+public class HttpAppKeyImporterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -50,13 +50,9 @@ public class AppKeyImporterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  String scope = "all";
-
   int appCode = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
-
-  RedisProvider redisProvider = new MockRedisProvider();
 
   private String namespace = UUID.randomUUID().toString();
 
@@ -69,8 +65,6 @@ public class AppKeyImporterTest {
   private String codeKey = UUID.randomUUID().toString();
 
   private Vertx vertx;
-
-  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
 
   AtomicInteger reqCount;
 
@@ -87,8 +81,6 @@ public class AppKeyImporterTest {
                     .put("url", "/appkey/import")));
     filters.clear();
     filters.add(filter);
-
-    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
     reqCount = new AtomicInteger(0);
 

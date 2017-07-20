@@ -1,6 +1,6 @@
-package com.edgar.direwolves.core.apidiscovery;
+package com.edgar.direwolves.plugin.appkey;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.apidiscovery.ApiDefinitionBackend;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.sharedata.SyncMap;
@@ -12,16 +12,17 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by Edgar on 2017/6/20.
  *
  * @author Edgar  Date 2017/6/20
  */
-class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
+class DefaultAppKeyBackend implements AppKeyBackend {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionBackend.class);
 
@@ -31,18 +32,18 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
 
   private final String name;
 
-  public DefaultApiDefinitionBackend(Vertx vertx, String name) {
+  public DefaultAppKeyBackend(Vertx vertx, String name) {
     this.vertx = vertx;
     this.registry = new SyncMap<>(vertx, name);
     this.name = name;
   }
 
   @Override
-  public void store(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
-    Objects.requireNonNull(definition, "definition is null");
-    registry.put(definition.name(), definition.toJson().encode(), ar -> {
+  public void store(AppKey appKey, Handler<AsyncResult<AppKey>> resultHandler) {
+    Objects.requireNonNull(appKey, "appKey is null");
+    registry.put(appKey.getAppkey(), appKey.getJsonObject().encode(), ar -> {
       if (ar.succeeded()) {
-        resultHandler.handle(Future.succeededFuture(definition));
+        resultHandler.handle(Future.succeededFuture(appKey));
       } else {
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
@@ -50,16 +51,15 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
   }
 
   @Override
-  public void remove(String name, Handler<AsyncResult<ApiDefinition>> resultHandler) {
-    Objects.requireNonNull(name, "name required");
-    registry.remove(name, ar -> {
+  public void remove(String appKey, Handler<AsyncResult<AppKey>> resultHandler) {
+    Objects.requireNonNull(appKey, "appKey required");
+    registry.remove(appKey, ar -> {
       if (ar.succeeded()) {
         if (ar.result() == null) {
-          // Not found
-          resultHandler.handle(Future.failedFuture("Api: '" + name + "' not found"));
+          resultHandler.handle(Future.failedFuture("AppKey: '" + appKey + "' not found"));
         } else {
-          resultHandler.handle(Future.succeededFuture(
-                  ApiDefinition.fromJson(new JsonObject(ar.result()))));
+          resultHandler
+                  .handle(Future.succeededFuture(new AppKey(appKey, new JsonObject(ar.result()))));
         }
       } else {
         resultHandler.handle(Future.failedFuture(ar.cause()));
@@ -68,13 +68,14 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
   }
 
   @Override
-  public void getDefinitions(Handler<AsyncResult<List<ApiDefinition>>> resultHandler) {
+  public void getAppKeys(Handler<AsyncResult<List<AppKey>>> resultHandler) {
     registry.getAll(ar -> {
       if (ar.succeeded()) {
-        resultHandler.handle(Future.succeededFuture(ar.result().values().stream()
-                                                            .map(s -> ApiDefinition
-                                                                    .fromJson(new JsonObject(s)))
-                                                            .collect(Collectors.toList())));
+        List<AppKey> list = new ArrayList<>();
+        for (Map.Entry<String, String> entry : ar.result().entrySet()) {
+          list.add(new AppKey(entry.getKey(), new JsonObject(entry.getValue())));
+        }
+        resultHandler.handle(Future.succeededFuture(list));
       } else {
         resultHandler.handle(Future.failedFuture(ar.cause()));
       }
@@ -82,15 +83,15 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
   }
 
   @Override
-  public void getDefinition(String name, Handler<AsyncResult<ApiDefinition>> resultHandler) {
-    registry.get(name, ar -> {
+  public void getAppKey(String appKey, Handler<AsyncResult<AppKey>> resultHandler) {
+    registry.get(appKey, ar -> {
       if (ar.succeeded()) {
         if (ar.result() != null) {
           resultHandler.handle(Future.succeededFuture(
-                  ApiDefinition.fromJson(new JsonObject(ar.result()))));
+                  new AppKey(appKey, new JsonObject(ar.result()))));
         } else {
           SystemException ex = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
-                  .set("name", name);
+                  .set("appKey", appKey);
           resultHandler.handle(Future.failedFuture(ex));
         }
       } else {

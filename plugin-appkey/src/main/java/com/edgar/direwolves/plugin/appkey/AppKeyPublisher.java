@@ -13,10 +13,10 @@ public interface AppKeyPublisher {
   /**
    * 注册一个AppKey.
    *
-   * @param jsonObject    appKey的JSON对象，里面的属性名要符合appKey、appSecret、appCode、permissions等属性
+   * @param appKey    appKey的JSON对象，里面的属性名要符合appKey、appSecret、appCode、permissions等属性
    * @param resultHandler 回调函数.
    */
-  void publish(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler);
+  void publish(AppKey appKey, Handler<AsyncResult<AppKey>> resultHandler);
 
   /**
    * 注销一个AppKey.

@@ -1,5 +1,6 @@
-package com.edgar.direwolves.core.definition;
+package com.edgar.direwolves.core.apidiscovery;
 
+import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 

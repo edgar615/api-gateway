@@ -1,6 +1,5 @@
 package com.edgar.direwolves.core.apidiscovery;
 
-import com.edgar.util.vertx.eventbus.Event;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -38,7 +37,7 @@ public class FileApiImporterTest {
 
     ApiImporter apiImporter = new FileApiImporter();
     AtomicBoolean check1 = new AtomicBoolean();
-    discovery.registerServiceImporter(apiImporter, jsonObject, ar -> {
+    discovery.registerImporter(apiImporter, jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -71,7 +70,7 @@ public class FileApiImporterTest {
             .put("path", "src/test/resources/api/device_add.json");
     AtomicBoolean check1 = new AtomicBoolean();
     ApiImporter apiImporter = new FileApiImporter();
-    discovery.registerServiceImporter(apiImporter, jsonObject, ar -> {
+    discovery.registerImporter(apiImporter, jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -104,7 +103,7 @@ public class FileApiImporterTest {
 
     ApiImporter apiImporter = new FileApiImporter();
     AtomicBoolean check1 = new AtomicBoolean();
-    discovery.registerServiceImporter(apiImporter, jsonObject, ar -> {
+    discovery.registerImporter(apiImporter, jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {

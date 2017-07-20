@@ -1,7 +1,6 @@
 package com.edgar.direwolves.core.apidiscovery;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiDefinitionBackend;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -159,8 +158,8 @@ class ApiDiscoveryImpl implements ApiDiscovery {
   }
 
   @Override
-  public ApiDiscovery registerServiceImporter(ApiImporter importer, JsonObject config,
-                                              Handler<AsyncResult<Void>> completionHandler) {
+  public ApiDiscovery registerImporter(ApiImporter importer, JsonObject config,
+                                       Handler<AsyncResult<Void>> completionHandler) {
     JsonObject conf;
     if (config == null) {
       conf = new JsonObject();
