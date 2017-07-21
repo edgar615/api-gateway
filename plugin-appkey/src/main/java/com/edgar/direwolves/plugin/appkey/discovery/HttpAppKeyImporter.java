@@ -86,7 +86,7 @@ public class HttpAppKeyImporter implements AppKeyImporter {
             });
   }
 
-  public void startHttpImporter() {
+  private void startHttpImporter() {
     vertx.setPeriodic(scanPeriod, l -> {
       //服务查找
       httpClient.get(port, host, path, response -> {

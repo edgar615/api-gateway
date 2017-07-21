@@ -37,12 +37,14 @@ import java.util.List;
  * * 该filter可以接受下列的配置参数
  * <pre>
  *   namespace 项目的命名空间，用来避免多个项目冲突，默认值""
- *   app.secretKey 密钥的键值，默认值appSecret
- *   app.codeKey 编码的键值，默认值appCode
- *   app.permissionKey 权限的键值，默认值permissions
- *   app.origin 初始值，数组
- *   app.importer AppKey的导入,JsonObject，两个属性：scan-period导入周期，默认5000毫秒，url地址，默认值/appkey/import
- *   ，注意需要在路由中配置/appkey/import路由，并限制只有127.0.0.1的IP才允许访问
+ *   appkey : {
+ *   secretKey 密钥的键值，默认值appSecret
+ *   codeKey 编码的键值，默认值appCode
+ *   permissionKey 权限的键值，默认值permissions
+ *   origin.importer APPKEY的JSON数组
+ *   http.importer AppKey的导入,JsonObject，四个属性：scan-period导入周期，默认5000毫秒，host 默认值
+ *   localhost, port端口，默认值9000, url地址，默认值/appkey/import
+ *   }
  * </pre>
  * 该filter的order=10
  * <p>
