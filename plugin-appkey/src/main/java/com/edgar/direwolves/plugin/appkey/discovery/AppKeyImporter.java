@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.appkey;
+package com.edgar.direwolves.plugin.appkey.discovery;
 
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

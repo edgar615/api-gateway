@@ -5,32 +5,27 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.MultimapUtils;
+import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
+import com.edgar.direwolves.plugin.appkey.discovery.JsonAppKeyImpoter;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * AppKey的校验.
@@ -112,7 +107,7 @@ import java.util.Map;
  * <p>
  * Created by edgar on 16-9-20.
  */
-public class AppKeyFilter implements Filter, AppKeyPublisher {
+public class AppKeyFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyFilter.class);
 
@@ -120,17 +115,15 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
 
   private final String namespace;
 
-  private final RedisProvider redisProvider;
-
   private final String secretKey;
 
   private final String codeKey;
 
   private final String permissionsKey;
 
-  private final Map<String, JsonObject> origins = new HashMap<>();
-
   private final Vertx vertx;
+
+  private final AppKeyDiscovery discovery;
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -146,27 +139,19 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
     this.namespace = config.getString("namespace", "");
-    String address = RedisProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
-    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
-    this.secretKey = config.getString("app.secretKey", "appSecret");
-    this.codeKey = config.getString("app.codeKey", "appCode");
-    this.permissionsKey = config.getString("app.permissionKey", "permissions");
+    JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
+    this.secretKey = appKeyConfig.getString("secretKey", "appSecret");
+    this.codeKey = appKeyConfig.getString("codeKey", "appCode");
+    this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
-    JsonArray appKeys = config.getJsonArray("app.origin", new JsonArray());
-    for (int i = 0; i < appKeys.size(); i++) {
-      String appKey = appKeys.getJsonObject(i).getString("appKey");
-      if (appKey != null) {
-        origins.put(appKey, appKeys.getJsonObject(i));
-      }
+    discovery = AppKeyDiscovery.create(vertx, namespace);
+    if (appKeyConfig.containsKey("origin.importer")) {
+      discovery.registerImporter(new JsonAppKeyImpoter(), new JsonObject().put("origin", config
+              .getValue("origin.importer")), Future.<Void>future().completer());
     }
-    if (config.containsKey("app.importer")) {
-      JsonObject importedConfig = config.getJsonObject("app.importer");
-      importedConfig.put("http.port", config.getInteger("http.port", 9000));
-      HttpAppKeyImporter importer = new HttpAppKeyImporter(vertx, this, importedConfig);
-      importer.init();
+    if (appKeyConfig.containsKey("http.importer")) {
+      discovery.registerImporter(new JsonAppKeyImpoter(), config.getJsonObject("http.importer"),
+                                 Future.<Void>future().completer());
     }
   }
 
@@ -198,55 +183,23 @@ public class AppKeyFilter implements Filter, AppKeyPublisher {
       params.removeAll("body");
       params.put("body", apiContext.body().encode());
     }
-    if (origins.containsKey(appKey)) {
-      JsonObject app = origins.get(appKey);
-      checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
-    } else {
-      String appCacheKey = namespace + ":appKey:" + appKey;
-      redisProvider.get(appCacheKey, ar -> {
-        if (ar.succeeded()) {
-          JsonObject app = ar.result();
-          checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
-        } else {
-          Log.create(LOGGER)
-                  .setTraceId(apiContext.id())
-                  .setEvent("appkey.undefined")
-                  .addData("appkey", appKey)
-                  .error();
-          completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                      .set("details", "Undefined AppKey:" + appKey));
-        }
-      });
-    }
+
+    discovery.getAppKey(appKey, ar -> {
+      if (ar.succeeded()) {
+        JsonObject app = ar.result().getJsonObject();
+        checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
+      } else {
+        Log.create(LOGGER)
+                .setTraceId(apiContext.id())
+                .setEvent("appkey.undefined")
+                .addData("appkey", appKey)
+                .error();
+        completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
+                                    .set("details", "Undefined AppKey:" + appKey));
+      }
+    });
   }
 
-  @Override
-  public void publish(JsonObject jsonObject, Handler<AsyncResult<Void>> resultHandler) {
-    if (!jsonObject.containsKey("appKey")) {
-      resultHandler.handle(Future.failedFuture("undefined appKey"));
-      return;
-    }
-    if (!jsonObject.containsKey(secretKey)) {
-      resultHandler.handle(Future.failedFuture("undefined " + secretKey));
-      return;
-    }
-    if (!jsonObject.containsKey(codeKey)) {
-      resultHandler.handle(Future.failedFuture("undefined " + codeKey));
-      return;
-    }
-    if (!jsonObject.containsKey(permissionsKey)) {
-      resultHandler.handle(Future.failedFuture("undefined " + permissionsKey));
-      return;
-    }
-    origins.put(jsonObject.getString("appKey"), jsonObject);
-    resultHandler.handle(Future.succeededFuture());
-  }
-
-  @Override
-  public void unpublish(String appKey, Handler<AsyncResult<Void>> resultHandler) {
-    origins.remove(appKey);
-    resultHandler.handle(Future.succeededFuture());
-  }
 
   private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
                          Multimap<String, String> params, String clientSignValue, String signMethod,

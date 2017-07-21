@@ -1,6 +1,8 @@
-package com.edgar.direwolves.plugin.appkey;
+package com.edgar.direwolves.plugin.appkey.discovery;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDefinitionBackend;
+import com.edgar.direwolves.plugin.appkey.discovery.AppKey;
+import com.edgar.direwolves.plugin.appkey.discovery.AppKeyBackend;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.sharedata.SyncMap;

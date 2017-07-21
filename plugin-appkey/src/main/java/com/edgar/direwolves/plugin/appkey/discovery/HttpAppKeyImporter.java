@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.appkey;
+package com.edgar.direwolves.plugin.appkey.discovery;
 
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -33,6 +33,8 @@ public class HttpAppKeyImporter implements AppKeyImporter {
 
   private int port;
 
+  private String host;
+
   private HttpClient httpClient;
 
   private AppKeyPublisher publisher;
@@ -42,15 +44,9 @@ public class HttpAppKeyImporter implements AppKeyImporter {
     List<Future> futures = new ArrayList<>();
     for (int i = 0; i < array.size(); i++) {
       JsonObject app = array.getJsonObject(i).copy();
-      Future<Void> future = Future.future();
-      future.setHandler(ar -> {
-        if (ar.succeeded()) {
-          LOGGER.debug("AppKey imported succeed, appKey->{}", app.encode());
-        } else {
-          LOGGER.debug("AppKey imported failed, appKey->{}", app.encode());
-        }
-      });
-      publisher.publish(app, future.completer());
+      Future<AppKey> future = Future.future();
+      AppKey appKey = new AppKey(app.getString("appKey", "unkown"), app);
+      publisher.publish(appKey, future.completer());
       futures.add(future);
     }
 
@@ -90,10 +86,10 @@ public class HttpAppKeyImporter implements AppKeyImporter {
             });
   }
 
-  public void init() {
+  public void startHttpImporter() {
     vertx.setPeriodic(scanPeriod, l -> {
       //服务查找
-      httpClient.get(port, "127.0.0.1", path, response -> {
+      httpClient.get(port, host, path, response -> {
         response.bodyHandler(body -> {
           JsonArray array = body.toJsonArray().copy();
           Future<JsonArray> future = Future.future();
@@ -115,11 +111,12 @@ public class HttpAppKeyImporter implements AppKeyImporter {
                     Future<Void> future) {
     this.vertx = vertx;
     this.path = config.getString("url", "/appkey/import");
-    this.port = config.getInteger("http.port", 9000);
+    this.host = config.getString("host", "127.0.0.1");
+    this.port = config.getInteger("port", 9000);
     this.scanPeriod = config.getInteger("scan-period", 60000);
     this.httpClient = vertx.createHttpClient();
     this.publisher = publisher;
-    init();
+    startHttpImporter();
   }
 
 }

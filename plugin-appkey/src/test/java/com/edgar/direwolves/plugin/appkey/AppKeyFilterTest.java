@@ -13,12 +13,15 @@ import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
+import com.edgar.direwolves.plugin.appkey.discovery.JsonAppKeyImpoter;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -27,6 +30,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.serviceproxy.ProxyHelper;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by edgar on 16-10-31.
@@ -51,13 +56,9 @@ public class AppKeyFilterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  String scope = "all";
-
   int appCode = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
-
-  RedisProvider redisProvider = new MockRedisProvider();
 
   private String namespace = UUID.randomUUID().toString();
 
@@ -71,20 +72,20 @@ public class AppKeyFilterTest {
 
   private Vertx vertx;
 
-  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
-
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
 
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey);
+
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("app.secretKey", secretKey)
-            .put("app.codeKey", codeKey)
+            .put("appkey", config)
             .put("namespace", namespace));
     filters.clear();
     filters.add(filter);
 
-    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
   }
 
@@ -142,11 +143,12 @@ public class AppKeyFilterTest {
 
   @Test
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
-    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode), ar -> {
-
-    });
+//    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
+//            .put(secretKey, appSecret)
+//            .put(codeKey, appCode), ar -> {
+//
+//    });
+    importAppKey();
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -181,11 +183,8 @@ public class AppKeyFilterTest {
   @Test
   public void testSignWithoutBody(TestContext testContext) {
 
-    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode), ar -> {
+    importAppKey();
 
-    });
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -227,12 +226,7 @@ public class AppKeyFilterTest {
 
   @Test
   public void testSignWithBody(TestContext testContext) {
-
-    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode), ar -> {
-
-    });
+    importAppKey();
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -277,59 +271,26 @@ public class AppKeyFilterTest {
 
   }
 
-  @Test
-  public void testSignOrigin(TestContext testContext) {
+  private void importAppKey() {JsonObject origin = new JsonObject()
+          .put(secretKey, appSecret)
+          .put(codeKey, appCode)
+          .put("appKey", appKey);
+    Future<Void> future = Future.future();
+    AppKeyDiscovery.create(vertx, namespace)
+            .registerImporter(new JsonAppKeyImpoter(), new JsonObject().put("origin",
+                                                                            new JsonArray().add
+                                                                                    (origin)),
+                              future);
+    AtomicBoolean complete = new AtomicBoolean();
+    future.setHandler(ar -> {
+      if (ar.succeeded()) {
+        complete.set(true);
+      } else {
 
-    JsonObject origin = new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode)
-            .put("appKey", appKey);
+      }
+    });
 
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("app.secretKey", secretKey)
-            .put("app.codeKey", codeKey)
-            .put("namespace", namespace)
-            .put("app.origin", new JsonArray()
-                    .add(origin)));
-    filters.clear();
-    filters.add(filter);
-
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("appKey", appKey);
-    params.put("nonce", Randoms.randomAlphabetAndNum(10));
-    params.put("signMethod", signMethod);
-    params.put("v", "1.0");
-    params.put("deviceId", "1");
-
-    params.put("sign", signTopRequest(params, appSecret, signMethod));
-    params.removeAll("body");
-
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
-
-
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertTrue(context.params().containsKey("sign"));
-              testContext.assertTrue(context.params().containsKey("signMethod"));
-              testContext.assertTrue(context.params().containsKey("v"));
-              testContext.assertTrue(context.params().containsKey("appKey"));
-              async.complete();
-            })
-            .onFailure(t -> {
-              t.printStackTrace();
-              testContext.fail();
-            });
-
+    Awaitility.await().until(() -> complete.get());
   }
 
   private void createContext() {

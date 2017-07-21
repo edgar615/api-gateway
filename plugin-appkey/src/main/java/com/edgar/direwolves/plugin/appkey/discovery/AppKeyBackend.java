@@ -1,6 +1,5 @@
-package com.edgar.direwolves.plugin.appkey;
+package com.edgar.direwolves.plugin.appkey.discovery;
 
-import com.edgar.direwolves.core.definition.ApiDefinition;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 

@@ -1,8 +1,8 @@
-package com.edgar.direwolves.plugin.appkey;
+package com.edgar.direwolves.plugin.appkey.discovery;
 
+import com.edgar.direwolves.plugin.appkey.discovery.AppKey;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonObject;
 
 /**
  * AppKey的注册和注销.

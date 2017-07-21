@@ -1,4 +1,4 @@
-package com.edgar.direwolves.plugin.appkey;
+package com.edgar.direwolves.plugin.appkey.discovery;
 
 import com.edgar.direwolves.core.utils.Log;
 import io.vertx.core.AsyncResult;
@@ -17,9 +17,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  * @author Edgar  Date 2017/7/20
  */
-class AppKeyDiscoveryImpl implements AppKeyDsicovery {
+class AppKeyDiscoveryImpl implements AppKeyDiscovery {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyDsicovery.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyDiscovery.class);
 
   private final AppKeyBackend backend;
 
@@ -61,7 +61,7 @@ class AppKeyDiscoveryImpl implements AppKeyDsicovery {
             .addData("namespace", this.name)
             .addData("appKey", appKey)
             .info();
-    backend.remove(name, ar -> {
+    backend.remove(appKey, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
         return;
@@ -75,7 +75,12 @@ class AppKeyDiscoveryImpl implements AppKeyDsicovery {
   }
 
   @Override
-  public AppKeyDsicovery registerImporter(AppKeyImporter importer, JsonObject config,
+  public void getAppKey(String appKey, Handler<AsyncResult<AppKey>> resultHandler) {
+    backend.getAppKey(appKey, resultHandler);
+  }
+
+  @Override
+  public AppKeyDiscovery registerImporter(AppKeyImporter importer, JsonObject config,
                                           Handler<AsyncResult<Void>> completionHandler) {
     JsonObject conf;
     if (config == null) {
