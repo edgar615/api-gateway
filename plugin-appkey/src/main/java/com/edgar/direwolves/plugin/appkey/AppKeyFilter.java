@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.appkey;
 
+import com.edgar.direwolves.plugin.appkey.discovery.AppKeyLocalCache;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -127,6 +128,8 @@ public class AppKeyFilter implements Filter {
 
   private final AppKeyDiscovery discovery;
 
+  private final AppKeyLocalCache cache;
+
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     commonParamRule.put("appKey", Rule.required());
@@ -155,6 +158,7 @@ public class AppKeyFilter implements Filter {
       discovery.registerImporter(new JsonAppKeyImpoter(), config.getJsonObject("http.importer"),
                                  Future.<Void>future().completer());
     }
+    this.cache = AppKeyLocalCache.create(discovery);
   }
 
   @Override
@@ -186,7 +190,7 @@ public class AppKeyFilter implements Filter {
       params.put("body", apiContext.body().encode());
     }
 
-    discovery.getAppKey(appKey, ar -> {
+    cache.getAppKey(appKey, ar -> {
       if (ar.succeeded()) {
         JsonObject app = ar.result().getJsonObject();
         checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);

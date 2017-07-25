@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.appkey.discovery;
 
+import com.google.common.base.MoreObjects;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -24,5 +25,13 @@ public class AppKey {
 
   public JsonObject getJsonObject() {
     return jsonObject;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper("AppKey")
+        .add("appkey", appkey)
+        .add("json", jsonObject.encode())
+        .toString();
   }
 }
