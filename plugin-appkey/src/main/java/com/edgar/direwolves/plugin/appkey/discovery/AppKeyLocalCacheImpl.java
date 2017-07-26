@@ -5,6 +5,9 @@ import com.edgar.util.exception.SystemException;
 import com.google.common.base.Ticker;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -21,6 +24,8 @@ class AppKeyLocalCacheImpl implements AppKeyLocalCache {
 
   private final AppKeyDiscovery discovery;
 
+  private final Interner<String> interner = Interners.newWeakInterner();
+
   public AppKeyLocalCacheImpl(AppKeyDiscovery discovery) {
     this.cache = CacheBuilder.newBuilder()
         .expireAfterWrite(30L, TimeUnit.MINUTES)
@@ -32,27 +37,30 @@ class AppKeyLocalCacheImpl implements AppKeyLocalCache {
 
   @Override
   public void getAppKey(String appKey, Handler<AsyncResult<AppKey>> resultHandler) {
-    JsonObject jsonObject = cache.getIfPresent(appKey);
-    if (jsonObject != null) {
-      resultHandler.handle(Future.succeededFuture(new AppKey(appKey, jsonObject)));
-      return;
+    synchronized (interner.intern("appkey_" + appKey)) {
+      JsonObject jsonObject = cache.getIfPresent(appKey);
+      if (jsonObject != null) {
+        resultHandler.handle(Future.succeededFuture(new AppKey(appKey, jsonObject)));
+        return;
+      }
+      discovery.getAppKey(appKey, ar -> {
+        if (ar.failed()) {
+          resultHandler.handle(Future.failedFuture(ar.cause()));
+          return;
+        }
+        if (ar.result() != null) {
+          cache.put(ar.result().getAppkey(), ar.result().getJsonObject());
+          resultHandler.handle(Future.succeededFuture(new AppKey(ar.result().getAppkey(), ar.result().getJsonObject())));
+          return;
+        }
+        if (ar.result() == null) {
+          resultHandler.handle(Future.failedFuture(SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
+                                                           .set("details", "Undefined AppKey:" + appKey)));
+          return;
+        }
+      });
     }
-    discovery.getAppKey(appKey, ar -> {
-      if (ar.failed()) {
-        resultHandler.handle(Future.failedFuture(ar.cause()));
-        return;
-      }
-      if (ar.result() != null) {
-        cache.put(ar.result().getAppkey(), ar.result().getJsonObject());
-        resultHandler.handle(Future.succeededFuture(new AppKey(ar.result().getAppkey(), ar.result().getJsonObject())));
-        return;
-      }
-      if (ar.result() == null) {
-        resultHandler.handle(Future.failedFuture(SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
-            .set("details", "Undefined AppKey:" + appKey)));
-        return;
-      }
-    });
+
   }
 
   @Override

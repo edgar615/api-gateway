@@ -4,6 +4,7 @@ import com.edgar.direwolves.plugin.appkey.discovery.AppKey;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscoveryOptions;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyLocalCache;
+import com.edgar.util.base.Randoms;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -69,7 +70,7 @@ public class AppKeyCacheBenchmarks {
   @OperationsPerInvocation(100)
   public void testApi(AppKeyBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
-    pool.getAppKey("appkey_6", ar -> {
+    pool.getAppKey("appkey_" + Randoms.randomNumber(3), ar -> {
       latch.countDown();
     });
     try {
@@ -86,7 +87,7 @@ public class AppKeyCacheBenchmarks {
   @OperationsPerInvocation(100)
   public void testAverage(AppKeyBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
-    backend.getAppKey("appkey_6", ar -> {
+    backend.getAppKey("appkey_" + Randoms.randomNumber(3), ar -> {
       latch.countDown();
     });
     try {
