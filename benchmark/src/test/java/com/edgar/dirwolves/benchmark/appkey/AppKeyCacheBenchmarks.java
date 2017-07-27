@@ -2,7 +2,6 @@ package com.edgar.dirwolves.benchmark.appkey;
 
 import com.edgar.direwolves.plugin.appkey.discovery.AppKey;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
-import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscoveryOptions;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyLocalCache;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.AsyncResult;
@@ -30,7 +29,7 @@ public class AppKeyCacheBenchmarks {
     public AppKeyBackend() {
       vertx = Vertx.vertx();
       AppKeyDiscovery discovery = AppKeyDiscovery.create(vertx, "api");
-      cache = AppKeyLocalCache.create(discovery);
+      cache = AppKeyLocalCache.create(vertx, discovery);
       for (int i = 0; i < 1000; i ++) {
         String appKey = "appkey_" + i;
         JsonObject jsonObject = new JsonObject()

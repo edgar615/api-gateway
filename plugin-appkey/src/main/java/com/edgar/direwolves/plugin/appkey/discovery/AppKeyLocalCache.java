@@ -13,7 +13,7 @@ public interface AppKeyLocalCache {
 
   int size();
 
-  static AppKeyLocalCache create(AppKeyDiscovery discovery) {
-    return new AppKeyLocalCacheImpl(discovery);
+  static AppKeyLocalCache create(Vertx vertx, AppKeyDiscovery discovery) {
+    return new AppKeyLocalCacheImpl(vertx, discovery);
   }
 }

@@ -158,7 +158,7 @@ public class AppKeyFilter implements Filter {
       discovery.registerImporter(new JsonAppKeyImpoter(), config.getJsonObject("http.importer"),
                                  Future.<Void>future().completer());
     }
-    this.cache = AppKeyLocalCache.create(discovery);
+    this.cache = AppKeyLocalCache.create(vertx, discovery);
   }
 
   @Override

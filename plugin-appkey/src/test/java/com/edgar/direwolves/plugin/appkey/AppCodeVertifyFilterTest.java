@@ -1,6 +1,9 @@
 package com.edgar.direwolves.plugin.appkey;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
@@ -22,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +55,7 @@ public class AppCodeVertifyFilterTest {
             .put("app.codeKey", codeKey));
     filters.clear();
     filters.add(filter);
+
   }
 
   @Test
