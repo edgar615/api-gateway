@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  *
  * @author Edgar  Date 2017/6/8
  */
+@Deprecated
 class MoreServiceDiscoveryImpl implements MoreServiceDiscovery {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MoreServiceDiscovery.class);

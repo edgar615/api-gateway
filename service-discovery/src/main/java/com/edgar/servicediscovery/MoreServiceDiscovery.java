@@ -14,6 +14,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/6/8
  */
+@Deprecated
 public interface MoreServiceDiscovery {
 
   static MoreServiceDiscovery create(Vertx vertx) {

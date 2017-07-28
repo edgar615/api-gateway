@@ -8,6 +8,7 @@ import io.vertx.servicediscovery.ServiceDiscoveryOptions;
  *
  * @author Edgar  Date 2017/6/8
  */
+@Deprecated
 public class MoreServiceDiscoveryOptions {
 
   private static final Long DEFAULT_TIMEOUT_THRESHOLD = 3000l;
