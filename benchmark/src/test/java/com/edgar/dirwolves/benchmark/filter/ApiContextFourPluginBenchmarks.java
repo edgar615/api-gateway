@@ -18,17 +18,10 @@ import com.edgar.direwolves.plugin.arg.UrlArgPlugin;
 import com.edgar.direwolves.plugin.arg.UrlArgPluginFactory;
 import com.edgar.direwolves.plugin.ip.IpRestriction;
 import com.edgar.direwolves.plugin.ip.IpRestrictionFactory;
+import com.edgar.util.base.Randoms;
 import com.edgar.util.validation.Rule;
 import io.vertx.core.http.HttpMethod;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OperationsPerInvocation;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,15 +31,16 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2017/7/17
  */
 @State(Scope.Benchmark)
+@Warmup(iterations = 20)
 public class ApiContextFourPluginBenchmarks {
 
   private ApiContext apiContext;
 
-  @Setup
+  @Setup(Level.Invocation)
   public void setup() {
     Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("encryptKey", "0000000000000000");
-    params.put("barcode", "LH10312ACCF23C4F3A5");
+    params.put("encryptKey", Randoms.randomAlphabetAndNum(16));
+    params.put("barcode", Randoms.randomAlphabetAndNum(19));
 
 //      JsonObject body = new JsonObject()
 //              .put("encryptKey", "0000000000000000")
@@ -93,7 +87,7 @@ public class ApiContextFourPluginBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public ApiContext testApi() {
     return  apiContext.copy();
 //    blackhole.consume(copy);
@@ -103,7 +97,7 @@ public class ApiContextFourPluginBenchmarks {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public ApiContext testAverage() {
     return apiContext.copy();
   }

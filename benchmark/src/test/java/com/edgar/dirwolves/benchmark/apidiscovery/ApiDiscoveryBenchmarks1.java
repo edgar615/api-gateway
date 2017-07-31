@@ -81,7 +81,7 @@ public class ApiDiscoveryBenchmarks1 {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi(ApiBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
     pool.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
@@ -98,7 +98,7 @@ public class ApiDiscoveryBenchmarks1 {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage(ApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
@@ -115,7 +115,7 @@ public class ApiDiscoveryBenchmarks1 {
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testSampleTime(ApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {

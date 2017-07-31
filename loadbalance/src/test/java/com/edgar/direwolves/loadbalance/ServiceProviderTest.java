@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,18 +18,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Edgar  Date 2017/7/31
  */
-public class LoadbalanceTest {
+public class ServiceProviderTest {
 
   private Vertx vertx;
 
-  private ServiceDiscovery discovery;
+  private ServiceCache serviceCache;
 
   private String service;
 
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-    discovery = ServiceDiscovery.create(vertx);
+    ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
     service = UUID.randomUUID().toString();
     AtomicInteger count = new AtomicInteger();
     for (int i = 0; i < 10; i++) {
@@ -38,14 +39,21 @@ public class LoadbalanceTest {
       });
     }
     Awaitility.await().until(() -> count.get());
+
+    serviceCache = ServiceCache.create(vertx, discovery);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
   @Test
   public void testLoadBalance() {
-    LoadBalance loadBalance = new LoadbalanceImpl(discovery, service);
+    ServiceProvider serviceProvider = new ServiceProviderImpl(serviceCache, service);
 
     AtomicBoolean check = new AtomicBoolean();
-    loadBalance.choose(ar -> {
+    serviceProvider.choose(ar -> {
       if (ar.failed()) {
         ar.cause().printStackTrace();
         return;

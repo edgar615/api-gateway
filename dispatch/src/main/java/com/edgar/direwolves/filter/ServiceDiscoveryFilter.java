@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Log;
+import com.edgar.direwolves.loadbalance.LoadBalance;
 import com.edgar.servicediscovery.ServiceProviderRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -35,16 +36,16 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final ServiceProviderRegistry providerRegistry;
-
   private final CircuitbreakerPredicate circuitbreakerPredicate;
 
   private JsonObject config;
 
+  private final LoadBalance loadBalance;
+
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.config = config.getJsonObject("service.discovery", new JsonObject());
-    providerRegistry = ServiceProviderRegistry.create(vertx, config);
+    loadBalance = LoadBalance.create(vertx, this.config);
     circuitbreakerPredicate = new CircuitbreakerPredicate(vertx);
   }
 
@@ -91,21 +92,20 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private Future<Record> serviceFuture(String service) {
     Future<Record> future = Future.future();
-    providerRegistry.get(service)
-            .getInstance(r -> circuitbreakerPredicate.test(r), ar -> {
-              if (ar.failed()) {
-                future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                                    .set("details", "Service not found: " + service));
-                return;
-              }
-              Record record = ar.result();
-              if (record == null) {
-                future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                                    .set("details", "Service not found: " + service));
-                return;
-              }
-              future.complete(record);
-            });
+    loadBalance.chooseServer(service, ar -> {
+      if (ar.failed()) {
+        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                            .set("details", "Service not found: " + service));
+        return;
+      }
+      Record record = ar.result();
+      if (record == null) {
+        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                            .set("details", "Service not found: " + service));
+        return;
+      }
+      future.complete(record);
+    });
     return future;
 
   }

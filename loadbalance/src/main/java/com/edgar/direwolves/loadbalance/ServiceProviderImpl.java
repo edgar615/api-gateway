@@ -16,28 +16,28 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2017/7/28
  */
-class LoadbalanceImpl implements LoadBalance {
+class ServiceProviderImpl implements ServiceProvider {
 
   private final List<ServiceFilter> filters = new ArrayList<>();
 
-  private final ServiceDiscovery discovery;
+  private final ServiceCache cache;
 
   private final String service;
 
   private ChooseStrategy strategy = ChooseStrategy.roundRobin();
 
-  LoadbalanceImpl(ServiceDiscovery discovery, String service) {
-    this.discovery = discovery;
+  ServiceProviderImpl(ServiceCache cache, String service) {
+    this.cache = cache;
     this.service = service;
   }
 
-  public LoadBalance withStrategy(ChooseStrategy strategy) {
+  public ServiceProvider withStrategy(ChooseStrategy strategy) {
     Objects.requireNonNull(strategy, "ChooseStrategy");
     this.strategy = strategy;
     return this;
   }
 
-  public LoadBalance addFilter(ServiceFilter filter) {
+  public ServiceProvider addFilter(ServiceFilter filter) {
     Objects.requireNonNull(filter, "ServiceFilter");
     filters.add(filter);
     return this;
@@ -47,7 +47,7 @@ class LoadbalanceImpl implements LoadBalance {
   public void choose(Handler<AsyncResult<Record>> resultHandler) {
     Function<Record, Boolean> accept = r -> r.getName().equals(service)
                                             && filters.stream().allMatch(f -> f.apply(r));
-    discovery.getRecords(accept, ar -> {
+    cache.getRecords(accept, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
         return;

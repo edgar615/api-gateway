@@ -50,5 +50,11 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
     </dependencies>
 </project>
