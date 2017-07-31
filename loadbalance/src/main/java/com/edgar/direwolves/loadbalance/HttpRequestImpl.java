@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.servicediscovery.Record;
 
 /**
  * Created by Edgar on 2017/7/31.
@@ -25,9 +26,9 @@ public class HttpRequestImpl implements HttpRequest {
   private final Multimap<String, String> params = ArrayListMultimap.create();
 
   /**
-   * id
+   * 下游服务
    */
-  private final String service;
+  private final Record record;
 
   /**
    * HTTP方法
@@ -49,15 +50,18 @@ public class HttpRequestImpl implements HttpRequest {
    */
   private final String path;
 
+  /**
+   * ID
+   */
   private final String id;
 
   public HttpRequestImpl(String id,
-                         String service,
+                         Record record,
                          HttpMethod httpMethod,
                          String path,
                          JsonObject body) {
     this.id = id;
-    this.service = service;
+    this.record = record;
     this.httpMethod = httpMethod;
     this.path = path;
     this.body = body;
@@ -137,8 +141,8 @@ public class HttpRequestImpl implements HttpRequest {
   }
 
   @Override
-  public String service() {
-    return service;
+  public Record record() {
+    return record;
   }
 
   @Override
@@ -170,7 +174,7 @@ public class HttpRequestImpl implements HttpRequest {
   public String toString() {
     return MoreObjects.toStringHelper("HttpRequestImpl")
             .add("id", id)
-            .add("service", service)
+            .add("record", record.toJson())
             .add("method", httpMethod)
             .add("path", path)
             .add("timeout", timeout)

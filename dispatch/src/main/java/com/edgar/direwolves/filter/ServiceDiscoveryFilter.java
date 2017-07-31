@@ -94,6 +94,11 @@ public class ServiceDiscoveryFilter implements Filter {
     Future<Record> future = Future.future();
     loadBalance.chooseServer(service, ar -> {
       if (ar.failed()) {
+//        Log.create(LOGGER)
+//                .setTraceId(request.id())
+//                .setEvent("service.undiscovered")
+//                .addData("service", request.service())
+//                .warn();
         future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
                             .set("details", "Service not found: " + service));
         return;
@@ -104,6 +109,13 @@ public class ServiceDiscoveryFilter implements Filter {
                             .set("details", "Service not found: " + service));
         return;
       }
+//      Log.create(LOGGER)
+//              .setTraceId(request.id())
+//              .setEvent("service.discovered")
+//              .addData("service", request.service())
+//              .setMessage("[{}]")
+//              .addArg(ar.result().toJson())
+//              .info();
       future.complete(record);
     });
     return future;
