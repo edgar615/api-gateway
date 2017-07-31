@@ -1,0 +1,9 @@
+package com.edgar.direwolves.loadbalance;
+
+/**
+ * Created by Edgar on 2017/7/31.
+ *
+ * @author Edgar  Date 2017/7/31
+ */
+public interface HttpRequest {
+}
