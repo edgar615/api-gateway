@@ -23,7 +23,7 @@
         <module>service-discovery</module>
         <module>service-discovery-bridge-zookeeper</module>
         <module>benchmark</module>
-        <module>loadbalance</module>
+        <module>http</module>
     </modules>
 
     <properties>

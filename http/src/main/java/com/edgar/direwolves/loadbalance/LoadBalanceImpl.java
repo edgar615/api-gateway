@@ -24,9 +24,12 @@ class LoadBalanceImpl implements LoadBalance {
 
   private LoadingCache<String, ServiceProvider> providerCache;
 
+  private final LoadBalanceStats stats;
+
   LoadBalanceImpl(ServiceCache serviceCache, JsonObject config) {
     this.config = config;
     this.serviceCache = serviceCache;
+    this.stats = LoadBalanceStats.instance();
     this.providerCache = CacheBuilder.newBuilder()
             .build(new CacheLoader<String, ServiceProvider>() {
               @Override
@@ -58,14 +61,15 @@ class LoadBalanceImpl implements LoadBalance {
       strategy = ChooseStrategy.weightRoundRobin();
     }
     return new ServiceProviderImpl(serviceCache, service)
-            .withStrategy(strategy);
+            .withStrategy(strategy)
+            .addFilter(r -> !stats.get(r.getRegistration()).isCircuitBreakerTripped());
   }
 
   private ServiceProvider getProvider(String service) {
     try {
       return providerCache.get(service);
     } catch (ExecutionException e) {
-      ServiceProvider provider = ServiceProvider.create(serviceCache, service);
+      ServiceProvider provider = createProvider(service);
       providerCache.asMap().putIfAbsent(service, provider);
       return providerCache.asMap().get(service);
     }

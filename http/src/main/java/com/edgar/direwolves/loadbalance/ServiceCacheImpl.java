@@ -9,6 +9,7 @@ import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,6 +35,19 @@ class ServiceCacheImpl implements ServiceCache {
         records.addAll(ar.result());
       });
     });
+  }
+
+  @Override
+  public void getRecord(Function<Record, Boolean> filter,
+                         Handler<AsyncResult<Record>> resultHandler) {
+    Optional<Record> any = records.stream()
+            .filter(filter::apply)
+            .findAny();
+    if (any.isPresent()) {
+      resultHandler.handle(Future.succeededFuture(any.get()));
+    } else {
+      resultHandler.handle(Future.succeededFuture(null));
+    }
   }
 
   @Override

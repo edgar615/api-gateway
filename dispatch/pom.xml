@@ -50,11 +50,6 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-circuit-breaker</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
             <scope>test</scope>
         </dependency>
@@ -73,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
-            <artifactId>direwolves-loadbalance</artifactId>
+            <artifactId>direwolves-http</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

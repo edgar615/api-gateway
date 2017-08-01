@@ -1,7 +1,6 @@
 package com.edgar.dirwolves.benchmark.servicediscovery;
 
 import com.edgar.direwolves.loadbalance.ServiceCache;
-import com.edgar.direwolves.loadbalance.ServiceCacheImpl;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -74,7 +73,7 @@ public class ServiceCacheBenchmarks {
     public DiscoveryBackend() {
       vertx = Vertx.vertx();
       discovery = ServiceDiscovery.create(vertx);
-      cache = new ServiceCacheImpl(vertx, discovery);
+      cache = ServiceCache.create(vertx, discovery);
       for (int i = 0; i < 10; i++) {
         Record record = HttpEndpoint.createRecord("test", "localhost", 8081 + i, "/");
         discovery.publish(record, ar -> {

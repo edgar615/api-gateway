@@ -9,17 +9,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Edgar on 2017/7/31.
+ * 服务节点的状态.
+ * <p>
+ * 这个类是一个单例类，内部使用LoadingCache实现了服务节点状态的缓存（1小时有效期）.
  *
  * @author Edgar  Date 2017/7/31
  */
 public class LoadBalanceStats {
 
+  private static final LoadBalanceStats INSTANCE = new LoadBalanceStats();
+
   private final LoadingCache<String, ServiceStats> cache;
 
-  public LoadBalanceStats() {
+  private LoadBalanceStats() {
     this.cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(30, TimeUnit.SECONDS)
+            .expireAfterAccess(1, TimeUnit.HOURS)
             .removalListener((RemovalListener<String, ServiceStats>) notification -> {
 //                notification.getValue().close();
             })
@@ -31,7 +35,11 @@ public class LoadBalanceStats {
             });
   }
 
-  public ServiceStats getServiceStat(String serviceId) {
+  public static LoadBalanceStats instance() {
+    return INSTANCE;
+  }
+
+  public ServiceStats get(String serviceId) {
     try {
       return cache.get(serviceId);
     } catch (ExecutionException e) {

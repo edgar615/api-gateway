@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Created by Edgar on 2017/7/31.
+ * 服务发现的本地缓存.
  *
  * @author Edgar  Date 2017/7/31
  */
 public interface ServiceCache {
+
+  void getRecord(Function<Record, Boolean> filter,
+                 Handler<AsyncResult<Record>> resultHandler);
 
   void getRecords(Function<Record, Boolean> filter,
                   Handler<AsyncResult<List<Record>>> resultHandler);

@@ -200,46 +200,46 @@ public class ServiceDiscoveryFilterTest {
 //  }
 
 
-  @Test
-  public void testCircuitBreakerFilter(TestContext testContext) {
-    add2Servers();
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    List<String> selectedIds = new CopyOnWriteArrayList<>();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              HttpRpcRequest rpcRequest = (HttpRpcRequest) context.requests().get(0);
-              selectedIds.add(rpcRequest.serverId());
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.fail();
-    });
-
-    Awaitility.await().until(() -> selectedIds.size() == 1);
-
-    String server = selectedIds.get(0);
-    CircuitBreakerRegistry registry = new CircuitBreakerRegistry(vertx, server,
-                                                                 new CircuitBreakerOptions());
-    registry.get().open();
-
-    vertx.sharedData().getLocalMap("circuit.breaker.registry").put(server, registry);
-
-    AtomicBoolean check = new AtomicBoolean();
-    task = Task.create();
-    task.complete(apiContext);
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE.getNumber(),
-                                       ex.getErrorCode().getNumber());
-              check.set(true);
-            });
-
-    Awaitility.await().until(() -> check.get());
-
-  }
+//  @Test
+//  public void testCircuitBreakerFilter(TestContext testContext) {
+//    add2Servers();
+//    Task<ApiContext> task = Task.create();
+//    task.complete(apiContext);
+//    List<String> selectedIds = new CopyOnWriteArrayList<>();
+//    Filters.doFilter(task, filters)
+//            .andThen(context -> {
+//              HttpRpcRequest rpcRequest = (HttpRpcRequest) context.requests().get(0);
+//              selectedIds.add(rpcRequest.serverId());
+//            }).onFailure(t -> {
+//      t.printStackTrace();
+//      testContext.fail();
+//    });
+//
+//    Awaitility.await().until(() -> selectedIds.size() == 1);
+//
+//    String server = selectedIds.get(0);
+//    CircuitBreakerRegistry registry = new CircuitBreakerRegistry(vertx, server,
+//                                                                 new CircuitBreakerOptions());
+//    registry.get().open();
+//
+//    vertx.sharedData().getLocalMap("circuit.breaker.registry").put(server, registry);
+//
+//    AtomicBoolean check = new AtomicBoolean();
+//    task = Task.create();
+//    task.complete(apiContext);
+//    Filters.doFilter(task, filters)
+//            .andThen(context -> testContext.fail())
+//            .onFailure(t -> {
+//              testContext.assertTrue(t instanceof SystemException);
+//              SystemException ex = (SystemException) t;
+//              testContext.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE.getNumber(),
+//                                       ex.getErrorCode().getNumber());
+//              check.set(true);
+//            });
+//
+//    Awaitility.await().until(() -> check.get());
+//
+//  }
 
   @Test
   public void testNoService(TestContext testContext) {

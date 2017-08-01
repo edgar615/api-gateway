@@ -21,56 +21,14 @@ public class WeightRoundRobinStrategyTest {
   public void setUp() {
     instances.clear();
     Record a = HttpEndpoint.createRecord("test", "localhost", 8081, "/").setRegistration("a");
-    a.getMetadata().put("weight", 5);
+    LoadBalanceStats.instance().get("a").setWeight(5);
     Record b = HttpEndpoint.createRecord("test", "localhost", 8082, "/").setRegistration("b");
-    b.getMetadata().put("weight", 1);
+    LoadBalanceStats.instance().get("b").setWeight(1);
     Record c = HttpEndpoint.createRecord("test", "localhost", 8083, "/").setRegistration("c");
-    c.getMetadata().put("weight", 1);
+    LoadBalanceStats.instance().get("c").setWeight(1);
     instances.add(a);
     instances.add(b);
     instances.add(c);
-  }
-
-  @Test
-  public void testRemoveWeight() {
-    ChooseStrategy chooseStrategy = ChooseStrategy.weightRoundRobin();
-    List<String> selected = select(chooseStrategy);
-    Assert.assertEquals(3, new HashSet<>(selected).size());
-    long aSize = selected.stream()
-            .filter(i -> "a".equals(i))
-            .count();
-    long bSize = selected.stream()
-            .filter(i -> "b".equals(i))
-            .count();
-    long cSize = selected.stream()
-            .filter(i -> "c".equals(i))
-            .count();
-    Assert.assertEquals(aSize, 5000);
-    Assert.assertEquals(bSize, 1000);
-    Assert.assertEquals(cSize, 1000);
-    for (int i = 0; i < 1200; i ++) {
-      Record record = HttpEndpoint.createRecord("test", "localhost", i, "/").setRegistration("" + i);
-      record.getMetadata().put("weight", 5);
-      instances.add(record);
-    }
-
-    List<String> selected2 = select(chooseStrategy);
-    System.out.println(new HashSet<>(selected2).size());
-
-    instances.removeIf(i -> {
-      try {
-        int id = Integer.parseInt(i.getRegistration());
-        return true;
-      } catch (NumberFormatException e) {
-       return false;
-      }
-    });
-
-    List<String> selected3 = select(chooseStrategy);
-    System.out.println(new HashSet<>(selected3));
-    Assert.assertEquals(aSize, 5000);
-    Assert.assertEquals(bSize, 1000);
-    Assert.assertEquals(cSize, 1000);
   }
 
   @Test
@@ -201,13 +159,13 @@ public class WeightRoundRobinStrategyTest {
   }
 
   private void decWeight(Record record, int decWeight) {
-    int weight = record.getMetadata().getInteger("weight", 60);
-    record.getMetadata().put("weight", weight - decWeight);
+    LoadBalanceStats.instance().get(record.getRegistration())
+            .decWeight(decWeight);
   }
 
   private void incWeight(Record record, int incWeight) {
-    int weight = record.getMetadata().getInteger("weight", 60);
-    record.getMetadata().put("weight", weight + incWeight);
+    LoadBalanceStats.instance().get(record.getRegistration())
+            .incWeight(incWeight);
   }
 
 }

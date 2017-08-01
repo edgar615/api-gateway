@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>direwolves-loadbalance</artifactId>
+    <artifactId>direwolves-http</artifactId>
 
     <dependencies>
         <dependency>
@@ -51,9 +51,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>direwolves-core</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-circuit-breaker</artifactId>
         </dependency>
 
     </dependencies>

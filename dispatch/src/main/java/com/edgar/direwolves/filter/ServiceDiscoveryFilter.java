@@ -8,7 +8,6 @@ import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.loadbalance.LoadBalance;
-import com.edgar.servicediscovery.ServiceProviderRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -36,8 +35,6 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final CircuitbreakerPredicate circuitbreakerPredicate;
-
   private JsonObject config;
 
   private final LoadBalance loadBalance;
@@ -46,7 +43,6 @@ public class ServiceDiscoveryFilter implements Filter {
     this.vertx = vertx;
     this.config = config.getJsonObject("service.discovery", new JsonObject());
     loadBalance = LoadBalance.create(vertx, this.config);
-    circuitbreakerPredicate = new CircuitbreakerPredicate(vertx);
   }
 
   @Override
@@ -156,24 +152,4 @@ public class ServiceDiscoveryFilter implements Filter {
     return null;
   }
 
-  private class CircuitbreakerPredicate implements Predicate<Record> {
-
-    private final Map<String, CircuitBreakerRegistry> breakerMap;
-
-    private final Vertx vertx;
-
-    public CircuitbreakerPredicate(Vertx vertx) {
-      this.vertx = vertx;
-      this.breakerMap = vertx.sharedData().getLocalMap("circuit.breaker.registry");
-    }
-
-    @Override
-    public boolean test(Record record) {
-      if (!breakerMap.containsKey(record.getRegistration())) {
-        return true;
-      }
-      CircuitBreakerRegistry registry = breakerMap.get(record.getRegistration());
-      return registry.get().state() != CircuitBreakerState.OPEN;
-    }
-  }
 }

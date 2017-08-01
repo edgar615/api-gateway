@@ -16,5 +16,9 @@ public interface ServiceProvider {
     return new ServiceProviderImpl(serviceCache, service);
   }
 
+  ServiceProvider withStrategy(ChooseStrategy strategy);
+
+  ServiceProvider addFilter(ServiceFilter filter);
+
   void choose(Handler<AsyncResult<Record>> resultHandler);
 }

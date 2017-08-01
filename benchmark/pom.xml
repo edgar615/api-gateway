@@ -72,7 +72,7 @@
 
         <dependency>
             <groupId>com.edgar</groupId>
-            <artifactId>direwolves-loadbalance</artifactId>
+            <artifactId>direwolves-http</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

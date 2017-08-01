@@ -11,6 +11,7 @@ import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.loadbalance.CircuitBreakerRegistry;
 import com.edgar.direwolves.plugin.fallback.CircuitFallbackPlugin;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -70,25 +71,23 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
    */
   private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
 
-  private final Map<String, CircuitBreakerRegistry> breakerMap;
-
   private final Vertx vertx;
 
-  private JsonObject config;
+  private final JsonObject config;
+
+  private final CircuitBreakerRegistry circuitBreakerRegistry;
 
   RpcFilter(Vertx vertx, JsonObject config) {
 
     this.vertx = vertx;
     RpcMetric metric = null;
     this.config = config.getJsonObject("circuit.breaker", new JsonObject());
+    circuitBreakerRegistry = CircuitBreakerRegistry.create(vertx, this.config);
 
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
             .stream().map(f -> f.create(vertx, config, metric))
             .forEach(h -> handlers.put(h.type().toUpperCase(), h));
 
-    this.breakerMap = vertx.sharedData()
-            .getLocalMap(config.getString("registry",
-                                          "vertx.circuit.breaker.registry"));
   }
 
   @Override
@@ -109,9 +108,6 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    if (breakerMap.size() % 1000 == 0) {
-      breakerMap.clear();
-    }
     List<Future<RpcResponse>> futures = apiContext.requests()
             .stream().map(req -> execute(apiContext, req))
             .collect(Collectors.toList());
@@ -159,13 +155,7 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   }
 
   private Future<RpcResponse> circuitBreakerExecute(ApiContext apiContext, HttpRpcRequest req) {
-    if (!breakerMap.containsKey(req.serverId())) {
-      breakerMap.putIfAbsent(req.serverId(),
-                                     new CircuitBreakerRegistry(vertx, req.serverId(),
-                                                                new CircuitBreakerOptions(
-                                                                        config)));
-    }
-    CircuitBreaker circuitBreaker = breakerMap.get(req.serverId()).get();
+    CircuitBreaker circuitBreaker = circuitBreakerRegistry.get(req.serverId());
     long start = System.currentTimeMillis();
     Future<RpcResponse> rpcFuture
             = handlers

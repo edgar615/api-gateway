@@ -4,7 +4,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +23,25 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private final String service;
 
+  private final ServiceFilter circuitBreakerFilter = r ->
+          !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped();
+
   private ChooseStrategy strategy = ChooseStrategy.roundRobin();
 
   ServiceProviderImpl(ServiceCache cache, String service) {
     this.cache = cache;
     this.service = service;
+    filters.add(circuitBreakerFilter);
   }
 
+  @Override
   public ServiceProvider withStrategy(ChooseStrategy strategy) {
     Objects.requireNonNull(strategy, "ChooseStrategy");
     this.strategy = strategy;
     return this;
   }
 
+  @Override
   public ServiceProvider addFilter(ServiceFilter filter) {
     Objects.requireNonNull(filter, "ServiceFilter");
     filters.add(filter);
