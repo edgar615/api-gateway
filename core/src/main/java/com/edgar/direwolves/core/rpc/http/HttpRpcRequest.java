@@ -1,5 +1,6 @@
 package com.edgar.direwolves.core.rpc.http;
 
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
@@ -7,7 +8,6 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
-import com.edgar.direwolves.core.rpc.RpcRequest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 

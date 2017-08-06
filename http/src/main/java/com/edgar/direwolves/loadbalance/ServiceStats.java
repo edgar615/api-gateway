@@ -80,6 +80,10 @@ public class ServiceStats {
     return this;
   }
 
+  public int activeRequests() {
+    return activeRequests.get();
+  }
+
   public int weight() {
     return weight.get();
   }

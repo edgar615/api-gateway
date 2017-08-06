@@ -1,20 +1,22 @@
-package com.edgar.direwolves.core.rpc.http;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
+package com.edgar.direwolves.http;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.LogType;
 import com.edgar.direwolves.core.utils.MultimapUtils;
+import com.edgar.direwolves.loadbalance.LoadBalanceStats;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
@@ -55,14 +57,14 @@ public class HttpRpcHandler implements RpcHandler {
     HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
     if (checkMethod(httpRpcRequest)) {
       return Future.failedFuture(
-              SystemException.create(DefaultErrorCode.INVALID_ARGS)
-                      .set("details", "Method must be GET | POST | PUT | DELETE")
+          SystemException.create(DefaultErrorCode.INVALID_ARGS)
+              .set("details", "Method must be GET | POST | PUT | DELETE")
       );
     }
     if (checkBody(httpRpcRequest)) {
       return Future.failedFuture(
-              SystemException.create(DefaultErrorCode.MISSING_ARGS)
-                      .set("details", "POST or PUT method must contains request body")
+          SystemException.create(DefaultErrorCode.MISSING_ARGS)
+              .set("details", "POST or PUT method must contains request body")
       );
     }
 
@@ -70,72 +72,39 @@ public class HttpRpcHandler implements RpcHandler {
       metric.request(httpRpcRequest.serverId());
     }
 
-    Log.create(LOGGER)
-            .setTraceId(httpRpcRequest.id())
-            .setLogType(LogType.CS)
-            .setEvent(type().toUpperCase())
-            .addData("server", httpRpcRequest.host() + ":" + httpRpcRequest.port())
-            .setMessage("[{}] [{}] [{}] [{}]")
-            .addArg(httpRpcRequest.method().name() + " " + httpRpcRequest.path())
-            .addArg(MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
-            .addArg(MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
-            .addArg(httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
-            .info();
+    logClientSend(httpRpcRequest);
     Future<RpcResponse> future = Future.future();
     String path = requestPath(httpRpcRequest);
     final Duration duration = new Duration();
     HttpClientRequest request =
-            httpClient
-                    .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
-                             path)
-                    .putHeader("content-type", "application/json");
+        httpClient
+            .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
+                path)
+            .putHeader("content-type", "application/json");
+    LoadBalanceStats.instance().get(httpRpcRequest.serverId())
+        .incActiveRequests();
     request.handler(response -> {
+      LoadBalanceStats.instance().get(httpRpcRequest.serverId())
+          .decActiveRequests();
       duration.setRepliedOn(System.currentTimeMillis());
       response.bodyHandler(body -> {
         duration.setBodyHandledOn(System.currentTimeMillis());
         RpcResponse rpcResponse =
-                RpcResponse.create(httpRpcRequest.id(),
-                                   response.statusCode(),
-                                   body,
-                                   duration.duration());
-        Log.create(LOGGER)
-                .setTraceId(rpcRequest.id())
-                .setLogType(LogType.CR)
-                .setEvent("HTTP")
-                .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-                                                                  duration.getCreatedon())
-                .addData("et", duration.getEndedOn() == 0 ? 0 :
-                        duration.getEndedOn() - duration.getCreatedon())
-                .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-                        duration.getRepliedOn() - duration.getCreatedon())
-                .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-                        duration.getBodyHandledOn() - duration.getCreatedon())
-                .setMessage(" [{}] [{}ms] [{} bytes]")
-                .addArg(rpcResponse.statusCode())
-                .addArg(rpcResponse.elapsedTime())
-                .addArg(body.getBytes().length)
-                .info();
+            RpcResponse.create(httpRpcRequest.id(),
+                response.statusCode(),
+                body,
+                duration.duration());
+        logClientReceived(rpcResponse, body, duration);
         if (metric != null) {
           metric.response(httpRpcRequest.serverId(), rpcResponse.statusCode(),
-                          rpcResponse.elapsedTime());
+              rpcResponse.elapsedTime());
         }
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
+        LoadBalanceStats.instance().get(httpRpcRequest.serverId())
+            .decActiveRequests();
         if (!future.isComplete()) {
-          Log.create(LOGGER)
-                  .setTraceId(rpcRequest.id())
-                  .setLogType(LogType.CR)
-                  .setEvent("HTTP")
-                  .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-                                                                    duration.getCreatedon())
-                  .addData("et", duration.getEndedOn() == 0 ? 0 :
-                          duration.getEndedOn() - duration.getCreatedon())
-                  .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-                          duration.getRepliedOn() - duration.getCreatedon())
-                  .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-                          duration.getBodyHandledOn() - duration.getCreatedon())
-                  .setThrowable(throwable)
-                  .error();
+          logRequestError(rpcRequest, duration, throwable);
           future.fail(throwable);
         }
       });
@@ -152,6 +121,57 @@ public class HttpRpcHandler implements RpcHandler {
     return future;
   }
 
+  private void logRequestError(RpcRequest rpcRequest, Duration duration, Throwable throwable) {
+    Log.create(LOGGER)
+        .setTraceId(rpcRequest.id())
+        .setLogType(LogType.CR)
+        .setEvent("HTTP")
+        .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+            duration.getCreatedon())
+        .addData("et", duration.getEndedOn() == 0 ? 0 :
+            duration.getEndedOn() - duration.getCreatedon())
+        .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+            duration.getRepliedOn() - duration.getCreatedon())
+        .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
+            duration.getBodyHandledOn() - duration.getCreatedon())
+        .setThrowable(throwable)
+        .error();
+  }
+
+  private void logClientReceived(RpcResponse rpcResponse, Buffer body, Duration duration) {
+    Log.create(LOGGER)
+        .setTraceId(rpcResponse.id())
+        .setLogType(LogType.CR)
+        .setEvent("HTTP")
+        .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+            duration.getCreatedon())
+        .addData("et", duration.getEndedOn() == 0 ? 0 :
+            duration.getEndedOn() - duration.getCreatedon())
+        .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+            duration.getRepliedOn() - duration.getCreatedon())
+        .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
+            duration.getBodyHandledOn() - duration.getCreatedon())
+        .setMessage(" [{}] [{}ms] [{} bytes]")
+        .addArg(rpcResponse.statusCode())
+        .addArg(rpcResponse.elapsedTime())
+        .addArg(body.getBytes().length)
+        .info();
+  }
+
+  private void logClientSend(HttpRpcRequest httpRpcRequest) {
+    Log.create(LOGGER)
+        .setTraceId(httpRpcRequest.id())
+        .setLogType(LogType.CS)
+        .setEvent(type().toUpperCase())
+        .addData("server", httpRpcRequest.host() + ":" + httpRpcRequest.port())
+        .setMessage("[{}] [{}] [{}] [{}]")
+        .addArg(httpRpcRequest.method().name() + " " + httpRpcRequest.path())
+        .addArg(MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
+        .addArg(MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
+        .addArg(httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
+        .info();
+  }
+
   public String urlEncode(String path) {
     try {
       return URLEncoder.encode(path, "UTF-8");
@@ -162,8 +182,8 @@ public class HttpRpcHandler implements RpcHandler {
 
   private boolean checkBody(HttpRpcRequest request) {
     return (request.method() == HttpMethod.POST
-            || request.method() == HttpMethod.PUT)
-           && request.body() == null;
+        || request.method() == HttpMethod.PUT)
+        && request.body() == null;
   }
 
   private void header(HttpRpcRequest rpcRequest, HttpClientRequest request) {
@@ -197,18 +217,18 @@ public class HttpRpcHandler implements RpcHandler {
       request.end();
     } else if (rpcRequest.method() == HttpMethod.POST) {
       request.setChunked(true)
-              .end(rpcRequest.body().encode());
+          .end(rpcRequest.body().encode());
     } else if (rpcRequest.method() == HttpMethod.PUT) {
       request.setChunked(true)
-              .end(rpcRequest.body().encode());
+          .end(rpcRequest.body().encode());
     }
   }
 
   private boolean checkMethod(HttpRpcRequest rpcRequest) {
     return rpcRequest.method() != HttpMethod.GET
-           && rpcRequest.method() != HttpMethod.DELETE
-           && rpcRequest.method() != HttpMethod.POST
-           && rpcRequest.method() != HttpMethod.PUT;
+        && rpcRequest.method() != HttpMethod.DELETE
+        && rpcRequest.method() != HttpMethod.POST
+        && rpcRequest.method() != HttpMethod.PUT;
   }
 
   private String requestPath(HttpRpcRequest rpcRequest) {

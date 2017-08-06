@@ -24,6 +24,11 @@ public interface ChooseStrategy {
     return new RandomStrategy();
   }
 
+  static ChooseStrategy lastConnection() {
+    return new LastConnectionStrategy();
+  }
+
+
   static ChooseStrategy weightRoundRobin() {
     return new WeightRoundbinStrategy();
   }

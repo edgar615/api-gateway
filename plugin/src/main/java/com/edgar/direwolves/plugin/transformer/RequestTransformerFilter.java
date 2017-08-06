@@ -1,5 +1,6 @@
 package com.edgar.direwolves.plugin.transformer;
 
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -7,7 +8,6 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;

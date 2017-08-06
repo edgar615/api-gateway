@@ -1,4 +1,4 @@
-package com.edgar.direwolves.core.rpc.http;
+package com.edgar.direwolves.http;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
