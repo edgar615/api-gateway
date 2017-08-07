@@ -261,6 +261,36 @@ device:write表示API的权限字符串
 - type PRE
 - order 1100
 
+# Request降级
+## Plugin: FallbackPlugin
+支持远程调用的降级
+
+配置示例：
+
+      "request.fallback": {
+        "add_device": {
+          "statusCode" : 200,
+          "result" : {
+            "foo": "bar"
+          }
+        },
+        "device.list" : {
+          "statusCode" : 200,
+          "result" : []
+        }
+      }
+
+- `add_device`  对应endpoint的名称
+- statusCode 响应码
+- result 响应体，可以是JsonObject或者JsonArray
+
+## Filter: RequestFallbackFilter
+
+- type PRE
+- order 10100
+
+
+
 # Request转换
 ## Plugin: RequestTransformerPlugin
 将转发的请求参数按照一定的规则做转换
