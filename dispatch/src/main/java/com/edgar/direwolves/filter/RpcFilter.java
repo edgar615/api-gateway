@@ -12,7 +12,6 @@ import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.loadbalance.CircuitBreakerRegistry;
-import com.edgar.direwolves.plugin.fallback.CircuitFallbackPlugin;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -20,7 +19,6 @@ import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.NoStackTraceThrowable;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,26 +158,22 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
             = handlers
             .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
             .handle(req);
-//    return rpcFuture;
-    CircuitFallbackPlugin plugin
-            = (CircuitFallbackPlugin) apiContext.apiDefinition()
-            .plugin(CircuitFallbackPlugin.class.getSimpleName());
-
-    if (plugin != null && plugin.fallback().containsKey(req.name())) {
+    if (req.fallback() != null) {
+      RpcResponse copyResp = req.fallback().copy();
       return circuitBreaker.<RpcResponse>executeWithFallback(
               f -> rpcFuture.setHandler(f.completer())
               , throwable -> {
                 long duration = System.currentTimeMillis() - start;
-                Object fallback = plugin.fallback().getValue(req.name());
-                if (fallback instanceof JsonObject) {
-                  return RpcResponse
-                          .createJsonObject(req.id(), 200, (JsonObject) fallback, duration);
+                RpcResponse response;
+                if (copyResp.isArray()) {
+                  response = RpcResponse.create(req.id(), copyResp.statusCode(),
+                                                copyResp.responseArray().encode(), duration);
+                } else {
+                  response = RpcResponse.create(req.id(), copyResp.statusCode(),
+                                                copyResp.responseObject().encode(), duration);
                 }
-                if (fallback instanceof JsonArray) {
-                  return RpcResponse
-                          .createJsonArray(req.id(), 200, (JsonArray) fallback, duration);
-                }
-                return null;
+
+                return response;
               });
     } else {
       return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));

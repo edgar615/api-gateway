@@ -4,8 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
-import com.edgar.servicediscovery.MoreServiceDiscovery;
-import com.edgar.servicediscovery.MoreServiceDiscoveryOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -33,18 +31,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    MoreServiceDiscoveryOptions options = new MoreServiceDiscoveryOptions(config());
-    MoreServiceDiscovery serviceDiscovery = MoreServiceDiscovery.create(vertx, options);
-    new WeightIncreaseConsumer(vertx, serviceDiscovery.discovery(),
-                               options.getWeightIncrease());
-    new WeightDecreaseConsumer(vertx, serviceDiscovery.discovery(),
-                               options.getWeightDecrease());
-    new StateOpenConsumer(vertx, serviceDiscovery.discovery());
-    new StateCloseConsumer(vertx, serviceDiscovery.discovery());
-    new StateHalfOpenConsumer(vertx, serviceDiscovery.discovery());
-    new QueryByIdConsumer(vertx, serviceDiscovery.discovery());
-    new QueryAllNamesConsumer(vertx, serviceDiscovery.discovery());
-    new QueryConsumer(vertx, serviceDiscovery.discovery());
+    ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
 
     LOGGER.info("deploy ServiceDiscoveryVerticle succeeded");
 
@@ -54,10 +41,10 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
     }
     if (importer.startsWith(CONSUL_PREFIX)) {
       LOGGER.info("import service from consul");
-      registerConsul(serviceDiscovery.discovery(), importer, config());
+      registerConsul(discovery, importer, config());
     } else if (importer.startsWith(ZOOKEEPER_PREFIX)) {
       LOGGER.info("import service from zookeeper");
-      registerZookeeper(serviceDiscovery.discovery(), importer, config());
+      registerZookeeper(discovery, importer, config());
     } else {
       throw new IllegalArgumentException(
               String.format("Field `importer` not supported: %s", importer));

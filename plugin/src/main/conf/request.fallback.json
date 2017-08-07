@@ -1,0 +1,14 @@
+{
+  "request.fallback": {
+    "add_device": {
+      "statusCode" : 200,
+      "result" : {
+        "foo": "bar"
+      }
+    },
+    "device.list" : {
+      "statusCode" : 200,
+      "result" : []
+    }
+  }
+}

@@ -14,7 +14,6 @@ import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.handler.DeviceHttpVerticle;
-import com.edgar.direwolves.plugin.fallback.CircuitFallbackPlugin;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -341,10 +340,6 @@ public class RpcFilterTest {
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    CircuitFallbackPlugin plugin = new CircuitFallbackPlugin();
-    plugin.setFallback(new JsonObject().put("add_device", new JsonObject().put("foo", "bar")));
-    definition.addPlugin(plugin);
-
     HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
@@ -352,6 +347,7 @@ public class RpcFilterTest {
             .setHttpMethod(HttpMethod.GET)
             .setPath("/devices/timeout")
             .addParam("foo", "bar");
+
     apiContext.addRequest(httpRpcRequest);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -377,9 +373,6 @@ public class RpcFilterTest {
     definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    plugin = new CircuitFallbackPlugin();
-    plugin.setFallback(new JsonObject().put("add_device", new JsonObject().put("foo", "bar")));
-    definition.addPlugin(plugin);
 
     httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
                                            "add_device")
@@ -388,6 +381,9 @@ public class RpcFilterTest {
             .setHttpMethod(HttpMethod.GET)
             .setPath("/devices")
             .addParam("foo", "bar");
+    RpcResponse fallback = RpcResponse.create(httpRpcRequest.id(), 202, new JsonObject().put
+            ("foo", "bar").encode(), 0);
+    httpRpcRequest.setFallback(fallback);
     apiContext.addRequest(httpRpcRequest);
     task = Task.create();
     task.complete(apiContext);

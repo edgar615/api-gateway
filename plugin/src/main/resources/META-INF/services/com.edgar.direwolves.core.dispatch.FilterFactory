@@ -7,3 +7,4 @@ com.edgar.direwolves.plugin.ip.IpRestrictionFilterFactory
 com.edgar.direwolves.plugin.authorization.AuthoriseFilterFactory
 com.edgar.direwolves.plugin.transformer.EventbusRequestTransformerFilterFactory
 com.edgar.direwolves.plugin.acl.AclRestrictionFilterFactory
+com.edgar.direwolves.plugin.fallback.RequestFallbackFilterFactory

@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -73,6 +74,8 @@ public class HttpRpcRequest implements RpcRequest {
    */
   private int timeout = 10000;
 
+  private RpcResponse fallback;
+
   protected HttpRpcRequest(String id, String name) {
     Preconditions.checkNotNull(id);
     Preconditions.checkNotNull(name);
@@ -117,6 +120,9 @@ public class HttpRpcRequest implements RpcRequest {
     copyReq.addParams(ArrayListMultimap.create(params));
     copyReq.addHeaders(ArrayListMultimap.create(headers));
     copyReq.setServerId(serverId);
+    if (fallback != null) {
+      copyReq.setFallback(fallback.copy());
+    }
     return copyReq;
   }
 
@@ -227,6 +233,15 @@ public class HttpRpcRequest implements RpcRequest {
     return this;
   }
 
+  public RpcResponse fallback() {
+    return fallback;
+  }
+
+  @Override
+  public void setFallback(RpcResponse fallback) {
+    this.fallback = fallback;
+  }
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper("HttpRpcRequest")
@@ -241,6 +256,7 @@ public class HttpRpcRequest implements RpcRequest {
             .add("headers", headers)
             .add("params", params)
             .add("body", body == null ? null : body.encode())
+            .add("fallback", fallback)
             .toString();
   }
 }

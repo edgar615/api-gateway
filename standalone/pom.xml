@@ -32,6 +32,12 @@
             <artifactId>direwolves-redis</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>service-discovery</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>service-discovery-bridge-zookeeper</artifactId>

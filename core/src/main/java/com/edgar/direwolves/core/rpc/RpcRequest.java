@@ -24,4 +24,5 @@ public interface RpcRequest {
    */
   RpcRequest copy();
 
+  void setFallback(RpcResponse fallback);
 }

@@ -1,8 +1,0 @@
-{
-  "circuit.fallback": {
-    "add_device": {
-      "foo": "bar"
-    },
-    "device.list" : []
-  }
-}

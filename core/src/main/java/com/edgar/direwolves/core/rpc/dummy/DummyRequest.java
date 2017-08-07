@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 
 import com.edgar.direwolves.core.definition.DummyEndpoint;
 import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -75,6 +76,11 @@ public class DummyRequest implements RpcRequest {
   @Override
   public RpcRequest copy() {
     return new DummyRequest(id, name, result.copy());
+  }
+
+  @Override
+  public void setFallback(RpcResponse fallback) {
+
   }
 
   @Override

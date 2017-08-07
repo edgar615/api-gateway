@@ -32,6 +32,18 @@ public interface ServiceCache {
     return new ServiceCacheImpl(vertx, ServiceDiscovery.create(vertx, options));
   }
 
+  /**
+   * config包括下列属性：
+   * announceAddress String
+   * usageAddress String
+   * autoRegistrationOfImporters boolean
+   * backendConfiguration JsonObject
+   * name String
+   *
+   * @param vertx
+   * @param config
+   * @return
+   */
   static ServiceCache create(Vertx vertx, JsonObject config) {
     return new ServiceCacheImpl(vertx,
                                 ServiceDiscovery.create(vertx,

@@ -2,10 +2,13 @@ package com.edgar.direwolves.plugin.fallback;
 
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.ApiPluginFactory;
+import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.UUID;
 
 /**
  * Created by Edgar on 2017/7/6.
@@ -17,25 +20,37 @@ public class FallbackPluginTest {
   @Test
   public void testDecode() {
     JsonObject jsonObject = new JsonObject()
-            .put("circuit.fallback", new JsonObject().put("device.add", new JsonObject().put
-                    ("foo", "bar"))
-                    .put("device.query", new JsonArray()));
-    ApiPluginFactory factory = new CircuitFallbackPluginFactory();
-    CircuitFallbackPlugin plugin = (CircuitFallbackPlugin) factory.decode(jsonObject);
-    Assert.assertEquals(2, plugin.fallback().size());
+            .put("request.fallback", new JsonObject()
+                    .put("device.add",
+                         new JsonObject().put("result", new JsonObject().put("foo", "bar")))
+                    .put("device.query",
+                         new JsonObject().put("statusCode", 400).put("result", new JsonArray())));
+    ApiPluginFactory factory = new FallbackPluginFactory();
+    FallbackPlugin plugin = (FallbackPlugin) factory.decode(jsonObject);
+    Assert.assertEquals(2, plugin.fallback().values().size());
+    Assert.assertEquals(200, plugin.fallback().get("device.add").statusCode());
+    Assert.assertFalse(plugin.fallback().get("device.add").isArray());
+    Assert.assertEquals(400, plugin.fallback().get("device.query").statusCode());
+    Assert.assertTrue(plugin.fallback().get("device.query").isArray());
   }
 
   @Test
   public void testEncode() {
-    CircuitFallbackPlugin plugin
-            = (CircuitFallbackPlugin)
-            ApiPlugin.create(CircuitFallbackPlugin.class.getSimpleName());
-    plugin.setFallback( new JsonObject().put("device.add", new JsonObject().put
-            ("foo", "bar"))
-                                .put("device.query", new JsonArray()));
+    FallbackPlugin plugin
+            = (FallbackPlugin)
+            ApiPlugin.create(FallbackPlugin.class.getSimpleName());
+    plugin.addFallBack("device.add", RpcResponse.create(UUID.randomUUID().toString(),
+                                                        200,
+                                                        new JsonObject().put("foo", "bar").encode(),
+                                                        0));
+    plugin.addFallBack("device.query", RpcResponse.create(UUID.randomUUID().toString(),
+                                                        400,
+                                                        new JsonArray().encode(),
+                                                        0));
 
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("circuit.fallback"));
+    Assert.assertTrue(jsonObject.containsKey("request.fallback"));
+    Assert.assertEquals(2, jsonObject.getJsonObject("request.fallback").fieldNames().size());
   }
 }
