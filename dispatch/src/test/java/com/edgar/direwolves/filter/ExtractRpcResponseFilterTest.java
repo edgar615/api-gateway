@@ -5,6 +5,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -105,8 +106,8 @@ public class ExtractRpcResponseFilterTest {
     rpcResponse = RpcResponse.createJsonArray("2", 202, new JsonArray().add(1).add(2), 0);
     apiContext.addResponse(rpcResponse);
 
-    apiContext.requests().add(HttpRpcRequest.create("1", "a"));
-    apiContext.requests().add(HttpRpcRequest.create("2", "b"));
+    apiContext.requests().add(SimpleHttpRequest.create("1", "a"));
+    apiContext.requests().add(SimpleHttpRequest.create("2", "b"));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -135,8 +136,8 @@ public class ExtractRpcResponseFilterTest {
     rpcResponse = RpcResponse.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
     apiContext.addResponse(rpcResponse);
 
-    apiContext.requests().add(HttpRpcRequest.create("1", "a"));
-    apiContext.requests().add(HttpRpcRequest.create("2", "b"));
+    apiContext.requests().add(SimpleHttpRequest.create("1", "a"));
+    apiContext.requests().add(SimpleHttpRequest.create("2", "b"));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -161,8 +162,8 @@ public class ExtractRpcResponseFilterTest {
     rpcResponse = RpcResponse.createJsonObject("2", 400, new JsonObject().put("bar", "foo"), 0);
     apiContext.addResponse(rpcResponse);
 
-    apiContext.requests().add(HttpRpcRequest.create("1", "a"));
-    apiContext.requests().add(HttpRpcRequest.create("2", "b"));
+    apiContext.requests().add(SimpleHttpRequest.create("1", "a"));
+    apiContext.requests().add(SimpleHttpRequest.create("2", "b"));
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);

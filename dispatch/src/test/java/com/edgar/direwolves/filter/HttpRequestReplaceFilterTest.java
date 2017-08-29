@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -69,8 +70,8 @@ public class HttpRequestReplaceFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device")
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device")
             .setHost("localhost")
             .setPort(8080)
             .setHttpMethod(HttpMethod.POST)
@@ -140,7 +141,7 @@ public class HttpRequestReplaceFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(8080)
@@ -212,7 +213,7 @@ public class HttpRequestReplaceFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(8080)
@@ -290,7 +291,7 @@ public class HttpRequestReplaceFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(8080)

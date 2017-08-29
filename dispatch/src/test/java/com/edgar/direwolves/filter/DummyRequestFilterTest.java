@@ -6,8 +6,10 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.DummyEndpoint;
+import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.dummy.DummyRequest;
@@ -73,11 +75,11 @@ public class DummyRequestFilterTest {
 
     apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
-    DummyEndpoint dummyEndpoint =
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", 80, "localhost");
+    Endpoint dummyEndpoint =
         DummyEndpoint.dummy("dummy", new JsonObject().put("result", 1));
-    EventbusEndpoint point =
+    Endpoint point =
         EventbusEndpoint.pointToPoint("point", "send_log", null, null);
     ApiDefinition definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint, point, dummyEndpoint));

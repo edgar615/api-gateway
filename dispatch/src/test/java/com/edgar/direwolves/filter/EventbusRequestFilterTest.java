@@ -5,8 +5,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.eventbus.EventbusRpcRequest;
@@ -72,8 +74,8 @@ public class EventbusRequestFilterTest {
 
     apiContext =
         ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", 80, "localhost");
     EventbusEndpoint reqResp =
         EventbusEndpoint.reqResp("send_log", "send_log", null, ebHeaders);
     EventbusEndpoint point =
@@ -115,8 +117,8 @@ public class EventbusRequestFilterTest {
 
     apiContext =
         ApiContext.create(HttpMethod.POST, "/devices", headers, params, new JsonObject().put("foo", "bar"));
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-        HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", 80, "localhost");
     EventbusEndpoint reqResp =
         EventbusEndpoint.reqResp("send_log", "send_log",null, ebHeaders);
     EventbusEndpoint point =

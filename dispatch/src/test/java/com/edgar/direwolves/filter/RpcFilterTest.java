@@ -7,11 +7,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.handler.DeviceHttpVerticle;
 import com.edgar.util.base.Randoms;
@@ -48,7 +51,7 @@ public class RpcFilterTest {
 
   MockConsulHttpVerticle mockConsulHttpVerticle;
 
-  int port = Integer.parseInt(Randoms.randomNumber(4));
+  private int port;
 
   private Vertx vertx;
 
@@ -58,6 +61,7 @@ public class RpcFilterTest {
 
   @Before
   public void testSetUp(TestContext testContext) {
+    port = Integer.parseInt(Randoms.randomNumber(4));
     vertx = Vertx.vertx();
     AtomicBoolean started = new AtomicBoolean();
 
@@ -98,17 +102,16 @@ public class RpcFilterTest {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device")
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device")
             .setHost("localhost")
-            .setServerId(id)
             .setPort(port)
             .setHttpMethod(HttpMethod.GET)
             .setPath("/devices")
@@ -141,14 +144,14 @@ public class RpcFilterTest {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(port)
@@ -197,14 +200,14 @@ public class RpcFilterTest {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(port)
@@ -230,14 +233,14 @@ public class RpcFilterTest {
 
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-     httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(port)
@@ -280,14 +283,14 @@ public class RpcFilterTest {
     headers.put("h1", "h1.2");
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest  httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest  httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                            "add_device")
             .setHost("localhost")
             .setPort(port)
@@ -303,6 +306,7 @@ public class RpcFilterTest {
               System.out.println(context.responses());
               check2.set(true);
             }).onFailure(t -> {
+      t.printStackTrace();
       testContext.fail();
     });
     Awaitility.await().until(() -> check2.get());
@@ -333,14 +337,14 @@ public class RpcFilterTest {
 
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    Endpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                                           "add_device")
             .setHost("localhost")
             .setPort(port)
@@ -368,13 +372,13 @@ public class RpcFilterTest {
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
     httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
     definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
-    httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                            "add_device")
             .setHost("localhost")
             .setPort(port)
