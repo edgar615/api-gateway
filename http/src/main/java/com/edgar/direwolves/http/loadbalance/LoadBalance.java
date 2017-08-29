@@ -15,8 +15,18 @@ public interface LoadBalance {
 
   void chooseServer(String service, Handler<AsyncResult<Record>> resultHandler);
 
-  static LoadBalance create(Vertx vertx, JsonObject config) {
-    ServiceFinder serviceFinder = ServiceFinder.create(vertx, config);
+  /**
+   * config的配置：
+   * "strategy": {
+   * "user": "random",
+   * "device": "round_robin"
+   * }
+   *
+   * @param serviceFinder
+   * @param config
+   * @return
+   */
+  static LoadBalance create(ServiceFinder serviceFinder, JsonObject config) {
     return new LoadBalanceImpl(serviceFinder, config);
   }
 }

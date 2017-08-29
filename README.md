@@ -86,11 +86,12 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
     `ES384`:: ECDSA using P-384 curve and SHA-384 hash algorithm
     `ES512`:: ECDSA using P-521 curve and SHA-512 hash algorithm
 
-- jwt.audience string token的客户aud
-- jwt.issuer string token的发行者iss
-- jwt.subject string token的主题sub
-- token.expires int 过期时间exp，单位秒，默认值1800
-- timestamp_check.expires int 请求的过期时间,单位秒，默认值300
+# 路由定义
+## Endpoint
+
+### SimpleHttpEndpoint
+
+### SdHttpEndpoint
 
 # API查找
 ## Filter: ApiFindFilter

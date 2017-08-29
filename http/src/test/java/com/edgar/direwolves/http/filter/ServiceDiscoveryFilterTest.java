@@ -6,14 +6,12 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.EventbusEndpoint;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.http.SdHttpEndpoint;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
+import com.edgar.direwolves.http.SdHttpRequest;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -254,14 +252,20 @@ public class ServiceDiscoveryFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE.getNumber(),
-                                       ex.getErrorCode().getNumber());
+            .andThen(context -> {
+              testContext.assertEquals(1, context.requests().size());
+              SdHttpRequest request = (SdHttpRequest) context.requests().get(0);
+              testContext.assertEquals(1, request.params().keySet().size());
+              testContext.assertEquals(1, request.headers().keySet().size());
+              testContext.assertTrue(request.headers().containsKey("x-request-id"));
+              testContext.assertNull(request.body());
+              testContext.assertNull(request.record());
+
               async.complete();
-            });
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
   }
 
   private void add2Servers() {

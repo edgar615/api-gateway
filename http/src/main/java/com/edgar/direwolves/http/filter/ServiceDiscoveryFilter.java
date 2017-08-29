@@ -1,6 +1,5 @@
 package com.edgar.direwolves.http.filter;
 
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
@@ -8,13 +7,14 @@ import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.http.SdHttpEndpoint;
 import com.edgar.direwolves.http.SdHttpRequest;
 import com.edgar.direwolves.http.loadbalance.LoadBalance;
-import com.edgar.util.exception.DefaultErrorCode;
-import com.edgar.util.exception.SystemException;
+import com.edgar.direwolves.http.loadbalance.ServiceFinder;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
+import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.ServiceDiscoveryOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 
 /**
  * HTTP类型的endpoint需要经过这个Filter进行服务发现，找到对应的服务地址，并转换为RpcRequest.
+ * <p>
+ * 如果未找到对应的服务节点，不抛出异常(RpcRequest的record属性为null)，这样后面的降级模块就可以处理这种错误的降级
  *
  * @author Edgar  Date 2016/11/18
  */
@@ -39,7 +41,10 @@ public class ServiceDiscoveryFilter implements Filter {
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.config = config.getJsonObject("service.discovery", new JsonObject());
-    loadBalance = LoadBalance.create(vertx, this.config);
+    ServiceDiscoveryOptions options = new ServiceDiscoveryOptions(this.config);
+    ServiceFinder serviceFinder = ServiceFinder.create(vertx,
+                                                       ServiceDiscovery.create(vertx, options));
+    loadBalance = LoadBalance.create(serviceFinder, this.config);
   }
 
   @Override
@@ -65,7 +70,8 @@ public class ServiceDiscoveryFilter implements Filter {
                     .filter(e -> e instanceof SdHttpEndpoint)
                     .map(e -> ((SdHttpEndpoint) e).service())
                     .distinct()
-                    .map(s -> serviceFuture(apiContext.id(), s))
+                    .map(r -> serviceFuture(apiContext.id(), r))
+                    .filter(r -> r != null)
                     .collect(Collectors.toList());
 
 
@@ -94,14 +100,16 @@ public class ServiceDiscoveryFilter implements Filter {
                 .setEvent("service.undiscovered")
                 .addData("service", service)
                 .warn();
-        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                            .set("details", "Service not found: " + service));
+//        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+//                            .set("details", "Service not found: " + service));
+        future.complete(null);
         return;
       }
       Record record = ar.result();
       if (record == null) {
-        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                            .set("details", "Service not found: " + service));
+//        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+//                            .set("details", "Service not found: " + service));
+        future.complete(null);
         return;
       }
       Log.create(LOGGER)
@@ -129,6 +137,7 @@ public class ServiceDiscoveryFilter implements Filter {
     httpRpcRequest.addHeader("x-request-id", httpRpcRequest.id());
     httpRpcRequest.setBody(apiContext.body());
     List<Record> instances = records.stream()
+            .filter(r -> r != null)
             .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
             .collect(Collectors.toList());
     if (instances.isEmpty()) {
@@ -139,8 +148,9 @@ public class ServiceDiscoveryFilter implements Filter {
               .setMessage("service:{} not found")
               .addArg(endpoint.name())
               .error();
-      throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-              .set("details", "Service not found, endpoint:" + endpoint.name());
+      return httpRpcRequest;
+//      throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+//              .set("details", "Service not found, endpoint:" + endpoint.name());
     }
     Record instance = instances.get(0);
     httpRpcRequest.setRecord(new Record(instance));

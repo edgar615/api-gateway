@@ -6,6 +6,8 @@ import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.SimpleHttpHandler;
 import com.edgar.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.edgar.direwolves.http.loadbalance.LoadBalanceStats;
+import com.edgar.util.exception.DefaultErrorCode;
+import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -35,6 +37,9 @@ public class SdHttpRpcHandler implements RpcHandler {
   @Override
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     SdHttpRequest sdRequest = (SdHttpRequest) rpcRequest;
+    if (sdRequest.record() == null) {
+      return Future.failedFuture(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE));
+    }
     SimpleHttpRequest httpRequest
             = SimpleHttpRequest.create(rpcRequest.id(), rpcRequest.name());
     httpRequest.setHttpMethod(sdRequest.method());

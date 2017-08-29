@@ -124,9 +124,6 @@ public class SimpleHttpHandler implements RpcHandler {
   private void exceptionHandler(Future<RpcResponse> future, HttpClientRequest request) {
     request.exceptionHandler(throwable -> {
       if (!future.isComplete()) {
-//        if (metric != null) {
-//          metric.failed(serverId);
-//        }
         future.fail(throwable);
       }
     });
