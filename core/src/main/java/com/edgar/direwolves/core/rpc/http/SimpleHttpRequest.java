@@ -61,6 +61,7 @@ public class SimpleHttpRequest extends HttpRpcRequest {
     return copyReq;
   }
 
+  @Override
   public int port() {
     return port;
   }
@@ -70,6 +71,7 @@ public class SimpleHttpRequest extends HttpRpcRequest {
     return this;
   }
 
+  @Override
   public String host() {
     return host;
   }

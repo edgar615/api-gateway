@@ -155,11 +155,6 @@ public class EventbusRpcRequest implements RpcRequest {
   }
 
   @Override
-  public void setFallback(RpcResponse fallback) {
-
-  }
-
-  @Override
   public String toString() {
     return MoreObjects.toStringHelper("EventbusRpcRequest")
             .add("id", id)

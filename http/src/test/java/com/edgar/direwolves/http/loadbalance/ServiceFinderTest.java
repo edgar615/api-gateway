@@ -19,10 +19,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Edgar  Date 2017/8/1
  */
 @RunWith(VertxUnitRunner.class)
-public class ServiceCacheTest {
+public class ServiceFinderTest {
   private Vertx vertx;
 
-  private ServiceCache serviceCache;
+  private ServiceFinder serviceFinder;
 
   private ServiceDiscovery discovery;
 
@@ -34,7 +34,7 @@ public class ServiceCacheTest {
 
   @Test
   public void testLoadAllServiceWhenCacheConstruct(TestContext testContext) {
-    serviceCache = ServiceCache.create(vertx, discovery);
+    serviceFinder = ServiceFinder.create(vertx, discovery);
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
@@ -42,7 +42,7 @@ public class ServiceCacheTest {
     Awaitility.await().until(() -> seq.get() == 4);
 
     AtomicBoolean check = new AtomicBoolean();
-    serviceCache.getRecords(r -> "test".equals(r.getName()), ar -> {
+    serviceFinder.getRecords(r -> "test".equals(r.getName()), ar -> {
       if (ar.succeeded()) {
         testContext.assertEquals(3, ar.result().size());
         check.set(true);
@@ -54,7 +54,7 @@ public class ServiceCacheTest {
 
   @Test
   public void testAddServiceAfterCacheConstruct(TestContext testContext) {
-    serviceCache = ServiceCache.create(vertx, discovery);
+    serviceFinder = ServiceFinder.create(vertx, discovery);
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
@@ -62,7 +62,7 @@ public class ServiceCacheTest {
     Awaitility.await().until(() -> seq.get() == 4);
 
     AtomicBoolean check = new AtomicBoolean();
-    serviceCache.getRecords(r -> "random".equals(r.getName()), ar -> {
+    serviceFinder.getRecords(r -> "random".equals(r.getName()), ar -> {
       if (ar.succeeded()) {
         testContext.assertEquals(1, ar.result().size());
         check.set(true);
@@ -77,7 +77,7 @@ public class ServiceCacheTest {
     Awaitility.await().until(() -> check2.get());
 
     AtomicBoolean check3 = new AtomicBoolean();
-    serviceCache.getRecords(r -> "random".equals(r.getName()), ar -> {
+    serviceFinder.getRecords(r -> "random".equals(r.getName()), ar -> {
       if (ar.succeeded()) {
         testContext.assertEquals(2, ar.result().size());
         check3.set(true);

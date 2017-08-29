@@ -67,6 +67,10 @@ public abstract class HttpRpcRequest implements RpcRequest, CircuitBreakerExecut
     this.name = name;
   }
 
+  public abstract int port();
+
+  public abstract String host();
+
   @Override
   public String id() {
     return id;

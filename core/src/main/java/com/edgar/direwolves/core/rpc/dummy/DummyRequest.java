@@ -79,11 +79,6 @@ public class DummyRequest implements RpcRequest {
   }
 
   @Override
-  public void setFallback(RpcResponse fallback) {
-
-  }
-
-  @Override
   public String toString() {
     return MoreObjects.toStringHelper("DummyRequest")
         .add("id", id)

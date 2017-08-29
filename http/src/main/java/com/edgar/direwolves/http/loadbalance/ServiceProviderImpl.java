@@ -19,7 +19,7 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private final List<ServiceFilter> filters = new ArrayList<>();
 
-  private final ServiceCache cache;
+  private final ServiceFinder cache;
 
   private final String service;
 
@@ -28,7 +28,7 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private ChooseStrategy strategy = ChooseStrategy.roundRobin();
 
-  ServiceProviderImpl(ServiceCache cache, String service) {
+  ServiceProviderImpl(ServiceFinder cache, String service) {
     this.cache = cache;
     this.service = service;
     filters.add(circuitBreakerFilter);

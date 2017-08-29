@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 class ApiFinderImpl implements ApiFinder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiFinderImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiFinder.class);
 
   private final List<ApiDefinition> definitions = new CopyOnWriteArrayList<>();
 
@@ -31,9 +31,14 @@ class ApiFinderImpl implements ApiFinder {
   ApiFinderImpl(Vertx vertx, ApiDiscoveryOptions options) {
     this.discovery = ApiDiscovery.create(vertx, options);
     reload("*", ar -> {
-      Log.create(LOGGER)
-              .setEvent("cache.load.failure")
-              .setThrowable(ar.cause());
+      if (ar.succeeded()) {
+        Log.create(LOGGER)
+                .setEvent("cache.load.succeed");
+      } else {
+        Log.create(LOGGER)
+                .setEvent("cache.load.failure")
+                .setThrowable(ar.cause());
+      }
     });
 
     String publishedAddress = options.getName() + "." + options.getPublishedAddress();

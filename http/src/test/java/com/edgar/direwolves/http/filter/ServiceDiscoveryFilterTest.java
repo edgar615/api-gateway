@@ -11,6 +11,7 @@ import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.direwolves.http.SdHttpEndpoint;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -79,8 +80,8 @@ public class ServiceDiscoveryFilterTest {
 
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SdHttpEndpoint httpEndpoint =
+            SdHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
     EventbusEndpoint eventbusEndpoint =
             EventbusEndpoint.reqResp("send_log", "send_log", null, null);
@@ -137,11 +138,11 @@ public class ServiceDiscoveryFilterTest {
   @Test
   public void twoEndpointShouldReturnTwoRequest(TestContext testContext) {
     add2Servers();
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SdHttpEndpoint httpEndpoint =
+            SdHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
 
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint2 =
-            HttpEndpoint.http("get_user", HttpMethod.GET, "users/", "user");
+    SdHttpEndpoint httpEndpoint2 =
+            SdHttpEndpoint.http("get_user", HttpMethod.GET, "users/", "user");
 
     ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",
                                                     Lists.newArrayList(httpEndpoint,
@@ -242,8 +243,8 @@ public class ServiceDiscoveryFilterTest {
   @Test
   public void testNoService(TestContext testContext) {
     add2Servers();
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "sms");
+    SdHttpEndpoint httpEndpoint =
+            SdHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "sms");
 
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

@@ -3,7 +3,9 @@ package com.edgar.direwolves.core.rpc.http;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.LogType;
@@ -12,6 +14,7 @@ import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
@@ -29,19 +32,19 @@ import java.util.List;
  *
  * @author Edgar  Date 2016/12/30
  */
-public class SimpleHttpHandler  {
+public class SimpleHttpHandler implements RpcHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleHttpHandler.class);
 
   private final HttpClient httpClient;
 
-
-  protected SimpleHttpHandler(Vertx vertx, JsonObject config) {
+  public SimpleHttpHandler(Vertx vertx, JsonObject config) {
     this.httpClient = vertx.createHttpClient();
   }
 
   //  @Override
-  public Future<RpcResponse> handle(SimpleHttpRequest request) {
+  public Future<RpcResponse> handle(RpcRequest rpcRequest) {
+    SimpleHttpRequest request = (SimpleHttpRequest) rpcRequest;
     if (checkMethod(request)) {
       return Future.failedFuture(
               SystemException.create(DefaultErrorCode.INVALID_ARGS)
@@ -55,19 +58,7 @@ public class SimpleHttpHandler  {
       );
     }
 
-    Log.create(LOGGER)
-            .setTraceId(request.id())
-            .setLogType(LogType.CS)
-            .setEvent("HTTP")
-            .addData("server", request.host() + ":" + request.port())
-            .setMessage("[{}] [{}] [{}] [{}]")
-            .addArg(request.method().name() + " " + request.path())
-            .addArg(MultimapUtils.convertToString(request.headers(), "no header"))
-            .addArg(MultimapUtils.convertToString(request.params(), "no param"))
-            .addArg(request.body() == null ? "no body" : request.body().encode())
-            .info();
-
-
+    logClientSend(request);
     Future<RpcResponse> future = Future.future();
     String path = requestPath(request);
     final Duration duration = new Duration();
@@ -84,40 +75,11 @@ public class SimpleHttpHandler  {
                                    response.statusCode(),
                                    body,
                                    duration.duration());
-        Log.create(LOGGER)
-                .setTraceId(request.id())
-                .setLogType(LogType.CR)
-                .setEvent("HTTP")
-                .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-                                                                  duration.getCreatedon())
-                .addData("et", duration.getEndedOn() == 0 ? 0 :
-                        duration.getEndedOn() - duration.getCreatedon())
-                .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-                        duration.getRepliedOn() - duration.getCreatedon())
-                .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-                        duration.getBodyHandledOn() - duration.getCreatedon())
-                .setMessage(" [{}] [{}ms] [{} bytes]")
-                .addArg(rpcResponse.statusCode())
-                .addArg(rpcResponse.elapsedTime())
-                .addArg(body.getBytes().length)
-                .info();
+        logClientReceived(rpcResponse, body, duration);
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
         if (!future.isComplete()) {
-          Log.create(LOGGER)
-                  .setTraceId(request.id())
-                  .setLogType(LogType.CR)
-                  .setEvent("HTTP")
-                  .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-                                                                    duration.getCreatedon())
-                  .addData("et", duration.getEndedOn() == 0 ? 0 :
-                          duration.getEndedOn() - duration.getCreatedon())
-                  .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-                          duration.getRepliedOn() - duration.getCreatedon())
-                  .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-                          duration.getBodyHandledOn() - duration.getCreatedon())
-                  .setThrowable(throwable)
-                  .error();
+          logRequestError(rpcRequest, duration, throwable);
           future.fail(throwable);
         }
       });
@@ -134,7 +96,12 @@ public class SimpleHttpHandler  {
     return future;
   }
 
-  public String urlEncode(String path) {
+  @Override
+  public String type() {
+    return SimpleHttpEndpoint.TYPE;
+  }
+
+  private String urlEncode(String path) {
     try {
       return URLEncoder.encode(path, "UTF-8");
     } catch (UnsupportedEncodingException e) {
@@ -213,6 +180,57 @@ public class SimpleHttpHandler  {
       }
     }
     return path;
+  }
+
+  private void logRequestError(RpcRequest rpcRequest, Duration duration, Throwable throwable) {
+    Log.create(LOGGER)
+            .setTraceId(rpcRequest.id())
+            .setLogType(LogType.CR)
+            .setEvent("HTTP")
+            .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+                                                              duration.getCreatedon())
+            .addData("et", duration.getEndedOn() == 0 ? 0 :
+                    duration.getEndedOn() - duration.getCreatedon())
+            .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+                    duration.getRepliedOn() - duration.getCreatedon())
+            .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
+                    duration.getBodyHandledOn() - duration.getCreatedon())
+            .setThrowable(throwable)
+            .error();
+  }
+
+  private void logClientReceived(RpcResponse rpcResponse, Buffer body, Duration duration) {
+    Log.create(LOGGER)
+            .setTraceId(rpcResponse.id())
+            .setLogType(LogType.CR)
+            .setEvent("HTTP")
+            .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+                                                              duration.getCreatedon())
+            .addData("et", duration.getEndedOn() == 0 ? 0 :
+                    duration.getEndedOn() - duration.getCreatedon())
+            .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+                    duration.getRepliedOn() - duration.getCreatedon())
+            .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
+                    duration.getBodyHandledOn() - duration.getCreatedon())
+            .setMessage(" [{}] [{}ms] [{} bytes]")
+            .addArg(rpcResponse.statusCode())
+            .addArg(rpcResponse.elapsedTime())
+            .addArg(body.getBytes().length)
+            .info();
+  }
+
+  private void logClientSend(HttpRpcRequest httpRpcRequest) {
+    Log.create(LOGGER)
+            .setTraceId(httpRpcRequest.id())
+            .setLogType(LogType.CS)
+            .setEvent(type().toUpperCase())
+            .addData("server", httpRpcRequest.host() + ":" + httpRpcRequest.port())
+            .setMessage("[{}] [{}] [{}] [{}]")
+            .addArg(httpRpcRequest.method().name() + " " + httpRpcRequest.path())
+            .addArg(MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
+            .addArg(MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
+            .addArg(httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
+            .info();
   }
 
   /**

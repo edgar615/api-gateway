@@ -23,6 +23,16 @@ public class SdHttpRequest extends HttpRpcRequest {
     super(id, name);
   }
 
+  @Override
+  public int port() {
+    return record.getLocation().getInteger("port");
+  }
+
+  @Override
+  public String host() {
+    return record.getLocation().getString("host");
+  }
+
   /**
    * 创建HTTP类型的RPC请求
    *

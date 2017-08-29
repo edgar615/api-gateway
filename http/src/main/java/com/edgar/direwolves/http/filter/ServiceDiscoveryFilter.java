@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
  *
  * @author Edgar  Date 2016/11/18
  */
-@Deprecated
 public class ServiceDiscoveryFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
@@ -63,7 +62,7 @@ public class ServiceDiscoveryFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     List<Future<Record>> futures =
             apiContext.apiDefinition().endpoints().stream()
-                    .filter(e -> e instanceof HttpEndpoint)
+                    .filter(e -> e instanceof SdHttpEndpoint)
                     .map(e -> ((SdHttpEndpoint) e).service())
                     .distinct()
                     .map(s -> serviceFuture(apiContext.id(), s))
@@ -73,7 +72,7 @@ public class ServiceDiscoveryFilter implements Filter {
     Task.par(futures)
             .andThen(records -> {
               apiContext.apiDefinition().endpoints().stream()
-                      .filter(e -> e instanceof HttpEndpoint)
+                      .filter(e -> e instanceof SdHttpEndpoint)
                       .map(e -> (SdHttpEndpoint) e)
                       .map(e -> toRpc(apiContext, e, records))
                       .forEach(req -> apiContext.addRequest(req));

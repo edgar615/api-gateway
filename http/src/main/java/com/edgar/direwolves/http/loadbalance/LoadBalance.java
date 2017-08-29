@@ -16,7 +16,7 @@ public interface LoadBalance {
   void chooseServer(String service, Handler<AsyncResult<Record>> resultHandler);
 
   static LoadBalance create(Vertx vertx, JsonObject config) {
-    ServiceCache serviceCache = ServiceCache.create(vertx, config);
-    return new LoadBalanceImpl(serviceCache, config);
+    ServiceFinder serviceFinder = ServiceFinder.create(vertx, config);
+    return new LoadBalanceImpl(serviceFinder, config);
   }
 }

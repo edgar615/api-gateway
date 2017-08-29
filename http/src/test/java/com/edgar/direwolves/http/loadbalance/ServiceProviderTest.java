@@ -26,7 +26,7 @@ public class ServiceProviderTest {
 
   private Vertx vertx;
 
-  private ServiceCache serviceCache;
+  private ServiceFinder serviceFinder;
 
   private ServiceDiscovery discovery;
 
@@ -39,7 +39,7 @@ public class ServiceProviderTest {
     service = UUID.randomUUID().toString();
     vertx = Vertx.vertx();
     discovery = ServiceDiscovery.create(vertx);
-    serviceCache = ServiceCache.create(vertx, discovery);
+    serviceFinder = ServiceFinder.create(vertx, discovery);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -49,7 +49,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testDefault() {
-    provider = ServiceProvider.create(serviceCache, service);
+    provider = ServiceProvider.create(serviceFinder, service);
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
 
@@ -79,7 +79,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testRandom() {
-    provider = ServiceProvider.create(serviceCache, service)
+    provider = ServiceProvider.create(serviceFinder, service)
             .withStrategy(ChooseStrategy.random());
 
     AtomicInteger seq = new AtomicInteger();
@@ -110,7 +110,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testRoundRobin() {
-    provider = ServiceProvider.create(serviceCache, service)
+    provider = ServiceProvider.create(serviceFinder, service)
             .withStrategy(ChooseStrategy.roundRobin());
 
     AtomicInteger seq = new AtomicInteger();
@@ -142,7 +142,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testSticky() {
-    provider = ServiceProvider.create(serviceCache, service)
+    provider = ServiceProvider.create(serviceFinder, service)
             .withStrategy(ChooseStrategy.sticky(ChooseStrategy.random()));
 
     AtomicInteger seq = new AtomicInteger();
@@ -170,7 +170,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testWeightEquilibrium() {
-    provider = ServiceProvider.create(serviceCache, service)
+    provider = ServiceProvider.create(serviceFinder, service)
             .withStrategy(ChooseStrategy.weightRoundRobin());
 
     AtomicInteger seq = new AtomicInteger();
@@ -203,7 +203,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testWeightDisequilibrium() {
-    provider = ServiceProvider.create(serviceCache, service)
+    provider = ServiceProvider.create(serviceFinder, service)
             .withStrategy(ChooseStrategy.weightRoundRobin());
 
     AtomicInteger seq = new AtomicInteger();
@@ -243,7 +243,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testCircuitBreakerTripped() {
-    provider = ServiceProvider.create(serviceCache, service)
+    provider = ServiceProvider.create(serviceFinder, service)
             .withStrategy(ChooseStrategy.roundRobin());
 
     AtomicInteger seq = new AtomicInteger();

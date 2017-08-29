@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * 服务发现的本地缓存.
+ * 用于提高服务发现性能的本地缓存.
  *
  * @author Edgar  Date 2017/7/31
  */
-public interface ServiceCache {
+public interface ServiceFinder {
 
   void getRecord(Function<Record, Boolean> filter,
                  Handler<AsyncResult<Record>> resultHandler);
@@ -24,12 +24,15 @@ public interface ServiceCache {
   void getRecords(Function<Record, Boolean> filter,
                   Handler<AsyncResult<List<Record>>> resultHandler);
 
-  static ServiceCache create(Vertx vertx, ServiceDiscovery discovery) {
-    return new ServiceCacheImpl(vertx, discovery);
+  void reload(Handler<AsyncResult<List<Record>>> resultHandler);
+
+
+  static ServiceFinder create(Vertx vertx, ServiceDiscovery discovery) {
+    return new ServiceFinderImpl(vertx, discovery);
   }
 
-  static ServiceCache create(Vertx vertx, ServiceDiscoveryOptions options) {
-    return new ServiceCacheImpl(vertx, ServiceDiscovery.create(vertx, options));
+  static ServiceFinder create(Vertx vertx, ServiceDiscoveryOptions options) {
+    return new ServiceFinderImpl(vertx, ServiceDiscovery.create(vertx, options));
   }
 
   /**
@@ -44,9 +47,9 @@ public interface ServiceCache {
    * @param config
    * @return
    */
-  static ServiceCache create(Vertx vertx, JsonObject config) {
-    return new ServiceCacheImpl(vertx,
-                                ServiceDiscovery.create(vertx,
+  static ServiceFinder create(Vertx vertx, JsonObject config) {
+    return new ServiceFinderImpl(vertx,
+                                 ServiceDiscovery.create(vertx,
                                                         new ServiceDiscoveryOptions(config)));
   }
 }

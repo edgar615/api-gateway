@@ -20,15 +20,15 @@ class LoadBalanceImpl implements LoadBalance {
 
   private final JsonObject config;
 
-  private ServiceCache serviceCache;
+  private ServiceFinder serviceFinder;
 
   private LoadingCache<String, ServiceProvider> providerCache;
 
   private final LoadBalanceStats stats;
 
-  LoadBalanceImpl(ServiceCache serviceCache, JsonObject config) {
+  LoadBalanceImpl(ServiceFinder serviceFinder, JsonObject config) {
     this.config = config;
-    this.serviceCache = serviceCache;
+    this.serviceFinder = serviceFinder;
     this.stats = LoadBalanceStats.instance();
     this.providerCache = CacheBuilder.newBuilder()
             .build(new CacheLoader<String, ServiceProvider>() {
@@ -60,7 +60,7 @@ class LoadBalanceImpl implements LoadBalance {
     if ("weight_round_robin".equalsIgnoreCase(strategyName)) {
       strategy = ChooseStrategy.weightRoundRobin();
     }
-    return new ServiceProviderImpl(serviceCache, service)
+    return new ServiceProviderImpl(serviceFinder, service)
             .withStrategy(strategy)
             .addFilter(r -> !stats.get(r.getRegistration()).isCircuitBreakerTripped());
   }

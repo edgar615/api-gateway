@@ -11,8 +11,8 @@ import io.vertx.servicediscovery.Record;
  */
 public interface ServiceProvider {
 
-  static ServiceProvider create(ServiceCache serviceCache, String service) {
-    return new ServiceProviderImpl(serviceCache, service);
+  static ServiceProvider create(ServiceFinder serviceFinder, String service) {
+    return new ServiceProviderImpl(serviceFinder, service);
   }
 
   ServiceProvider withStrategy(ChooseStrategy strategy);
