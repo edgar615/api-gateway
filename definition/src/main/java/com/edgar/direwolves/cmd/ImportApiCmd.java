@@ -4,7 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
-import com.edgar.direwolves.core.apidiscovery.FileApiImporter;
+import com.edgar.direwolves.definition.FileApiImporter;
 import com.edgar.direwolves.core.cmd.ApiCmd;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.util.validation.Rule;

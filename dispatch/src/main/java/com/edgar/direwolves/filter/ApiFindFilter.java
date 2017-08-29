@@ -1,13 +1,11 @@
 package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
-import com.edgar.direwolves.core.apidiscovery.ApiLocalCache;
+import com.edgar.direwolves.core.apidiscovery.ApiFinder;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Log;
-import com.edgar.direwolves.metric.ApiMetrics;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -35,12 +33,12 @@ public class ApiFindFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final ApiLocalCache apiLocalCache;
+  private final ApiFinder apiFinder;
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     String namespace = config.getString("namespace", "");
-    this.apiLocalCache = ApiLocalCache.create(vertx, new ApiDiscoveryOptions().setName(namespace));
+    this.apiFinder = ApiFinder.create(vertx, new ApiDiscoveryOptions().setName(namespace));
   }
 
   @Override
@@ -60,7 +58,7 @@ public class ApiFindFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    apiLocalCache.getDefinitions(apiContext.method().name(), apiContext.path(), ar -> {
+    apiFinder.getDefinitions(apiContext.method().name(), apiContext.path(), ar -> {
       if (ar.failed()) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())

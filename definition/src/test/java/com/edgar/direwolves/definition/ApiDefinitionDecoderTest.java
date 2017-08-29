@@ -3,6 +3,7 @@ package com.edgar.direwolves.definition;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -35,7 +36,7 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals(1, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
     Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.GET, httpEndpoint.method());
@@ -72,14 +73,14 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals(2, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
     Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.GET, httpEndpoint.method());
 
     endpoint = apiDefinition.endpoints().get(1);
     Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    httpEndpoint = (HttpEndpoint) endpoint;
+    httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices", httpEndpoint.path());
     Assert.assertEquals("device.delete.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.DELETE, httpEndpoint.method());

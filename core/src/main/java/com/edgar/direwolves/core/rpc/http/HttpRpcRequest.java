@@ -1,24 +1,23 @@
 package com.edgar.direwolves.core.rpc.http;
 
-import com.edgar.direwolves.core.rpc.RpcRequest;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.rpc.CircuitBreakerExecutable;
+import com.edgar.direwolves.core.rpc.Fallbackable;
+import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 /**
- * HTTP类型的rpc请求的定义.
+ * Created by Edgar on 2017/8/25.
  *
- * @author Edgar  Date 2016/12/26
+ * @author Edgar  Date 2017/8/25
  */
-public class HttpRpcRequest implements RpcRequest {
-
+public abstract class HttpRpcRequest implements RpcRequest, CircuitBreakerExecutable, Fallbackable {
   /**
    * 请求头
    */
@@ -38,21 +37,6 @@ public class HttpRpcRequest implements RpcRequest {
    * 名称
    */
   private final String name;
-
-  /**
-   * 服务端端口
-   */
-  private int port = 80;
-
-  /**
-   * 服务端的ID
-   */
-  private String serverId = "undefined";
-
-  /**
-   * 服务端地址
-   */
-  private String host = "localhost";
 
   /**
    * 请求路径
@@ -83,16 +67,6 @@ public class HttpRpcRequest implements RpcRequest {
     this.name = name;
   }
 
-  /**
-   * 创建HTTP类型的RPC请求
-   * @param id id
-   * @param name 名称
-   * @return HttpRpcRequest
-   */
-  public static HttpRpcRequest create(String id, String name) {
-    return new HttpRpcRequest(id, name);
-  }
-
   @Override
   public String id() {
     return id;
@@ -101,57 +75,6 @@ public class HttpRpcRequest implements RpcRequest {
   @Override
   public String name() {
     return name;
-  }
-
-  @Override
-  public String type() {
-    return HttpEndpoint.TYPE;
-  }
-
-  @Override
-  public RpcRequest copy() {
-    HttpRpcRequest copyReq = HttpRpcRequest.create(id, name);
-    copyReq.setPath(path);
-    copyReq.setPort(port);
-    copyReq.setHost(host);
-    copyReq.setHttpMethod(httpMethod);
-    copyReq.setTimeout(timeout);
-    copyReq.setBody(body());
-    copyReq.addParams(ArrayListMultimap.create(params));
-    copyReq.addHeaders(ArrayListMultimap.create(headers));
-    copyReq.setServerId(serverId);
-    if (fallback != null) {
-      copyReq.setFallback(fallback.copy());
-    }
-    return copyReq;
-  }
-
-  public String serverId() {
-    return serverId;
-  }
-
-  public HttpRpcRequest setServerId(String serverId) {
-    this.serverId = serverId;
-    return this;
-  }
-
-  public int port() {
-    return port;
-  }
-
-  public HttpRpcRequest setPort(int port) {
-    this.port = port;
-    return this;
-  }
-
-  public String host() {
-    return host;
-  }
-
-  public HttpRpcRequest setHost(String host) {
-    Preconditions.checkNotNull(host);
-    this.host = host;
-    return this;
   }
 
   public String path() {
@@ -242,21 +165,4 @@ public class HttpRpcRequest implements RpcRequest {
     this.fallback = fallback;
   }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper("HttpRpcRequest")
-            .add("serverId", serverId)
-            .add("id", id)
-            .add("name", name)
-            .add("host", host)
-            .add("port", port)
-            .add("method", httpMethod)
-            .add("path", path)
-            .add("timeout", timeout)
-            .add("headers", headers)
-            .add("params", params)
-            .add("body", body == null ? null : body.encode())
-            .add("fallback", fallback)
-            .toString();
-  }
 }

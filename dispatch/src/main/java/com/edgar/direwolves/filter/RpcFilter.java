@@ -2,16 +2,18 @@ package com.edgar.direwolves.filter;
 
 import com.google.common.collect.Lists;
 
+import com.edgar.direwolves.circuitbreaker.CircuitBreakerRegistry;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.CircuitBreakerExecutable;
 import com.edgar.direwolves.core.rpc.FailureRpcHandler;
+import com.edgar.direwolves.core.rpc.Fallbackable;
 import com.edgar.direwolves.core.rpc.RpcHandler;
 import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
-import com.edgar.direwolves.loadbalance.CircuitBreakerRegistry;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -117,6 +119,21 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   }
 
   private Future<RpcResponse> execute(ApiContext apiContext, RpcRequest req) {
+    Future<RpcResponse> rpcFuture
+            = handlers
+            .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
+            .handle(req);
+
+    if (req instanceof CircuitBreakerExecutable) {
+      CircuitBreakerExecutable circuitBreakerExecutable = (CircuitBreakerExecutable) req;
+      CircuitBreaker circuitBreaker =
+              circuitBreakerRegistry.get(circuitBreakerExecutable.circuitBreakerName());
+      if (req instanceof Fallbackable) {
+
+      } else {
+        return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
+      }
+    }
     if (req instanceof HttpRpcRequest) {
       Future future = Future.future();
       circuitBreakerExecute(apiContext, (HttpRpcRequest) req)
@@ -151,34 +168,43 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
     }
   }
 
-  private Future<RpcResponse> circuitBreakerExecute(ApiContext apiContext, HttpRpcRequest req) {
-    CircuitBreaker circuitBreaker = circuitBreakerRegistry.get(req.serverId());
-    long start = System.currentTimeMillis();
+  private Future<RpcResponse> circuitBreakerExecute(ApiContext apiContext, RpcRequest req) {
+    CircuitBreakerExecutable circuitBreakerExecutable = (CircuitBreakerExecutable) req;
+    CircuitBreaker circuitBreaker =
+            circuitBreakerRegistry.get(circuitBreakerExecutable.circuitBreakerName());
     Future<RpcResponse> rpcFuture
             = handlers
             .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
             .handle(req);
-    if (req.fallback() != null) {
-      RpcResponse copyResp = req.fallback().copy();
-      return circuitBreaker.<RpcResponse>executeWithFallback(
-              f -> rpcFuture.setHandler(f.completer())
-              , throwable -> {
-                long duration = System.currentTimeMillis() - start;
-                RpcResponse response;
-                if (copyResp.isArray()) {
-                  response = RpcResponse.create(req.id(), copyResp.statusCode(),
-                                                copyResp.responseArray().encode(), duration);
-                } else {
-                  response = RpcResponse.create(req.id(), copyResp.statusCode(),
-                                                copyResp.responseObject().encode(), duration);
-                }
+    if (req instanceof Fallbackable) {
+      Fallbackable fallbackable = (Fallbackable) req;
+      if (fallbackable.fallback() == null) {
+        return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
+      } else {
+        long start = System.currentTimeMillis();
+        RpcResponse copyResp = fallbackable.fallback().copy();
+        return circuitBreaker.<RpcResponse>executeWithFallback(
+                f -> rpcFuture.setHandler(f.completer())
+                , throwable -> {
+                  long duration = System.currentTimeMillis() - start;
+                  RpcResponse response;
+                  if (copyResp.isArray()) {
+                    response = RpcResponse.create(req.id(), copyResp.statusCode(),
+                                                  copyResp.responseArray().encode(), duration);
+                  } else {
+                    response = RpcResponse.create(req.id(), copyResp.statusCode(),
+                                                  copyResp.responseObject().encode(), duration);
+                  }
 
-                return response;
-              });
+                  return response;
+                });
+      }
     } else {
       return circuitBreaker.<RpcResponse>execute(f -> rpcFuture.setHandler(f.completer()));
     }
 
+
   }
+
 
 }

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -52,8 +53,9 @@ public class ApiDiscoveryTest {
 
   @Test
   public void testRegister(TestContext testContext) {
-    HttpEndpoint httpEndpoint = HttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+            .http("get_device", HttpMethod.GET, "devices/",
+                  80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
@@ -100,8 +102,9 @@ public class ApiDiscoveryTest {
 
   @Test
   public void testUniqueName(TestContext testContext) {
-    HttpEndpoint httpEndpoint = HttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+            .http("get_device", HttpMethod.GET, "devices/",
+                  80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
@@ -144,8 +147,9 @@ public class ApiDiscoveryTest {
 
   @Test
   public void testFilterByName(TestContext testContext) {
-    HttpEndpoint httpEndpoint = HttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+            .http("get_device", HttpMethod.GET, "devices/",
+                  80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));

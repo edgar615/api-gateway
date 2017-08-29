@@ -22,9 +22,10 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
+                          .put("type", "simple-http")
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 80)
                           .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
@@ -32,8 +33,8 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.GET, httpEndpoint.method());
@@ -49,15 +50,17 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
+                          .put("type", "simple-http")
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 80)
                           .put("method", "undefined")
                           .put("path", "/devices/add"))
             .add(new JsonObject()
-                         .put("type", "http")
+                         .put("type", "simple-http")
                          .put("name", "device.delete.1.2.0")
-                         .put("service", "device")
+                         .put("host", "localhost")
+                         .put("port", 90)
                          .put("method", "delete")
                          .put("path", "/devices"));
     jsonObject.put("endpoints", endpoints);
@@ -68,15 +71,15 @@ public class ApiDefinitionDecoderTest {
 
     Assert.assertEquals(2, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.GET, httpEndpoint.method());
 
     endpoint = apiDefinition.endpoints().get(1);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices", httpEndpoint.path());
     Assert.assertEquals("device.delete.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.DELETE, httpEndpoint.method());
@@ -93,7 +96,8 @@ public class ApiDefinitionDecoderTest {
     endpoints.add(new JsonObject()
                           .put("type", UUID.randomUUID().toString())
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 90)
                           .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     try {
@@ -111,10 +115,11 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
+                          .put("type", "simple-http")
                           .put("method", "put")
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 80)
                           .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
@@ -122,8 +127,8 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.PUT, httpEndpoint.method());
@@ -138,10 +143,11 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
+                          .put("type", "simple-http")
                           .put("method", "get")
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 80)
                           .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
@@ -149,8 +155,8 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.GET, httpEndpoint.method());
@@ -165,10 +171,11 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
+                          .put("type", "simple-http")
                           .put("method", "delete")
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 80)
                           .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
@@ -176,8 +183,8 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.DELETE, httpEndpoint.method());
@@ -192,10 +199,11 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "http")
+                          .put("type", "simple-http")
                           .put("method", "post")
                           .put("name", "device.add.1.2.0")
-                          .put("service", "device")
+                          .put("host", "localhost")
+                          .put("port", 80)
                           .put("path", "/devices/add"));
     jsonObject.put("endpoints", endpoints);
     ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonObject);
@@ -203,8 +211,8 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals("/devices", apiDefinition.path());
     Assert.assertEquals(1, apiDefinition.endpoints().size());
     Endpoint endpoint = apiDefinition.endpoints().get(0);
-    Assert.assertTrue(endpoint instanceof HttpEndpoint);
-    HttpEndpoint httpEndpoint = (HttpEndpoint) endpoint;
+    Assert.assertTrue(endpoint instanceof SimpleHttpEndpoint);
+    SimpleHttpEndpoint httpEndpoint = (SimpleHttpEndpoint) endpoint;
     Assert.assertEquals("/devices/add", httpEndpoint.path());
     Assert.assertEquals("device.add.1.2.0", httpEndpoint.name());
     Assert.assertEquals(HttpMethod.POST, httpEndpoint.method());

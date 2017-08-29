@@ -3,27 +3,11 @@ package com.edgar.direwolves.core.definition;
 import io.vertx.core.http.HttpMethod;
 
 /**
- * Created by Edgar on 2016/9/14.
- * 按照remove --> replace --> add的顺序执行
+ * Created by Edgar on 2017/8/25.
  *
- * @author Edgar  Date 2016/9/14
+ * @author Edgar  Date 2017/8/25
  */
-public interface HttpEndpoint extends Endpoint {
-  String TYPE = "http";
-
-  /**
-   * 创建HTTP类型的Endpoint
-   *
-   * @param name    名称
-   * @param method  请求方法 GET | POST | DELETE | PUT
-   * @param path    API路径
-   * @param service 服务名，用于服务发现
-   * @return HttpEndpoint
-   */
-  static HttpEndpoint http(String name, HttpMethod method, String path, String service) {
-    return new HttpEndpointImpl(name, method, path, service);
-  }
-
+public interface HttpEndpoint {
   /**
    * @return 请求方法 GET | POST | DELETE | PUT.
    */
@@ -37,13 +21,4 @@ public interface HttpEndpoint extends Endpoint {
    * @return API路径
    */
   String path();
-
-  /**
-   * @return 服务名，用于服务发现.
-   */
-  String service();
-
-  default String type() {
-    return TYPE;
-  }
 }

@@ -44,16 +44,23 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-discovery</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-circuit-breaker</artifactId>
+            <artifactId>vertx-service-discovery-bridge-consul</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>util</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>direwolves-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
 
     </dependencies>
 </project>

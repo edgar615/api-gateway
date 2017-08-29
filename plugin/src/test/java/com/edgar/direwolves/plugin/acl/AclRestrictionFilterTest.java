@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
@@ -52,8 +53,9 @@ public class AclRestrictionFilterTest {
 
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                    80, "localhost");
 
     groupKey = UUID.randomUUID().toString();
     ApiDefinition definition = ApiDefinition

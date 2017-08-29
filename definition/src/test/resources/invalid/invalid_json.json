@@ -1,5 +1,0 @@
-{
-  "name" : "update_device",
-  "method": "POST",
-  "path": "/devices"
-}

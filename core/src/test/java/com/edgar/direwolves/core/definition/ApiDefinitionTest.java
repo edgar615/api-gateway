@@ -19,8 +19,9 @@ public class ApiDefinitionTest {
   @Test
   public void testCreate() {
 
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -42,13 +43,15 @@ public class ApiDefinitionTest {
 
   @Test
   public void testEndpointsShouldImmutable() {
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
     httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     try {
       apiDefinition.endpoints().add(httpEndpoint);
       Assert.fail();
@@ -61,8 +64,9 @@ public class ApiDefinitionTest {
 
   @Test
   public void testAddPlugin() {
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
@@ -80,8 +84,9 @@ public class ApiDefinitionTest {
 
   @Test
   public void testRemovePlugin() {
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
 
@@ -98,8 +103,9 @@ public class ApiDefinitionTest {
   @Test
   public void testMatchName() {
 
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -117,8 +123,9 @@ public class ApiDefinitionTest {
   @Test
   public void testMatchMethod() {
 
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -135,8 +142,9 @@ public class ApiDefinitionTest {
   @Test
   public void testMatchPath() {
 
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
@@ -147,8 +155,9 @@ public class ApiDefinitionTest {
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
 
-    httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
-                                     "device");
+    httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
 
@@ -157,8 +166,9 @@ public class ApiDefinitionTest {
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
     Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
 
-    httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
-                                     "device");
+    httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\w+]+)",
                                          Lists.newArrayList(httpEndpoint));
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
@@ -171,8 +181,9 @@ public class ApiDefinitionTest {
   public void testMatchAll() {
 
 
-    HttpEndpoint httpEndpoint = HttpEndpoint.http("get_device", HttpMethod.GET, "devices",
-                                                  "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
     ApiDefinition apiDefinition =
             ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)",
                                  Lists.newArrayList(httpEndpoint));
@@ -195,8 +206,9 @@ public class ApiDefinitionTest {
   @Test
   public void testMatchUndefined() {
 
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                    80, "localhost");
 
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

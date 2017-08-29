@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
@@ -454,8 +455,9 @@ public class RateLimiterFilterTest {
     headers.put("h3", "v3.2");
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                    80, "localhost");
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

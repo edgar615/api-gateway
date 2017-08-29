@@ -1,6 +1,5 @@
 com.edgar.direwolves.filter.ApiFindFilterFactory
 com.edgar.direwolves.filter.PathParamFilterFactory
-com.edgar.direwolves.filter.ServiceDiscoveryFilterFactory
 com.edgar.direwolves.filter.HttpRequestReplaceFilterFactory
 com.edgar.direwolves.filter.TimeoutFilterFactory
 com.edgar.direwolves.filter.ExtractResultFilterFactory

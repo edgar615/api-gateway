@@ -1,6 +1,6 @@
 package com.edgar.dirwolves.benchmark.servicediscovery;
 
-import com.edgar.direwolves.loadbalance.ServiceCache;
+import com.edgar.direwolves.http.loadbalance.ServiceCache;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

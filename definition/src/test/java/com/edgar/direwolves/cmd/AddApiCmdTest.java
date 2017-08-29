@@ -1,6 +1,5 @@
 package com.edgar.direwolves.cmd;
 
-import com.edgar.direwolves.core.apidiscovery.ApiLocalCache;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.vertx.eventbus.Event;

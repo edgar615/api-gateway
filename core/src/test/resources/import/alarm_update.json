@@ -4,9 +4,10 @@
   "path": "/alarm/(\\d+)",
   "endpoints": [
     {
-      "type" : "http",
+      "type" : "simple-http",
+      "host": "locahost",
+      "port": 80,
       "name" : "update_device",
-      "service": "device",
       "method": "alarm",
       "path": "/alarm/$var.param0"
     }

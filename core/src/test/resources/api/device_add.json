@@ -4,9 +4,10 @@
   "path": "/devices",
   "endpoints": [
     {
-      "type" : "http",
+      "type" : "simple-http",
+      "host": "locahost",
+      "port": 80,
       "name" : "add_device",
-      "service": "device",
       "method": "POST",
       "path": "/devices"
     }

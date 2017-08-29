@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
@@ -211,8 +212,8 @@ public class BackendVertifyFilterTest {
             .put("sign", sign);
     ApiContext apiContext =
             ApiContext.create(HttpMethod.POST, "/devices", headers, params, body);
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", 80, "localhost");
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

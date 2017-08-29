@@ -1,6 +1,6 @@
 package com.edgar.direwolves.core.rpc;
 
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.edgar.util.base.Randoms;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -18,7 +18,7 @@ public class HttpRpcRequestTest {
 
   @Test
   public void testCopy() {
-    HttpRpcRequest request = HttpRpcRequest.create(UUID.randomUUID().toString(), UUID.randomUUID
+    SimpleHttpRequest request = SimpleHttpRequest.create(UUID.randomUUID().toString(), UUID.randomUUID
             ().toString());
     request.setPath(UUID.randomUUID().toString());
     request.setHttpMethod(HttpMethod.POST);
@@ -29,7 +29,7 @@ public class HttpRpcRequestTest {
     request.addParam("param0", UUID.randomUUID().toString());
     request.addHeader("header0", UUID.randomUUID().toString());
 
-    HttpRpcRequest copyReq = (HttpRpcRequest) request.copy();
+    SimpleHttpRequest copyReq = (SimpleHttpRequest) request.copy();
     Assert.assertEquals(request.path(), copyReq.path());
     Assert.assertEquals(request.method(), copyReq.method());
     Assert.assertEquals(request.timeout(), copyReq.timeout());
@@ -37,7 +37,7 @@ public class HttpRpcRequestTest {
     Assert.assertEquals(request.host(), copyReq.host());
     Assert.assertEquals(request.id(), copyReq.id());
     Assert.assertEquals(request.name(), copyReq.name());
-    Assert.assertEquals("http", copyReq.type());
+    Assert.assertEquals("simple-http", copyReq.type());
     Assert.assertEquals(request.body().getString("userId"), copyReq.body().getString("userId"));
     Assert.assertEquals(request.params().get("param0"), copyReq.params().get("param0"));
     Assert.assertEquals(request.headers().get("header0"), copyReq.headers().get("header0"));

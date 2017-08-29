@@ -6,6 +6,7 @@ import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.vertx.eventbus.Event;
@@ -47,8 +48,9 @@ public class ApiDefinitionVerticleTest {
     vertx.deployVerticle(ApiDefinitionVerticle.class.getName(), testContext.asyncAssertSuccess());
 
     discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-    HttpEndpoint httpEndpoint = HttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+            .http("get_device", HttpMethod.GET, "devices/",
+                  80, "localhost");
     ApiDefinition apiDefinition = ApiDefinition
             .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
     AtomicBoolean check1 = new AtomicBoolean();

@@ -42,11 +42,6 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-service-discovery-bridge-consul</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>
@@ -68,7 +63,7 @@
         </dependency>
         <dependency>
             <groupId>com.edgar</groupId>
-            <artifactId>direwolves-http</artifactId>
+            <artifactId>direwolves-circuit-breaker</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.util.validation.ValidationException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -22,9 +23,9 @@ public class DeleteWhiteistCmdTest {
 
   @Before
   public void setUp() {
-    HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
-
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                    80, "localhost");
     definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
   }

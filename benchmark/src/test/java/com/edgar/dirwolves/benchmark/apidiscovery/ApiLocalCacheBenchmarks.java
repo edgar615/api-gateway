@@ -2,7 +2,7 @@ package com.edgar.dirwolves.benchmark.apidiscovery;
 
 import com.edgar.direwolves.core.apidiscovery.ApiDiscovery;
 import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
-import com.edgar.direwolves.core.apidiscovery.ApiLocalCache;
+import com.edgar.direwolves.core.apidiscovery.ApiFinder;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.verticle.ImportApi;
 import io.vertx.core.AsyncResult;
@@ -30,7 +30,7 @@ public class ApiLocalCacheBenchmarks {
 
     private ApiDiscovery apiDiscovery;
 
-    private ApiLocalCache apiLocalCache;
+    private ApiFinder apiFinder;
     public ApiBackend() {
       vertx = Vertx.vertx();
       apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
@@ -47,7 +47,7 @@ public class ApiLocalCacheBenchmarks {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      apiLocalCache = ApiLocalCache.create(vertx, new ApiDiscoveryOptions().setName("app"));
+      apiFinder = ApiFinder.create(vertx, new ApiDiscoveryOptions().setName("app"));
       try {
         TimeUnit.SECONDS.sleep(2);
       } catch (InterruptedException e) {
@@ -58,7 +58,7 @@ public class ApiLocalCacheBenchmarks {
     public void getDefinitions(String method, String path,
                                Handler<AsyncResult<List<ApiDefinition>>>
             handler) {
-      apiLocalCache.getDefinitions(method, path, handler);
+      apiFinder.getDefinitions(method, path, handler);
     }
 
     public void close() {

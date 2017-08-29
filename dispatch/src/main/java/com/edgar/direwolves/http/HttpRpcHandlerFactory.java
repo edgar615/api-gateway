@@ -18,6 +18,6 @@ public class HttpRpcHandlerFactory implements RpcHandlerFactory {
 
   @Override
   public RpcHandler create(Vertx vertx, JsonObject config, RpcMetric metric) {
-    return new HttpRpcHandler(vertx, config, metric);
+    return new HttpRpcHandler(vertx, config);
   }
 }

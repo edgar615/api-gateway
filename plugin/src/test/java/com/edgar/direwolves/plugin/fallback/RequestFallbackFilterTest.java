@@ -6,10 +6,12 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
+import com.edgar.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -78,8 +80,9 @@ public class RequestFallbackFilterTest {
     headers.put("h3", "v3");
     apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, new JsonObject());
-    com.edgar.direwolves.core.definition.HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("add_device", HttpMethod.GET, "devices/", "device");
+    SimpleHttpEndpoint httpEndpoint =
+            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                    80, "localhost");
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
 
@@ -93,8 +96,8 @@ public class RequestFallbackFilterTest {
 
     apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device");
+    SimpleHttpRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device");
     httpRpcRequest.setHost("localhost")
             .setPort(8080)
             .setHttpMethod(HttpMethod.GET)
@@ -105,7 +108,7 @@ public class RequestFallbackFilterTest {
             .addHeader("h6", "h6");
     apiContext.addRequest(httpRpcRequest);
 
-    httpRpcRequest = HttpRpcRequest.create(UUID.randomUUID().toString(),
+    httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
                                            "update_device");
     httpRpcRequest.setHost("localhost")
             .setPort(8080)

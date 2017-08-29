@@ -23,6 +23,7 @@
         <module>service-discovery-bridge-zookeeper</module>
         <module>benchmark</module>
         <module>http</module>
+        <module>circuit-breaker</module>
     </modules>
 
     <properties>

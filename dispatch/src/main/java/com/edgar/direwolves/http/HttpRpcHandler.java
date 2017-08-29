@@ -2,14 +2,13 @@ package com.edgar.direwolves.http;
 
 import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.rpc.RpcHandler;
-import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.LogType;
 import com.edgar.direwolves.core.utils.MultimapUtils;
-import com.edgar.direwolves.loadbalance.LoadBalanceStats;
+import com.edgar.direwolves.http.loadbalance.LoadBalanceStats;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.google.common.base.Joiner;
@@ -40,10 +39,7 @@ public class HttpRpcHandler implements RpcHandler {
 
   private final HttpClient httpClient;
 
-  private final RpcMetric metric;
-
-  protected HttpRpcHandler(Vertx vertx, JsonObject config, RpcMetric metric) {
-    this.metric = metric;
+  protected HttpRpcHandler(Vertx vertx, JsonObject config) {
     this.httpClient = vertx.createHttpClient();
   }
 
@@ -68,9 +64,7 @@ public class HttpRpcHandler implements RpcHandler {
       );
     }
 
-    if (metric != null) {
-      metric.request(httpRpcRequest.serverId());
-    }
+    //检查对应的服务节点是否存在
 
     logClientSend(httpRpcRequest);
     Future<RpcResponse> future = Future.future();
@@ -81,11 +75,7 @@ public class HttpRpcHandler implements RpcHandler {
             .request(httpRpcRequest.method(), httpRpcRequest.port(), httpRpcRequest.host(),
                 path)
             .putHeader("content-type", "application/json");
-    LoadBalanceStats.instance().get(httpRpcRequest.serverId())
-        .incActiveRequests();
     request.handler(response -> {
-      LoadBalanceStats.instance().get(httpRpcRequest.serverId())
-          .decActiveRequests();
       duration.setRepliedOn(System.currentTimeMillis());
       response.bodyHandler(body -> {
         duration.setBodyHandledOn(System.currentTimeMillis());
@@ -95,14 +85,8 @@ public class HttpRpcHandler implements RpcHandler {
                 body,
                 duration.duration());
         logClientReceived(rpcResponse, body, duration);
-        if (metric != null) {
-          metric.response(httpRpcRequest.serverId(), rpcResponse.statusCode(),
-              rpcResponse.elapsedTime());
-        }
         future.complete(rpcResponse);
       }).exceptionHandler(throwable -> {
-        LoadBalanceStats.instance().get(httpRpcRequest.serverId())
-            .decActiveRequests();
         if (!future.isComplete()) {
           logRequestError(rpcRequest, duration, throwable);
           future.fail(throwable);
@@ -114,7 +98,7 @@ public class HttpRpcHandler implements RpcHandler {
       duration.setEndedOn(System.currentTimeMillis());
     });
     header(httpRpcRequest, request);
-    exceptionHandler(future, request, httpRpcRequest.serverId());
+    exceptionHandler(future, request);
     timeout(httpRpcRequest, request);
 
     endRequest(httpRpcRequest, request);
@@ -192,13 +176,9 @@ public class HttpRpcHandler implements RpcHandler {
     });
   }
 
-  private void exceptionHandler(Future<RpcResponse> future, HttpClientRequest request,
-                                String serverId) {
+  private void exceptionHandler(Future<RpcResponse> future, HttpClientRequest request) {
     request.exceptionHandler(throwable -> {
       if (!future.isComplete()) {
-        if (metric != null) {
-          metric.failed(serverId);
-        }
         future.fail(throwable);
       }
     });
