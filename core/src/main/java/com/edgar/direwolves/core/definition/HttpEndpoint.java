@@ -7,7 +7,7 @@ import io.vertx.core.http.HttpMethod;
  *
  * @author Edgar  Date 2017/8/25
  */
-public interface HttpEndpoint {
+public interface HttpEndpoint extends Endpoint {
   /**
    * @return 请求方法 GET | POST | DELETE | PUT.
    */

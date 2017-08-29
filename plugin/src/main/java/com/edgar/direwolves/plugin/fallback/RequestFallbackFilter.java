@@ -2,6 +2,7 @@ package com.edgar.direwolves.plugin.fallback;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
+import com.edgar.direwolves.core.rpc.Fallbackable;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import io.vertx.core.Future;
@@ -32,8 +33,10 @@ public class RequestFallbackFilter implements Filter {
     FallbackPlugin plugin = (FallbackPlugin) apiContext.apiDefinition()
             .plugin(FallbackPlugin.class.getSimpleName());
     for (RpcRequest request : apiContext.requests()) {
-      if (plugin.fallback().containsKey(request.name())) {
-        request.setFallback(plugin.fallback().get(request.name()).copy());
+      if (plugin.fallback().containsKey(request.name())
+              && request instanceof Fallbackable) {
+        Fallbackable fallbackable = (Fallbackable) request;
+        fallbackable.setFallback(plugin.fallback().get(request.name()).copy());
       }
     }
     completeFuture.complete(apiContext);

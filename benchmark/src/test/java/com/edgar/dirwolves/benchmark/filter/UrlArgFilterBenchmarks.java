@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
@@ -120,7 +121,8 @@ public class UrlArgFilterBenchmarks {
 //              .put("barcode", "LH10312ACCF23C4F3A5");
       apiContext = ApiContext.create(HttpMethod.POST, "/devices", params, null, null);
 
-      HttpEndpoint httpEndpoint = HttpEndpoint.http("device.add", HttpMethod.POST, "/devices", "device");
+      HttpEndpoint httpEndpoint = SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
+                                                          "/devices", 80, "localhost");
       ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
                                                          Lists.newArrayList(httpEndpoint));
       UrlArgPlugin plugin = (UrlArgPlugin) new BodyArgPluginFactory().create();

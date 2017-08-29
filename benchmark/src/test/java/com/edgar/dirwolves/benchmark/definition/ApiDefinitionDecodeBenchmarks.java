@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.plugin.acl.AclRestrictionFactory;
 import com.edgar.direwolves.plugin.acl.AclRestrictionPlugin;
 import com.edgar.direwolves.plugin.appkey.AppKeyPlugin;
@@ -36,7 +37,8 @@ public class ApiDefinitionDecodeBenchmarks {
   public void setup() {
 
     HttpEndpoint httpEndpoint =
-            HttpEndpoint.http("device.add", HttpMethod.POST, "/devices", "device");
+            SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
+                                    "/devices", 80, "localhost");
     ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
                                          Lists.newArrayList(httpEndpoint));
     BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().create();

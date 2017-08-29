@@ -9,7 +9,7 @@ import io.vertx.core.http.HttpMethod;
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface SimpleHttpEndpoint extends Endpoint, HttpEndpoint {
+public interface SimpleHttpEndpoint extends HttpEndpoint {
   String TYPE = "simple-http";
 
   /**

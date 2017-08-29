@@ -1,6 +1,6 @@
 package com.edgar.direwolves.http;
 
-import com.edgar.direwolves.core.definition.Endpoint;
+import com.edgar.direwolves.core.definition.HttpEndpoint;
 import io.vertx.core.http.HttpMethod;
 
 /**
@@ -9,7 +9,7 @@ import io.vertx.core.http.HttpMethod;
  *
  * @author Edgar  Date 2016/9/14
  */
-public interface SdHttpEndpoint extends Endpoint {
+public interface SdHttpEndpoint extends HttpEndpoint {
   String TYPE = "http";
 
   /**

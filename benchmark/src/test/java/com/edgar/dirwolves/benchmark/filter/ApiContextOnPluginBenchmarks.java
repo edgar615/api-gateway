@@ -5,7 +5,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
+import com.edgar.direwolves.core.definition.Endpoint;
 import com.edgar.direwolves.core.definition.HttpEndpoint;
+import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.plugin.acl.AclRestrictionFactory;
 import com.edgar.direwolves.plugin.acl.AclRestrictionPlugin;
@@ -47,7 +49,8 @@ public class ApiContextOnPluginBenchmarks {
 //              .put("barcode", "LH10312ACCF23C4F3A5");
     apiContext = ApiContext.create(HttpMethod.POST, "/devices", params, null, null);
 
-    HttpEndpoint httpEndpoint = HttpEndpoint.http("device.add", HttpMethod.POST, "/devices", "device");
+    Endpoint httpEndpoint = SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
+                                                    "/devices", 80, "loclahost");
     ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
                                                        Lists.newArrayList(httpEndpoint));
     BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().create();
