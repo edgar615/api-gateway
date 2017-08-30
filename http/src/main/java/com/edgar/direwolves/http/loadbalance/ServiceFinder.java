@@ -31,9 +31,9 @@ public interface ServiceFinder {
     return new ServiceFinderImpl(vertx, discovery);
   }
 
-  static ServiceFinder create(Vertx vertx, ServiceDiscoveryOptions options) {
-    return new ServiceFinderImpl(vertx, ServiceDiscovery.create(vertx, options));
-  }
+//  static ServiceFinder create(Vertx vertx, ServiceDiscoveryOptions options) {
+//    return new ServiceFinderImpl(vertx, ServiceDiscovery.create(vertx, options));
+//  }
 
   /**
    * config包括下列属性：
@@ -47,9 +47,9 @@ public interface ServiceFinder {
    * @param config
    * @return
    */
-  static ServiceFinder create(Vertx vertx, JsonObject config) {
-    return new ServiceFinderImpl(vertx,
-                                 ServiceDiscovery.create(vertx,
-                                                        new ServiceDiscoveryOptions(config)));
-  }
+//  static ServiceFinder create(Vertx vertx, JsonObject config) {
+//    return new ServiceFinderImpl(vertx,
+//                                 ServiceDiscovery.create(vertx,
+//                                                        new ServiceDiscoveryOptions(config)));
+//  }
 }

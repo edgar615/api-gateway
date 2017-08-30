@@ -83,7 +83,7 @@ public class ApiDefinitionDecodeBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public ApiDefinition testApi() {
     return ApiDefinition.fromJson(jsonObject);
   }
@@ -92,7 +92,7 @@ public class ApiDefinitionDecodeBenchmarks {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public ApiDefinition testAverage() {
     return ApiDefinition.fromJson(jsonObject);
   }

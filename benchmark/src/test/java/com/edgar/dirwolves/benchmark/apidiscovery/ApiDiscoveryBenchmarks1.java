@@ -96,7 +96,7 @@ public class ApiDiscoveryBenchmarks1 {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
   @OperationsPerInvocation(10000)
   public void testAverage(ApiBackend backend) {
@@ -111,20 +111,20 @@ public class ApiDiscoveryBenchmarks1 {
     }
   }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(10000)
-  public void testSampleTime(ApiBackend backend) {
-    final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
-      latch.countDown();
-    });
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
+//  @Benchmark
+//  @BenchmarkMode(Mode.SampleTime)
+//  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+//  @Fork(1)
+//  @OperationsPerInvocation(10000)
+//  public void testSampleTime(ApiBackend backend) {
+//    final CountDownLatch latch = new CountDownLatch(1);
+//    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
+//      latch.countDown();
+//    });
+//    try {
+//      latch.await();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+//  }
 }

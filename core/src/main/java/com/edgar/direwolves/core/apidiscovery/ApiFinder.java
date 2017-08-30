@@ -21,7 +21,11 @@ public interface ApiFinder {
 
   void reload(String name, Handler<AsyncResult<List<ApiDefinition>>> resultHandler);
 
-  static ApiFinder create(Vertx vertx, ApiDiscoveryOptions options) {
-    return new ApiFinderImpl(vertx, options);
+//  static ApiFinder create(Vertx vertx, ApiDiscoveryOptions options) {
+//    return new ApiFinderImpl(vertx, ApiDiscovery.create(vertx, options));
+//  }
+
+  static ApiFinder create(Vertx vertx, ApiDiscovery discovery) {
+    return new ApiFinderImpl(vertx, discovery);
   }
 }

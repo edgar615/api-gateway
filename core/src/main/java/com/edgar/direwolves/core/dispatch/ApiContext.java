@@ -159,6 +159,9 @@ public interface ApiContext {
   /**
    * 将上下文中的可变属性复制到另外一个上下文中.
    *
+   * <b>最初对于ApiDefinition属性同样使用了copy()
+   * 方法复制一个新对象，但是在基准测试时发现当plugin数量变多时，copy的性能会随之下降。考虑到ApiDefinition
+   * 实际上是一个不可变对象（创建后不会修改），这里不再使用ApiDefinition.copy()方法，而是直接将ApiDefinition赋值给新的ApiContext</b>
    * @param source 源对象
    * @param target 目标对象
    */
@@ -175,7 +178,8 @@ public interface ApiContext {
       target.setResult(source.result().copy());
     }
     if (source.apiDefinition() != null) {
-      target.setApiDefinition(source.apiDefinition().copy());
+//      target.setApiDefinition(source.apiDefinition().copy());
+      target.setApiDefinition(source.apiDefinition());
     }
   }
 

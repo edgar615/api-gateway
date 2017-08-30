@@ -46,7 +46,7 @@ public class BodyArgFilterBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi(ApiFilter apiFilter, ApiContextBuilder builder) {
     ApiContext apiContext = builder.apiContext();
 
@@ -69,31 +69,8 @@ public class BodyArgFilterBenchmarks {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage(ApiFilter apiFilter, ApiContextBuilder builder) {
-    ApiContext apiContext = builder.apiContext();
-
-    final CountDownLatch latch = new CountDownLatch(1);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-
-    apiFilter.doFilter(task)
-            .andThen(context -> {
-              latch.countDown();
-            }).onFailure(t -> t.printStackTrace());
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public void testSampleTime(ApiFilter apiFilter, ApiContextBuilder builder) {
     ApiContext apiContext = builder.apiContext();
 
     final CountDownLatch latch = new CountDownLatch(1);

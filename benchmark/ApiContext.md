@@ -28,48 +28,21 @@
     ApiContextFourPluginBenchmarks.testApi      thrpt   20  605800.302 ± 2052.366  ops/ms
     ApiContextFourPluginBenchmarks.testAverage   avgt   20       1.655 ±    0.008   ns/op
 
-可以看出 虽然随着插件的增加，性能会有所下降，但已经不再像之前的测试那样急剧变化了，所以暂时不在考虑后面的优化
+可以看出 虽然随着插件的增加，性能会有所下降，但已经不再像之前的测试那样急剧变化了，但是整体性能依然会随着插件的数量增加而降低。
+考虑到ApiDefinition实际上是一个不可变对象（创建后不会修改），这里不再使用ApiDefinition.copy()方法，而是直接将ApiDefinition赋值给新的ApiContext
 
-后面的优化不再考虑
+再次运行上面的测试
 
-删掉ApiDefinition的复制之后，性能有了显著提高，说明问题出现在这里
+    Benchmark                                  Mode  Cnt         Score       Error   Units
+    ApiContextNoPluginBenchmarks.testApi      thrpt   20  14676362.195 ± 56665.674  ops/ms
+    ApiContextNoPluginBenchmarks.testAverage   avgt   20         0.064 ±     0.001   ns/op
+    ApiContextOnPluginBenchmarks.testApi      thrpt   20  13643758.967 ± 88416.812  ops/ms
+    ApiContextOnPluginBenchmarks.testAverage   avgt   20         0.083 ±     0.002   ns/op
+    ApiContextTwoPluginBenchmarks.testApi      thrpt   20  11458923.663 ± 73077.244  ops/ms
+    ApiContextTwoPluginBenchmarks.testAverage   avgt   20         0.077 ±     0.001   ns/op
+    ApiContextThreePluginBenchmarks.testApi      thrpt   20  12039175.438 ± 82808.789  ops/ms
+    ApiContextThreePluginBenchmarks.testAverage   avgt   20         0.088 ±     0.001   ns/op
+    ApiContextFourPluginBenchmarks.testApi      thrpt   20  12642529.445 ± 104904.030  ops/ms
+    ApiContextFourPluginBenchmarks.testAverage   avgt   20         0.088 ±      0.001   ns/op
 
-    if (source.apiDefinition() != null) {
-      target.setApiDefinition(source.apiDefinition().copy());
-    }
-
-    Benchmark                                    Mode  Cnt       Score      Error   Units
-    ApiContextFourPluginBenchmarks.testApi      thrpt   20  191261.896 ± 2889.066  ops/ms
-    ApiContextFourPluginBenchmarks.testAverage   avgt   20       5.055 ±    0.059   ns/op
-
-ApiDefinition的copy方法，会调用Decode和Encode方法.
-
-先看Encode,经过一系列测试，发现问题可能出在在collect方法上
-
-    factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
-                .collect(Collectors.toList());
-
-    Benchmark                                                              Mode     Cnt       Score    Error   Units
-    ApiDefinitionEncodeBenchmarks.testApi                                 thrpt      20    5829.620 ± 18.215  ops/ms
-    ApiDefinitionEncodeBenchmarks.testAverage                              avgt      20     166.230 ±  1.809   ns/op
-
-修改代码后重新测试，性能有了提高差不多0.5倍（这个结果可能和环境有关，前一天测试时比原来的方法提高了3倍）：
-
-    factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
-                .map(f -> f.encode(this))
-                .findFirst().orElseGet(() -> new JsonObject());
-
-    Benchmark                                   Mode  Cnt     Score    Error   Units
-    ApiDefinitionEncodeBenchmarks.testApi      thrpt   20  9655.723 ± 20.602  ops/ms
-    ApiDefinitionEncodeBenchmarks.testAverage   avgt   20   102.481 ±  1.577   ns/op
-
-Encode方法
-
-Benchmark                                   Mode  Cnt      Score     Error   Units
-ApiDefinitionDecodeBenchmarks.testApi      thrpt   20  16405.716 ± 268.513  ops/ms
-ApiDefinitionDecodeBenchmarks.testAverage   avgt   20     62.505 ±   0.232   ns/op
-
-经过多次测试，因为plugin的decode，encode需要从factory的列表中找到对应的factroy然后处理，这部分代码对性能的影响较大
-~~~
-
-**最终发现，可能是做基准测试时测试样本太少，JIT未编译代码导致，重新修改后测试结果**
+可以看到性能已经不再像前面一样会有比较大的变化

@@ -15,6 +15,7 @@ import com.edgar.direwolves.plugin.arg.BodyArgPluginFactory;
 import com.edgar.direwolves.plugin.arg.Parameter;
 import com.edgar.direwolves.plugin.arg.UrlArgFilterFactory;
 import com.edgar.direwolves.plugin.arg.UrlArgPlugin;
+import com.edgar.direwolves.plugin.arg.UrlArgPluginFactory;
 import com.edgar.util.validation.Rule;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -85,28 +86,28 @@ public class UrlArgFilterBenchmarks {
     }
   }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public void testSampleTime(ApiFilter apiFilter, ApiContextBuilder builder) {
-    ApiContext apiContext = builder.apiContext();
-
-    final CountDownLatch latch = new CountDownLatch(1);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-
-    apiFilter.doFilter(task)
-            .andThen(context -> {
-              latch.countDown();
-            }).onFailure(t -> t.printStackTrace());
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
+//  @Benchmark
+//  @BenchmarkMode(Mode.SampleTime)
+//  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+//  @Fork(1)
+//  @OperationsPerInvocation(100)
+//  public void testSampleTime(ApiFilter apiFilter, ApiContextBuilder builder) {
+//    ApiContext apiContext = builder.apiContext();
+//
+//    final CountDownLatch latch = new CountDownLatch(1);
+//    Task<ApiContext> task = Task.create();
+//    task.complete(apiContext);
+//
+//    apiFilter.doFilter(task)
+//            .andThen(context -> {
+//              latch.countDown();
+//            }).onFailure(t -> t.printStackTrace());
+//    try {
+//      latch.await();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+//  }
 
   @State(Scope.Thread)
   public static class ApiContextBuilder {
@@ -119,13 +120,13 @@ public class UrlArgFilterBenchmarks {
 //      JsonObject body = new JsonObject()
 //              .put("encryptKey", "0000000000000000")
 //              .put("barcode", "LH10312ACCF23C4F3A5");
-      apiContext = ApiContext.create(HttpMethod.POST, "/devices", params, null, null);
+      apiContext = ApiContext.create(HttpMethod.POST, "/devices", null, params, null);
 
       HttpEndpoint httpEndpoint = SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
                                                           "/devices", 80, "localhost");
       ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
                                                          Lists.newArrayList(httpEndpoint));
-      UrlArgPlugin plugin = (UrlArgPlugin) new BodyArgPluginFactory().create();
+      UrlArgPlugin plugin = (UrlArgPlugin) new UrlArgPluginFactory().create();
       Parameter parameter = Parameter.create("barcode", null);
       parameter.addRule(Rule.required());
       parameter.addRule(Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));

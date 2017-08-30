@@ -43,6 +43,8 @@ public interface ApiDiscovery extends ApiPublisher {
   void getDefinition(String name,
                      Handler<AsyncResult<ApiDefinition>> resultHandler);
 
+  ApiDiscoveryOptions options();
+
   static ApiDiscovery create(Vertx vertx, ApiDiscoveryOptions options) {
     return new ApiDiscoveryImpl(vertx, options);
   }

@@ -69,7 +69,7 @@ public class AppKeyDiscoveryBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi(AppKeyBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
     pool.getAppKey("appkey_6", ar -> {
@@ -84,9 +84,9 @@ public class AppKeyDiscoveryBenchmarks {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage(AppKeyBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getAppKey("appkey_6", ar -> {

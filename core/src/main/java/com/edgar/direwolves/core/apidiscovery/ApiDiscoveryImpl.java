@@ -40,11 +40,14 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   private final Set<ApiImporter> importers = new CopyOnWriteArraySet<>();
 
+  private final ApiDiscoveryOptions options;
+
   public ApiDiscoveryImpl(Vertx vertx, ApiDiscoveryOptions options) {
     Objects.requireNonNull(options.getName());
     Objects.requireNonNull(options.getPublishedAddress());
     Objects.requireNonNull(options.getUnpublishedAddress());
     this.vertx = vertx;
+    this.options = options;
     this.name = options.getName();
     this.backend = new DefaultApiDefinitionBackend(vertx, name);
     this.publishedAddress = this.name + "." + options.getPublishedAddress();
@@ -155,6 +158,11 @@ class ApiDiscoveryImpl implements ApiDiscovery {
         }
       }
     });
+  }
+
+  @Override
+  public ApiDiscoveryOptions options() {
+    return options;
   }
 
   @Override

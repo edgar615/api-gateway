@@ -39,7 +39,7 @@ public class ApiFinderTest {
     JsonObject jsonObject = new JsonObject()
             .put("name", namespace);
     apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions(jsonObject));
-    apiFinder = new ApiFinderImpl(vertx, new ApiDiscoveryOptions(jsonObject));
+    apiFinder = new ApiFinderImpl(vertx, apiDiscovery);
   }
 
   @Test

@@ -24,48 +24,6 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class ApiLocalCacheBenchmarks {
 
-  @State(Scope.Benchmark)
-  public static class ApiBackend {
-    private Vertx vertx;
-
-    private ApiDiscovery apiDiscovery;
-
-    private ApiFinder apiFinder;
-    public ApiBackend() {
-      vertx = Vertx.vertx();
-      apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
-      JsonObject app = new JsonObject()
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
-      JsonObject om = new JsonObject()
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
-      JsonObject config = new JsonObject()
-              .put("importer", new JsonObject().put("app", app).put("om", om));
-      new ImportApi().initialize(vertx, new JsonObject().put("api.discovery", config), Future
-              .<Void>future());
-      try {
-        TimeUnit.SECONDS.sleep(2);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      apiFinder = ApiFinder.create(vertx, new ApiDiscoveryOptions().setName("app"));
-      try {
-        TimeUnit.SECONDS.sleep(2);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-
-    public void getDefinitions(String method, String path,
-                               Handler<AsyncResult<List<ApiDefinition>>>
-            handler) {
-      apiFinder.getDefinitions(method, path, handler);
-    }
-
-    public void close() {
-      vertx.close();
-    }
-  }
-
   @TearDown(Level.Trial)
   public void tearDown(ApiBackend pool) {
     pool.close();
@@ -75,7 +33,7 @@ public class ApiLocalCacheBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi(ApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions("get", "/devices/1", ar -> {
@@ -90,9 +48,9 @@ public class ApiLocalCacheBenchmarks {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage(ApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions("get", "/devices/1", ar -> {
@@ -105,20 +63,62 @@ public class ApiLocalCacheBenchmarks {
     }
   }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public void testSampleTime(ApiBackend backend) {
-    final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions("get", "/devices/1", ar -> {
-      latch.countDown();
-    });
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+  @State(Scope.Benchmark)
+  public static class ApiBackend {
+    private Vertx vertx;
+
+    private ApiFinder apiFinder;
+
+    public ApiBackend() {
+      vertx = Vertx.vertx();
+      ApiDiscovery apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName
+              ("app"));
+      JsonObject app = new JsonObject()
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
+      JsonObject om = new JsonObject()
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
+      JsonObject config = new JsonObject()
+              .put("importer", new JsonObject().put("app", app).put("om", om));
+      new ImportApi().initialize(vertx, new JsonObject().put("api.discovery", config), Future
+              .<Void>future());
+      try {
+        TimeUnit.SECONDS.sleep(2);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      apiFinder = ApiFinder.create(vertx, apiDiscovery);
+      try {
+        TimeUnit.SECONDS.sleep(2);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+    public void getDefinitions(String method, String path,
+                               Handler<AsyncResult<List<ApiDefinition>>>
+                                       handler) {
+      apiFinder.getDefinitions(method, path, handler);
+    }
+
+    public void close() {
+      vertx.close();
     }
   }
+
+//  @Benchmark
+//  @BenchmarkMode(Mode.SampleTime)
+//  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+//  @Fork(1)
+//  @OperationsPerInvocation(10000)
+//  public void testSampleTime(ApiBackend backend) {
+//    final CountDownLatch latch = new CountDownLatch(1);
+//    backend.getDefinitions("get", "/devices/1", ar -> {
+//      latch.countDown();
+//    });
+//    try {
+//      latch.await();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+//  }
 }

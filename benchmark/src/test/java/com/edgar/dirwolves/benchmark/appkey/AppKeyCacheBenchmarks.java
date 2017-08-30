@@ -66,7 +66,7 @@ public class AppKeyCacheBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi(AppKeyBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
     pool.getAppKey("appkey_" + Randoms.randomNumber(3), ar -> {
@@ -83,7 +83,7 @@ public class AppKeyCacheBenchmarks {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage(AppKeyBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getAppKey("appkey_" + Randoms.randomNumber(3), ar -> {

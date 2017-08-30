@@ -28,8 +28,8 @@ class ApiFinderImpl implements ApiFinder {
 
   private ApiDiscovery discovery;
 
-  ApiFinderImpl(Vertx vertx, ApiDiscoveryOptions options) {
-    this.discovery = ApiDiscovery.create(vertx, options);
+  ApiFinderImpl(Vertx vertx, ApiDiscovery discovery) {
+    this.discovery = discovery;
     reload("*", ar -> {
       if (ar.succeeded()) {
         Log.create(LOGGER)
@@ -41,8 +41,8 @@ class ApiFinderImpl implements ApiFinder {
       }
     });
 
-    String publishedAddress = options.getName() + "." + options.getPublishedAddress();
-    String unpublishedAddress = options.getName() + "." + options.getUnpublishedAddress();
+    String publishedAddress = discovery.options().getName() + "." + discovery.options().getPublishedAddress();
+    String unpublishedAddress = discovery.options().getName() + "." + discovery.options().getUnpublishedAddress();
     vertx.eventBus().<JsonObject>consumer(publishedAddress, msg -> {
       ApiDefinition apiDefinition = ApiDefinition.fromJson(msg.body());
       definitions.removeIf(d -> d.name().equalsIgnoreCase(apiDefinition.name()));

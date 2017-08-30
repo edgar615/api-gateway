@@ -100,7 +100,7 @@ public class ApiContextBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public ApiContext testApi() {
     return  apiContext.copy();
 //    blackhole.consume(copy);
@@ -110,20 +110,9 @@ public class ApiContextBenchmarks {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public ApiContext testAverage() {
     return apiContext.copy();
   }
-
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public ApiContext testSampleTime() {
-   return apiContext.copy();
-//    blackhole.consume(copy);
-  }
-
 
 }

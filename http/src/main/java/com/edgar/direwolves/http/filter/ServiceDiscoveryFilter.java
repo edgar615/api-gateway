@@ -7,6 +7,7 @@ import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.http.SdHttpEndpoint;
 import com.edgar.direwolves.http.SdHttpRequest;
 import com.edgar.direwolves.http.loadbalance.LoadBalance;
+import com.edgar.direwolves.http.loadbalance.LoadBalanceStats;
 import com.edgar.direwolves.http.loadbalance.ServiceFinder;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
@@ -45,6 +46,20 @@ public class ServiceDiscoveryFilter implements Filter {
     ServiceFinder serviceFinder = ServiceFinder.create(vertx,
                                                        ServiceDiscovery.create(vertx, options));
     loadBalance = LoadBalance.create(serviceFinder, this.config);
+    vertx.eventBus().<JsonObject>consumer("direwolves.circuitbreaker.announce", msg -> {
+      JsonObject jsonObject = msg.body();
+      String serverId = jsonObject.getString("name");
+      String state = jsonObject.getString("state");
+      if ("open".equalsIgnoreCase(state)) {
+        LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(true);
+      }
+      if ("close".equalsIgnoreCase(state)) {
+        LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(false);
+      }
+      if ("halfOpen".equalsIgnoreCase(state)) {
+        LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(false);
+      }
+    });
   }
 
   @Override

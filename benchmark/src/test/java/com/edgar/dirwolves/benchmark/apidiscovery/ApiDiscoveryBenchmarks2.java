@@ -33,11 +33,11 @@ public class ApiDiscoveryBenchmarks2 {
       vertx = Vertx.vertx();
       apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
       JsonObject app = new JsonObject()
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
-      JsonObject om = new JsonObject()
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api\\device");
+//      JsonObject om = new JsonObject()
+//              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
       JsonObject config = new JsonObject()
-              .put("importer", new JsonObject().put("app", app).put("om", om));
+              .put("importer", new JsonObject().put("app", app));
       new ImportApi().initialize(vertx, new JsonObject().put("api.discovery", config), Future
               .<Void>future());
       try {
@@ -67,7 +67,7 @@ public class ApiDiscoveryBenchmarks2 {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi(ApiBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
     pool.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
@@ -82,9 +82,9 @@ public class ApiDiscoveryBenchmarks2 {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage(ApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
@@ -97,20 +97,20 @@ public class ApiDiscoveryBenchmarks2 {
     }
   }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public void testSampleTime(ApiBackend backend) {
-    final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
-      latch.countDown();
-    });
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
+//  @Benchmark
+//  @BenchmarkMode(Mode.SampleTime)
+//  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+//  @Fork(1)
+//  @OperationsPerInvocation(10000)
+//  public void testSampleTime(ApiBackend backend) {
+//    final CountDownLatch latch = new CountDownLatch(1);
+//    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
+//      latch.countDown();
+//    });
+//    try {
+//      latch.await();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+//  }
 }

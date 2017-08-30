@@ -117,6 +117,11 @@ public interface ApiDefinition {
     return ApiDefinitionEncoder.instance().apply(this);
   }
 
+  /**
+   * 对性能有损耗
+   * @return
+   */
+  @Deprecated
   default ApiDefinition copy() {
     JsonObject jsonObject = toJson();
     return ApiDefinition.fromJson(jsonObject);
