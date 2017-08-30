@@ -6,10 +6,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
+import com.edgar.direwolves.core.cache.CacheManager;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -22,7 +21,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,20 +43,15 @@ public class JwtBuildFilterTest {
 
   Filter filter;
 
-  RedisProvider redisProvider = new MockRedisProvider();
-
   private Vertx vertx;
 
   private String userKey = UUID.randomUUID().toString();
 
   private String namespace = UUID.randomUUID().toString();
 
-  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
-
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
                            new JsonObject()
@@ -149,7 +142,7 @@ public class JwtBuildFilterTest {
               System.out.println(new Date(chaim.getLong("exp") * 1000));
               testContext.assertTrue(chaim.containsKey("jti"));
 
-              redisProvider.get(namespace + ":user:" + 1, ar -> {
+              CacheManager.instance().getCache("userCache").get(namespace + ":user:" + 1, ar -> {
                 if (ar.succeeded()) {
                   System.out.println(ar.result());
                   async.complete();

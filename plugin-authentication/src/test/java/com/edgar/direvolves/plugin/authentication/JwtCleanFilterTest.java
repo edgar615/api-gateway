@@ -4,10 +4,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
+import com.edgar.direwolves.core.cache.CacheManager;
+import com.edgar.direwolves.core.cache.CacheOptions;
+import com.edgar.direwolves.core.cache.LocalCache;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -23,7 +24,6 @@ import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +45,9 @@ public class JwtCleanFilterTest {
 
   Filter filter;
 
-  RedisProvider redisProvider = new MockRedisProvider();
+  String jti = UUID.randomUUID().toString();
+
+  JWTAuth provider;
 
   private Vertx vertx;
 
@@ -53,17 +55,13 @@ public class JwtCleanFilterTest {
 
   private String namespace = UUID.randomUUID().toString();
 
-  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
   private int userId = Integer.parseInt(Randoms.randomNumber(5));
-  String jti = UUID.randomUUID().toString();
 
-  JWTAuth provider;
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider, cacheAddress);
 
-    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
+    filter = Filter.create(JwtCleanFilter.class.getSimpleName(), vertx,
                            new JsonObject()
                                    .put("namespace", namespace)
                                    .put("jwt.userClaimKey", userKey));
@@ -77,18 +75,20 @@ public class JwtCleanFilterTest {
     );
 
     provider = JWTAuth.create(vertx, config);
+
+    CacheManager.instance().addCache(new LocalCache("userCache", new CacheOptions()));
   }
 
   @Test
   public void testCleanToken(TestContext testContext) {
 
     JsonObject claims = new JsonObject()
-        .put(userKey, userId)
-        .put("jti", jti);
+            .put(userKey, userId)
+            .put("jti", jti);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token =
-        provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
 
     ApiContext apiContext = createContext(token);
 
@@ -97,8 +97,9 @@ public class JwtCleanFilterTest {
             .put("tel", "123456")
             .put(userKey, 1);
     apiContext.setResult(Result.createJsonObject(200, body, null));
+    apiContext.setPrincipal(body);
 
-    redisProvider.set(namespace + ":user:" + 1, body, ar -> {
+    CacheManager.instance().getCache("userCache").put(namespace + ":user:" + 1, body, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result());
       } else {
@@ -123,14 +124,16 @@ public class JwtCleanFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               Result result = context.result();
-              redisProvider.get(namespace + ":user:" + userId, ar -> {
-                if (ar.succeeded()) {
-                  System.out.println(ar.result());
-                  testContext.fail();
-                } else {
-                  async.complete();
-                }
-              });
+              CacheManager.instance().getCache("userCache")
+                      .get(namespace + ":user:" + userId, ar -> {
+                        if (ar.succeeded()) {
+                          testContext.assertNull(ar.result());
+                          System.out.println(ar.result());
+                          async.complete();
+                        } else {
+                          testContext.fail();
+                        }
+                      });
             })
             .onFailure(throwable -> {
               throwable.printStackTrace();
@@ -146,7 +149,7 @@ public class JwtCleanFilterTest {
     headers.put("h3", "v3");
     headers.put("h3", "v3.2");
     headers.put("Authorization",
-        "Bearer " + token);
+                "Bearer " + token);
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
     SimpleHttpEndpoint httpEndpoint =

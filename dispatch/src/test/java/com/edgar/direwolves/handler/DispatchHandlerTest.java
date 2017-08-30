@@ -36,14 +36,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DispatchHandlerTest {
 
   ApiDiscovery apiDiscovery;
-   ServiceDiscovery serviceDiscovery;
   Vertx vertx;
 
   int port = Integer.parseInt(Randoms.randomNumber(4));
 
-  int consulPort = Integer.parseInt(Randoms.randomNumber(4));
-
-  MockConsulHttpVerticle mockConsulHttpVerticle;
+  int devicePort = Integer.parseInt(Randoms.randomNumber(4));
 
   AtomicBoolean started = new AtomicBoolean();
 
@@ -51,23 +48,15 @@ public class DispatchHandlerTest {
 
   private JsonObject config = new JsonObject()
           .put("namespace", namespace)
-          .put("consul.port", consulPort)
           .put("http.port", port);
 
-  private ConsulServiceImporter importer;
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
 
     apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-    ApiUtils.registerApi(apiDiscovery);
+    ApiUtils.registerApi(apiDiscovery, devicePort);
 
-    serviceDiscovery = ServiceDiscovery.create(vertx);
-
-    importer = new ConsulServiceImporter();
-    serviceDiscovery.registerServiceImporter(importer, new JsonObject()
-            .put("host", "localhost")
-            .put("port", consulPort));
 
     System.out.println(config);
     vertx.deployVerticle(ApiDispatchVerticle.class.getName(),
@@ -79,40 +68,12 @@ public class DispatchHandlerTest {
                            started.set(true);
                          });
 
-    mockConsulHttpVerticle = new MockConsulHttpVerticle();
-    vertx.deployVerticle(mockConsulHttpVerticle,
-                         new DeploymentOptions().setConfig(config),
-                         testContext.asyncAssertSuccess());
-    add2Servers();
-
     vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
                          new DeploymentOptions().setConfig(new JsonObject().put("http.port",
-                                                                                9001)).setWorker
+                                                                                devicePort)).setWorker
                                  (true),
                          testContext.asyncAssertSuccess());
     await().until(() -> started.get());
-  }
-
-  private void add2Servers() {
-    mockConsulHttpVerticle.addService(new JsonObject()
-                                              .put("Node", "u221")
-                                              .put("Address", "localhost")
-                                              .put("ServiceID", "u221:device:9001")
-                                              .put("ServiceName", "device")
-                                              .put("ServiceTags", new JsonArray())
-                                              .put("ServicePort", 9001));
-    mockConsulHttpVerticle.addService((new JsonObject()
-            .put("Node", "u222")
-            .put("Address", "localhost")
-            .put("ServiceID", "u222:device:9002")
-            .put("ServiceName", "user")
-            .put("ServiceTags", new JsonArray())
-            .put("ServicePort", 9002)));
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
   }
 
   @After
@@ -152,6 +113,7 @@ public class DispatchHandlerTest {
     vertx.createHttpClient()
             .get(port, "localhost", "/devices?timestamp=" + Instant.now().getEpochSecond(),
                  resp -> {
+                   System.out.println(resp.statusCode());
                    resp.bodyHandler(body -> {
                      System.out.println(body.toString());
                      testContext.assertTrue(resp.statusCode() < 300);

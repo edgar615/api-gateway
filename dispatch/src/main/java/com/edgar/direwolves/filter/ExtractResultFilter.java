@@ -54,6 +54,7 @@ public class ExtractResultFilter implements Filter {
     if (results.size() == 0) {
       completeFuture.fail(SystemException.create(DefaultErrorCode.UNKOWN)
                                   .set("details", "The result of RPC was not found"));
+      return;
     } else if (results.size() == 1) {
       result = extractResult(results.get(0));
     } else {

@@ -1,8 +1,8 @@
 package com.edgar.direvolves.plugin.authentication;
 
-import com.google.common.base.Strings;
-
-import com.edgar.direwolves.core.cache.RedisProvider;
+import com.edgar.direwolves.core.cache.Cache;
+import com.edgar.direwolves.core.cache.CacheFactory;
+import com.edgar.direwolves.core.cache.CacheManager;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
@@ -12,7 +12,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTOptions;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public class JwtBuildFilter implements Filter {
 
   private final String userKey;
 
-  private final RedisProvider redisProvider;
+  private final Cache userCache;
 
   private final String namespace;
 
@@ -80,6 +79,16 @@ public class JwtBuildFilter implements Filter {
    */
   JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
+    CacheFactory factory = CacheFactory.get("local");
+
+    JsonObject cacheConfig = new JsonObject();
+    if (config.getValue("token.expires") instanceof Number) {
+      cacheConfig.put("expireAfterWrite", ((Number) config.getValue("token.expires")).longValue());
+    }
+
+    this.userCache = factory.create(vertx, "userCache", cacheConfig);
+    CacheManager.instance().addCache(userCache);
+
     if (config.containsKey("keystore.path")) {
       this.jwtConfig.put("path", config.getString("keystore.path"));
     }
@@ -107,12 +116,7 @@ public class JwtBuildFilter implements Filter {
     this.expires = config.getInteger("token.expires", 1800);
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("namespace", "");
-    String address = RedisProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
     this.permissionsKey = config.getString("jwt.permissionKey", "permissions");
-    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 
   @Override
@@ -152,7 +156,7 @@ public class JwtBuildFilter implements Filter {
       JsonObject user = body.copy().put("jti", jti);
       String permissions = user.getString(permissionsKey, "all");
       user.put("permissions", permissions);
-      redisProvider.setex(userCacheKey, user, expires, ar -> {
+      userCache.put(userCacheKey, user, ar -> {
         if (ar.succeeded()) {
           try {
             String token = provider.generateToken(claims, new JWTOptions(this.jwtConfig));

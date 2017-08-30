@@ -58,6 +58,11 @@ public class Filters {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
+          Log.create(LOGGER)
+                  .setTraceId(apiContext.id())
+                  .setEvent(filter.getClass().getSimpleName())
+                  .info();
+
           apiContext.addVariable("filterStarted", System.currentTimeMillis());
           Future<ApiContext> completeFuture = Future.future();
           filter.doFilter(apiContext.copy(), completeFuture);

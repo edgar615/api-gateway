@@ -20,6 +20,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -77,13 +84,6 @@
             <artifactId>direwolves-circuit-breaker</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>direwolves-redis</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>

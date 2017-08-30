@@ -13,7 +13,6 @@ import com.edgar.direwolves.core.rpc.RpcHandlerFactory;
 import com.edgar.direwolves.core.rpc.RpcMetric;
 import com.edgar.direwolves.core.rpc.RpcRequest;
 import com.edgar.direwolves.core.rpc.RpcResponse;
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
@@ -102,8 +101,7 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.requests().stream()
-            .anyMatch(e -> e instanceof HttpRpcRequest);
+    return true;
   }
 
   @Override
@@ -120,10 +118,6 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   }
 
   private Future<RpcResponse> doRequest(ApiContext apiContext, RpcRequest req) {
-    Future<RpcResponse> rpcFuture
-            = handlers
-            .getOrDefault(req.type().toUpperCase(), failureRpcHandler)
-            .handle(req);
 
     if (req instanceof CircuitBreakerExecutable
         && req instanceof Fallbackable) {

@@ -1,10 +1,7 @@
 package com.edgar.direwolves.verticle;
 
-import com.google.common.base.Strings;
-
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
-import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.cmd.CmdRegister;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.dispatch.BaseHandler;
@@ -16,7 +13,6 @@ import io.vertx.core.Future;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ResponseTimeHandler;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,20 +31,19 @@ public class ApiDispatchVerticle extends AbstractVerticle {
             .setEvent("dispatch.config.read")
             .addData("config", config())
             .info();
-    RedisProvider redisProvider = RedisProvider.create(vertx, config());
 
     String namespace = config().getString("namespace", "");
-    String address = RedisProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
+//    String address = RedisProvider.class.getName();
+//    if (!Strings.isNullOrEmpty(namespace)) {
+//      address = namespace + "." + address;
+//    }
 
     //读取命令
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, config(), importCmdFuture);
 
-    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
-                                address);
+//    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
+//                                address);
 
     //API Metrics
     String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");
@@ -77,7 +72,8 @@ public class ApiDispatchVerticle extends AbstractVerticle {
                         .addData("namespace", namespace)
                         .addData("port", config().getInteger("http.port", 8080))
                         .info();
-                LOGGER.info("---| [Diaptacher Start] [OK] [{}]", config().getInteger("http.port", 8080));
+                LOGGER.info("---| [Diaptacher Start] [OK] [{}]",
+                            config().getInteger("http.port", 8080));
                 startFuture.complete();
               } else {
                 Log.create(LOGGER)

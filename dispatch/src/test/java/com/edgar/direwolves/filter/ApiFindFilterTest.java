@@ -8,6 +8,7 @@ import com.edgar.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
@@ -40,11 +41,13 @@ public class ApiFindFilterTest {
 
   private JsonObject config = new JsonObject().put("namespace", namespace);
 
+  int devicePort = Integer.parseInt(Randoms.randomNumber(4));
+
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
     apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-    ApiUtils.registerApi(apiDiscovery);
+    ApiUtils.registerApi(apiDiscovery, devicePort);
   }
 
   @Test

@@ -2,9 +2,7 @@
   "name" : "device_list",
   "method" : "GET",
   "path" : "/devices",
-  "authentication" : true,
   "scope" : "device:read",
-  "appkey" : true,
   "url.arg" : [ {
     "name" : "limit",
     "default_value" : 10,
@@ -49,7 +47,7 @@
     "service" : "device",
     "method" : "GET",
     "name" : "query_device",
-    "type" : "http",
+    "type" : "simple-http",
     "path" : "/devices"
   } ],
   "request.transformer" : [ {

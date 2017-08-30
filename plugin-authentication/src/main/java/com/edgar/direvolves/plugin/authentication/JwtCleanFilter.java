@@ -1,14 +1,12 @@
 package com.edgar.direvolves.plugin.authentication;
 
-import com.google.common.base.Strings;
-
-import com.edgar.direwolves.core.cache.RedisProvider;
+import com.edgar.direwolves.core.cache.Cache;
+import com.edgar.direwolves.core.cache.CacheManager;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +22,6 @@ public class JwtCleanFilter implements Filter {
 
   private final String userKey;
 
-  private final RedisProvider redisProvider;
-
   private final String namespace;
 
   /**
@@ -40,11 +36,6 @@ public class JwtCleanFilter implements Filter {
     this.vertx = vertx;
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("namespace", "");
-    String address = RedisProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
-    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
   }
 
   @Override
@@ -68,9 +59,11 @@ public class JwtCleanFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    String  userId = apiContext.principal().getValue(userKey).toString();
+    String userId = apiContext.principal().getValue(userKey).toString();
+    //如果把userCache放在构造函数中初始化，可能会出现没有userCache的情况
+    Cache userCache = CacheManager.instance().getCache("userCache");
     String userCacheKey = namespace + ":user:" + userId;
-    redisProvider.delete(userCacheKey, ar -> {
+    userCache.evict(userCacheKey, ar -> {
       LOGGER.info("---| [{}] [OK] [{}] [{}]",
                   apiContext.id(),
                   this.getClass().getSimpleName(),

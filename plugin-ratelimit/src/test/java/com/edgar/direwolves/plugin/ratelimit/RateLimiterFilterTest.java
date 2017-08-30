@@ -6,12 +6,11 @@ import com.google.common.collect.Multimap;
 
 import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.redis.RedisProviderFactory;
+import com.edgar.direwolves.redis.RedisCacheFactory;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -57,7 +56,7 @@ public class RateLimiterFilterTest {
     vertx = Vertx.vertx();
     JsonObject config = new JsonObject()
             .put("redis.host", "10.11.0.31");
-    RedisProvider redis = new RedisProviderFactory().create(vertx, config);
+    RedisProvider redis = new RedisCacheFactory().create(vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {

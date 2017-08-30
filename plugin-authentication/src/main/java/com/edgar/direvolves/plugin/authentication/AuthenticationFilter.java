@@ -2,7 +2,8 @@ package com.edgar.direvolves.plugin.authentication;
 
 import com.google.common.base.Strings;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
+import com.edgar.direwolves.core.cache.Cache;
+import com.edgar.direwolves.core.cache.CacheManager;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Log;
@@ -52,9 +53,9 @@ public class AuthenticationFilter implements Filter {
 
   private final String namespace;
 
-  private final RedisProvider redisProvider;
-
   private final Vertx vertx;
+
+  private final Cache userCache;
 
   private JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
@@ -76,11 +77,7 @@ public class AuthenticationFilter implements Filter {
     this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("namespace", "");
     this.uniqueToken = config.getBoolean("jwt.user.unique", false);
-    String address = RedisProvider.class.getName();
-    if (!Strings.isNullOrEmpty(namespace)) {
-      address = namespace + "." + address;
-    }
-    this.redisProvider = ProxyHelper.createProxy(RedisProvider.class, vertx, address);
+    this.userCache = CacheManager.instance().getCache("userCache");
   }
 
   @Override
@@ -157,7 +154,7 @@ public class AuthenticationFilter implements Filter {
                               .set("details", "Token must contain " + userKey));
     } else {
       String userCacheKey = namespace + ":user:" + userId;
-      redisProvider.get(userCacheKey, ar -> {
+      userCache.get(userCacheKey, ar -> {
         if (ar.succeeded()) {
           if (!ar.result().containsKey(userKey)) {
             userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
