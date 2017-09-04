@@ -1,0 +1,8 @@
+{
+  "user" : {
+    "token.expires": 1800,
+    "userClaimKey": "userId",
+    "permissionsClaimKey": "permissions",
+    "unique": true
+  }
+}

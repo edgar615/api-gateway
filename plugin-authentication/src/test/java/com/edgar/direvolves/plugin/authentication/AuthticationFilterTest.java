@@ -10,7 +10,6 @@ import com.edgar.direwolves.core.cache.CacheOptions;
 import com.edgar.direwolves.core.cache.LocalCache;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -27,7 +26,6 @@ import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -146,12 +144,13 @@ public class AuthticationFilterTest {
 
   @Test
   public void unequalJtiShouldThrowExpiredTokenWhenRestrictedUniqueUser(TestContext testContext) {
-    CacheManager.instance().getCache("userCache").put(namespace + ":user:" + userId, new JsonObject()
-            .put("userId", userId)
-            .put("username", "password")
-            .put("jti", jti), ar -> {
+    CacheManager.instance().getCache("userCache")
+            .put(namespace + ":user:" + userId, new JsonObject()
+                    .put("userId", userId)
+                    .put("username", "password")
+                    .put("jti", jti), ar -> {
 
-    });
+            });
 
     JsonObject claims = new JsonObject()
             .put(userKey, userId)
@@ -166,9 +165,10 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("token.expires", 60 * 30)
-                                          .put("jwt.userClaimKey", userKey)
-                                          .put("jwt.user.unique", true)
+                                          .put("jwt",
+                                               new JsonObject().put("expiresInSeconds", 60 * 30))
+                                          .put("user", new JsonObject().put("userClaimKey", userKey)
+                                                  .put("unique", true))
                                           .put("namespace", namespace));
     filters.add(filter);
 
@@ -187,12 +187,13 @@ public class AuthticationFilterTest {
 
   @Test
   public void unequalJtiShouldSuccessWhenUnrestrictedUniqueUser(TestContext testContext) {
-    CacheManager.instance().getCache("userCache").put(namespace + ":user:" + userId, new JsonObject()
-            .put(userKey, userId)
-            .put("username", "edgar")
-            .put("jti", jti), ar -> {
+    CacheManager.instance().getCache("userCache")
+            .put(namespace + ":user:" + userId, new JsonObject()
+                    .put(userKey, userId)
+                    .put("username", "edgar")
+                    .put("jti", jti), ar -> {
 
-    });
+            });
 
     JsonObject claims = new JsonObject()
             .put(userKey, userId)
@@ -207,8 +208,9 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("token.expires", 60 * 30)
-                                          .put("jwt.userClaimKey", userKey)
+                                          .put("jwt",
+                                               new JsonObject().put("expiresInSeconds", 60 * 30))
+                                          .put("user", new JsonObject().put("userClaimKey", userKey))
                                           .put("namespace", namespace));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
@@ -230,12 +232,13 @@ public class AuthticationFilterTest {
 
   @Test
   public void equalJtiShouldSuccessWhenRestrictedUniqueUser(TestContext testContext) {
-    CacheManager.instance().getCache("userCache").put(namespace + ":user:" + userId, new JsonObject()
-            .put(userKey, userId)
-            .put("username", "edgar")
-            .put("jti", jti), ar -> {
+    CacheManager.instance().getCache("userCache")
+            .put(namespace + ":user:" + userId, new JsonObject()
+                    .put(userKey, userId)
+                    .put("username", "edgar")
+                    .put("jti", jti), ar -> {
 
-    });
+            });
 
     JsonObject claims = new JsonObject()
             .put(userKey, userId)
@@ -250,10 +253,11 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("token.expires", 60 * 30)
-                                          .put("jwt.userClaimKey", userKey)
-                                          .put("namespace", namespace)
-                                          .put("jwt.user.unique", true));
+                                          .put("jwt",
+                                               new JsonObject().put("expiresInSeconds", 60 * 30))
+                                          .put("user", new JsonObject().put("userClaimKey", userKey)
+                                                  .put("unique", true))
+                                          .put("namespace", namespace));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -298,10 +302,11 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("token.expires", 60 * 30)
-                                          .put("jwt.userClaimKey", userKey)
-                                          .put("namespace", namespace)
-                                          .put("jwt.user.unique", true));
+                                          .put("jwt",
+                                               new JsonObject().put("expiresInSeconds", 60 * 30))
+                                          .put("user", new JsonObject().put("userClaimKey", userKey)
+                                                  .put("unique", true))
+                                          .put("namespace", namespace));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -343,8 +348,9 @@ public class AuthticationFilterTest {
 
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("token.expires", 60 * 30)
-                                          .put("jwt.userClaimKey", userKey)
+                                          .put("jwt",
+                                               new JsonObject().put("expiresInSeconds", 60 * 30))
+                                          .put("user", new JsonObject().put("userClaimKey", userKey))
                                           .put("namespace", namespace));
     filters.add(filter);
 
@@ -379,7 +385,7 @@ public class AuthticationFilterTest {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", header,
                               params, null);
-   SimpleHttpEndpoint httpEndpoint =
+    SimpleHttpEndpoint httpEndpoint =
             SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", 80, "localhost");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));

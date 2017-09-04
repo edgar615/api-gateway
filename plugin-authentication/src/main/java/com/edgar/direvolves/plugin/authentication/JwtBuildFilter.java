@@ -45,8 +45,6 @@ public class JwtBuildFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final int expires;
-
   private final String userKey;
 
   private final Cache userCache;
@@ -79,46 +77,27 @@ public class JwtBuildFilter implements Filter {
    */
   JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
+    this.namespace = config.getString("namespace", "");
+    //jwt
+    this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
+
+    //user
+    JsonObject userConfig = config.getJsonObject("user", new JsonObject());
+    this.userKey = userConfig.getString("userClaimKey", "userId");
+    this.permissionsKey = userConfig.getString("permissionKey", "permissions");
+
+    //cache
     String cacheType = config.getString("cache", "local");
     CacheFactory factory = CacheFactory.get(cacheType);
 
     JsonObject cacheConfig = config.copy();
-    if (config.getValue("token.expires") instanceof Number) {
-      cacheConfig.put("expireAfterWrite", ((Number) config.getValue("token.expires")).longValue());
+    if (jwtConfig.getValue("expiresInSeconds") instanceof Number) {
+      cacheConfig.put("expireAfterWrite",
+                      ((Number) jwtConfig.getValue("expiresInSeconds")).longValue());
     }
     //由于redis的缓存需要redis的属性，所有不能单纯的用cacheConfig来创建cache
-
     this.userCache = factory.create(vertx, "userCache", cacheConfig);
     CacheManager.instance().addCache(userCache);
-
-    if (config.containsKey("keystore.path")) {
-      this.jwtConfig.put("path", config.getString("keystore.path"));
-    }
-    if (config.containsKey("keystore.type")) {
-      this.jwtConfig.put("type", config.getString("keystore.type"));
-    }
-    if (config.containsKey("keystore.password")) {
-      this.jwtConfig.put("password", config.getString("keystore.password"));
-    }
-    if (config.containsKey("jwt.alg")) {
-      this.jwtConfig.put("algorithm", config.getString("jwt.alg"));
-    }
-    if (config.containsKey("jwt.audience")) {
-      this.jwtConfig.put("audience", config.getString("jwt.audience"));
-    }
-    if (config.containsKey("jwt.issuer")) {
-      this.jwtConfig.put("issuer", config.getString("jwt.issuer"));
-    }
-    if (config.containsKey("jwt.subject")) {
-      this.jwtConfig.put("subject", config.getString("jwt.subject"));
-    }
-    if (config.containsKey("token.expires")) {
-      this.jwtConfig.put("expiresInSeconds", config.getInteger("token.expires"));
-    }
-    this.expires = config.getInteger("token.expires", 1800);
-    this.userKey = config.getString("jwt.userClaimKey", "userId");
-    this.namespace = config.getString("namespace", "");
-    this.permissionsKey = config.getString("jwt.permissionKey", "permissions");
   }
 
   @Override

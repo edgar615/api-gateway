@@ -64,7 +64,7 @@ public class JwtCleanFilterTest {
     filter = Filter.create(JwtCleanFilter.class.getSimpleName(), vertx,
                            new JsonObject()
                                    .put("namespace", namespace)
-                                   .put("jwt.userClaimKey", userKey));
+                                   .put("user", new JsonObject().put("userClaimKey", userKey)));
 
     filters.clear();
     filters.add(filter);

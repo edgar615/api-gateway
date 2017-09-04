@@ -15,7 +15,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,19 +63,13 @@ public class AuthenticationFilter implements Filter {
 
   AuthenticationFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    if (config.containsKey("keystore.path")) {
-      this.jwtConfig.put("path", config.getString("keystore.path"));
-    }
-    if (config.containsKey("keystore.type")) {
-      this.jwtConfig.put("type", config.getString("keystore.type"));
-    }
-    if (config.containsKey("keystore.password")) {
-      this.jwtConfig.put("password", config.getString("keystore.password"));
-    }
-
-    this.userKey = config.getString("jwt.userClaimKey", "userId");
     this.namespace = config.getString("namespace", "");
-    this.uniqueToken = config.getBoolean("jwt.user.unique", false);
+    this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
+
+    //user
+    JsonObject userConfig = config.getJsonObject("user", new JsonObject());
+    this.userKey = userConfig.getString("userClaimKey", "userId");
+    this.uniqueToken = userConfig.getBoolean("unique", false);
     this.userCache = CacheManager.instance().getCache("userCache");
   }
 
