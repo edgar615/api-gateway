@@ -7,7 +7,7 @@ TODO:
 
 对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
 
-将缓存部分实现redis和clustermap（localmap）两种模式
+将缓存部分实现redis和local两种模式，redis的模式使用eventbus处理(将cache与redis的具体实现隔离)
 
 request size limit(全局和单独)：限制过大流量的请求
 

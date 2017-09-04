@@ -8,24 +8,30 @@
       "device": "round_robin"
     }
   },
-  "redis.host": "10.11.0.31",
-  "redis.port": 6379,
-  "redis.password": "",
-  "redis.sub.keys": [
-    "__keyevent@0__:expired",
-    "__keyevent@0__:del"
-  ],
-  "keystore.path": "keystore.jceks",
-  "keystore.type": "jceks",
-  "keystore.password": "secret",
-  "jwt.algorithm": "HS512",
-  "jwt.audience": "",
-  "jwt.issuer": "",
-  "jwt.subject": "",
-  "token.expires": 1800,
-  "jwt.userClaimKey": "userId",
-  "jwt.permissionsClaimKey": "permissions",
-  "jwt.user.unique": true,
+  "redis" : {
+    "host": "10.11.0.31",
+    "port": 6379,
+    "auth": "",
+    "redis.sub.keys": [
+      "__keyevent@0__:expired",
+      "__keyevent@0__:del"
+    ]
+  },
+  "jwt": {
+    "path": "keystore.jceks",
+    "type": "jceks",
+    "password": "secret",
+    "algorithm": "HS512",
+    "audience": "",
+    "issuer": "",
+    "subject": "",
+    "expiresInSeconds": 1800
+  },
+  "user": {
+    "userClaimKey": "userId",
+    "permissionsClaimKey": "permissions",
+    "unique": true
+  },
   "timeout.expires": 300,
   "timeout.enable": false,
   "strict.arg": {
@@ -70,14 +76,14 @@
       "sign"
     ]
   },
-  "circuit.breaker" : {
-    "maxFailures" : 5,
-    "maxRetries" : 0,
-    "resetTimeout" : 60000,
-    "timeout" : 3000,
-    "metricsRollingWindow" : 10000,
-    "notificationPeriod" : 2000,
-    "notificationAddress" : "vertx.circuit-breaker",
-    "registry" : "vertx.circuit.breaker.registry"
+  "circuit.breaker": {
+    "maxFailures": 5,
+    "maxRetries": 0,
+    "resetTimeout": 60000,
+    "timeout": 3000,
+    "metricsRollingWindow": 10000,
+    "notificationPeriod": 2000,
+    "notificationAddress": "vertx.circuit-breaker",
+    "registry": "vertx.circuit.breaker.registry"
   }
 }
