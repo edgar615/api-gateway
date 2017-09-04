@@ -24,19 +24,15 @@ public class RedisCacheFactory implements CacheFactory {
 
   @Override
   public Cache create(Vertx vertx, String cacheName, JsonObject config) {
-    String redisHost = config.getString("redis.host", "localhost");
-    int redisPort = config.getInteger("redis.port", 6379);
-    String redisAuth = config.getString("redis.password", "");
-
-    RedisOptions options = new RedisOptions()
-            .setHost(redisHost)
-            .setPort(redisPort);
-    if (!Strings.isNullOrEmpty(redisAuth)) {
-      options.setAuth(redisAuth);
-    }
-    String namespace = config.getString("namespace", "");
-    options.setAddress(namespace + options.getAddress());
-    RedisClient redisClient = RedisClient.create(vertx, options);
+    JsonObject redisConfig = config.getJsonObject("redis", new JsonObject());
+//    String redisHost = redisConfig.getString("host", "localhost");
+//    int redisPort = redisConfig.getInteger("port", 6379);
+//    String redisAuth = redisConfig.getString("auth", "");
+//    RedisOptions options = new RedisOptions(redisConfig);
+//    if (!Strings.isNullOrEmpty(redisAuth)) {
+//      options.setAuth(redisAuth);
+//    }
+    RedisClient redisClient = RedisClient.create(vertx, new RedisOptions(redisConfig));
     return new RedisCache(redisClient, cacheName, new CacheOptions(config));
   }
 }

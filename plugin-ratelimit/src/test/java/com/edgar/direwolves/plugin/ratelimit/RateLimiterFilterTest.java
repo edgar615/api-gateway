@@ -4,13 +4,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.redis.RedisCacheFactory;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Vertx;
@@ -18,7 +16,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.awaitility.Awaitility;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,25 +43,17 @@ public class RateLimiterFilterTest {
 
   Filter filter;
 
-
   private String namespace = UUID.randomUUID().toString();
-
-  private String cacheAddress = namespace + "." + RedisProvider.class.getName();
 
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-    JsonObject config = new JsonObject()
-            .put("redis.host", "10.11.0.31");
-    RedisProvider redis = new RedisCacheFactory().create(vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
 
-    ProxyHelper.registerService(RedisProvider.class, vertx, redis,
-                                cacheAddress);
   }
 
   @Test
@@ -78,7 +67,9 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace));
+            .put("namespace", namespace)
+            .put("redis", new JsonObject()
+                    .put("redis.host", "10.11.0.31")));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -154,7 +145,9 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace));
+            .put("namespace", namespace)
+            .put("redis", new JsonObject()
+                    .put("redis.host", "10.11.0.31")));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -269,7 +262,9 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace));
+            .put("namespace", namespace)
+            .put("redis", new JsonObject()
+                    .put("redis.host", "10.11.0.31")));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -328,13 +323,15 @@ public class RateLimiterFilterTest {
                     .put("limit", 1)
                     .put("interval", 1)
                     .put("unit", TimeUnit.SECONDS.name()))
-    .put(name2, new JsonObject().put("key", subject2)
-            .put("limit", 1)
-            .put("interval", 5)
-            .put("unit", TimeUnit.SECONDS.name()));
+            .put(name2, new JsonObject().put("key", subject2)
+                    .put("limit", 1)
+                    .put("interval", 5)
+                    .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace));
+            .put("namespace", namespace)
+            .put("redis", new JsonObject()
+                    .put("redis.host", "10.11.0.31")));
     filters.add(filter);
 
     ApiContext apiContext = createContext();

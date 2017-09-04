@@ -79,12 +79,14 @@ public class JwtBuildFilter implements Filter {
    */
   JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    CacheFactory factory = CacheFactory.get("local");
+    String cacheType = config.getString("cache", "local");
+    CacheFactory factory = CacheFactory.get(cacheType);
 
-    JsonObject cacheConfig = new JsonObject();
+    JsonObject cacheConfig = config.copy();
     if (config.getValue("token.expires") instanceof Number) {
       cacheConfig.put("expireAfterWrite", ((Number) config.getValue("token.expires")).longValue());
     }
+    //由于redis的缓存需要redis的属性，所有不能单纯的用cacheConfig来创建cache
 
     this.userCache = factory.create(vertx, "userCache", cacheConfig);
     CacheManager.instance().addCache(userCache);
