@@ -6,10 +6,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.edgar.direwolves.core.cache.RedisProvider;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
@@ -30,7 +28,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.serviceproxy.ProxyHelper;
 import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Assert;
@@ -275,10 +272,11 @@ public class AppKeyFilterTest {
 
   }
 
-  private void importAppKey() {JsonObject origin = new JsonObject()
-          .put(secretKey, appSecret)
-          .put(codeKey, appCode)
-          .put("appKey", appKey);
+  private void importAppKey() {
+    JsonObject origin = new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode)
+            .put("appKey", appKey);
     Future<Void> future = Future.future();
     AppKeyDiscovery.create(vertx, namespace)
             .registerImporter(new JsonAppKeyImpoter(), new JsonObject().put("origin",
