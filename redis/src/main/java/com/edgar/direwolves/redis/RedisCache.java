@@ -17,7 +17,7 @@ public class RedisCache implements Cache {
   private final RedisClient redisClient;
 
   /**
-   * 脚本
+   * 过期时间
    */
   private long expires;
 

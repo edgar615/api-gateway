@@ -7,7 +7,7 @@
     <groupId>com.edgar</groupId>
     <artifactId>direwolves</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <modules>
         <module>definition</module>
         <module>dispatch</module>

@@ -251,27 +251,27 @@ public class HttpRpcHandlerTest {
     });
   }
 
-  @Test
-  public void testTimeout(TestContext context) {
-    HttpRpcRequest rpcRequest = SimpleHttpRequest.create("abc", "device")
-            .setPort(port)
-            .setHost("localhost")
-            .setPath("devices/1?type=2")
-            .setHttpMethod(HttpMethod.GET)
-            .setTimeout(101)
-            .addHeader("x-req-id", UUID.randomUUID().toString())
-            .addParam("userId", "2")
-            .addParam("userId", "1");
-
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        context.fail();
-      } else {
-        async.complete();
-        ar.cause().printStackTrace();
-      }
-    });
-  }
+//  @Test
+//  public void testTimeout(TestContext context) {
+//    HttpRpcRequest rpcRequest = SimpleHttpRequest.create("abc", "device")
+//            .setPort(port)
+//            .setHost("localhost")
+//            .setPath("devices/1?type=2")
+//            .setHttpMethod(HttpMethod.GET)
+//            .setTimeout(101)
+//            .addHeader("x-req-id", UUID.randomUUID().toString())
+//            .addParam("userId", "2")
+//            .addParam("userId", "1");
+//
+//    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+//    Async async = context.async();
+//    future.setHandler(ar -> {
+//      if (ar.succeeded()) {
+//        context.fail();
+//      } else {
+//        async.complete();
+//        ar.cause().printStackTrace();
+//      }
+//    });
+//  }
 }

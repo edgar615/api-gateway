@@ -21,7 +21,7 @@ public class RateLimiterPluginTest {
             .put("rate.limiter", jsonArray);
     jsonArray.add(new JsonObject().put("name", "second")
                           .put("burst", 100));
-    ApiPluginFactory factory = new RateLimiterPluginFactory();
+    ApiPluginFactory factory = new RateLimitPluginFactory();
     RateLimiterPlugin plugin = (RateLimiterPlugin) factory.decode(jsonObject);
     Assert.assertEquals(1, plugin.rateLimiters().size());
     Assert.assertEquals(100, plugin.rateLimiters().get(0).burst());

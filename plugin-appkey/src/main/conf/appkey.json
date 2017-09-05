@@ -1,0 +1,10 @@
+{
+  "appkey" : {
+    *   secretKey 密钥的键值，默认值appSecret
+  *   codeKey 编码的键值，默认值appCode
+  *   permissionKey 权限的键值，默认值permissions
+  *   origin.importer APPKEY的JSON数组
+  *   http.importer AppKey的导入,JsonObject，四个属性：scan-period导入周期，默认5000毫秒，host 默认值
+  *   localhost, port端口，默认值9000, url地址，默认值/appkey/import
+  }
+}

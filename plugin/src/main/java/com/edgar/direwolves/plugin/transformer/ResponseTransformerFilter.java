@@ -51,11 +51,16 @@ import java.util.List;
  */
 public class ResponseTransformerFilter implements Filter {
 
-  private final ResponseTransformerPlugin globalPlugin = new ResponseTransformerPluginImpl();
+  private final ResponseTransformerPlugin globalPlugin;// = new ResponseTransformerPluginImpl();
 
   ResponseTransformerFilter(JsonObject config) {
     JsonObject jsonObject = config.getJsonObject("response.transformer", new JsonObject());
-    ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
+    if (jsonObject.isEmpty()) {
+      globalPlugin = null;
+    } else {
+      globalPlugin = new ResponseTransformerPluginImpl();
+      ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
+    }
   }
 
   @Override
@@ -73,15 +78,17 @@ public class ResponseTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return true;
-//    return apiContext.apiDefinition()
-//                   .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
+    return globalPlugin != null
+           || apiContext.apiDefinition()
+                      .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
 
-    doTransfomer(apiContext, globalPlugin);
+    if (globalPlugin != null) {
+      doTransfomer(apiContext, globalPlugin);
+    }
     ResponseTransformerPlugin plugin =
             (ResponseTransformerPlugin) apiContext.apiDefinition()
                     .plugin(ResponseTransformerPlugin.class.getSimpleName());

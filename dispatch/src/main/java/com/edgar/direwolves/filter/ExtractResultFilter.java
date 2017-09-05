@@ -109,9 +109,9 @@ public class ExtractResultFilter implements Filter {
   }
 
   private Result extractResult(RpcResponse response) {
-    JsonObject result = new JsonObject();
+//    JsonObject result = new JsonObject();
     int statusCode = response.statusCode();
-    result.put("statusCode", statusCode);
+//    result.put("statusCode", statusCode);
     boolean isArray = response.isArray();
     if (isArray) {
       return Result.createJsonArray(statusCode, response.responseArray(), null);

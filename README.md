@@ -23,7 +23,7 @@ API版本：在响应头中增加API的版本，如果有过期时间说明过�
 
 所有的全局插件配置均可以动态修改(配置管理，eventbus)
 
-基于版本/用户的灰度发布（在nginx上处理可能更好）
+基于版本/用户的灰度发布（在nginx上处理可能更好）参考 http://www.ttlsa.com/linux/meizu-ad-http-api-sou/
 
 ## API Definition
 
