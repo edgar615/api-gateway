@@ -42,7 +42,7 @@ public class SimpleHttpEndPointTest {
   public void testFromJson() {
 
     JsonObject jsonObject = new JsonObject()
-            .put("type", "simple-http")
+            .put("type", "simple-http").put("host", "localhost").put("port", 80)
             .put("name", "device.delete.1.2.0")
             .put("host", "localhost")
             .put("port", 80)

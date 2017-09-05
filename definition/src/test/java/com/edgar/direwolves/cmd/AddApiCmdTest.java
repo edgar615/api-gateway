@@ -40,7 +40,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
             .put("method", "POST")
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "http")
+            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
                          .put("name", "add_device")
                          .put("service", "device")
                          .put("method", "POST")
@@ -99,7 +99,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
             .put("method", "POST")
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "http")
+            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
                          .put("name", "add_device")
                          .put("service", "device")
                          .put("method", "POST")
@@ -155,7 +155,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
             .put("method", "POST")
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "http")
+            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
                          .put("name", "add_device")
                          .put("service", "device")
                          .put("method", "POST")

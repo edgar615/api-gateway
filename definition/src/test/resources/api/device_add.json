@@ -1,0 +1,16 @@
+{
+  "name" : "add_device",
+  "method": "POST",
+  "path": "/devices",
+  "endpoints": [
+    {
+      "type" : "simple-http",
+      "host" : "localhost",
+      "port" : 80,
+      "name" : "add_device",
+      "service": "device",
+      "method": "POST",
+      "path": "/devices"
+    }
+  ]
+}

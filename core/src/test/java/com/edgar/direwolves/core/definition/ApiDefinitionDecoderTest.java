@@ -22,7 +22,7 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "simple-http")
+                          .put("type", "simple-http").put("host", "localhost").put("port", 80)
                           .put("name", "device.add.1.2.0")
                           .put("host", "localhost")
                           .put("port", 80)
@@ -50,14 +50,14 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "simple-http")
+                          .put("type", "simple-http").put("host", "localhost").put("port", 80)
                           .put("name", "device.add.1.2.0")
                           .put("host", "localhost")
                           .put("port", 80)
                           .put("method", "undefined")
                           .put("path", "/devices/add"))
             .add(new JsonObject()
-                         .put("type", "simple-http")
+                         .put("type", "simple-http").put("host", "localhost").put("port", 80)
                          .put("name", "device.delete.1.2.0")
                          .put("host", "localhost")
                          .put("port", 90)
@@ -115,7 +115,7 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "simple-http")
+                          .put("type", "simple-http").put("host", "localhost").put("port", 80)
                           .put("method", "put")
                           .put("name", "device.add.1.2.0")
                           .put("host", "localhost")
@@ -143,7 +143,7 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "simple-http")
+                          .put("type", "simple-http").put("host", "localhost").put("port", 80)
                           .put("method", "get")
                           .put("name", "device.add.1.2.0")
                           .put("host", "localhost")
@@ -171,7 +171,7 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "simple-http")
+                          .put("type", "simple-http").put("host", "localhost").put("port", 80)
                           .put("method", "delete")
                           .put("name", "device.add.1.2.0")
                           .put("host", "localhost")
@@ -199,7 +199,7 @@ public class ApiDefinitionDecoderTest {
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray();
     endpoints.add(new JsonObject()
-                          .put("type", "simple-http")
+                          .put("type", "simple-http").put("host", "localhost").put("port", 80)
                           .put("method", "post")
                           .put("name", "device.add.1.2.0")
                           .put("host", "localhost")
