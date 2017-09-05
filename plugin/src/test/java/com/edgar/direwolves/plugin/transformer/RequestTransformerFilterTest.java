@@ -270,7 +270,7 @@ public class RequestTransformerFilterTest {
               testContext.assertTrue(request.headers().containsKey("h5"));
               testContext.assertFalse(request.params().containsKey("rq6"));
               testContext.assertFalse(request.headers().containsKey("rh5"));
-              testContext.assertNotNull(request.body());
+              testContext.assertNull(request.body());
               async.complete();
             }).onFailure(t -> testContext.fail());
   }

@@ -1,6 +1,5 @@
 package com.edgar.direwolves.plugin.transformer;
 
-import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -8,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
+import com.edgar.direwolves.core.rpc.http.HttpRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -60,11 +60,16 @@ import java.util.Collection;
  */
 public class RequestTransformerFilter implements Filter {
 
-  private final RequestTransformer globalTransfomer = RequestTransformer.create("global");
+  private final RequestTransformer globalTransfomer; //= RequestTransformer.create("global");
 
   RequestTransformerFilter(JsonObject config) {
     JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
-    RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
+    if (jsonObject.isEmpty()) {
+      globalTransfomer = null;
+    } else {
+      globalTransfomer = RequestTransformer.create("global");
+      RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
+    }
   }
 
   @Override
@@ -82,9 +87,14 @@ public class RequestTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.requests().size() > 0
-           && apiContext.requests().stream()
-                   .anyMatch(e -> e instanceof HttpRpcRequest);
+    if (apiContext.requests().size() > 0
+        && apiContext.requests().stream()
+                .anyMatch(e -> e instanceof HttpRpcRequest)) {
+      return globalTransfomer != null
+             || apiContext.apiDefinition()
+                        .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
+    }
+    return false;
 //    return apiContext.apiDefinition()
 //                   .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
 //           && apiContext.requests().size() > 0;
@@ -97,7 +107,9 @@ public class RequestTransformerFilter implements Filter {
     for (int i = 0; i < apiContext.requests().size(); i++) {
       RpcRequest request = apiContext.requests().get(i);
       if (request instanceof HttpRpcRequest) {
-        doTransformer((HttpRpcRequest) request, globalTransfomer);
+        if (globalTransfomer != null) {
+          doTransformer((HttpRpcRequest) request, globalTransfomer);
+        }
         transformer(apiContext, (HttpRpcRequest) request);
       }
     }
