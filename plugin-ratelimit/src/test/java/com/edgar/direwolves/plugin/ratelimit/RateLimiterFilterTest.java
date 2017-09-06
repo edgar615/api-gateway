@@ -9,8 +9,10 @@ import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
+import com.edgar.direwolves.redis.RedisVerticle;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.vertx.task.Task;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -48,8 +50,21 @@ public class RateLimiterFilterTest {
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
+    JsonObject config = new JsonObject()
+            .put("host", "test.ihorn.com.cn")
+            .put("port", 32770)
+            .put("auth", "7CBF5FBEF855F16F");
+
+    AtomicBoolean check = new AtomicBoolean();
+    vertx.deployVerticle(RedisVerticle.class.getName(), new DeploymentOptions()
+            .setConfig(new JsonObject().put("redis", config)), ar -> {
+      check.set(true);
+    });
+
+    Awaitility.await().until(() -> check.get());
+
     try {
-      TimeUnit.SECONDS.sleep(1);
+      TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -67,9 +82,7 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace)
-            .put("redis", new JsonObject()
-                    .put("redis.host", "10.11.0.31")));
+            .put("namespace", namespace));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -84,7 +97,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(2l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check1.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -97,7 +110,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(1l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check2.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -110,7 +123,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(0l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check3.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -127,7 +140,7 @@ public class RateLimiterFilterTest {
       testContext.assertTrue(t instanceof SystemException);
       Map<String, Object> map = ((SystemException) t).getProperties();
       testContext.assertEquals(0l, map
-              .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-0-Remaining"));
       check4.set(true);
     });
     Awaitility.await().until(() -> check4.get());
@@ -145,9 +158,7 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace)
-            .put("redis", new JsonObject()
-                    .put("redis.host", "10.11.0.31")));
+            .put("namespace", namespace));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -163,7 +174,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(2l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check1.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -176,7 +187,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(1l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check2.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -189,7 +200,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(0l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check3.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -206,7 +217,7 @@ public class RateLimiterFilterTest {
       testContext.assertTrue(t instanceof SystemException);
       Map<String, Object> map = ((SystemException) t).getProperties();
       testContext.assertEquals(0l, map
-              .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-0-Remaining"));
       check4.set(true);
     });
     Awaitility.await().until(() -> check4.get());
@@ -230,7 +241,7 @@ public class RateLimiterFilterTest {
       testContext.assertTrue(t instanceof SystemException);
       Map<String, Object> map = ((SystemException) t).getProperties();
       testContext.assertEquals(0l, map
-              .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-0-Remaining"));
       check5.set(true);
     });
     Awaitility.await().until(() -> check5.get());
@@ -242,7 +253,7 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(4l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               check6.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -262,9 +273,7 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace)
-            .put("redis", new JsonObject()
-                    .put("redis.host", "10.11.0.31")));
+            .put("namespace", namespace));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -329,9 +338,7 @@ public class RateLimiterFilterTest {
                     .put("unit", TimeUnit.SECONDS.name()));
     filter = new RateLimiterFilterFactory().create(vertx, new JsonObject()
             .put("rate.limiter", config)
-            .put("namespace", namespace)
-            .put("redis", new JsonObject()
-                    .put("redis.host", "10.11.0.31")));
+            .put("namespace", namespace));
     filters.add(filter);
 
     ApiContext apiContext = createContext();
@@ -347,9 +354,9 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(2l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name1 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               testContext.assertEquals(3l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name2 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-1-Remaining"));
               check1.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -362,9 +369,9 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(1l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name1 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               testContext.assertEquals(2l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name2 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-1-Remaining"));
               check2.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -377,9 +384,9 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(0l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name1 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               testContext.assertEquals(1l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name2 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-1-Remaining"));
               check3.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -396,9 +403,9 @@ public class RateLimiterFilterTest {
       testContext.assertTrue(t instanceof SystemException);
       Map<String, Object> map = ((SystemException) t).getProperties();
       testContext.assertEquals(0l, map
-              .get("resp.header:X-Rate-Limit-" + name1 + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-0-Remaining"));
       testContext.assertEquals(1l, map
-              .get("resp.header:X-Rate-Limit-" + name2 + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-1-Remaining"));
       check4.set(true);
     });
     Awaitility.await().until(() -> check4.get());
@@ -414,9 +421,9 @@ public class RateLimiterFilterTest {
             .andThen(context -> {
               System.out.println(context.variables());
               testContext.assertEquals(2l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name1 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-0-Remaining"));
               testContext.assertEquals(0l, context.variables()
-                      .get("resp.header:X-Rate-Limit-" + name2 + "-Remaining"));
+                      .get("resp.header:X-Rate-Limit-1-Remaining"));
               check5.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
@@ -434,9 +441,9 @@ public class RateLimiterFilterTest {
       testContext.assertTrue(t instanceof SystemException);
       Map<String, Object> map = ((SystemException) t).getProperties();
       testContext.assertEquals(2l, map
-              .get("resp.header:X-Rate-Limit-" + name1 + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-0-Remaining"));
       testContext.assertEquals(0l, map
-              .get("resp.header:X-Rate-Limit-" + name2 + "-Remaining"));
+              .get("resp.header:X-Rate-Limit-1-Remaining"));
       check6.set(true);
     });
     Awaitility.await().until(() -> check6.get());

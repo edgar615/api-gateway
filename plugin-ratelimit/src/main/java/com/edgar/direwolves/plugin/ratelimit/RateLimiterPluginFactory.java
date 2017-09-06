@@ -23,7 +23,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class RateLimitPluginFactory implements ApiPluginFactory {
+public class RateLimiterPluginFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
     if (!jsonObject.containsKey("rate.limiter")) {

@@ -13,7 +13,6 @@
 
     <properties>
         <redis.util.version>0.0.2</redis.util.version>
-
     </properties>
 
     <dependencies>
