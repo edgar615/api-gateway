@@ -1,6 +1,7 @@
 package com.edgar.direwolves.redis;
 
 import com.edgar.direwolves.core.cache.Cache;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -26,21 +27,30 @@ public class RedisCacheTest {
   private Vertx vertx;
 
   private Cache cache;
+
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
     JsonObject config = new JsonObject()
             .put("host", "test.ihorn.com.cn")
             .put("port", 32770)
-            .put("auth", "7CBF5FBEF855F16F")
-           ;
+            .put("auth", "7CBF5FBEF855F16F");
 
-    cache = new RedisCacheFactory().create(vertx, "test", new JsonObject().put("redis", config) .put("expireAfterWrite", 3));
+    AtomicBoolean check = new AtomicBoolean();
+    vertx.deployVerticle(RedisVerticle.class.getName(), new DeploymentOptions()
+            .setConfig(new JsonObject().put("redis", config)), ar -> {
+      cache = new RedisCacheFactory()
+              .create(vertx, "test", new JsonObject().put("expireAfterWrite", 3));
+      check.set(true);
+    });
+
+    Awaitility.await().until(() -> check.get());
+
   }
 
   @Test
   public void testNotExists(TestContext testContext) {
-    String  key = UUID.randomUUID().toString();
+    String key = UUID.randomUUID().toString();
     Async async = testContext.async();
     cache.get(key, ar -> {
       if (ar.succeeded()) {
@@ -55,7 +65,7 @@ public class RedisCacheTest {
 
   @Test
   public void testPut(TestContext testContext) {
-    String  key = UUID.randomUUID().toString();
+    String key = UUID.randomUUID().toString();
     AtomicBoolean check1 = new AtomicBoolean();
     cache.get(key, ar -> {
       if (ar.succeeded()) {
@@ -94,7 +104,7 @@ public class RedisCacheTest {
 
   @Test
   public void testExpire(TestContext testContext) {
-    String  key = UUID.randomUUID().toString();
+    String key = UUID.randomUUID().toString();
     AtomicBoolean check1 = new AtomicBoolean();
     cache.get(key, ar -> {
       if (ar.succeeded()) {

@@ -11,6 +11,11 @@
 
     <artifactId>direwolves-redis</artifactId>
 
+    <properties>
+        <redis.util.version>0.0.2</redis.util.version>
+
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.edgar</groupId>
@@ -21,6 +26,11 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-redis-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.edgar</groupId>
+            <artifactId>vertx-util-redis</artifactId>
+            <version>${redis.util.version}</version>
         </dependency>
 
         <dependency>
