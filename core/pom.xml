@@ -26,14 +26,6 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-service-proxy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-codegen</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>
@@ -82,7 +74,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <annotationProcessors>
+                    <!--<annotationProcessors>
                         <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
                     </annotationProcessors>
                     <generatedSourcesDirectory>
@@ -90,7 +82,7 @@
                     </generatedSourcesDirectory>
                     <compilerArgs>
                         <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
-                    </compilerArgs>
+                    </compilerArgs>-->
                 </configuration>
             </plugin>
 
