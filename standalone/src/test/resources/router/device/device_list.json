@@ -47,7 +47,7 @@
     "service" : "device",
     "method" : "GET",
     "name" : "query_device",
-    "type" : "simple-http",
+    "type" : "http",
     "path" : "/devices"
   } ],
   "request.transformer" : [ {

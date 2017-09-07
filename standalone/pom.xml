@@ -46,6 +46,12 @@
 
         <dependency>
             <groupId>com.edgar</groupId>
+            <artifactId>direwolves-http</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.edgar</groupId>
             <artifactId>direwolves-plugin</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

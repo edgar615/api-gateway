@@ -16,16 +16,6 @@
         }
       }
     },
-    "ShellVertice": {
-      "class": "io.vertx.ext.shell.ShellVerticle",
-      "instances": 1,
-      "worker": false,
-      "config": {
-        "httpOptions": {
-          "port": 4000
-        }
-      }
-    },
     "ApiDefinitionVerticle": {
       "class": "com.edgar.direwolves.verticle.ApiDefinitionVerticle",
       "instances": 1,
@@ -42,20 +32,11 @@
         }
       }
     },
-    "ApiDispatchVerticle": {
-      "class": "com.edgar.direwolves.verticle.ApiDispatchVerticle",
+    "RedisVerticle": {
+      "class": "com.edgar.direwolves.redis.RedisVerticle",
       "instances": 1,
       "worker": false,
       "config": {
-        "http.port": 9000,
-        "namespace": "example",
-        "long_req_time": 1000,
-        "service.discovery": {
-          "strategy": {
-            "user": "random",
-            "device": "round_robin"
-          }
-        },
         "redis" : {
           "host": "10.11.0.31",
           "port": 6379,
@@ -64,6 +45,24 @@
             "__keyevent@0__:expired",
             "__keyevent@0__:del"
           ]
+        }
+      }
+    },
+    "ApiDispatchVerticle": {
+      "class": "com.edgar.direwolves.verticle.ApiDispatchVerticle",
+      "instances": 1,
+      "worker": false,
+      "dependencies": [ "RedisVerticle" ],
+      "config": {
+        "http.port": 9000,
+        "namespace": "example",
+        "cache" : "local",
+        "long_req_time": 1000,
+        "service.discovery": {
+          "strategy": {
+            "user": "random",
+            "device": "round_robin"
+          }
         },
         "jwt": {
           "path": "keystore.jceks",
