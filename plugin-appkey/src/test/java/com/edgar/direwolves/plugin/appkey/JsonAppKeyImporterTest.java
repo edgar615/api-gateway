@@ -69,7 +69,7 @@ public class JsonAppKeyImporterTest {
             .put(codeKey, appCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
-            .put("origin", new JsonArray().add(origin));
+            .put("data", new JsonArray().add(origin));
     Future<Void> future = Future.future();
     discovery.registerImporter(new JsonAppKeyImpoter(), config, future);
     future.setHandler(ar -> {

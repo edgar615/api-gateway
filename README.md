@@ -152,6 +152,105 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
       "whitelist": ["192.168.1.*"]]
     }
 
+# AppKey校验
+## Plugin: AppKeyPlugin
+对调用方的appkey和sign做校验
+
+配置示例：
+
+     "appkey": true,
+
+禁止访问对调用方会返回1022的错误码
+
+## Filter: AppKeyFilter
+调用方的ip从上下文读取`request.client_ip`变量
+
+- type PRE
+- order 10
+
+全局参数
+
+    "appkey" : {
+      "secretKey": appkey对应密钥的属性名，默认值appSecret,
+      "codeKey": appkey对应编码的属性名，默认值appCode,
+      "permissionKey": appkey对应权限的属性名，默认值permissions,
+      "import" :[] appkey的导入规则
+    }
+
+origin的导入规则
+
+        {
+          "type" : "origin",
+          "data": [] appkey的json数组
+        }
+
+http的导入规则
+
+        {
+          "type" : "http",
+          "scan-period": 5000, 导入周期
+          "host": "localhost",地址，一般直接指向网关本身，然后在网关中调用下游服务
+          "port": 9000,
+          "url": "/appkey/import" 导入地址
+        }
+
+示例
+
+    "appkey": {
+      "secretKey": "appSecret",
+      "codeKey": "appCode",
+      "permissionKey": "permissions",
+      "import": [
+        {
+          "type" : "http",
+          "scan-period": 5000,
+          "host": "localhost",
+          "port": 9000,
+          "url": "/appkey/import"
+        },
+        {
+          "type" : "origin",
+          "data": []
+        }
+      ],
+      "origin.importer": [],
+      "http.importer": {
+        "scan-period": 5000,
+        "host": "localhost",
+        "port": 9000,
+        "url": "/appkey/import"
+      }
+    }
+
+## 签名生成的通用步骤如下：
+    第一步，设所有发送或者接收到的数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序），使用URL键值对的格式（即key1=value1&key2=value2…）拼接成字符串stringA，如果请求带请求体，将请求体中的JSON对象转换为字符串之后按照body=JSON的格式加入到URL键值中，拼接成字符串stringA。
+    第二步，对stringA按照signMethod中指定的算法进行加密得到最终的signValue。
+    如果是MD5加密，需要在stringA的首尾加上appSecret。
+    第三步，将sign=signValue追加到URL参数的后面，向服务端发送请求。
+### 示例1,GET请求 查询安防记录的接口
+    GET /alarms?type=21&alarmTimeStart=1469280456&alarmTimeEnd=1471958856&start=0&limit=20
+    第一步，增加通用参数
+    /alarms?type=21&alarmTimeStart=1469280456&alarmTimeEnd=1471958856&start=0&limit=20&appKey=XXXXX&timestamp=1471958856&nonce=123456&v=1.0&signMethod=HMACMD5
+    第二步，将所有的参数排序得到新的查询字符串
+    alarmTimeEnd=1471958856&alarmTimeStart=1469280456&appKey=XXXXX&limit=20&nonce=123456&signMethod=HMACMD5&start=0&timestamp=1471958856&type=21&v=1.0
+    第三步，将上一步得到的查询字符串使用HMACMD5加密，得到签名7B686C90ACE0193430774F4BE096F128，并追加到查询参数之后
+    alarmTimeEnd=1471958856&alarmTimeStart=1469280456& appKey=XXXXX&limit=20&nonce=123456&signMethod=HMACMD5&start=0&timestamp=1471958856&type=21&v=1.0&sign= 7B686C90ACE0193430774F4BE096F128
+    第四步，将上一步得到的查询字符串加入到接口中调用/alarms? alarmTimeEnd=1471958856&alarmTimeStart=1469280456& appKey=XXXXX&limit=20&nonce=123456&signMethod=HMACMD5&start=0&timestamp=1471958856&type=21&v=1.0&sign= 7B686C90ACE0193430774F4BE096F128
+###     示例2,POST请求 用户登录
+    POST /login
+    {"username":"foo","password":"bar"}
+    第一步，增加通用参数
+    /login?appKey=XXXXX&timestamp=1471958856&nonce=123456&v=1.0&signMethod=HMACMD5
+    第二步，将请求体转换为JSON字符串后追加到参数列表中
+    appKey=XXXXX&timestamp=1471958856&nonce=123456&v=1.0&signMethod=HMACMD5&body={"username":"foo","password":"bar"}
+    第二步，将所有的参数排序得到新的查询字符串
+    appKey=XXXXX&body={"username":"foo","password":"bar"}&nonce=123456&signMethod=HMACMD5&timestamp=1471958856&v=1.0
+    第三步，将上一步得到的查询字符串使用HMACMD5加密，得到签名A61C44F04361DE0530F4EF2E363C4A45，并追加到查询参数之后（不包括body）
+    appKey=XXXXX&nonce=123456&signMethod=HMACMD5&timestamp=1471958856&v=1.0&sign= A61C44F04361DE0530F4EF2E363C4A45
+    第四步，将上一步得到的查询字符串加入到接口中调用
+    /login?appKey=XXXXX&nonce=123456&signMethod=HMACMD5&timestamp=1471958856&v=1.0&sign= A61C44F04361DE0530F4EF2E363C4A45
+
+
 # AppKey限制
 ## Plugin: AppKeyRestriction
 对调用API的调用方，增加白名单和黑名单限制

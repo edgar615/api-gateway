@@ -1,28 +1,14 @@
 package com.edgar.direwolves.plugin.appkey;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-
-import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.definition.ApiPlugin;
-import com.edgar.direwolves.core.definition.HttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.Filters;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
 import com.edgar.direwolves.plugin.appkey.discovery.HttpAppKeyImporter;
-import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
-import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.awaitility.Awaitility;
@@ -31,12 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,6 +41,10 @@ public class HttpAppKeyImporterTest {
 
   String signMethod = "HMACMD5";
 
+  AtomicInteger reqCount;
+
+  AppKeyDiscovery discovery;
+
   private String namespace = UUID.randomUUID().toString();
 
   private Filter filter;
@@ -69,10 +56,6 @@ public class HttpAppKeyImporterTest {
   private String codeKey = UUID.randomUUID().toString();
 
   private Vertx vertx;
-
-  AtomicInteger reqCount;
-
-  AppKeyDiscovery discovery;
 
   @Before
   public void setUp(TestContext testContext) {
@@ -138,7 +121,7 @@ public class HttpAppKeyImporterTest {
 
   @Test
   public void testAppKey(TestContext testContext) {
-    Awaitility.await().until(()-> reqCount.get() >= 5);
+    Awaitility.await().until(() -> reqCount.get() >= 5);
 
     AtomicBoolean completed = new AtomicBoolean();
     discovery.getAppKey(appKey, ar -> {

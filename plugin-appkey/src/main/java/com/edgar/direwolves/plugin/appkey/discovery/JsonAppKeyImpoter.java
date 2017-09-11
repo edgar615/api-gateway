@@ -23,7 +23,7 @@ public class JsonAppKeyImpoter implements AppKeyImporter {
   @Override
   public void start(Vertx vertx, AppKeyPublisher publisher, JsonObject config,
                     Future<Void> completed) {
-    JsonArray appKeys = config.getJsonArray("origin", new JsonArray());
+    JsonArray appKeys = config.getJsonArray("data", new JsonArray());
     List<Future> futures = new ArrayList<>();
     for (int i = 0; i < appKeys.size(); i++) {
       JsonObject jsonObject = appKeys.getJsonObject(i);

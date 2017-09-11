@@ -1,6 +1,5 @@
 package com.edgar.direwolves.plugin.appkey;
 
-import com.edgar.direwolves.plugin.appkey.discovery.AppKeyLocalCache;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -11,6 +10,8 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Log;
 import com.edgar.direwolves.core.utils.MultimapUtils;
 import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
+import com.edgar.direwolves.plugin.appkey.discovery.AppKeyLocalCache;
+import com.edgar.direwolves.plugin.appkey.discovery.HttpAppKeyImporter;
 import com.edgar.direwolves.plugin.appkey.discovery.JsonAppKeyImpoter;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.exception.DefaultErrorCode;
@@ -19,6 +20,7 @@ import com.edgar.util.validation.Rule;
 import com.edgar.util.validation.Validations;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +44,26 @@ import java.util.List;
  *   secretKey 密钥的键值，默认值appSecret
  *   codeKey 编码的键值，默认值appCode
  *   permissionKey 权限的键值，默认值permissions
- *   origin.importer APPKEY的JSON数组
- *   http.importer AppKey的导入,JsonObject，四个属性：scan-period导入周期，默认5000毫秒，host 默认值
- *   localhost, port端口，默认值9000, url地址，默认值/appkey/import
+ *   import : JSON数组，appkey的导入
+ *   }
+ * </pre>
+ * <p>
+ * import支持origin和http两种
+ * origin类型的配置
+ * <pre>
+ *   {
+ *     "type" : "origin",
+ *     "data": [] APPKEY的JSON数组
+ *   }
+ * </pre>
+ * http类型的配置
+ * <pre>
+ *   {
+ *     "type" : "http",
+ * "scan-period": 导入周期，默认5000毫秒,
+ * "host": "默认值localhost",
+ * "port": 默认值9000,
+ * "url": "默认值/appkey/import"
  *   }
  * </pre>
  * 该filter的order=10
@@ -150,13 +169,21 @@ public class AppKeyFilter implements Filter {
     this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
     discovery = AppKeyDiscovery.create(vertx, namespace);
-    if (appKeyConfig.containsKey("origin.importer")) {
-      discovery.registerImporter(new JsonAppKeyImpoter(), new JsonObject().put("origin", config
-              .getValue("origin.importer")), Future.<Void>future().completer());
-    }
-    if (appKeyConfig.containsKey("http.importer")) {
-      discovery.registerImporter(new JsonAppKeyImpoter(), config.getJsonObject("http.importer"),
-                                 Future.<Void>future().completer());
+    if (appKeyConfig.getValue("import") instanceof JsonArray) {
+      JsonArray importArray = appKeyConfig.getJsonArray("import");
+      for (int i = 0; i < importArray.size(); i++) {
+        if (importArray.getValue(i) instanceof JsonObject) {
+          JsonObject jsonObject = importArray.getJsonObject(i);
+          if ("origin".equals(jsonObject.getValue("type"))) {
+            discovery.registerImporter(new JsonAppKeyImpoter(), jsonObject,
+                                       Future.<Void>future().completer());
+          }
+          if ("http".equals(jsonObject.getValue("type"))) {
+            discovery.registerImporter(new HttpAppKeyImporter(), jsonObject,
+                                       Future.<Void>future().completer());
+          }
+        }
+      }
     }
     this.cache = AppKeyLocalCache.create(vertx, discovery);
   }

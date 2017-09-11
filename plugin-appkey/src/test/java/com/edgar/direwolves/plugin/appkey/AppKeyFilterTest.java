@@ -12,15 +12,12 @@ import com.edgar.direwolves.core.definition.SimpleHttpEndpoint;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
-import com.edgar.direwolves.plugin.appkey.discovery.JsonAppKeyImpoter;
 import com.edgar.util.base.EncryptUtils;
 import com.edgar.util.base.Randoms;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import com.edgar.util.validation.ValidationException;
 import com.edgar.util.vertx.task.Task;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -40,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -74,6 +72,7 @@ public class AppKeyFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
+    filters.clear();
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
             .put("codeKey", codeKey);
@@ -81,7 +80,6 @@ public class AppKeyFilterTest {
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
-    filters.clear();
     filters.add(filter);
 
 
@@ -147,7 +145,21 @@ public class AppKeyFilterTest {
 //            .put(codeKey, appCode), ar -> {
 //
 //    });
-    importAppKey();
+    JsonObject origin = new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode)
+            .put("appKey", appKey);
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey)
+            .put("import",
+                 new JsonArray().add(new JsonObject().put("type", "origin").put("data", new
+                         JsonArray().add(origin))));
+
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("appkey", config)
+            .put("namespace", namespace));
+    filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -183,8 +195,21 @@ public class AppKeyFilterTest {
   @Test
   public void testSignWithoutBody(TestContext testContext) {
 
-    importAppKey();
+    JsonObject origin = new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode)
+            .put("appKey", appKey);
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey)
+            .put("import",
+                 new JsonArray().add(new JsonObject().put("type", "origin").put("data", new
+                         JsonArray().add(origin))));
 
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("appkey", config)
+            .put("namespace", namespace));
+    filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -227,7 +252,30 @@ public class AppKeyFilterTest {
 
   @Test
   public void testSignWithBody(TestContext testContext) {
-    importAppKey();
+    int port = Integer.parseInt(Randoms.randomNumber(4));
+    String url = Randoms.randomAlphabet(10);
+    mockHttp(port, url);
+    JsonObject http = new JsonObject()
+            .put("type", "http")
+            .put("scan-period", 1000)
+            .put("port", port)
+            .put("url", url);
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey)
+            .put("import",
+                 new JsonArray().add(http));
+
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("appkey", config)
+            .put("namespace", namespace));
+    filters.add(filter);
+
+    try {
+      TimeUnit.SECONDS.sleep(2);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
     Multimap<String, String> params = ArrayListMultimap.create();
     params.put("appKey", appKey);
@@ -272,19 +320,22 @@ public class AppKeyFilterTest {
 
   }
 
-  private void importAppKey() {
-    JsonObject origin = new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode)
-            .put("appKey", appKey);
-    Future<Void> future = Future.future();
-    AppKeyDiscovery.create(vertx, namespace)
-            .registerImporter(new JsonAppKeyImpoter(), new JsonObject().put("origin",
-                                                                            new JsonArray().add
-                                                                                    (origin)),
-                              future);
+  private void mockHttp(int port, String url) {
     AtomicBoolean complete = new AtomicBoolean();
-    future.setHandler(ar -> {
+    vertx.createHttpServer().requestHandler(req -> {
+      if (req.path().equals(url)) {
+        JsonObject jsonObject = new JsonObject()
+                .put("appKey", appKey)
+                .put(secretKey, appSecret)
+                .put(codeKey, appCode)
+                .put("permissions", "all");
+        JsonArray jsonArray = new JsonArray()
+                .add(jsonObject);
+        req.response().end(jsonArray.encode());
+      } else {
+        req.response().end("[]");
+      }
+    }).listen(port, ar -> {
       if (ar.succeeded()) {
         complete.set(true);
       } else {
