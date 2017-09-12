@@ -120,9 +120,6 @@
             }
           ]
         },
-        "log.ignore": [
-          "appkey_list"
-        ],
         "backend.permitted": [
           "18627874615"
         ],

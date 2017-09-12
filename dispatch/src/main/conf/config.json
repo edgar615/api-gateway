@@ -60,9 +60,6 @@
     "scan-period": 500000,
     "url": "/appkey/import"
   },
-  "log.ignore": [
-    "appkey_list"
-  ],
   "backend.permitted": [
     "18627874615"
   ],
