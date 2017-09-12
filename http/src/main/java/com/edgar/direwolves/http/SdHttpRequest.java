@@ -54,7 +54,11 @@ public class SdHttpRequest extends HttpRpcRequest {
   public RpcRequest copy() {
     SdHttpRequest copyReq = SdHttpRequest.create(id(), name());
     copyReq.setPath(path());
-    copyReq.setRecord(new Record(record.toJson()));
+    if (record != null) {
+      copyReq.setRecord(new Record(record.toJson()));
+    } else {
+      copyReq.setRecord(null);
+    }
     copyReq.setHttpMethod(method());
     copyReq.setTimeout(timeout());
     copyReq.setBody(body());

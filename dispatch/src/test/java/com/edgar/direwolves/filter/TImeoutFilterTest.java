@@ -160,7 +160,9 @@ public class TImeoutFilterTest {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
     Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx,
-                                  new JsonObject().put("timeout.expires", 600));
+                                  new JsonObject()
+                                          .put("timeout", new JsonObject().put("expires", 600))
+    );
 
     List<Filter> filters = Lists.newArrayList(filter);
     Task<ApiContext> task = Task.create();

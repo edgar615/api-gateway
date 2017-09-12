@@ -1,50 +1,18 @@
 {
   "verticles": {
-    "ServiceDiscoveryVerticle": {
-      "class": "com.edgar.servicediscovery.verticle.ServiceDiscoveryVerticle",
-      "instances": 1,
-      "worker": false,
-      "config": {
-        "importer": "zookeeper://test.ihorn.com.cn:2181",
-        "zookeeper.path": "/csst-microservice",
-        "consul.scan-period": 2000,
-        "weight.increase": 1,
-        "weight.decrease": 10,
-        "strategy": {
-          "user": "random",
-          "device": "round_robin"
-        }
-      }
-    },
     "ApiDefinitionVerticle": {
       "class": "com.edgar.direwolves.verticle.ApiDefinitionVerticle",
       "instances": 1,
       "worker": false,
       "config": {
-        "api.discovery" : {
-          "importer" : {
-            "example" : {
-              "file" : "standalone/src/test/resources/router"
+        "api.discovery": {
+          "importer": {
+            "example": {
+              "file": "standalone/src/test/resources/router"
             }
           },
-          "publishedAddress" : "direwolves.api.published",
-          "unpublishedAddress" : "direwolves.api.unpublished"
-        }
-      }
-    },
-    "RedisVerticle": {
-      "class": "com.edgar.direwolves.redis.RedisVerticle",
-      "instances": 1,
-      "worker": false,
-      "config": {
-        "redis" : {
-          "host": "10.11.0.31",
-          "port": 6379,
-          "auth": "",
-          "redis.sub.keys": [
-            "__keyevent@0__:expired",
-            "__keyevent@0__:del"
-          ]
+          "publishedAddress": "direwolves.api.published",
+          "unpublishedAddress": "direwolves.api.unpublished"
         }
       }
     },
@@ -52,11 +20,10 @@
       "class": "com.edgar.direwolves.verticle.ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
-      "dependencies": [ "RedisVerticle" ],
       "config": {
         "http.port": 9000,
         "namespace": "example",
-        "cache" : "local",
+        "cache": "local",
         "long_req_time": 1000,
         "service.discovery": {
           "strategy": {
@@ -136,15 +103,15 @@
             "sign"
           ]
         },
-        "circuit.breaker" : {
-          "maxFailures" : 5,
-          "maxRetries" : 0,
-          "resetTimeout" : 60000,
-          "timeout" : 3000,
-          "metricsRollingWindow" : 10000,
-          "notificationPeriod" : 2000,
-          "notificationAddress" : "vertx.circuit-breaker",
-          "registry" : "vertx.circuit.breaker.registry"
+        "circuit.breaker": {
+          "maxFailures": 5,
+          "maxRetries": 0,
+          "resetTimeout": 5000,
+          "timeout": 3000,
+          "metricsRollingWindow": 10000,
+          "notificationPeriod": 2000,
+          "notificationAddress": "vertx.circuit-breaker",
+          "registry": "vertx.circuit.breaker.registry"
         },
         "rate.limiter": {
           "user_limiter": {

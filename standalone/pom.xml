@@ -13,6 +13,22 @@
 
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-unit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-definition</artifactId>
             <version>${project.parent.version}</version>
@@ -20,11 +36,6 @@
         <dependency>
             <groupId>com.edgar</groupId>
             <artifactId>direwolves-dispatch</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.edgar</groupId>
-            <artifactId>direwolves-cli</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

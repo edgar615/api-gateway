@@ -46,10 +46,10 @@ public class TimeoutFilter implements Filter {
   private final boolean enabled;
 
   TimeoutFilter(JsonObject config) {
-    this.timeout = config.getInteger("timeout.expires", 5 * 60);
     commonParamRule.put("timestamp", Rule.required());
-
-    this.enabled = config.getBoolean("timeout.enable", true);
+    JsonObject timeoutConfig = config.getJsonObject("timeout", new JsonObject());
+    this.timeout = timeoutConfig.getInteger("expires", 5 * 60);
+    this.enabled = timeoutConfig.getBoolean("enable", true);
   }
 
   @Override

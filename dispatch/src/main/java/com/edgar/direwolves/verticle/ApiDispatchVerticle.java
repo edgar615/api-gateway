@@ -28,7 +28,7 @@ public class ApiDispatchVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
     Log.create(LOGGER)
-            .setEvent("dispatch.config.read")
+            .setEvent("dispatch.deploying")
             .addData("config", config())
             .info();
 

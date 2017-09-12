@@ -20,6 +20,10 @@ public class RedisVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
+    Log.create(LOGGER)
+            .setEvent("redis.deploying")
+            .addData("config", config())
+            .info();
     JsonObject redisConfig = config().getJsonObject("redis", new JsonObject());
     RedisClient redisClient = RedisClientHelper.createShared(vertx, redisConfig);
     redisClient.info(ar -> {

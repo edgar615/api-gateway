@@ -15,13 +15,6 @@
         "type" : "origin",
         "data": []
       }
-    ],
-    "origin.importer": [],
-    "http.importer": {
-      "scan-period": 5000,
-      "host": "localhost",
-      "port": 9000,
-      "url": "/appkey/import"
-    }
+    ]
   }
 }

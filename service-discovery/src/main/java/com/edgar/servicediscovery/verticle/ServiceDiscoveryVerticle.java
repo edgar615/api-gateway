@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceDiscoveryVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryVerticle.class);
+
   private final String CONSUL_PREFIX = "consul://";
 
   private final String ZOOKEEPER_PREFIX = "zookeeper://";

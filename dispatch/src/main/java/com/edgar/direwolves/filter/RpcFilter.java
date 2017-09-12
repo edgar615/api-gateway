@@ -145,13 +145,14 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
         if (ar.cause() instanceof RuntimeException
             && "open circuit".equals(ar.cause().getMessage())) {
           Log.create(LOGGER)
+                  .setTraceId(traceId)
                   .setModule("RPC")
                   .setEvent("BreakerTripped")
                   .error();
           future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
-                              .set("details", String.format("Please try again after %dms",
+                              .set("details", String.format("Please try again after %ds",
                                                             config.getLong("resetTimeout",
-                                                                           30000l))));
+                                                                           30000l) / 1000)));
           return;
         }
         future.fail(ar.cause());

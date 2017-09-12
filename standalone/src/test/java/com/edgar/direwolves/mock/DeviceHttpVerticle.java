@@ -51,7 +51,7 @@ public class DeviceHttpVerticle extends AbstractVerticle {
       if (url.equals("/devices") && req.method() == HttpMethod.PUT) {
         req.bodyHandler(body -> req.response().end(body));
       }
-    }).listen(config().getInteger("http.port", 8080), ar -> {
+    }).listen(config().getInteger("http.port", 8081), ar -> {
       if (ar.succeeded()) {
         startFuture.complete();
       } else {
