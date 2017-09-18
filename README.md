@@ -7,15 +7,11 @@ TODO:
 
 对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
 
-将缓存部分实现redis和local两种模式，redis的模式使用eventbus处理(将cache与redis的具体实现隔离)
-
 request size limit(全局和单独)：限制过大流量的请求
 
 request termination 中断请求，用来做后端接口的升级维护
 
 请求头校验
-
-断路器：在现有基础上继续优化，未找到对应服务也应该启用fallback
 
 基于JSON配置的服务注册
 
@@ -87,6 +83,9 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
     `ES256`:: ECDSA using P-256 curve and SHA-256 hash algorithm
     `ES384`:: ECDSA using P-384 curve and SHA-384 hash algorithm
     `ES512`:: ECDSA using P-521 curve and SHA-512 hash algorithm
+
+
+# Cache
 
 # 路由定义
 ## Endpoint
