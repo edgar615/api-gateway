@@ -4,8 +4,6 @@
   "zookeeper.path": "/csst-microservice",
   "zookeeper.retry.sleep": 1000,
   "zookeeper.retry.times": 3,
-  "weight.increase" : 1,
-  "weight.decrease" : 10,
   "strategy": {
     "user" : "random",
     "device" : "round_robin"

@@ -24,7 +24,6 @@
         "http.port": 9000,
         "namespace": "example",
         "cache": "local",
-        "long_req_time": 1000,
         "service.discovery": {
           "strategy": {
             "user": "random",

@@ -1,7 +1,6 @@
 {
   "http.port": 9000,
   "namespace": "example",
-  "long_req_time": 1000,
   "service.discovery": {
     "strategy": {
       "user": "random",

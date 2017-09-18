@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 身份认证.
@@ -54,8 +55,6 @@ public class AuthenticationFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final Cache userCache;
-
   private JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
           .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
@@ -70,7 +69,6 @@ public class AuthenticationFilter implements Filter {
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
     this.userKey = userConfig.getString("userClaimKey", "userId");
     this.uniqueToken = userConfig.getBoolean("unique", false);
-    this.userCache = CacheManager.instance().getCache("userCache");
   }
 
   @Override
@@ -147,6 +145,8 @@ public class AuthenticationFilter implements Filter {
                               .set("details", "Token must contain " + userKey));
     } else {
       String userCacheKey = namespace + ":user:" + userId;
+      //如果把userCache放在构造函数中初始化，可能会出现没有userCache的情况
+      Cache userCache = CacheManager.instance().getCache("userCache");
       userCache.get(userCacheKey, ar -> {
         if (ar.succeeded()) {
           if (!ar.result().containsKey(userKey)) {

@@ -8,8 +8,6 @@
         "importer": "zookeeper://test.ihorn.com.cn:2181",
         "zookeeper.path": "/csst-microservice",
         "consul.scan-period": 2000,
-        "weight.increase": 1,
-        "weight.decrease": 10,
         "strategy": {
           "user": "random",
           "device": "round_robin"
@@ -57,7 +55,6 @@
         "http.port": 9000,
         "namespace": "example",
         "cache" : "local",
-        "long_req_time": 1000,
         "service.discovery": {
           "strategy": {
             "user": "random",
