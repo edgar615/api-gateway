@@ -6,8 +6,8 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
-import com.edgar.direwolves.core.utils.Log;
-import com.edgar.direwolves.core.utils.LogType;
+import com.edgar.util.log.Log;
+import com.edgar.util.log.LogType;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.circuitbreaker.CircuitBreakerState;

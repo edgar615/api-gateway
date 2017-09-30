@@ -2,8 +2,8 @@ package com.edgar.direwolves.dispatch;
 
 import com.google.common.base.Joiner;
 
-import com.edgar.direwolves.core.utils.Log;
-import com.edgar.direwolves.core.utils.LogType;
+import com.edgar.util.log.Log;
+import com.edgar.util.log.LogType;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;

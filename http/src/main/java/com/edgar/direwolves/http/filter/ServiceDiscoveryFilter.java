@@ -3,7 +3,7 @@ package com.edgar.direwolves.http.filter;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.rpc.RpcRequest;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.direwolves.http.SdHttpEndpoint;
 import com.edgar.direwolves.http.SdHttpRequest;
 import com.edgar.direwolves.http.loadbalance.LoadBalance;

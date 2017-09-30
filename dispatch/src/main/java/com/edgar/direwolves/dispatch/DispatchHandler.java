@@ -8,7 +8,7 @@ import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.FilterFactory;
 import com.edgar.direwolves.core.dispatch.Result;
 import com.edgar.direwolves.core.utils.Filters;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.util.vertx.task.Task;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;

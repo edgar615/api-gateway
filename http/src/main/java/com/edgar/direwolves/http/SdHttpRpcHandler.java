@@ -56,6 +56,8 @@ public class SdHttpRpcHandler implements RpcHandler {
     Future<RpcResponse> future = Future.future();
     httpHandler.handle(httpRequest).setHandler(ar -> {
       LoadBalanceStats.instance().get(serviceId).decActiveRequests();
+      //TODO 更新权重
+      LoadBalanceStats.instance().get(serviceId).decEffectiveWeight(5);
       if (ar.succeeded()) {
         future.complete(ar.result());
       } else {

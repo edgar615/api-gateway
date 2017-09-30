@@ -2,7 +2,7 @@ package com.edgar.direwolves.filter;
 
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import io.vertx.core.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

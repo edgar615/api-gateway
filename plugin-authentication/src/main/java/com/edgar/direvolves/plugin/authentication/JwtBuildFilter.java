@@ -6,7 +6,7 @@ import com.edgar.direwolves.core.cache.CacheManager;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
 import com.edgar.direwolves.core.dispatch.Result;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

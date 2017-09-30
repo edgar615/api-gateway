@@ -1,7 +1,7 @@
 package com.edgar.direwolves.core.apidiscovery;
 
 import com.edgar.direwolves.core.definition.ApiDefinition;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.AsyncResult;

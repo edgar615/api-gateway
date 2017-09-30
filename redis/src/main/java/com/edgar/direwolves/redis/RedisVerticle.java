@@ -1,6 +1,6 @@
 package com.edgar.direwolves.redis;
 
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.util.vertx.redis.RedisClientHelper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;

@@ -1,7 +1,7 @@
 package com.edgar.direwolves.verticle;
 
 import com.edgar.direwolves.core.cmd.CmdRegister;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;

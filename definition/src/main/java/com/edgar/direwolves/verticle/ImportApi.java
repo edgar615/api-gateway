@@ -2,7 +2,7 @@ package com.edgar.direwolves.verticle;
 
 import com.edgar.direwolves.cmd.ImportApiCmd;
 import com.edgar.direwolves.core.cmd.ApiCmd;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.util.vertx.spi.Initializable;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;

@@ -6,7 +6,7 @@ import com.edgar.direwolves.core.apidiscovery.ApiFinder;
 import com.edgar.direwolves.core.definition.ApiDefinition;
 import com.edgar.direwolves.core.dispatch.ApiContext;
 import com.edgar.direwolves.core.dispatch.Filter;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.util.exception.DefaultErrorCode;
 import com.edgar.util.exception.SystemException;
 import io.vertx.core.Future;

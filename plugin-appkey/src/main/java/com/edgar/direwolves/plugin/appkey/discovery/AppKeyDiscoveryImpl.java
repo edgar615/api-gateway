@@ -1,6 +1,6 @@
 package com.edgar.direwolves.plugin.appkey.discovery;
 
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

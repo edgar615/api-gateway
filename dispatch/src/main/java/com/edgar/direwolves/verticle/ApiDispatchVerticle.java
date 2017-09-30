@@ -3,7 +3,7 @@ package com.edgar.direwolves.verticle;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.edgar.direwolves.core.cmd.CmdRegister;
-import com.edgar.direwolves.core.utils.Log;
+import com.edgar.util.log.Log;
 import com.edgar.direwolves.dispatch.BaseHandler;
 import com.edgar.direwolves.dispatch.DispatchHandler;
 import com.edgar.direwolves.dispatch.FailureHandler;

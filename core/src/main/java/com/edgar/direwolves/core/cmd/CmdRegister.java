@@ -3,8 +3,8 @@ package com.edgar.direwolves.core.cmd;
 import com.google.common.collect.Lists;
 
 import com.edgar.direwolves.core.eventbus.EventbusUtils;
-import com.edgar.direwolves.core.utils.Log;
-import com.edgar.direwolves.core.utils.LogType;
+import com.edgar.util.log.Log;
+import com.edgar.util.log.LogType;
 import com.edgar.util.vertx.eventbus.Event;
 import com.edgar.util.vertx.spi.Initializable;
 import io.vertx.core.Future;

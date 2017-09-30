@@ -60,6 +60,9 @@ class LoadBalanceImpl implements LoadBalance {
     if ("weight_round_robin".equalsIgnoreCase(strategyName)) {
       strategy = ChooseStrategy.weightRoundRobin();
     }
+    if ("last_conn".equalsIgnoreCase(strategyName)) {
+      strategy = ChooseStrategy.lastConnection();
+    }
     return new ServiceProviderImpl(serviceFinder, service)
             .withStrategy(strategy)
             .addFilter(r -> !stats.get(r.getRegistration()).isCircuitBreakerTripped());
