@@ -1,7 +1,7 @@
 {
   "verticles": {
     "ServiceDiscoveryVerticle": {
-      "class": "com.edgar.servicediscovery.verticle.ServiceDiscoveryVerticle",
+      "class": "com.github.edgar615.servicediscovery.verticle.ServiceDiscoveryVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -15,7 +15,7 @@
       }
     },
     "ApiDefinitionVerticle": {
-      "class": "com.edgar.direwolves.verticle.ApiDefinitionVerticle",
+      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -31,7 +31,7 @@
       }
     },
     "RedisVerticle": {
-      "class": "com.edgar.direwolves.redis.RedisVerticle",
+      "class": "com.github.edgar615.direwolves.redis.RedisVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -47,7 +47,7 @@
       }
     },
     "ApiDispatchVerticle": {
-      "class": "com.edgar.direwolves.verticle.ApiDispatchVerticle",
+      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "dependencies": [ "RedisVerticle" ],

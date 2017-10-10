@@ -1,0 +1,3 @@
+com.github.edgar615.direwolves.core.rpc.eventbus.EventbusHandlerFactory
+com.github.edgar615.direwolves.core.rpc.dummy.DummyHandlerFactory
+com.github.edgar615.direwolves.core.rpc.http.SimpleHttpRpcHandlerFactory

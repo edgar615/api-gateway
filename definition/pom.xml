@@ -4,15 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>direwolves</artifactId>
-        <groupId>com.edgar</groupId>
-        <version>1.1.0</version>
+        <groupId>com.github.edgar615</groupId>
+        <version>1.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>direwolves-definition</artifactId>
 
     <properties>
-        <main.verticle>com.edgar.direwolves.verticle.ApiDefinitionVerticle</main.verticle>
+        <main.verticle>com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle</main.verticle>
     </properties>
 
     <dependencies>
@@ -49,24 +49,24 @@
         </dependency>
 
         <dependency>
-            <groupId>com.edgar</groupId>
+            <groupId>com.github.edgar615</groupId>
             <artifactId>direwolves-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.edgar</groupId>
+            <groupId>com.github.edgar615</groupId>
             <artifactId>direwolves-plugin</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.edgar</groupId>
+            <groupId>com.github.edgar615</groupId>
             <artifactId>plugin-authentication</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.edgar</groupId>
+            <groupId>com.github.edgar615</groupId>
             <artifactId>plugin-appkey</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

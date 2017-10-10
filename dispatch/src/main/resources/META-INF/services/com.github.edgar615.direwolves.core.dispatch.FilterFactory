@@ -1,0 +1,10 @@
+com.github.edgar615.direwolves.filter.ApiFindFilterFactory
+com.github.edgar615.direwolves.filter.PathParamFilterFactory
+com.github.edgar615.direwolves.filter.HttpRequestReplaceFilterFactory
+com.github.edgar615.direwolves.filter.TimeoutFilterFactory
+com.github.edgar615.direwolves.filter.ExtractResultFilterFactory
+com.github.edgar615.direwolves.filter.SimpleHttpRequestFilterFactory
+com.github.edgar615.direwolves.filter.EventbusRequestFilterFactory
+com.github.edgar615.direwolves.filter.EventbusRequestReplaceFilterFactory
+com.github.edgar615.direwolves.filter.DummyRequestFilterFactory
+com.github.edgar615.direwolves.filter.RpcFilterFactory

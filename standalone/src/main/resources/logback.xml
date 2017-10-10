@@ -28,7 +28,7 @@
             </pattern>
         </encoder>
     </appender>
-    <logger name="com.edgar" level="debug">
+    <logger name="com.github.edgar615" level="debug">
         <appender-ref ref="FILE"/>
     </logger>
 

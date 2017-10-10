@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.edgar</groupId>
+    <groupId>com.github.edgar615</groupId>
     <artifactId>direwolves</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <modules>
         <module>definition</module>
         <module>dispatch</module>
@@ -36,8 +36,8 @@
         <awaitility.version>2.0.0</awaitility.version>
         <vertx.version>3.4.2</vertx.version>
         <slf4j.version>1.7.14</slf4j.version>
-        <util.version>1.0.10</util.version>
-        <vertx.util.version>1.0.7</vertx.util.version>
+        <util.version>1.0.11</util.version>
+        <vertx.util.version>1.0.10</vertx.util.version>
         <guava.version>21.0</guava.version>
 
         <hazelcast.version>3.6.3</hazelcast.version>
@@ -145,12 +145,12 @@
                 <version>${guava.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.edgar</groupId>
+                <groupId>com.github.edgar615</groupId>
                 <artifactId>util</artifactId>
                 <version>${util.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.edgar</groupId>
+                <groupId>com.github.edgar615</groupId>
                 <artifactId>vertx-util</artifactId>
                 <version>${vertx.util.version}</version>
             </dependency>

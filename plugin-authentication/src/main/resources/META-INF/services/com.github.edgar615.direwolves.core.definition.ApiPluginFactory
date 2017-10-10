@@ -1,0 +1,5 @@
+com.github.edgar615.direvolves.plugin.authentication.AuthenticationPluginFactory
+com.github.edgar615.direvolves.plugin.authentication.JwtBuildPluginFactory
+com.github.edgar615.direvolves.plugin.authentication.BackendAuthCodePluginFactory
+com.github.edgar615.direvolves.plugin.authentication.BackendVertifyPluginFactory
+com.github.edgar615.direvolves.plugin.authentication.JwtCleanPluginFactory

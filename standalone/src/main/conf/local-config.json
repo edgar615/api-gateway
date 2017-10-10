@@ -1,7 +1,7 @@
 {
   "verticles": {
     "ApiDefinitionVerticle": {
-      "class": "com.edgar.direwolves.verticle.ApiDefinitionVerticle",
+      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -17,7 +17,7 @@
       }
     },
     "ApiDispatchVerticle": {
-      "class": "com.edgar.direwolves.verticle.ApiDispatchVerticle",
+      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "config": {
