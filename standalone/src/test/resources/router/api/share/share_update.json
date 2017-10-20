@@ -1,0 +1,116 @@
+{
+  "name": "device.share.update.1.0.0",
+  "method": "PUT",
+  "path": "/devices/shares/(\\d+)",
+  "authentication": true,
+  "scope": "device:share",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "name",
+      "rules": {
+        "maxLength": 64
+      }
+    },
+    {
+      "name": "friends",
+      "rules": {
+        "list": true
+      }
+    },
+    {
+      "name": "shareStart",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "shareEnd",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "shareStartRepeat",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "shareEndRepeat",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "isTop",
+      "rules": {
+        "bool": true
+      }
+    },
+    {
+      "name": "authAlarmPush",
+      "rules": {
+        "bool": true
+      }
+    },
+    {
+      "name": "authDefendControl",
+      "rules": {
+        "bool": true
+      }
+    },
+    {
+      "name": "authIpcPlayback",
+      "rules": {
+        "bool": true
+      }
+    },
+    {
+      "name": "authIpcAlarm",
+      "rules": {
+        "bool": true
+      }
+    },
+    {
+      "name": "authIpcTalk",
+      "rules": {
+        "bool": true
+      }
+    },
+    {
+      "name": "authIpcCloud",
+      "rules": {
+        "bool": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "PUT",
+      "name": "update_share_device",
+      "type": "http",
+      "path": "/devices/shares/$var.param0"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "update_share_device",
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-username:$user.username",
+        "x-auth-companyCode:$user.companyCode",
+        "x-auth-fullname:$user.fullname",
+        "x-auth-tel:$user.tel",
+        "x-auth-mail:$user.mail",
+        "x-auth-type:$user.type",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "user.register.code.1.0.0",
+  "method": "GET",
+  "path": "/registercode",
+  "appkey": true,
+  "url.arg": [
+    {
+      "name": "username",
+      "rules": {
+        "required": true,
+        "maxLength": 60
+      }
+    },
+    {
+      "name": "accountType",
+      "rules": {
+        "required": true,
+        "optional": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "name": "areaCode",
+      "default_value" : "0086"
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "user",
+      "method": "GET",
+      "name": "user",
+      "type": "http",
+      "path": "/registercode"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "user",
+      "query.add": [
+        "companyCode:$var.app.code"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

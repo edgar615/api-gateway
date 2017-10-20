@@ -168,7 +168,7 @@ public class AppKeyFilter implements Filter {
     this.codeKey = appKeyConfig.getString("codeKey", "appCode");
     this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
-    discovery = AppKeyDiscovery.create(vertx, namespace);
+    discovery = AppKeyDiscovery.create(vertx, namespace + ".appkey");
     if (appKeyConfig.getValue("import") instanceof JsonArray) {
       JsonArray importArray = appKeyConfig.getJsonArray("import");
       for (int i = 0; i < importArray.size(); i++) {

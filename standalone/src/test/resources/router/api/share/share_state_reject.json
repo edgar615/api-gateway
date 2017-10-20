@@ -1,0 +1,39 @@
+{
+  "name": "device.shared.reject.1.0.0",
+  "method": "PUT",
+  "path": "/devices/share/check/(\\d+)/reject",
+  "authentication": true,
+  "scope": "device:share",
+  "appkey": true,
+  "app_code_vertify": true,
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "PUT",
+      "name": "accept_share_device",
+      "type": "http",
+      "path": "/devices/share/check/$var.param0/reject"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "accept_share_device",
+      "body.add": [
+        "userId:$user.userId",
+        "username:$user.username",
+        "mobile:$user.tel",
+        "companyCode:$user.companyCode"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-username:$user.username",
+        "x-auth-companyCode:$user.companyCode",
+        "x-auth-fullname:$user.fullname",
+        "x-auth-tel:$user.tel",
+        "x-auth-mail:$user.mail",
+        "x-auth-type:$user.type",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

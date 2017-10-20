@@ -1,0 +1,70 @@
+{
+  "name": "device.shared.list.1.0.0",
+  "method": "GET",
+  "path": "/devices/share/checks",
+  "authentication": true,
+  "scope": "device:share",
+  "appkey": true,
+  "app_code_vertify": true,
+  "url.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "state",
+      "rules": {
+        "integer": true,
+        "optional": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "name": "type",
+      "rules": {
+        "integer": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "GET",
+      "name": "share_to_me",
+      "type": "http",
+      "path": "/devices/share/checks"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "share_to_me",
+      "query.add": [
+        "userId:$user.userId"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-username:$user.username",
+        "x-auth-companyCode:$user.companyCode",
+        "x-auth-fullname:$user.fullname",
+        "x-auth-tel:$user.tel",
+        "x-auth-mail:$user.mail",
+        "x-auth-type:$user.type",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

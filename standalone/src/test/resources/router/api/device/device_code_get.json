@@ -1,0 +1,28 @@
+{
+  "name": "device.code.get.1.0.0",
+  "method": "GET",
+  "path": "/devices/(\\d+)/lookcode",
+  "authentication": true,
+  "scope": "device:read",
+  "appkey": true,
+  "app_code_vertify": true,
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "GET",
+      "name": "get_code",
+      "type": "http",
+      "path": "/devices/codeBook/$var.param0"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "get_code",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "user.code.get.1.0.0",
+  "method": "POST",
+  "path": "/users/get_vertifycode",
+  "scope": "internal",
+  "appkey": true,
+  "body.arg": [
+    {
+      "name": "type",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "username",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "user",
+      "method": "POST",
+      "name": "user",
+      "type": "http",
+      "path": "/getVertifyCode4Test"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "user",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

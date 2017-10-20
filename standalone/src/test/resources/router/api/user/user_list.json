@@ -1,0 +1,61 @@
+{
+  "name": "user.list.1.0.0",
+  "method": "GET",
+  "path": "/users",
+  "authentication": true,
+  "scope": "user:query",
+  "appkey": true,
+  "app_code_vertify": true,
+  "url.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "username"
+    },
+    {
+      "name": "mail"
+    },
+    {
+      "name": "tel",
+      "rules": {
+        "regex": "[0-9]+"
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "user",
+      "method": "GET",
+      "name": "query_user",
+      "type": "http",
+      "path": "/users"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "query_user",
+      "query.add": [
+        "type:1"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:system"
+      ]
+    }
+  ]
+}

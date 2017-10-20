@@ -1,0 +1,44 @@
+{
+  "name": "user.mail.bind.1.0.0",
+  "method": "POST",
+  "path": "/bindmail",
+  "authentication": true,
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "mail",
+      "rules": {
+        "required": true,
+        "maxLength": 60,
+        "email": true
+      }
+    },
+    {
+      "name": "vertifyCode",
+      "rules": {
+        "required": true,
+        "regex": "[0-9]{6}"
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "user",
+      "method": "POST",
+      "name": "bindmail",
+      "type": "http",
+      "path": "/users/$user.userId/bindmail"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "bindmail",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

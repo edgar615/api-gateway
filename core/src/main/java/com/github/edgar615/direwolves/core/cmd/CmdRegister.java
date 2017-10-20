@@ -40,7 +40,13 @@ public class CmdRegister implements Initializable {
                       .addData("cmd", cmd.cmd())
                       .info();
 
-              eb.<JsonObject>consumer(address, msg -> consumer(cmd, msg));
+              eb.<JsonObject>consumer(address, msg -> {
+                try {
+                  consumer(cmd, msg);
+                } catch (Exception e) {
+                  EventbusUtils.onFailure(msg, 0, e);
+                }
+              });
             });
     complete.complete();
   }
@@ -71,7 +77,7 @@ public class CmdRegister implements Initializable {
   }
 
   private String cmdAddress(String cmd) {
-    return "direwolves.eb." + cmd;
+    return cmd;
   }
 
 }

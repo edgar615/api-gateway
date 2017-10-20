@@ -1,0 +1,28 @@
+{
+  "name": "device.connparts.1.0.0",
+  "method": "POST",
+  "path": "/devices/(\\d+)/connparts",
+  "authentication": true,
+  "scope": "device:write",
+  "appkey": true,
+  "app_code_vertify": true,
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "POST",
+      "name": "connparts_device",
+      "type": "http",
+      "path": "/devices/$var.param0/connparts"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "connparts_device",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

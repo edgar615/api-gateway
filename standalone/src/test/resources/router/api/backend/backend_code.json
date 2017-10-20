@@ -1,15 +1,16 @@
 {
-  "name": "backend.code",
+  "name": "backend.sign.create.1.0.0",
   "method": "POST",
   "path": "/backend/code",
   "scope": "backend:token",
-  "appkey" : true,
+  "appkey": true,
   "endpoints": [
     {
-      "type": "dummy",
-      "name" : "backend",
-      "result" : {
-      }
+      "type": "http",
+      "name": "sms.send",
+      "service": "sms",
+      "method": "POST",
+      "path": "/sms"
     }
   ],
   "body.arg": [
@@ -22,16 +23,16 @@
   ],
   "request.transformer": [
     {
-      "name": "backend",
+      "name": "sms.send",
       "body.add": [
+        "tel:$body.username",
         "code:$var.backend.code"
       ]
     }
   ],
   "response.transformer": {
     "body.add": [
-      "sign:$var.backend.sign",
-      "code:$var.backend.code"
+      "sign:$var.backend.sign"
     ]
   },
   "backend.code": true

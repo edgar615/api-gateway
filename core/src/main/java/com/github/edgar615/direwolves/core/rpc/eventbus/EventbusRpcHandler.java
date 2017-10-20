@@ -138,7 +138,7 @@ public class EventbusRpcHandler implements RpcHandler {
     long srated = System.currentTimeMillis();
     final String id = options.getHeaders().get("x-request-id");
     final String address = options.getHeaders().get("x-request-address");
-    vertx.eventBus().<JsonObject>send(address, id, options, ar -> {
+    vertx.eventBus().<JsonObject>send(address, message, options, ar -> {
       long elapsedTime = System.currentTimeMillis() - srated;
       if (ar.succeeded()) {
         if (!(ar.result().body() instanceof JsonObject)) {

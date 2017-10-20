@@ -1,14 +1,15 @@
 {
-  "name": "user.login.1.0.0",
+  "name": "user.register.1.0.0",
   "method": "POST",
-  "path": "/login",
+  "path": "/register",
+  "appkey": true,
   "endpoints": [
     {
       "type": "http",
-      "name": "user_login",
+      "name": "register",
       "service": "user",
       "method": "POST",
-      "path": "/login"
+      "path": "/users"
     }
   ],
   "body.arg": [
@@ -25,17 +26,19 @@
       }
     },
     {
-      "name": "channelId",
+      "name": "vertifyCode",
       "rules": {
-        "required": true
+        "required": true,
+        "fixLength": 6,
+        "regex": "[0-9]{6}"
       }
     },
     {
-      "name": "deviceType",
+      "name": "accountType",
       "rules": {
         "optional": [
-          3,
-          4
+          1,
+          2
         ]
       }
     },
@@ -48,22 +51,18 @@
           2
         ]
       }
+    },
+    {
+      "name": "areaCode",
+      "default_value" : "0086"
     }
   ],
   "request.transformer": [
     {
-      "name": "user_login",
+      "name": "register",
       "body.add": [
         "type:1",
         "companyCode:$var.app.code"
-      ],
-      "header.add": [
-        "x-client-name:$header.x-client-name",
-        "x-client-version:$header.x-client-version",
-        "x-client-type:$header.x-client-type",
-        "x-client-phone-model:$header.x-client-phone-model",
-        "x-client-os-version:$header.x-client-os-version",
-        "x-client-screen-resolution:$header.x-client-screen-resolution"
       ]
     }
   ],

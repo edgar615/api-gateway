@@ -39,9 +39,9 @@ public class RegisterBackendApi implements Initializable {
 
   private String cmdAddress(String namespace, String cmd) {
     if (Strings.isNullOrEmpty(namespace)) {
-      return "direwolves.eb." + cmd;
+      return cmd;
     }
-    return namespace + ".direwolves.eb." + cmd;
+    return namespace + "." + cmd;
   }
 
   private ApiDefinition cmdToApi(String namespace, ApiCmd cmd) {

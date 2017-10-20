@@ -1,0 +1,80 @@
+{
+  "name": "user.login.1.0.0",
+  "method": "POST",
+  "path": "/login",
+  "appkey": true,
+  "endpoints": [
+    {
+      "type": "http",
+      "name": "user_login",
+      "service": "user",
+      "method": "POST",
+      "path": "/login"
+    }
+  ],
+  "body.arg": [
+    {
+      "name": "username",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "password",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "channelId",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "deviceType",
+      "rules": {
+        "optional": [
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "name": "language",
+      "default_value": 1,
+      "rules": {
+        "optional": [
+          1,
+          2
+        ]
+      }
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "user_login",
+      "body.add": [
+        "type:1",
+        "publicIp:$var.request.client_ip",
+        "companyCode:$var.app.code"
+      ],
+      "header.add": [
+        "x-client-name:$header.x-client-name",
+        "x-client-version:$header.x-client-version",
+        "x-client-type:$header.x-client-type",
+        "x-client-phone:$header.x-client-phone",
+        "x-client-phone-model:$header.x-client-phone-model",
+        "x-client-os-version:$header.x-client-os-version",
+        "x-client-screen-resolution:$header.x-client-screen-resolution",
+        "x-client-ip:$var.request.client_ip"
+      ]
+    }
+  ],
+  "response.transformer": {
+    "body.add": [
+      "group:user"
+    ]
+  },
+  "jwt.build": true
+}

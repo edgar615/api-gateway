@@ -49,7 +49,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
 
     AtomicBoolean check2 = new AtomicBoolean();
     JsonObject event = new JsonObject().put("data", jsonObject.encode());
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.add", event, ar -> {
+    vertx.eventBus().<JsonObject>send("api.add", event, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result().body());
 //        testContext.assertEquals(1, ar.result().getInteger("result"));
@@ -107,7 +107,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
     AtomicBoolean check2 = new AtomicBoolean();
     JsonObject event = new JsonObject()
             .put("namespace", namespace).put("data", jsonObject.encode());
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.add", event, ar -> {
+    vertx.eventBus().<JsonObject>send("api.add", event, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result().body());
 //        testContext.assertEquals(1, ar.result().getInteger("result"));
@@ -163,7 +163,7 @@ public class AddApiCmdTest extends BaseApiCmdTest {
     AtomicBoolean check2 = new AtomicBoolean();
     JsonObject event = new JsonObject().put("namespace", namespace)
             .put("data", jsonObject.encode());
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.add", event, ar -> {
+    vertx.eventBus().<JsonObject>send("api.add", event, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result().body());
 //        testContext.assertEquals(1, ar.result().getInteger("result"));

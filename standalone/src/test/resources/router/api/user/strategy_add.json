@@ -1,0 +1,52 @@
+{
+  "name": "user.msgpush.strategy.add.1.0.0",
+  "method": "POST",
+  "path": "/msgpush/strategy",
+  "authentication": true,
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "pushDeviceChange",
+      "rules": {
+        "required": true,
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    },
+    {
+      "name": "pushAlarm",
+      "rules": {
+        "required": true,
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "jpush",
+      "method": "POST",
+      "name": "msgpush_strategy",
+      "type": "http",
+      "path": "/msgpush/strategy"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "msgpush_strategy",
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

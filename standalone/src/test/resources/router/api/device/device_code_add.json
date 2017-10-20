@@ -1,0 +1,42 @@
+{
+  "name": "device.code.add.1.0.0",
+  "method": "POST",
+  "path": "/devices/(\\d+)/lookcode",
+  "authentication": true,
+  "scope": "device:write",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "switchState",
+      "rules": {
+        "required": true,
+        "bool": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "POST",
+      "name": "lookcode",
+      "type": "http",
+      "path": "/devices/codeBook"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "lookcode",
+      "body.add": [
+        "deviceId:$var.param0",
+        "username:$user.username",
+        "companyCode:$user.companyCode"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

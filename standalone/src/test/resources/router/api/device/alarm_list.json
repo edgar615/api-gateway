@@ -1,0 +1,127 @@
+{
+  "name": "alarm.list.1.0.0",
+  "method": "GET",
+  "path": "/events",
+  "authentication": true,
+  "scope": "alarm:read",
+  "appkey": true,
+  "app_code_vertify": true,
+  "url.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "deviceType",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "deviceId",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "devicePartId",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "type",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "alarmType",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "alarmTimeStart",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "alarmTimeEnd",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "eventRecordIdStart",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "eventRecordIdEnd",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "triggerType",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "isDefend",
+      "rules": {
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    },
+    {
+      "name": "hasImage",
+      "rules": {
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "GET",
+      "name": "alarm_list",
+      "type": "http",
+      "path": "/events"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "alarm_list",
+      "query.add": [
+        "userId:$user.userId"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

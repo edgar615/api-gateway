@@ -1,0 +1,128 @@
+{
+  "name": "device.link.add.1.0.0",
+  "method": "POST",
+  "path": "/devices/link",
+  "authentication": true,
+  "scope": "device:link",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "name",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "linkEnable",
+      "rules": {
+        "required": true,
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    },
+    {
+      "name": "triggerDeviceId",
+      "rules": {
+        "required": true,
+        "integer": true
+      }
+    },
+    {
+      "name": "triggerPartId",
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "triggerCondition",
+      "rules": {
+        "required": true,
+        "integer": true,
+        "optional": [
+          100,
+          101,
+          102,
+          121,
+          122
+        ]
+      }
+    },
+    {
+      "name": "responseDeviceId",
+      "rules": {
+        "required": true,
+        "integer": true
+      }
+    },
+    {
+      "name": "responseType",
+      "rules": {
+        "required": true,
+        "integer": true,
+        "optional": [
+          101,
+          102,
+          103
+        ]
+      }
+    },
+    {
+      "name": "linkStart",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 86400
+      }
+    },
+    {
+      "name": "linkEnd",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 86400
+      }
+    },
+    {
+      "name": "linkStartRepeat",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 127
+      }
+    },
+    {
+      "name": "linkEndRepeat",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 127
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "POST",
+      "name": "add_device_link",
+      "type": "http",
+      "path": "/devices/link"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "add_device_link",
+      "body.add": [
+        "userId:$user.userId",
+        "companyCode:$user.companyCode"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

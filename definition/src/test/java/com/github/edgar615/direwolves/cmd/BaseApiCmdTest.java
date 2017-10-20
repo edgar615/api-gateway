@@ -29,7 +29,7 @@ public class BaseApiCmdTest {
   public void setUp() {
     namespace = UUID.randomUUID().toString();
     vertx = Vertx.vertx();
-    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
+    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace + ".api"));
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, new JsonObject(), importCmdFuture);
 //    cmd = new AddApiCmdFactory().create(vertx, new JsonObject());

@@ -1,0 +1,28 @@
+{
+  "name": "part.get.1.0.0",
+  "method": "GET",
+  "path": "/parts/(\\d+)",
+  "authentication": true,
+  "scope": "device:read",
+  "appkey": true,
+  "app_code_vertify": true,
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "GET",
+      "name": "get_part",
+      "type": "http",
+      "path": "/parts/$var.param0"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "get_part",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

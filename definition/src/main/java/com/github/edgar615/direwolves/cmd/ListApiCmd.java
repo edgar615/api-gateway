@@ -9,6 +9,7 @@ import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
+import com.github.edgar615.util.vertx.JsonUtils;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -48,15 +49,15 @@ class ListApiCmd implements ApiCmd {
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
     Validations.validate(jsonObject.getMap(), rules);
     String namespace = jsonObject.getString("namespace");
-    Integer start = jsonObject.getInteger("start", 0);
-    Integer limit = jsonObject.getInteger("limit", 10);
+    Integer start = JsonUtils.getInteger(jsonObject, "start", 0);
+    Integer limit = JsonUtils.getInteger(jsonObject, "limit", 10);
     String name = jsonObject.getString("name", "*");
     JsonObject filter = new JsonObject();
     if (name != null) {
       filter.put("name", name);
     }
     Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace))
+    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace + ".api"))
             .getDefinitions(filter, ar -> {
               if (ar.failed()) {
                 future.fail(ar.cause());

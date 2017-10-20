@@ -37,7 +37,7 @@ public class ApiPluginCmdTest extends BaseApiCmdTest {
             .put("ip", "192.168.1.100");
 
     AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.plugin", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.plugin", jsonObject, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result());
         check1.set(true);
@@ -52,7 +52,7 @@ public class ApiPluginCmdTest extends BaseApiCmdTest {
     jsonObject = new JsonObject()
             .put("namespace", namespace)
             .put("name", "add_device");
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body());
         IpRestriction ipRestriction = (IpRestriction) apiDefinition.plugin(IpRestriction.class
@@ -74,7 +74,7 @@ public class ApiPluginCmdTest extends BaseApiCmdTest {
     jsonObject = new JsonObject()
             .put("namespace", namespace)
             .put("name", "get_device");
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body());
         IpRestriction ipRestriction = (IpRestriction) apiDefinition.plugin(IpRestriction.class

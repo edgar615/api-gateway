@@ -1,0 +1,39 @@
+{
+  "name": "device.intonet.1.0.0",
+  "method": "PUT",
+  "path": "/devices/(\\d+)/intonet",
+  "authentication": true,
+  "scope": "device:write",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "allowTime",
+      "rules": {
+        "required": true,
+        "int": true,
+        "min": 0,
+        "max": 255
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "PUT",
+      "name": "intonet",
+      "type": "http",
+      "path": "/devices/$var.param0/intonet"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "intonet",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "device.upgrade.add.1.0.0",
+  "method": "POST",
+  "path": "/devices/(\\d+)/upgrade",
+  "authentication": true,
+  "scope": "device:write",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "productVersion",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "POST",
+      "name": "post_upgrade_progress",
+      "type": "http",
+      "path": "/devices/$var.param0/upgrade"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "post_upgrade_progress",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

@@ -6,9 +6,9 @@ import com.github.edgar615.direwolves.core.apidiscovery.ApiFinder;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -19,11 +19,11 @@ import java.util.List;
 
 /**
  * 该filter根据请求从API路由注册表中读取到对应的API定义.
- * <p/>
+ * <p>
  * 该filter可以接受下列的配置参数
  * <pre>
  * </pre>
- * <p/>
+ * <p>
  * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回对应的异常。
  * 该filter的order=-2147483648, int的最小值
  * Created by edgar on 17-1-4.
@@ -40,7 +40,8 @@ public class ApiFindFilter implements Filter {
     this.vertx = vertx;
     String namespace = config.getString("namespace", "");
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions()
+                                                         .setName(namespace + "" + ".api"));
     this.apiFinder = ApiFinder.create(vertx, discovery);
   }
 

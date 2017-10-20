@@ -1,0 +1,46 @@
+{
+  "name": "user.pwd.forgot.1.0.0",
+  "method": "POST",
+  "path": "/forgotpwd",
+  "appkey": true,
+  "body.arg": [
+    {
+      "name": "type",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "username",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "areaCode",
+      "default_value" : "0086"
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "user",
+      "method": "POST",
+      "name": "forgotpwd",
+      "type": "http",
+      "path": "/forgotpwd"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "forgotpwd",
+      "body.add": [
+        "companyCode:$var.app.code"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

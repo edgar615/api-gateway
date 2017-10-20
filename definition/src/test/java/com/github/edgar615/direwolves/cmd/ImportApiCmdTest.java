@@ -22,7 +22,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", new JsonObject(), ar -> {
+    vertx.eventBus().<JsonObject>send("api.import", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -43,7 +43,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/api");
     AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.import", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -72,7 +72,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/api/device_add.json");
     AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.import", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -101,7 +101,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/invalid");
     AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.import", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {

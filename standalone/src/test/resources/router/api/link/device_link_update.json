@@ -1,0 +1,104 @@
+{
+  "name": "device.link.update.1.0.0",
+  "method": "PUT",
+  "path": "/devices/link/(\\d+)",
+  "authentication": true,
+  "scope": "device:link",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "name",
+      "rules": {
+        "maxLength": 64
+      }
+    },
+    {
+      "name": "linkEnable",
+      "rules": {
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    },
+    {
+      "name": "triggerCondition",
+      "rules": {
+        "integer": true,
+        "optional": [
+          100,
+          101,
+          102,
+          121,
+          122
+        ]
+      }
+    },
+    {
+      "name": "responseType",
+      "rules": {
+        "integer": true,
+        "optional": [
+          101,
+          102,
+          103
+        ]
+      }
+    },
+    {
+      "name": "linkStart",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 86400
+      }
+    },
+    {
+      "name": "linkEnd",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 86400
+      }
+    },
+    {
+      "name": "linkStartRepeat",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 127
+      }
+    },
+    {
+      "name": "linkEndRepeat",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 127
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "PUT",
+      "name": "update_device_link",
+      "type": "http",
+      "path": "/devices/link/$var.param0"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "update_device_link",
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

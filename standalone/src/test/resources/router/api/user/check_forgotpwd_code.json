@@ -1,0 +1,42 @@
+{
+  "name": "user.pwd.forgot.checkcode.1.0.0",
+  "method": "POST",
+  "path": "/checkforgotcode",
+  "appkey": true,
+  "body.arg": [
+    {
+      "name": "username",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "vertifyCode",
+      "rules": {
+        "required": true,
+        "maxLength": 6,
+        "minLength": 6,
+        "regex": "[0-9]{6}"
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "user",
+      "method": "POST",
+      "name": "checkfogcode",
+      "type": "http",
+      "path": "/checkfogcode"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "checkfogcode",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

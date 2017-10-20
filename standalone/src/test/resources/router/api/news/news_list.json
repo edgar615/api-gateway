@@ -1,0 +1,55 @@
+{
+  "name": "news.list.1.0.0",
+  "method": "GET",
+  "path": "/news",
+  "appkey": true,
+  "url.arg": [
+    {
+      "name": "companyCode",
+      "rules": {
+        "prohibited": true
+      }
+    },
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "language",
+      "default_value": 1,
+      "rules": {
+        "integer": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "news",
+      "method": "GET",
+      "name": "query_news",
+      "type": "http",
+      "path": "/news"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "query_news",
+      "query.add": [
+        "companyCode:$var.app.code",
+        "state:2"
+      ]
+    }
+  ]
+}

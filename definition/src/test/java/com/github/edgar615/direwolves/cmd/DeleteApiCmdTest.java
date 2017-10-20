@@ -30,7 +30,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", new JsonObject(), ar -> {
+    vertx.eventBus().<JsonObject>send("api.delete", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -63,7 +63,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("name", "add_device");
 
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
       if (ar.succeeded()) {
         check2.set(true);
       } else {
@@ -103,7 +103,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("name", UUID.randomUUID().toString());
 
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
       if (ar.succeeded()) {
         check2.set(true);
       } else {
@@ -143,7 +143,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("name", "*device");
 
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
       if (ar.succeeded()) {
         check2.set(true);
       } else {

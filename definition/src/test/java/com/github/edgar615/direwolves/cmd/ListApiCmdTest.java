@@ -32,7 +32,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", new JsonObject(), ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -52,7 +52,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
     JsonObject jsonObject = new JsonObject()
             .put("namespace", namespace);
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -77,7 +77,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("name", "get_device");
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -98,7 +98,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("name", "*device");
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -122,7 +122,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("name", "*rererere");
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -143,7 +143,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("start", 1);
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -165,7 +165,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("start", 3);
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -185,7 +185,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("limit", 1);
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -207,7 +207,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("limit", 0);
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
@@ -228,7 +228,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("limit", 1);
 
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
         JsonArray jsonArray = ar.result().body().getJsonArray("result");
 

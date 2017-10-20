@@ -1,0 +1,76 @@
+{
+  "name": "device.regular.add.1.0.0",
+  "method": "POST",
+  "path": "/devices/regulardefend",
+  "authentication": true,
+  "scope": "device:regular",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "deviceId",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "type",
+      "rules": {
+        "required": true,
+        "optional": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "name": "isActive",
+      "rules": {
+        "optional": [
+          "true",
+          "false"
+        ]
+      }
+    },
+    {
+      "name": "regularTime",
+      "rules": {
+        "required": true,
+        "integer": true,
+        "min": 0,
+        "max": 86400
+      }
+    },
+    {
+      "name": "regularRepeat",
+      "rules": {
+        "integer": true,
+        "min": 0,
+        "max": 127
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "POST",
+      "name": "add_regular",
+      "type": "http",
+      "path": "/devices/regulardefend"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "add_device_regular",
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

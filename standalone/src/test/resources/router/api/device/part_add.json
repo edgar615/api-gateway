@@ -1,0 +1,53 @@
+{
+  "name": "part.add.1.0.0",
+  "method": "POST",
+  "path": "/parts",
+  "authentication": true,
+  "scope": "device:write",
+  "appkey": true,
+  "app_code_vertify": true,
+  "body.arg": [
+    {
+      "name": "deviceId",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "barcode",
+      "rules": {
+        "required": true,
+        "regex": "LH[0-9a-fA-F]{14}"
+      }
+    },
+    {
+      "name": "zigbeeMacAddress",
+      "rules": {
+        "regex": "[0-9a-fA-F]{16}"
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "service": "device",
+      "method": "POST",
+      "name": "add_part",
+      "type": "http",
+      "path": "/parts"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "add_part",
+      "body.add": [
+        "userId:$user.userId",
+        "companyCode:$user.companyCode"
+      ],
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ]
+    }
+  ]
+}

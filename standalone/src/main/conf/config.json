@@ -22,7 +22,7 @@
         "api.discovery" : {
           "importer" : {
             "example" : {
-              "file" : "standalone/src/test/resources/router"
+              "file" : "standalone/src/test/resources/router/mgr"
             }
           },
           "publishedAddress" : "direwolves.api.published",
@@ -36,9 +36,9 @@
       "worker": false,
       "config": {
         "redis" : {
-          "host": "10.11.0.31",
-          "port": 6379,
-          "auth": "",
+          "host": "test.ihorn.com.cn",
+          "port": 32770,
+          "auth": "7CBF5FBEF855F16F",
           "redis.sub.keys": [
             "__keyevent@0__:expired",
             "__keyevent@0__:del"

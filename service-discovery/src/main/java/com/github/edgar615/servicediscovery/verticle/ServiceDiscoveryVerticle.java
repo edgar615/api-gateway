@@ -28,7 +28,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
           "io.vertx.servicediscovery.consul.ConsulServiceImporter";
 
   private final String zookeeperImportClass =
-          "ZookeeperServiceImporter";
+          "com.github.edgar615.servicediscovery.zookeeper.ZookeeperServiceImporter";
 
   @Override
   public void start() throws Exception {

@@ -32,7 +32,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", new JsonObject(), ar -> {
+    vertx.eventBus().<JsonObject>send("api.get", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -52,7 +52,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
             .put("name", "add_device");
     AtomicBoolean check1 = new AtomicBoolean();
 
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -72,7 +72,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
             .put("name", "*device");
     AtomicBoolean check1 = new AtomicBoolean();
 
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -91,7 +91,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
             .put("name", UUID.randomUUID().toString());
     AtomicBoolean check1 = new AtomicBoolean();
 
-    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
+    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {

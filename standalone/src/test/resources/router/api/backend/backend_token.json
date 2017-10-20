@@ -1,18 +1,19 @@
 {
-  "name": "backend.token",
+  "name": "backend.token.create.1.0.0",
   "method": "POST",
   "path": "/backend/token",
   "scope": "backend:token",
-  "appkey" : true,
+  "appkey": true,
   "endpoints": [
     {
       "type": "dummy",
       "name": "backend.token",
-      "result" : {
+      "result": {
         "userId": -188,
-        "username" : "backend",
-        "permissions" : "all",
-        "group" : "backend"
+        "companyCode": -1,
+        "username": "backend",
+        "permissions": "all",
+        "group": "backend"
       }
     }
   ],
@@ -22,18 +23,20 @@
       "rules": {
         "required": true
       }
-    },{
+    },
+    {
       "name": "sign",
       "rules": {
         "required": true
       }
-    },{
+    },
+    {
       "name": "code",
       "rules": {
         "required": true
       }
     }
   ],
-  "backend.vertify" : true,
+  "backend.vertify": true,
   "jwt.build": true
 }
