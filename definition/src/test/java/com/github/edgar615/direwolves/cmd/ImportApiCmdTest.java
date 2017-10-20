@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.cmd;
 
 import com.github.edgar615.util.exception.DefaultErrorCode;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -23,11 +22,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(new JsonObject())
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -46,13 +41,9 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
   public void testImportDirSuccess(TestContext testContext) {
     JsonObject jsonObject = new JsonObject()
             .put("namespace", namespace)
-        .put("path", "src/test/resources/api");
+            .put("path", "src/test/resources/api");
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -81,11 +72,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/api/device_add.json");
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -114,11 +101,7 @@ public class ImportApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("path", "src/test/resources/invalid");
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.import")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.import", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.import", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {

@@ -78,11 +78,11 @@ public class EventbusRequestReplaceFilterTest {
     ebheaders.put("h6", "$body.obj");
     ebheaders .put("h7", "$body.arr");;
     apiContext.addRequest(EventbusRpcRequest.create("a", "send_log", "send_log", EventbusEndpoint
-            .REQ_RESP, null,ebheaders, new JsonObject()));
+            .REQ_RESP, ebheaders, new JsonObject()));
     apiContext.addRequest(EventbusRpcRequest.create("b", "send_log", "point", EventbusEndpoint
-            .POINT_POINT, null, ebheaders, new JsonObject()));
+            .POINT_POINT,  ebheaders, new JsonObject()));
     apiContext.addRequest(EventbusRpcRequest.create("c", "send_log", "pub", EventbusEndpoint.PUB_SUB,
-                                                    null, ebheaders, new JsonObject()));
+                                                    ebheaders, new JsonObject()));
 
     apiContext.addVariable("foo", "var_bar");
     apiContext.setPrincipal(new JsonObject().put("userId", 1));
@@ -144,9 +144,9 @@ public class EventbusRequestReplaceFilterTest {
             ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
 
     apiContext.addRequest(EventbusRpcRequest.create("a", "send_log", "send_log", EventbusEndpoint
-            .REQ_RESP, null,null, jsonObject));
-    apiContext.addRequest(EventbusRpcRequest.create("b", "send_log", "point", EventbusEndpoint.POINT_POINT, null, null,jsonObject));
-    apiContext.addRequest(EventbusRpcRequest.create("c", "send_log", "pub", EventbusEndpoint.PUB_SUB, null,null, jsonObject));
+            .REQ_RESP, null, jsonObject));
+    apiContext.addRequest(EventbusRpcRequest.create("b", "send_log", "point", EventbusEndpoint.POINT_POINT, null, jsonObject));
+    apiContext.addRequest(EventbusRpcRequest.create("c", "send_log", "pub", EventbusEndpoint.PUB_SUB, null, jsonObject));
 
     apiContext.addVariable("foo", "var_bar");
     apiContext.setPrincipal(new JsonObject().put("userId", 1));

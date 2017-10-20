@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.cmd;
 
 import com.github.edgar615.util.exception.DefaultErrorCode;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -33,11 +32,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.get")
-            .setBody(new JsonObject())
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.get", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -57,11 +52,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
             .put("name", "add_device");
     AtomicBoolean check1 = new AtomicBoolean();
 
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.get")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.get", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -81,11 +72,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
             .put("name", "*device");
     AtomicBoolean check1 = new AtomicBoolean();
 
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.get")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.get", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         check1.set(true);
       } else {
@@ -104,11 +91,7 @@ public class GetApiCmdTest extends BaseApiCmdTest {
             .put("name", UUID.randomUUID().toString());
     AtomicBoolean check1 = new AtomicBoolean();
 
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.get")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.get", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {

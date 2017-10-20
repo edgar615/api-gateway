@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.cmd;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.util.exception.DefaultErrorCode;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -40,7 +39,8 @@ public class AddApiCmdTest extends BaseApiCmdTest {
             .put("method", "POST")
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
+            .add(new JsonObject().put("type", "simple-http").put("host", "localhost")
+                         .put("port", 80)
                          .put("name", "add_device")
                          .put("service", "device")
                          .put("method", "POST")
@@ -48,11 +48,8 @@ public class AddApiCmdTest extends BaseApiCmdTest {
     jsonObject.put("endpoints", endpoints);
 
     AtomicBoolean check2 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.add")
-            .setBody(new JsonObject().put("data", jsonObject.encode()))
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.add", event, ar -> {
+    JsonObject event = new JsonObject().put("data", jsonObject.encode());
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.add", event, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result().body());
 //        testContext.assertEquals(1, ar.result().getInteger("result"));
@@ -99,7 +96,8 @@ public class AddApiCmdTest extends BaseApiCmdTest {
             .put("method", "POST")
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
+            .add(new JsonObject().put("type", "simple-http").put("host", "localhost")
+                         .put("port", 80)
                          .put("name", "add_device")
                          .put("service", "device")
                          .put("method", "POST")
@@ -107,11 +105,9 @@ public class AddApiCmdTest extends BaseApiCmdTest {
     jsonObject.put("endpoints", endpoints);
 
     AtomicBoolean check2 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.add")
-            .setBody(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.add", event, ar -> {
+    JsonObject event = new JsonObject()
+            .put("namespace", namespace).put("data", jsonObject.encode());
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.add", event, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result().body());
 //        testContext.assertEquals(1, ar.result().getInteger("result"));
@@ -155,7 +151,8 @@ public class AddApiCmdTest extends BaseApiCmdTest {
             .put("method", "POST")
             .put("path", "/devices");
     JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
+            .add(new JsonObject().put("type", "simple-http").put("host", "localhost")
+                         .put("port", 80)
                          .put("name", "add_device")
                          .put("service", "device")
                          .put("method", "POST")
@@ -164,11 +161,9 @@ public class AddApiCmdTest extends BaseApiCmdTest {
     jsonObject.put("authentication", true);
 
     AtomicBoolean check2 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.add")
-            .setBody(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.add", event, ar -> {
+    JsonObject event = new JsonObject().put("namespace", namespace)
+            .put("data", jsonObject.encode());
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.add", event, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result().body());
 //        testContext.assertEquals(1, ar.result().getInteger("result"));

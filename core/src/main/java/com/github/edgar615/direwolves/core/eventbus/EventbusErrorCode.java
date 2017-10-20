@@ -5,7 +5,6 @@ import com.github.edgar615.util.exception.ErrorCode;
 /**
  * Created by edgar on 17-7-1.
  */
-@Deprecated
 public class EventbusErrorCode implements ErrorCode {
 
   private final int number;
@@ -14,20 +13,19 @@ public class EventbusErrorCode implements ErrorCode {
 
   private final String message;
 
-  public static EventbusErrorCode create(int number, int statusCode, String message) {
-    return new EventbusErrorCode(number, statusCode, message);
-  }
-
-  public static EventbusErrorCode create(int number, String message) {
-    return new EventbusErrorCode(number, 400, message);
-  }
-
-  private EventbusErrorCode(int number, int statusCode, String message) {
+  private EventbusErrorCode(int number, String message, int statusCode) {
     this.number = number;
     this.statusCode = statusCode;
     this.message = message;
   }
 
+  public static EventbusErrorCode create(int number, String message, int statusCode) {
+    return new EventbusErrorCode(number, message,statusCode);
+  }
+
+  public static EventbusErrorCode create(int number, String message) {
+    return new EventbusErrorCode(number, message, 400);
+  }
 
   @Override
   public int getNumber() {
@@ -46,10 +44,10 @@ public class EventbusErrorCode implements ErrorCode {
 
   @Override
   public String toString() {
-    return "EventbusErrornumber{"
-        + "number=" + number
-        + ", message='" + message + '\''
-        + ", statusCode='" + statusCode + '\''
-        + '}';
+    return "EventbusErrorCode{"
+           + "number=" + number
+           + ", message='" + message + '\''
+           + ", statusCode='" + statusCode + '\''
+           + '}';
   }
 }

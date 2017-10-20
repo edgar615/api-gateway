@@ -8,8 +8,6 @@ import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
 import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.vertx.eventbus.Event;
-import com.github.edgar615.util.vertx.eventbus.EventCodec;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -39,7 +37,6 @@ public class ReqRespRpcHandlerTest {
   @BeforeClass
   public static void startServer(TestContext context) {
     vertx = Vertx.vertx();
-    vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
   }
 
   @Before
@@ -53,11 +50,11 @@ public class ReqRespRpcHandlerTest {
   }
 
   @Test
-  public void reqShouldAlwaysReturnThrowResourceNotFound(TestContext context) {
+  public void undefinedReqShouldAlwaysThrowUnavaliable(TestContext context) {
     String address = UUID.randomUUID().toString();
     RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-                                                      null, null,
+                                                      null,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
@@ -81,25 +78,20 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<Event>consumer(address, msg -> {
+    vertx.eventBus().<JsonObject>consumer(address, msg -> {
       String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
 
       context.assertFalse(msg.headers().contains("action"));
-      Event response
-              = Event.builder().setType("response")
-              .setReplyTo(msg.body().id())
-              .setAddress(msg.replyAddress())
-              .setBody(new JsonObject().put("result", 1))
-              .build();
-      msg.reply(response);
+      JsonObject jsonObject = new JsonObject().put("result", 1);
+      msg.reply(jsonObject);
       async.complete();
     });
 
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-                                                      null, null,
+                                                      null,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
@@ -122,27 +114,23 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<Event>consumer(address, msg -> {
+    vertx.eventBus().<JsonObject>consumer(address, msg -> {
       String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
 
       context.assertEquals("abcdefg", msg.headers().get("action"));
-      Event response
-              = Event.builder().setType("response")
-              .setReplyTo(msg.body().id())
-              .setAddress(msg.replyAddress())
-              .setBody(new JsonObject().put("result", 1))
-              .build();
-      msg.reply(response);
+      JsonObject jsonObject = new JsonObject().put("result", 1);
+      msg.reply(jsonObject);
       async.complete();
     });
 
     Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("action", "abcdefg");
 
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-                                                      "abcdefg", headers,
+                                                      headers,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
@@ -165,7 +153,7 @@ public class ReqRespRpcHandlerTest {
     String address = UUID.randomUUID().toString();
     String id = UUID.randomUUID().toString();
     Async async = context.async();
-    vertx.eventBus().<Event>consumer(address, msg -> {
+    vertx.eventBus().<JsonObject>consumer(address, msg -> {
       String eventId = msg.headers().get("x-request-id");
       context.assertEquals(id, eventId);
       System.out.println(msg.headers());
@@ -176,7 +164,7 @@ public class ReqRespRpcHandlerTest {
 
     RpcRequest rpcRequest = EventbusRpcRequest.create(id, "device", address,
                                                       EventbusEndpoint.REQ_RESP,
-                                                      null, null,
+                                                      null,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);

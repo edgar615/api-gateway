@@ -3,8 +3,6 @@ package com.github.edgar615.direwolves.core.rpc;
 import com.github.edgar615.direwolves.core.definition.EventbusEndpoint;
 import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusHandlerFactory;
 import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusRpcRequest;
-import com.github.edgar615.util.vertx.eventbus.Event;
-import com.github.edgar615.util.vertx.eventbus.EventCodec;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -34,7 +32,6 @@ public class PublishRpcHandlerTest {
   @BeforeClass
   public static void startServer(TestContext context) {
     vertx = Vertx.vertx();
-    vertx.eventBus().registerDefaultCodec(Event.class, new EventCodec());
 //    vertx.deployVerticle(DeviceHttpVerticle.class.getName(), context.asyncAssertSuccess());
   }
 
@@ -53,7 +50,7 @@ public class PublishRpcHandlerTest {
   public void publishShouldAlwaysReturn200(TestContext context) {
     String address = UUID.randomUUID().toString();
     RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
-                                                      EventbusEndpoint.PUB_SUB, null, null,
+                                                      EventbusEndpoint.PUB_SUB, null,
                                                       new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
@@ -84,7 +81,7 @@ public class PublishRpcHandlerTest {
 
     RpcRequest rpcRequest = EventbusRpcRequest
             .create(id, "device", address, EventbusEndpoint.PUB_SUB,
-                    null, null,
+                    null,
                     new JsonObject().put("id", 1));
 
     Future<RpcResponse> future = rpcHandler.handle(rpcRequest);

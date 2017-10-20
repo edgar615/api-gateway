@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.cmd;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.plugin.ip.IpRestriction;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -38,11 +37,7 @@ public class ApiPluginCmdTest extends BaseApiCmdTest {
             .put("ip", "192.168.1.100");
 
     AtomicBoolean check1 = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.plugin")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.plugin", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.plugin", jsonObject, ar -> {
       if (ar.succeeded()) {
         System.out.println(ar.result());
         check1.set(true);
@@ -57,13 +52,9 @@ public class ApiPluginCmdTest extends BaseApiCmdTest {
     jsonObject = new JsonObject()
             .put("namespace", namespace)
             .put("name", "add_device");
-    event = Event.builder()
-            .setAddress("direwolves.eb.api.get")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.get", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
-        ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body().body());
+        ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body());
         IpRestriction ipRestriction = (IpRestriction) apiDefinition.plugin(IpRestriction.class
                                                                                    .getSimpleName());
         testContext.assertNotNull(ipRestriction);
@@ -83,13 +74,9 @@ public class ApiPluginCmdTest extends BaseApiCmdTest {
     jsonObject = new JsonObject()
             .put("namespace", namespace)
             .put("name", "get_device");
-    event = Event.builder()
-            .setAddress("direwolves.eb.api.get")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.get", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.get", jsonObject, ar -> {
       if (ar.succeeded()) {
-        ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body().body());
+        ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body());
         IpRestriction ipRestriction = (IpRestriction) apiDefinition.plugin(IpRestriction.class
                                                                                    .getSimpleName());
         testContext.assertNull(ipRestriction);

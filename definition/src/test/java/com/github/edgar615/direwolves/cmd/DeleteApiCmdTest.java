@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.cmd;
 
 import com.github.edgar615.util.exception.DefaultErrorCode;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -31,11 +30,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.delete")
-            .setBody(new JsonObject())
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.delete", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -68,11 +63,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("name", "add_device");
 
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.delete")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.delete", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", jsonObject, ar -> {
       if (ar.succeeded()) {
         check2.set(true);
       } else {
@@ -112,11 +103,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("name", UUID.randomUUID().toString());
 
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.delete")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.delete", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", jsonObject, ar -> {
       if (ar.succeeded()) {
         check2.set(true);
       } else {
@@ -156,11 +143,7 @@ public class DeleteApiCmdTest extends BaseApiCmdTest {
             .put("namespace", namespace)
             .put("name", "*device");
 
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.delete")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.delete", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.delete", jsonObject, ar -> {
       if (ar.succeeded()) {
         check2.set(true);
       } else {

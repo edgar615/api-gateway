@@ -5,10 +5,10 @@ import com.google.common.collect.Lists;
 import com.github.edgar615.direwolves.core.eventbus.EventbusUtils;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.log.LogType;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import com.github.edgar615.util.vertx.spi.Initializable;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -40,61 +40,37 @@ public class CmdRegister implements Initializable {
                       .addData("cmd", cmd.cmd())
                       .info();
 
-              eb.<Event>consumer(address, msg -> consumer(cmd, msg));
+              eb.<JsonObject>consumer(address, msg -> consumer(cmd, msg));
             });
     complete.complete();
   }
 
-  public void consumer(ApiCmd cmd,  Message<Event> msg) {
-    Event event = msg.body();
+  public void consumer(ApiCmd cmd, Message<JsonObject> received) {
+    JsonObject message = received.body();
+    final String id = received.headers().get("x-request-id");
     Log.create(LOGGER)
-            .setTraceId(event.id())
-           .setLogType(LogType.SER)
+            .setTraceId(id)
+            .setLogType(LogType.SER)
             .setEvent(cmd.cmd())
-            .addData("event", event)
+            .addData("message", message)
             .info();
-
     long started = System.currentTimeMillis();
-    Future<JsonObject> future = cmd.handle(event.body().put("traceId", event.id()));
+    Future<JsonObject> future = cmd.handle(message.put("traceId", id));
     future.setHandler(ar -> {
       long duration = System.currentTimeMillis() - started;
       if (ar.succeeded()) {
-        int bytes;
-        if (ar.result() == null) {
-          bytes = 0;
-        } else {
-          bytes = ar.result().toString().getBytes().length;
+        JsonObject reply = ar.result();
+        if (reply == null) {
+          reply = new JsonObject();
         }
-        Event response = Event.builder()
-                .setReplyTo(event.id())
-                .setAddress(msg.replyAddress())
-                .setBody(ar.result())
-                .build();
-        Log.create(LOGGER)
-                .setTraceId(event.id())
-                .setLogType(LogType.SES)
-                .setEvent(cmd.cmd())
-                .addData("event", response)
-                .setMessage("{}ms; {}bytes")
-                .addArg(duration)
-                .addArg(bytes)
-                .info();
-        msg.reply(response);
+        EventbusUtils.reply(received, reply, duration);
       } else {
-        Log.create(LOGGER)
-                .setTraceId(event.id())
-                .setLogType(LogType.SES)
-                .setEvent(cmd.cmd() +".reply")
-                .setThrowable(ar.cause())
-                .setMessage("duration:{}ms")
-                .addArg(duration)
-                .error();
-        EventbusUtils.onFailure(msg, ar.cause());
+        EventbusUtils.onFailure(received, duration, ar.cause());
       }
     });
   }
 
-  private String cmdAddress( String cmd) {
+  private String cmdAddress(String cmd) {
     return "direwolves.eb." + cmd;
   }
 

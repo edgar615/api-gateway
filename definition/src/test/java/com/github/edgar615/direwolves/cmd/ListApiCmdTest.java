@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.cmd;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.util.exception.DefaultErrorCode;
-import com.github.edgar615.util.vertx.eventbus.Event;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -33,11 +32,7 @@ public class ListApiCmdTest extends BaseApiCmdTest {
   @Test
   public void testMissNameShouldThrowValidationException(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(new JsonObject())
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", new JsonObject(), ar -> {
       if (ar.succeeded()) {
         testContext.fail();
       } else {
@@ -57,13 +52,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
     JsonObject jsonObject = new JsonObject()
             .put("namespace", namespace);
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(2, jsonArray.size());
         ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
@@ -86,13 +77,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("name", "get_device");
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(1, jsonArray.size());
         ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
@@ -111,13 +98,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("name", "*device");
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(2, jsonArray.size());
         ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
@@ -139,13 +122,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("name", "*rererere");
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(0, jsonArray.size());
         check.set(true);
@@ -164,13 +143,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("start", 1);
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(1, jsonArray.size());
         ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
@@ -190,13 +165,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("start", 3);
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(0, jsonArray.size());
         check.set(true);
@@ -214,13 +185,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("limit", 1);
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(1, jsonArray.size());
         ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
@@ -240,13 +207,9 @@ public class ListApiCmdTest extends BaseApiCmdTest {
             .put("limit", 0);
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(0, jsonArray.size());
         check.set(true);
@@ -261,17 +224,13 @@ public class ListApiCmdTest extends BaseApiCmdTest {
   public void testListByStartAndLimit(TestContext testContext) {
     JsonObject jsonObject = new JsonObject()
             .put("namespace", namespace)
-        .put("start", 1)
-        .put("limit", 1);
+            .put("start", 1)
+            .put("limit", 1);
 
     AtomicBoolean check = new AtomicBoolean();
-    Event event = Event.builder()
-            .setAddress("direwolves.eb.api.list")
-            .setBody(jsonObject)
-            .build();
-    vertx.eventBus().<Event>send("direwolves.eb.api.list", event, ar -> {
+    vertx.eventBus().<JsonObject>send("direwolves.eb.api.list", jsonObject, ar -> {
       if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().body().getJsonArray("result");
+        JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
         testContext.assertEquals(1, jsonArray.size());
         ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));

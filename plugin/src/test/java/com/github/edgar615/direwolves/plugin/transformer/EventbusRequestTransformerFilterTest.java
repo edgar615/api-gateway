@@ -85,7 +85,6 @@ public class EventbusRequestTransformerFilterTest {
 
     apiContext.addRequest(EventbusRpcRequest
                                   .create("a", "send_log", "send_log", EventbusEndpoint.REQ_RESP,
-                                          null,
                                           ebHeaders, jsonObject));
 
     apiContext.apiDefinition().addPlugin(plugin);
@@ -130,12 +129,10 @@ public class EventbusRequestTransformerFilterTest {
 
     apiContext.addRequest(EventbusRpcRequest
                                   .create("a", "send_log", "send_log", EventbusEndpoint.REQ_RESP,
-                                          null,
                                           ebHeaders, jsonObject));
 
     apiContext.addRequest(EventbusRpcRequest
                                   .create("a", "send_log2", "send_log", EventbusEndpoint.REQ_RESP,
-                                          null,
                                           ebHeaders, jsonObject));
 
     apiContext.apiDefinition().addPlugin(plugin);

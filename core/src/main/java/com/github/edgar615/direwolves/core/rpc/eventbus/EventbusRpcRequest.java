@@ -37,8 +37,6 @@ public class EventbusRpcRequest implements RpcRequest {
    */
   private final String policy;
 
-  private final String action;
-
   /**
    * 请求头
    */
@@ -50,7 +48,6 @@ public class EventbusRpcRequest implements RpcRequest {
   private JsonObject message;
 
   EventbusRpcRequest(String id, String name, String address, String policy,
-                     String action,
                      Multimap<String, String> headers,
                      JsonObject message) {
     Preconditions.checkNotNull(id);
@@ -63,7 +60,6 @@ public class EventbusRpcRequest implements RpcRequest {
     this.address = address;
     this.message = message;
     this.policy = policy;
-    this.action = action;
     if (headers == null) {
       this.headers = ArrayListMultimap.create();
     } else {
@@ -82,14 +78,9 @@ public class EventbusRpcRequest implements RpcRequest {
    * @return EventbusRpcRequest
    */
   public static EventbusRpcRequest create(String id, String name, String address, String policy,
-                                          String action,
                                           Multimap<String, String> headers,
                                           JsonObject message) {
-    return new EventbusRpcRequest(id, name, address, policy, action, headers, message);
-  }
-
-  public String action() {
-    return action;
+    return new EventbusRpcRequest(id, name, address, policy, headers, message);
   }
 
   @Override
@@ -148,7 +139,7 @@ public class EventbusRpcRequest implements RpcRequest {
 
   @Override
   public RpcRequest copy() {
-    return EventbusRpcRequest.create(id, name, address, policy, action,
+    return EventbusRpcRequest.create(id, name, address, policy,
                                      ArrayListMultimap.create(headers),
                                      message.copy());
   }
@@ -160,7 +151,6 @@ public class EventbusRpcRequest implements RpcRequest {
             .add("name", name)
             .add("address", address)
             .add("policy", policy)
-            .add("action", action)
             .add("headers", headers)
             .add("message", message.encode())
             .toString();
