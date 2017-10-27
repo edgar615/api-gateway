@@ -73,15 +73,6 @@ public class AppKeyFilterTest {
     vertx = Vertx.vertx();
 
     filters.clear();
-    JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey);
-
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
-    filters.add(filter);
-
 
   }
 
@@ -98,7 +89,13 @@ public class AppKeyFilterTest {
 
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
-
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey);
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("appkey", config)
+            .put("namespace", namespace));
+    filters.add(filter);
     createContext();
 
     Task<ApiContext> task = Task.create();
@@ -121,12 +118,19 @@ public class AppKeyFilterTest {
 
     SimpleHttpEndpoint httpEndpoint =
             SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
+                    80, "localhost");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
 
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey);
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("appkey", config)
+            .put("namespace", namespace));
+    filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -153,8 +157,8 @@ public class AppKeyFilterTest {
             .put("secretKey", secretKey)
             .put("codeKey", codeKey)
             .put("import",
-                 new JsonArray().add(new JsonObject().put("type", "origin").put("data", new
-                         JsonArray().add(origin))));
+                    new JsonArray().add(new JsonObject().put("type", "origin").put("data", new
+                            JsonArray().add(origin))));
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
@@ -171,7 +175,7 @@ public class AppKeyFilterTest {
     ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
     SimpleHttpEndpoint httpEndpoint =
             SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
+                    80, "localhost");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -186,7 +190,7 @@ public class AppKeyFilterTest {
               testContext.assertTrue(e instanceof SystemException);
               SystemException ex = (SystemException) e;
               testContext.assertEquals(DefaultErrorCode.INVALID_REQ.getNumber(),
-                                       ex.getErrorCode().getNumber());
+                      ex.getErrorCode().getNumber());
 
               async.complete();
             });
@@ -202,10 +206,9 @@ public class AppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
             .put("codeKey", codeKey)
-            .put("import",
-                 new JsonArray().add(new JsonObject().put("type", "origin").put("data", new
-                         JsonArray().add(origin))));
+            .put("data", new JsonArray().add(origin));
 
+    filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
@@ -226,7 +229,7 @@ public class AppKeyFilterTest {
 
     SimpleHttpEndpoint httpEndpoint =
             SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
+                    80, "localhost");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -254,17 +257,14 @@ public class AppKeyFilterTest {
   public void testSignWithBody(TestContext testContext) {
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String url = Randoms.randomAlphabet(10);
-    mockHttp(port, url);
+    mockExistHttp(port, url);
     JsonObject http = new JsonObject()
-            .put("type", "http")
-            .put("scan-period", 1000)
             .put("port", port)
-            .put("url", url);
+            .put("path", url);
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
             .put("codeKey", codeKey)
-            .put("import",
-                 new JsonArray().add(http));
+            .put("loader",http);
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
@@ -296,7 +296,7 @@ public class AppKeyFilterTest {
 
     SimpleHttpEndpoint httpEndpoint =
             SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
+                    80, "localhost");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
@@ -320,7 +320,7 @@ public class AppKeyFilterTest {
 
   }
 
-  private void mockHttp(int port, String url) {
+  private void mockExistHttp(int port, String url) {
     AtomicBoolean complete = new AtomicBoolean();
     vertx.createHttpServer().requestHandler(req -> {
       if (req.path().equals(url)) {
@@ -329,11 +329,9 @@ public class AppKeyFilterTest {
                 .put(secretKey, appSecret)
                 .put(codeKey, appCode)
                 .put("permissions", "all");
-        JsonArray jsonArray = new JsonArray()
-                .add(jsonObject);
-        req.response().end(jsonArray.encode());
+        req.response().end(jsonObject.encode());
       } else {
-        req.response().end("[]");
+        req.response().setStatusCode(404).end();
       }
     }).listen(port, ar -> {
       if (ar.succeeded()) {
@@ -358,7 +356,7 @@ public class AppKeyFilterTest {
 
     SimpleHttpEndpoint httpEndpoint =
             SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
+                    80, "localhost");
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);

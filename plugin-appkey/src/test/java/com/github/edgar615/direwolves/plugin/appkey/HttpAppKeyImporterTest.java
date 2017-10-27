@@ -62,8 +62,6 @@ public class HttpAppKeyImporterTest {
     vertx = Vertx.vertx();
     reqCount = new AtomicInteger(0);
     discovery = AppKeyDiscovery.create(vertx, namespace);
-
-
     AtomicBoolean completed = new AtomicBoolean();
     int port = Integer.parseInt(Randoms.randomNumber(4));
     JsonObject config = new JsonObject()

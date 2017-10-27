@@ -20,6 +20,7 @@ import com.github.edgar615.util.vertx.cache.GuavaCache;
 import com.github.edgar615.util.vertx.cache.GuavaCacheOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,20 +175,11 @@ public class AppKeyFilter implements Filter {
     this.codeKey = appKeyConfig.getString("codeKey", "appCode");
     this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
-    for (int i = 0; i < appKeyConfig.getJsonArray("data").size(); i++) {
-      JsonObject jsonObject = appKeyConfig.getJsonArray("data").getJsonObject(i);
-      String appKey = jsonObject.getString("appKey");
-      if (appKey != null) {
-        localAppKeys.put(appKey, jsonObject);
-      }
-    }
-
     //todo 从配置读取
     this.cache = new GuavaCache<>(vertx, new GuavaCacheOptions()
             .setExpireAfterWrite(1800l));
-
-    appKeyLoader = createCacheLoader(vertx, appKeyConfig);
-
+    appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
+    appKeyLoader = new AppKeyLoader(vertx, appKeyConfig);
   }
 
   @Override
@@ -233,28 +225,6 @@ public class AppKeyFilter implements Filter {
       checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, jsonObject);
     });
 
-  }
-
-  private CacheLoader<String, JsonObject> createCacheLoader(Vertx vertx, JsonObject appKeyConfig) {
-    if (appKeyConfig.getValue("loader") instanceof JsonObject) {
-      JsonObject loaderConfig = appKeyConfig.getJsonObject("loader");
-      String host = loaderConfig.getString("host", "localhost");
-      int port = loaderConfig.getInteger("port", 80);
-      String path = loaderConfig.getString("path", "/");
-      CacheLoader<String, JsonObject> cacheLoader = (key, handler) -> {
-        vertx.createHttpClient().get(port, host, path, response -> {
-          if (response.statusCode() >= 400) {
-            handler.handle(Future.failedFuture("appkey.loader.failed"));
-          } else {
-            response.bodyHandler(body -> {
-              handler.handle(Future.succeededFuture(body.toJsonObject()));
-            });
-          }
-        });
-      };
-    } else {
-      return null;
-    }
   }
 
   private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
