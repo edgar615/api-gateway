@@ -7,17 +7,20 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
-import com.github.edgar615.direwolves.plugin.appkey.discovery.AppKeyLocalCache;
 import com.github.edgar615.direwolves.plugin.appkey.discovery.HttpAppKeyImporter;
 import com.github.edgar615.direwolves.plugin.appkey.discovery.JsonAppKeyImpoter;
 import com.github.edgar615.util.base.EncryptUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
+import com.github.edgar615.util.vertx.cache.Cache;
+import com.github.edgar615.util.vertx.cache.CacheLoader;
+import com.github.edgar615.util.vertx.cache.GuavaCache;
+import com.github.edgar615.util.vertx.cache.GuavaCacheOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * AppKey的校验.
@@ -147,7 +151,11 @@ public class AppKeyFilter implements Filter {
 
   private final AppKeyDiscovery discovery;
 
-  private final AppKeyLocalCache cache;
+  private final Cache<String, JsonObject> cache;
+
+  private final CacheLoader<String, JsonObject> appKeyLoader;
+
+  private final String NOT_EXISTS_KEY = UUID.randomUUID().toString();
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -168,24 +176,22 @@ public class AppKeyFilter implements Filter {
     this.codeKey = appKeyConfig.getString("codeKey", "appCode");
     this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
+    //半小时过期
+    this.cache = new GuavaCache<>(vertx, new GuavaCacheOptions()
+            .setExpireAfterWrite(1800l));
+
     discovery = AppKeyDiscovery.create(vertx, namespace + ".appkey");
-    if (appKeyConfig.getValue("import") instanceof JsonArray) {
-      JsonArray importArray = appKeyConfig.getJsonArray("import");
-      for (int i = 0; i < importArray.size(); i++) {
-        if (importArray.getValue(i) instanceof JsonObject) {
-          JsonObject jsonObject = importArray.getJsonObject(i);
-          if ("origin".equals(jsonObject.getValue("type"))) {
-            discovery.registerImporter(new JsonAppKeyImpoter(), jsonObject,
-                                       Future.<Void>future().completer());
-          }
-          if ("http".equals(jsonObject.getValue("type"))) {
-            discovery.registerImporter(new HttpAppKeyImporter(), jsonObject,
-                                       Future.<Void>future().completer());
-          }
-        }
+    importAppKey(appKeyConfig);
+    appKeyLoader = (key, handler) -> discovery.getAppKey(key, ar -> {
+      if (ar.failed() || ar.result() == null) {
+        JsonObject notExists = new JsonObject()
+                .put(NOT_EXISTS_KEY, NOT_EXISTS_KEY);
+        handler.handle(Future.succeededFuture(notExists));
+        return;
       }
-    }
-    this.cache = AppKeyLocalCache.create(vertx, discovery);
+      handler.handle(Future.succeededFuture(ar.result().getJsonObject()));
+    });
+
   }
 
   @Override
@@ -217,11 +223,8 @@ public class AppKeyFilter implements Filter {
       params.put("body", apiContext.body().encode());
     }
 
-    cache.getAppKey(appKey, ar -> {
-      if (ar.succeeded()) {
-        JsonObject app = ar.result().getJsonObject();
-        checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, app);
-      } else {
+    cache.get(appKey, appKeyLoader, ar -> {
+      if (ar.failed() || ar.result().containsKey(NOT_EXISTS_KEY)) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())
                 .setEvent("appkey.undefined")
@@ -229,10 +232,32 @@ public class AppKeyFilter implements Filter {
                 .error();
         completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                     .set("details", "Undefined AppKey:" + appKey));
+        return;
       }
+      JsonObject jsonObject = ar.result();
+      checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, jsonObject);
     });
+
   }
 
+  private void importAppKey(JsonObject appKeyConfig) {
+    if (appKeyConfig.getValue("import") instanceof JsonArray) {
+      JsonArray importArray = appKeyConfig.getJsonArray("import");
+      for (int i = 0; i < importArray.size(); i++) {
+        if (importArray.getValue(i) instanceof JsonObject) {
+          JsonObject jsonObject = importArray.getJsonObject(i);
+          if ("origin".equals(jsonObject.getValue("type"))) {
+            discovery.registerImporter(new JsonAppKeyImpoter(), jsonObject,
+                                       Future.<Void>future().completer());
+          }
+          if ("http".equals(jsonObject.getValue("type"))) {
+            discovery.registerImporter(new HttpAppKeyImporter(), jsonObject,
+                                       Future.<Void>future().completer());
+          }
+        }
+      }
+    }
+  }
 
   private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
                          Multimap<String, String> params, String clientSignValue, String signMethod,
