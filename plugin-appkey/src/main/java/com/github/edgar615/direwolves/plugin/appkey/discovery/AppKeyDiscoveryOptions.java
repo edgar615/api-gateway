@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 17-7-25.
  */
+@Deprecated
 public class AppKeyDiscoveryOptions {
   public static final String DEFAULT_PUBLISHED_ADDRESS = "direwolves.appkey.published";
 

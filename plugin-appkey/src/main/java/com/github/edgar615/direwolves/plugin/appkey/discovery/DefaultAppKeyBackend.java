@@ -22,6 +22,7 @@ import java.util.Objects;
  *
  * @author Edgar  Date 2017/6/20
  */
+@Deprecated
 class DefaultAppKeyBackend implements AppKeyBackend {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionBackend.class);

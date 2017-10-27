@@ -7,6 +7,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/7/13
  */
+@Deprecated
 class AppKeyDiscoveryOptionsConverter {
 
   static void fromJson(JsonObject json, AppKeyDiscoveryOptions obj) {

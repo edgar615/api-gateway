@@ -16,6 +16,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/7/21
  */
+@Deprecated
 public class JsonAppKeyImpoter implements AppKeyImporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonAppKeyImpoter.class);

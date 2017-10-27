@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Edgar  Date 2016/8/25
  */
+@Deprecated
 public class HttpAppKeyImporter implements AppKeyImporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpAppKeyImporter.class);

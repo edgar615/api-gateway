@@ -10,6 +10,7 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/7/20
  */
+@Deprecated
 public interface AppKeyImporter {
   /**
    * Starts the importer.

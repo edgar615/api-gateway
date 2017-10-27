@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  * @author Edgar  Date 2017/7/20
  */
+@Deprecated
 class AppKeyDiscoveryImpl implements AppKeyDiscovery {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyDiscovery.class);

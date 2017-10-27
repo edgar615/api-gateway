@@ -10,6 +10,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/6/20
  */
+@Deprecated
 public interface AppKeyBackend {
   void store(AppKey appKey, Handler<AsyncResult<AppKey>> resultHandler);
 

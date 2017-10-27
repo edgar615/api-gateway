@@ -8,6 +8,7 @@ import io.vertx.core.Handler;
  *
  * @author Edgar  Date 2017/2/14
  */
+@Deprecated
 public interface AppKeyPublisher {
   /**
    * 注册一个AppKey.
