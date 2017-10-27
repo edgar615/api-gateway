@@ -39,6 +39,12 @@ public class LoadBalanceStats {
     return INSTANCE;
   }
 
+  /**
+   * 根据服务ID，查找对应的服务状态，如果未找到服务状态，创建一个新的服务状态
+   *
+   * @param serviceId
+   * @return
+   */
   public ServiceStats get(String serviceId) {
     try {
       return cache.get(serviceId);

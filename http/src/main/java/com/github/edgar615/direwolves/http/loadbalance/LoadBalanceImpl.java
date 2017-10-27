@@ -18,13 +18,22 @@ import java.util.concurrent.ExecutionException;
  */
 class LoadBalanceImpl implements LoadBalance {
 
+  /**
+   * 配置
+   */
   private final JsonObject config;
 
+  /**
+   * 服务节点的状态集合
+   */
+  private final LoadBalanceStats stats;
+
+  /**
+   * 服务发现的本地缓存
+   */
   private ServiceFinder serviceFinder;
 
   private LoadingCache<String, ServiceProvider> providerCache;
-
-  private final LoadBalanceStats stats;
 
   LoadBalanceImpl(ServiceFinder serviceFinder, JsonObject config) {
     this.config = config;

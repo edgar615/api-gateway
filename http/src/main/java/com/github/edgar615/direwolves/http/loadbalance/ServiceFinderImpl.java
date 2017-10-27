@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Edgar on 2017/7/31.
  * <b>注意</b>
- * 由于backend依赖于下游资源（DB、SyncMap），ApiDiscovery有些时候的性能可能不够理想，所以最后在ApiDiscovery的上层再包装一个本地缓存.
+ * 由于backend依赖于下游资源（DB、SyncMap），ServiceDiscovery有些时候的性能可能不够理想，所以最后在ServiceDiscovery的上层再包装一个本地缓存.
  *
  * @author Edgar  Date 2017/7/31
  */
