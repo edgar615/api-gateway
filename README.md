@@ -70,7 +70,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 配置项
 
-- http.port int api的http端口
+- port int api的http端口
 - filter array 启用filter,会按照在数组中定义对顺序执行,可选值 jwt, app_key
 - keystore.path string 证书文件路径 默认值keystore.jceks
 - keystore.type string 证书类型，可选值 jceks, jks,默认值jceks

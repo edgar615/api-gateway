@@ -7,11 +7,7 @@
       "expireAfterWrite": 1800,
       "maximumSize": 5000
     },
-    "loader": {
-      "host": "localhost",
-      "port": 9000,
-      "url": "/appkey/import"
-    },
+    "url": "/appkey/import",
     "data": []
   }
 }

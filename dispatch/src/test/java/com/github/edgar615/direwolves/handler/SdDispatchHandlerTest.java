@@ -54,7 +54,7 @@
 //  private JsonObject config = new JsonObject()
 //          .put("namespace", namespace)
 //          .put("consul.port", consulPort)
-//          .put("http.port", port);
+//          .put("port", port);
 //
 //  private ConsulServiceImporter importer;
 //  @Before
@@ -88,7 +88,7 @@
 //    add2Servers();
 //
 //    vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
-//                         new DeploymentOptions().setConfig(new JsonObject().put("http.port",
+//                         new DeploymentOptions().setConfig(new JsonObject().put("port",
 //                                                                                devicePort)).setWorker
 //                                 (true),
 //                         testContext.asyncAssertSuccess());

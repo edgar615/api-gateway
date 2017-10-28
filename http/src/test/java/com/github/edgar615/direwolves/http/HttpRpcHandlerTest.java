@@ -45,7 +45,7 @@ public class HttpRpcHandlerTest {
     port = Integer.parseInt(Randoms.randomNumber(4));
     vertx = Vertx.vertx();
     vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
-                         new DeploymentOptions().setConfig(new JsonObject().put("http.port", port)),
+                         new DeploymentOptions().setConfig(new JsonObject().put("port", port)),
                          context.asyncAssertSuccess());
   }
 

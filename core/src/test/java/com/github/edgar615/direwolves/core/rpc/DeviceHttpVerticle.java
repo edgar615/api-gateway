@@ -44,7 +44,7 @@ public class DeviceHttpVerticle extends AbstractVerticle {
         req.response().putHeader("Content-Type", "application/json");
         req.bodyHandler(body -> req.response().end(body));
       }
-    }).listen(config().getInteger("http.port", 8080), ar -> {
+    }).listen(config().getInteger("port", 8080), ar -> {
       if (ar.succeeded()) {
         startFuture.complete();
       } else {

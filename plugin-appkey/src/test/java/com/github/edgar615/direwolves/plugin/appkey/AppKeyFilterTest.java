@@ -71,7 +71,6 @@ public class AppKeyFilterTest {
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-
     filters.clear();
 
   }
@@ -82,18 +81,47 @@ public class AppKeyFilterTest {
   }
 
   @Test
-  public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(10, filter.order());
-    Assert.assertEquals(Filter.PRE, filter.type());
-  }
-
-  @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
             .put("codeKey", codeKey);
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
+            .put("namespace", namespace));
+    filters.add(filter);
+    createContext();
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> testContext.fail())
+            .onFailure(t -> {
+              testContext.assertTrue(t instanceof SystemException);
+              SystemException ex = (SystemException) t;
+              testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
+              async.complete();
+            });
+  }
+
+  @Test
+  public void undefinedAppKeyShouldThrowInvalidReq2(TestContext testContext) {
+    JsonObject origin = new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode)
+            .put("appKey", UUID.randomUUID().toString());
+    int port = Integer.parseInt(Randoms.randomNumber(4));
+    String url = Randoms.randomAlphabet(10);
+    mockExistHttp(port, Randoms.randomAlphabet(5));
+    JsonObject config = new JsonObject()
+            .put("secretKey", secretKey)
+            .put("codeKey", codeKey)
+//            .put("data", new JsonArray().add(origin))
+            .put("url",url);
+    filters.clear();
+    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+            .put("appkey", config)
+            .put("port", port)
             .put("namespace", namespace));
     filters.add(filter);
     createContext();
@@ -124,9 +152,14 @@ public class AppKeyFilterTest {
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
 
+    JsonObject origin = new JsonObject()
+            .put(secretKey, appSecret)
+            .put(codeKey, appCode)
+            .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
-            .put("codeKey", codeKey);
+            .put("codeKey", codeKey)
+            .put("data", new JsonArray().add(origin));
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
@@ -156,9 +189,7 @@ public class AppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
             .put("codeKey", codeKey)
-            .put("import",
-                    new JsonArray().add(new JsonObject().put("type", "origin").put("data", new
-                            JsonArray().add(origin))));
+            .put("data", new JsonArray().add(origin));
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
@@ -258,16 +289,14 @@ public class AppKeyFilterTest {
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String url = Randoms.randomAlphabet(10);
     mockExistHttp(port, url);
-    JsonObject http = new JsonObject()
-            .put("port", port)
-            .put("path", url);
     JsonObject config = new JsonObject()
             .put("secretKey", secretKey)
             .put("codeKey", codeKey)
-            .put("loader",http);
+            .put("url",url);
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
+            .put("port",port)
             .put("namespace", namespace));
     filters.add(filter);
 

@@ -52,7 +52,7 @@
       "worker": false,
       "dependencies": [ "RedisVerticle" ],
       "config": {
-        "http.port": 9000,
+        "port": 9000,
         "namespace": "example",
         "cache" : "local",
         "service.discovery": {

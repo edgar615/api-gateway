@@ -65,21 +65,21 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
     vertx.createHttpServer()
             .requestHandler(router::accept)
-            .listen(config().getInteger("http.port", 8080), ar -> {
+            .listen(config().getInteger("port", 8080), ar -> {
               if (ar.succeeded()) {
                 Log.create(LOGGER)
                         .setEvent("dispatch.start.succeeded")
                         .addData("namespace", namespace)
-                        .addData("port", config().getInteger("http.port", 8080))
+                        .addData("port", config().getInteger("port", 8080))
                         .info();
                 LOGGER.info("---| [Diaptacher Start] [OK] [{}]",
-                            config().getInteger("http.port", 8080));
+                            config().getInteger("port", 8080));
                 startFuture.complete();
               } else {
                 Log.create(LOGGER)
                         .setEvent("dispatch.start.failed")
                         .addData("namespace", namespace)
-                        .addData("port", config().getInteger("http.port", 8080))
+                        .addData("port", config().getInteger("port", 8080))
                         .setThrowable(ar.cause())
                         .error();
                 startFuture.fail(ar.cause());

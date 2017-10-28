@@ -65,7 +65,7 @@ public class RpcFilterTest {
     AtomicBoolean started = new AtomicBoolean();
 
     vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
-                         new DeploymentOptions().setConfig(new JsonObject().put("http.port", port))
+                         new DeploymentOptions().setConfig(new JsonObject().put("port", port))
                                  .setWorker(true),
                          ar -> started.set(true));
     await().until(() -> started.get());

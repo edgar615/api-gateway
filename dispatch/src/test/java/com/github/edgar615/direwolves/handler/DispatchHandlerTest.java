@@ -44,7 +44,7 @@ public class DispatchHandlerTest {
 
   private JsonObject config = new JsonObject()
           .put("namespace", namespace)
-          .put("http.port", port);
+          .put("port", port);
 
   @Before
   public void setUp(TestContext testContext) {
@@ -65,7 +65,7 @@ public class DispatchHandlerTest {
                          });
 
     vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
-                         new DeploymentOptions().setConfig(new JsonObject().put("http.port",
+                         new DeploymentOptions().setConfig(new JsonObject().put("port",
                                                                                 devicePort)).setWorker
                                  (true),
                          testContext.asyncAssertSuccess());

@@ -81,7 +81,7 @@ public class DeviceHttpVerticle extends AbstractVerticle {
     });
 
     vertx.createHttpServer().requestHandler(router::accept)
-            .listen(config().getInteger("http.port", 8080), ar
+            .listen(config().getInteger("port", 8080), ar
                     -> {
               if (ar.succeeded()) {
                 startFuture.complete();

@@ -1,20 +1,12 @@
 {
-  "http.port": 9000,
+  "port": 9000,
   "namespace": "example",
+  "cache": "local",
   "service.discovery": {
     "strategy": {
       "user": "random",
       "device": "round_robin"
     }
-  },
-  "redis" : {
-    "host": "10.11.0.31",
-    "port": 6379,
-    "auth": "",
-    "redis.sub.keys": [
-      "__keyevent@0__:expired",
-      "__keyevent@0__:del"
-    ]
   },
   "jwt": {
     "path": "keystore.jceks",
@@ -31,8 +23,10 @@
     "permissionsClaimKey": "permissions",
     "unique": true
   },
-  "timeout.expires": 300,
-  "timeout.enable": false,
+  "timeout": {
+    "expires": 300,
+    "enable": false
+  },
   "strict.arg": {
     "enable": true,
     "query.excludes": [
@@ -45,19 +39,30 @@
     ],
     "body.excludes": []
   },
-  "app.origin": [
-    {
-      "appKey": "RmOI7jCvDtfZ1RcAkea1",
-      "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
-      "appCode": 0,
-      "scope": "all"
-    }
-  ],
-  "app.codeKey": "companyCode",
-  "app.permissionKey": "scope",
-  "app.importer": {
-    "scan-period": 500000,
-    "url": "/appkey/import"
+  "appkey": {
+    "secretKey": "appSecret",
+    "codeKey": "companyCode",
+    "permissionKey": "scope",
+    "import": [
+      {
+        "type": "http",
+        "scan-period": 500000,
+        "host": "localhost",
+        "port": 9000,
+        "url": "/appkey/import"
+      },
+      {
+        "type": "origin",
+        "data": [
+          {
+            "appKey": "RmOI7jCvDtfZ1RcAkea1",
+            "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
+            "appCode": 0,
+            "scope": "all"
+          }
+        ]
+      }
+    ]
   },
   "backend.permitted": [
     "18627874615"
@@ -81,5 +86,13 @@
     "notificationPeriod": 2000,
     "notificationAddress": "vertx.circuit-breaker",
     "registry": "vertx.circuit.breaker.registry"
+  },
+  "rate.limiter": {
+    "user_limiter": {
+      "key": "$user.userId",
+      "limit": 3,
+      "interval": 2,
+      "unit": "SECOND"
+    }
   }
 }

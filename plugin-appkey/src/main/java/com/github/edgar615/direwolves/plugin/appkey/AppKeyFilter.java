@@ -47,28 +47,11 @@ import java.util.UUID;
  *   secretKey 密钥的键值，默认值appSecret
  *   codeKey 编码的键值，默认值appCode
  *   permissionKey 权限的键值，默认值permissions
- *   import : JSON数组，appkey的导入
+ *   data : APPKEY的JSON数组，默认为[]
+ *   loader: http获取appkey的接口地址，这个地址对应了一个API路由（不应该做appkey校验，而且只能内外访问）,如果没有这个配置，则不会从后端查询appkey
  *   }
  * </pre>
  * <p>
- * import支持origin和http两种
- * origin类型的配置
- * <pre>
- *   {
- *     "type" : "origin",
- *     "data": [] APPKEY的JSON数组
- *   }
- * </pre>
- * http类型的配置
- * <pre>
- *   {
- *     "type" : "http",
- * "scan-period": 导入周期，默认5000毫秒,
- * "host": "默认值localhost",
- * "port": 默认值9000,
- * "url": "默认值/appkey/import"
- *   }
- * </pre>
  * 该filter的order=10
  * <p>
  * 如果开启了这个过滤器，那么对API的调用必须包含下列参数，如果缺少任意一个，服务端会认为是非法请求。
@@ -179,6 +162,7 @@ public class AppKeyFilter implements Filter {
     this.cache = new GuavaCache<>(vertx, new GuavaCacheOptions()
             .setExpireAfterWrite(1800l));
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
+    appKeyConfig.put("port", config.getInteger("port", 9000));
     appKeyLoader = new AppKeyLoader(vertx, appKeyConfig);
   }
 

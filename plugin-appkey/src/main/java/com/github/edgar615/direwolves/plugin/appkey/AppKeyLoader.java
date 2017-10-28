@@ -45,12 +45,18 @@ class AppKeyLoader implements CacheLoader<String, JsonObject> {
       handler.handle(Future.succeededFuture(localAppKeys.get(key)));
       return;
     }
-    if (config.getValue("loader") instanceof JsonObject) {
-      JsonObject loaderConfig = config.getJsonObject("loader");
-      String host = loaderConfig.getString("host", "localhost");
-      int port = loaderConfig.getInteger("port", 80);
-      String path = loaderConfig.getString("path", "/");
-      vertx.createHttpClient().get(port, host, path, response -> {
+    if (config.getValue("url") instanceof String) {
+      httpLoader(handler, notExists);
+      return;
+    }
+    handler.handle(Future.succeededFuture(notExists));
+  }
+
+  private void httpLoader(Handler<AsyncResult<JsonObject>> handler, JsonObject notExists) {
+    try {
+      int port = config.getInteger("port", 80);
+      String path = config.getString("url", "/");
+      vertx.createHttpClient().get(port, "127.0.0.1", path, response -> {
         if (response.statusCode() >= 400) {
           //TODO LOG
           handler.handle(Future.succeededFuture(notExists));
@@ -59,12 +65,10 @@ class AppKeyLoader implements CacheLoader<String, JsonObject> {
             handler.handle(Future.succeededFuture(body.toJsonObject()));
           });
         }
-      }).exceptionHandler(throwable -> throwable.printStackTrace())
+      }).exceptionHandler(e -> handler.handle(Future.succeededFuture(notExists)))
               .end();
-    } else {
+    } catch (Exception e) {
       handler.handle(Future.succeededFuture(notExists));
     }
-
-
   }
 }
