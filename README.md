@@ -177,53 +177,28 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
       "secretKey": appkey对应密钥的属性名，默认值appSecret,
       "codeKey": appkey对应编码的属性名，默认值appCode,
       "permissionKey": appkey对应权限的属性名，默认值permissions,
-      "import" :[] appkey的导入规则
+      data : APPKEY的JSON数组，默认为[]，
+      url: http获取appkey的接口地址，这个地址对应了一个API路由,如果没有这个配置，则不会从后端查询appkey
     }
 
-origin的导入规则
-
-        {
-          "type" : "origin",
-          "data": [] appkey的json数组
-        }
-
-http的导入规则
-
-        {
-          "type" : "http",
-          "scan-period": 5000, 导入周期
-          "host": "localhost",地址，一般直接指向网关本身，然后在网关中调用下游服务
-          "port": 9000,
-          "url": "/appkey/import" 导入地址
-        }
+一个正确的appKey的JSON格式应该包括 appKey, appSecret, appCode, permissions四个属性
 
 示例
 
-    "appkey": {
-      "secretKey": "appSecret",
-      "codeKey": "appCode",
-      "permissionKey": "permissions",
-      "import": [
-        {
-          "type" : "http",
-          "scan-period": 5000,
-          "host": "localhost",
-          "port": 9000,
-          "url": "/appkey/import"
-        },
-        {
-          "type" : "origin",
-          "data": []
-        }
-      ],
-      "origin.importer": [],
-      "http.importer": {
-        "scan-period": 5000,
-        "host": "localhost",
-        "port": 9000,
+      "appkey": {
+        "secretKey": "appSecret",
+        "codeKey": "companyCode",
+        "permissionKey": "scope",
+        "data": [
+          {
+            "appKey": "RmOI7jCvDtfZ1RcAkea1",
+            "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
+            "appCode": 0,
+            "scope": "all"
+          }
+        ],
         "url": "/appkey/import"
       }
-    }
 
 ## 签名生成的通用步骤如下：
     第一步，设所有发送或者接收到的数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序），使用URL键值对的格式（即key1=value1&key2=value2…）拼接成字符串stringA，如果请求带请求体，将请求体中的JSON对象转换为字符串之后按照body=JSON的格式加入到URL键值中，拼接成字符串stringA。

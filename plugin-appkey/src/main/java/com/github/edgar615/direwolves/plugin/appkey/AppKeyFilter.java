@@ -48,7 +48,7 @@ import java.util.UUID;
  *   codeKey 编码的键值，默认值appCode
  *   permissionKey 权限的键值，默认值permissions
  *   data : APPKEY的JSON数组，默认为[]
- *   loader: http获取appkey的接口地址，这个地址对应了一个API路由（不应该做appkey校验，而且只能内外访问）,如果没有这个配置，则不会从后端查询appkey
+ *   url: http获取appkey的接口地址，这个地址对应了一个API路由（不应该做appkey校验，而且只能内外访问）,如果没有这个配置，则不会从后端查询appkey
  *   }
  * </pre>
  * <p>
