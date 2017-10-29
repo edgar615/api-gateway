@@ -178,7 +178,7 @@ public class AppKeyFilter implements Filter {
     this.cache = factory.create(vertx, "appKeyCache", cacheOptions);
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
     appKeyConfig.put("port", config.getInteger("port", 9000));
-    appKeyLoader = new AppKeyLoader(vertx, appKeyConfig);
+    appKeyLoader = new AppKeyLoader(vertx, namespace + ":appkey:", appKeyConfig);
   }
 
   @Override
@@ -209,7 +209,7 @@ public class AppKeyFilter implements Filter {
       params.removeAll("body");
       params.put("body", apiContext.body().encode());
     }
-    cache.get(appKey, appKeyLoader, ar -> {
+    cache.get(wrapKey(appKey), appKeyLoader, ar -> {
       if (ar.failed() || ar.result().containsKey(NOT_EXISTS_KEY)) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())
@@ -255,6 +255,10 @@ public class AppKeyFilter implements Filter {
       apiContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
       completeFuture.complete(apiContext);
     }
+  }
+
+  private String wrapKey(String appkey) {
+    return namespace + ":appkey:" + appkey;
   }
 
   private String signTopRequest(Multimap<String, String> params, String secret, String signMethod) {

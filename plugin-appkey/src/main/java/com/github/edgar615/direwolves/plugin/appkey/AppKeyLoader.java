@@ -24,8 +24,11 @@ class AppKeyLoader implements CacheLoader<String, JsonObject> {
 
   private final String notExistsKey;
 
-  AppKeyLoader(Vertx vertx, JsonObject config) {
+  private final String prefix;
+
+  AppKeyLoader(Vertx vertx, String prefix, JsonObject config) {
     this.vertx = vertx;
+    this.prefix = prefix;
     this.config = config;
     this.notExistsKey = config.getString("notExistsKey", UUID.randomUUID().toString());
     JsonArray jsonArray = config.getJsonArray("data", new JsonArray());
@@ -40,25 +43,30 @@ class AppKeyLoader implements CacheLoader<String, JsonObject> {
 
   @Override
   public void load(String key, Handler<AsyncResult<JsonObject>> handler) {
+    String appkey = key.substring(prefix.length());
     JsonObject notExists = new JsonObject().put(notExistsKey, notExistsKey);
-    if (localAppKeys.containsKey(key)) {
-      handler.handle(Future.succeededFuture(localAppKeys.get(key)));
+    if (localAppKeys.containsKey(appkey)) {
+      handler.handle(Future.succeededFuture(localAppKeys.get(appkey)));
       return;
     }
     if (config.getValue("url") instanceof String) {
-      httpLoader(handler, notExists);
+      httpLoader(appkey, handler, notExists);
       return;
     }
     handler.handle(Future.succeededFuture(notExists));
   }
 
-  private void httpLoader(Handler<AsyncResult<JsonObject>> handler, JsonObject notExists) {
+  private void httpLoader(String appKey, Handler<AsyncResult<JsonObject>> handler, JsonObject notExists) {
     try {
       int port = config.getInteger("port", 80);
       String path = config.getString("url", "/");
+      if (path.contains("?")) {
+        path = path + "&appKey=" + appKey;
+      } else {
+        path = path + "?appKey=" + appKey;
+      }
       vertx.createHttpClient().get(port, "127.0.0.1", path, response -> {
         if (response.statusCode() >= 400) {
-          //TODO LOG
           handler.handle(Future.succeededFuture(notExists));
         } else {
           response.bodyHandler(body -> {
