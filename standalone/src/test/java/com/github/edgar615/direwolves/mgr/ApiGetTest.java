@@ -1,6 +1,5 @@
 package com.github.edgar615.direwolves.mgr;
 
-import com.github.edgar615.direwolves.standalone.Api;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -16,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/2/7
  */
 @RunWith(VertxUnitRunner.class)
-public class ApiListTest {
+public class ApiGetTest {
 
   @Test
   public void testOk(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost", "/api/list?namespace=example&name=api*")
+    Vertx.vertx().createHttpClient().get(9000, "localhost", "/api/get?namespace=example&name=api.get.1.0.0")
             .handler(resp -> {
               check.set(true);
               System.out.println(resp.statusCode());

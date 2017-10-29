@@ -1,0 +1,37 @@
+{
+  "name": "api.get.1.0.0",
+  "method": "GET",
+  "path": "/api/get",
+  "scope": "api:read",
+  "url.arg": [
+    {
+      "name": "name",
+      "rules": {
+        "required": true
+      }
+    },
+    {
+      "name": "namespace",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "policy": "req-resp",
+      "name": "get.api",
+      "type": "eventbus",
+      "address" : "api.get"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "get.api",
+      "body.add" : [
+        "name:$query.name",
+        "namespace:$query.namespace"
+      ]
+    }
+  ]
+}

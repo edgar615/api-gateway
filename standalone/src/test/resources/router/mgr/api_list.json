@@ -1,7 +1,7 @@
 {
   "name": "api.list.1.0.0",
   "method": "GET",
-  "path": "/api",
+  "path": "/api/list",
   "scope": "api:read",
   "url.arg": [
     {

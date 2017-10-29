@@ -35,7 +35,7 @@ public class RedisCacheTest {
   public void setUp() {
     vertx = Vertx.vertx();
     JsonObject config = new JsonObject()
-            .put("host", "139.196.21.241")
+            .put("host", "127.0.0.1")
             .put("port", 6379)
             .put("auth", "yangzp");
 

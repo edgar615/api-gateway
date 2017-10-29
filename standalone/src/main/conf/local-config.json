@@ -1,0 +1,128 @@
+{
+  "verticles": {
+    "ServiceDiscoveryVerticle": {
+      "class": "com.github.edgar615.servicediscovery.verticle.ServiceDiscoveryVerticle",
+      "instances": 1,
+      "worker": false,
+      "config": {
+        "strategy": {
+          "user": "random",
+          "device": "round_robin"
+        }
+      }
+    },
+    "ApiDefinitionVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
+      "instances": 1,
+      "worker": false,
+      "config": {
+        "api.discovery": {
+          "importer": {
+            "example": {
+              "file": "standalone/src/test/resources/router/mgr"
+            }
+          },
+          "publishedAddress": "direwolves.api.published",
+          "unpublishedAddress": "direwolves.api.unpublished"
+        }
+      }
+    },
+    "ApiDispatchVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "instances": 1,
+      "worker": false,
+      "dependencies": [
+      ],
+      "config": {
+        "port": 9000,
+        "namespace": "example",
+        "cache": "local",
+        "service.discovery": {
+          "strategy": {
+            "user": "random",
+            "device": "round_robin"
+          }
+        },
+        "jwt": {
+          "path": "keystore.jceks",
+          "type": "jceks",
+          "password": "secret",
+          "algorithm": "HS512",
+          "audience": "",
+          "issuer": "",
+          "subject": "",
+          "expiresInSeconds": 1800
+        },
+        "user": {
+          "userClaimKey": "userId",
+          "permissionsClaimKey": "permissions",
+          "unique": true
+        },
+        "timeout": {
+          "expires": 300,
+          "enable": false
+        },
+        "strict.arg": {
+          "enable": true,
+          "query.excludes": [
+            "appKey",
+            "sign",
+            "signMethod",
+            "v",
+            "nonce",
+            "timestamp"
+          ],
+          "body.excludes": []
+        },
+        "appkey": {
+          "secretKey": "appSecret",
+          "codeKey": "companyCode",
+          "permissionKey": "scope",
+          "data": [
+            {
+              "appKey": "RmOI7jCvDtfZ1RcAkea1",
+              "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
+              "appCode": 0,
+              "scope": "all"
+            }
+          ],
+          "url": "/appkey/import",
+          "cache": {
+            "type": "local"
+          }
+        },
+        "backend.permitted": [
+          "18627874615"
+        ],
+        "request.transformer": {
+          "query.remove": [
+            "appKey",
+            "nonce",
+            "v",
+            "timestamp",
+            "signMethod",
+            "sign"
+          ]
+        },
+        "circuit.breaker": {
+          "maxFailures": 5,
+          "maxRetries": 0,
+          "resetTimeout": 60000,
+          "timeout": 3000,
+          "metricsRollingWindow": 10000,
+          "notificationPeriod": 2000,
+          "notificationAddress": "vertx.circuit-breaker",
+          "registry": "vertx.circuit.breaker.registry"
+        },
+        "rate.limiter": {
+          "user_limiter": {
+            "key": "$user.userId",
+            "limit": 3,
+            "interval": 2,
+            "unit": "SECOND"
+          }
+        }
+      }
+    }
+  }
+}

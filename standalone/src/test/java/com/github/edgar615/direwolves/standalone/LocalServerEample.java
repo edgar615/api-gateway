@@ -6,7 +6,7 @@ import io.vertx.core.Launcher;
 public class LocalServerEample {
   public static void main(String[] args) {
     new Launcher().execute("run", MainVerticle.class.getName(),
-                           "--conf=H:\\dev\\workspace\\direwolves\\standalone\\src\\main\\conf"
+                           "--conf=e:\\dev\\workspace\\direwolves\\standalone\\src\\main\\conf"
                            + "\\local-config.json");
   }
 }
