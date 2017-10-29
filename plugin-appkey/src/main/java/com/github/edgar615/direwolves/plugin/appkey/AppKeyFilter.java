@@ -1,12 +1,6 @@
 package com.github.edgar615.direwolves.plugin.appkey;
 
 import com.github.edgar615.direwolves.core.cache.CacheFactory;
-import com.github.edgar615.util.vertx.cache.CacheOptions;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
@@ -18,10 +12,13 @@ import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
 import com.github.edgar615.util.vertx.cache.Cache;
 import com.github.edgar615.util.vertx.cache.CacheLoader;
-import com.github.edgar615.util.vertx.cache.GuavaCache;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -135,8 +130,6 @@ public class AppKeyFilter implements Filter {
   private final String permissionsKey;
 
   private final Vertx vertx;
-
-  private final Map<String, JsonObject> localAppKeys = new HashMap<>();
 
   private final Cache<String, JsonObject> cache;
 

@@ -43,7 +43,6 @@ public class UrlArgFilter implements Filter {
     UrlArgPlugin plugin =
             (UrlArgPlugin) apiContext.apiDefinition().plugin(UrlArgPlugin.class.getSimpleName());
     ApiContext newContext = checkDefaultValue(apiContext, plugin);
-
     final Multimap<String, Rule> rules = ArrayListMultimap.create();
     plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));
     Validations.validate(newContext.params(), rules);

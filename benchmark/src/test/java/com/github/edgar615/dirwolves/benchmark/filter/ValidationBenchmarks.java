@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2017/7/17.
+ * Benchmark                          Mode  Cnt        Score        Error   Units
+ * ValidationBenchmarks.testApi      thrpt   20  2147067.321 ± 140865.945  ops/ms
+ * ValidationBenchmarks.testAverage   avgt   20        0.488 ±      0.009   ns/op
  *
  * @author Edgar  Date 2017/7/17
  */
@@ -30,7 +33,7 @@ public class ValidationBenchmarks {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testApi() {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("encryptKey", "0000000000000000");
@@ -53,7 +56,7 @@ public class ValidationBenchmarks {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(100)
+  @OperationsPerInvocation(10000)
   public void testAverage() {
     Map<String, Object> data = new HashMap<String, Object>();
     data.put("encryptKey", "0000000000000000");
@@ -71,25 +74,4 @@ public class ValidationBenchmarks {
     }
   }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(100)
-  public void testSampleTime() {
-    Map<String, Object> data = new HashMap<String, Object>();
-    data.put("encryptKey", "0000000000000000");
-    data.put("barcode", "LH10312ACCF23C4F3A5");
-
-    Multimap<String, Rule> rules = ArrayListMultimap.create();
-
-    rules.put("barcode", Rule.required());
-    rules.put("barcode", Rule.regex("[0-9A-F]{16}"));
-    rules.put("encryptKey", Rule.required());
-    rules.put("encryptKey", Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));
-    try {
-      Validations.validate(data, rules);
-    } catch (Exception e) {
-    }
-  }
 }

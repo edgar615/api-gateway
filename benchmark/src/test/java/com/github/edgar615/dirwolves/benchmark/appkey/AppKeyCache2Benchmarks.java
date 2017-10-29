@@ -5,8 +5,8 @@ import com.github.edgar615.direwolves.plugin.appkey.discovery.AppKeyDiscovery;
 import com.github.edgar615.util.base.Randoms;
 import com.github.edgar615.util.vertx.cache.Cache;
 import com.github.edgar615.util.vertx.cache.CacheLoader;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
 import com.github.edgar615.util.vertx.cache.GuavaCache;
-import com.github.edgar615.util.vertx.cache.GuavaCacheOptions;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -74,7 +74,7 @@ public class AppKeyCache2Benchmarks {
     public AppKeyBackend() {
       vertx = Vertx.vertx();
       AppKeyDiscovery discovery = AppKeyDiscovery.create(vertx, "api");
-      this.cache = new GuavaCache<>(vertx, new GuavaCacheOptions()
+      this.cache = new GuavaCache<>(vertx, "appKey", new CacheOptions()
               .setExpireAfterWrite(1800l));
       for (int i = 0; i < 1000; i++) {
         String appKey = "appkey_" + i;

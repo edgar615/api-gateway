@@ -28,6 +28,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Edgar on 2017/7/17.
+ * <p>
+ * <pre>
+ *   Benchmark                             Mode  Cnt       Score       Error   Units
+ * BodyArgFilterBenchmarks.testApi      thrpt   20  934210.446 ± 14488.928  ops/ms
+ * BodyArgFilterBenchmarks.testAverage   avgt   20       1.100 ±     0.016   ns/op
+ * </pre>
  *
  * @author Edgar  Date 2017/7/17
  */
@@ -84,9 +90,10 @@ public class BodyArgFilterBenchmarks {
     }
   }
 
-  @State(Scope.Thread)
+  @State(Scope.Benchmark)
   public static class ApiContextBuilder {
     private ApiContext apiContext;
+
     public ApiContextBuilder() {
       Multimap<String, String> params = ArrayListMultimap.create();
       params.put("encryptKey", "0000000000000000");
@@ -98,9 +105,9 @@ public class BodyArgFilterBenchmarks {
       apiContext = ApiContext.create(HttpMethod.POST, "/devices", params, null, body);
 
       HttpEndpoint httpEndpoint = SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
-                                                          "/devices", 80, "localhost");
+              "/devices", 80, "localhost");
       ApiDefinition apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
-                                                         Lists.newArrayList(httpEndpoint));
+              Lists.newArrayList(httpEndpoint));
       BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().create();
       Parameter parameter = Parameter.create("barcode", null);
       parameter.addRule(Rule.required());
