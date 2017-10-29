@@ -49,6 +49,10 @@ import java.util.UUID;
  *   permissionKey 权限的键值，默认值permissions
  *   data : APPKEY的JSON数组，默认为[]
  *   url: http获取appkey的接口地址，这个地址对应了一个API路由（不应该做appkey校验，而且只能内外访问）,如果没有这个配置，则不会从后端查询appkey
+ *   cache: {
+ *      "expireAfterWrite": 1800, 缓存的过期时间，单位秒，默认值1800
+ *      "maximumSize": 5000，缓存的最大数量，默认值5000
+ *      },
  *   }
  * </pre>
  * <p>
@@ -158,9 +162,16 @@ public class AppKeyFilter implements Filter {
     this.codeKey = appKeyConfig.getString("codeKey", "appCode");
     this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
-    //todo 从配置读取
-    this.cache = new GuavaCache<>(vertx, new GuavaCacheOptions()
-            .setExpireAfterWrite(1800l));
+    GuavaCacheOptions cacheOptions = new GuavaCacheOptions();
+    if (appKeyConfig.getValue("cache") instanceof JsonObject) {
+      JsonObject cacheJson = appKeyConfig.getJsonObject("cache");
+      cacheOptions.setExpireAfterWrite(cacheJson.getLong("expireAfterWrite", 1800l));
+      cacheOptions.setMaximumSize(cacheJson.getLong("maximumSize", 5000l));
+    } else {
+      cacheOptions.setExpireAfterWrite(1800l);
+      cacheOptions.setMaximumSize(5000l);
+    }
+    this.cache = new GuavaCache<>(vertx, cacheOptions);
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
     appKeyConfig.put("port", config.getInteger("port", 9000));
     appKeyLoader = new AppKeyLoader(vertx, appKeyConfig);
@@ -202,7 +213,7 @@ public class AppKeyFilter implements Filter {
                 .addData("appkey", appKey)
                 .error();
         completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                    .set("details", "Undefined AppKey:" + appKey));
+                .set("details", "Undefined AppKey:" + appKey));
         return;
       }
       JsonObject jsonObject = ar.result();
@@ -223,7 +234,7 @@ public class AppKeyFilter implements Filter {
               .addData("baseString", baseString(params))
               .error();
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                  .set("details", "The sign is incorrect"));
+              .set("details", "The sign is incorrect"));
     } else {
 //      Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
 ////      newParams.removeAll("sign");
