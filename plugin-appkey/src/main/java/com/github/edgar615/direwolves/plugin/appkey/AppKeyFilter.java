@@ -1,5 +1,7 @@
 package com.github.edgar615.direwolves.plugin.appkey;
 
+import com.github.edgar615.direwolves.core.cache.CacheFactory;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -17,7 +19,6 @@ import com.github.edgar615.util.validation.Validations;
 import com.github.edgar615.util.vertx.cache.Cache;
 import com.github.edgar615.util.vertx.cache.CacheLoader;
 import com.github.edgar615.util.vertx.cache.GuavaCache;
-import com.github.edgar615.util.vertx.cache.GuavaCacheOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -162,8 +163,10 @@ public class AppKeyFilter implements Filter {
     this.codeKey = appKeyConfig.getString("codeKey", "appCode");
     this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
 
-    GuavaCacheOptions cacheOptions = new GuavaCacheOptions();
+    CacheOptions cacheOptions = new CacheOptions();
+    String cacheType = "local";
     if (appKeyConfig.getValue("cache") instanceof JsonObject) {
+      cacheType = config.getString("cache", "local");
       JsonObject cacheJson = appKeyConfig.getJsonObject("cache");
       cacheOptions.setExpireAfterWrite(cacheJson.getLong("expireAfterWrite", 1800l));
       cacheOptions.setMaximumSize(cacheJson.getLong("maximumSize", 5000l));
@@ -171,7 +174,8 @@ public class AppKeyFilter implements Filter {
       cacheOptions.setExpireAfterWrite(1800l);
       cacheOptions.setMaximumSize(5000l);
     }
-    this.cache = new GuavaCache<>(vertx, cacheOptions);
+    CacheFactory factory = CacheFactory.get(cacheType);
+    this.cache = factory.create(vertx, "appKeyCache", cacheOptions);
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
     appKeyConfig.put("port", config.getInteger("port", 9000));
     appKeyLoader = new AppKeyLoader(vertx, appKeyConfig);

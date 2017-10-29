@@ -1,5 +1,7 @@
 package com.github.edgar615.direwolves.core.cache;
 
+import com.github.edgar615.util.vertx.cache.Cache;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
 import com.google.common.collect.Lists;
 
 import com.github.edgar615.util.exception.DefaultErrorCode;
@@ -23,7 +25,7 @@ public interface CacheFactory {
   /**
    * @return 创建一个缓存
    */
-  Cache create(Vertx vertx, String cacheName, JsonObject config);
+  Cache<String, JsonObject> create(Vertx vertx, String cacheName, CacheOptions options);
 
   static CacheFactory get(String type) {
     Optional<CacheFactory> factory = factories.stream()

@@ -1,8 +1,8 @@
 package com.github.edgar615.direvolves.plugin.authentication;
 
+import com.github.edgar615.util.vertx.cache.Cache;
 import com.google.common.base.Strings;
 
-import com.github.edgar615.direwolves.core.cache.Cache;
 import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
@@ -145,7 +145,7 @@ public class AuthenticationFilter implements Filter {
     } else {
       String userCacheKey = namespace + ":user:" + userId;
       //如果把userCache放在构造函数中初始化，可能会出现没有userCache的情况
-      Cache userCache = CacheManager.instance().getCache("userCache");
+      Cache<String, JsonObject> userCache = CacheManager.instance().getCache("userCache");
       userCache.get(userCacheKey, ar -> {
         if (ar.succeeded()) {
           if (!ar.result().containsKey(userKey)) {

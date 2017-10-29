@@ -1,12 +1,15 @@
 package com.github.edgar615.direwolves.redis;
 
-import com.github.edgar615.direwolves.core.cache.Cache;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Vertx;
+import com.github.edgar615.util.vertx.cache.Cache;
+import com.github.edgar615.util.vertx.cache.CacheLoader;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
+import com.github.edgar615.util.vertx.redis.RedisClientHelper;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.redis.RedisClient;
 import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,21 +29,20 @@ public class RedisCacheTest {
 
   private Vertx vertx;
 
-  private Cache cache;
+  private Cache<String, JsonObject> cache;
 
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
     JsonObject config = new JsonObject()
-            .put("host", "test.ihorn.com.cn")
-            .put("port", 32770)
-            .put("auth", "7CBF5FBEF855F16F");
+            .put("host", "139.196.21.241")
+            .put("port", 6379)
+            .put("auth", "yangzp");
 
     AtomicBoolean check = new AtomicBoolean();
     vertx.deployVerticle(RedisVerticle.class.getName(), new DeploymentOptions()
             .setConfig(new JsonObject().put("redis", config)), ar -> {
-      cache = new RedisCacheFactory()
-              .create(vertx, "test", new JsonObject().put("expireAfterWrite", 3));
+      cache = new RedisCache(RedisClientHelper.getShared(vertx), "test", new CacheOptions(new JsonObject().put("expireAfterWrite", 5)));
       check.set(true);
     });
 
@@ -54,7 +56,7 @@ public class RedisCacheTest {
     Async async = testContext.async();
     cache.get(key, ar -> {
       if (ar.succeeded()) {
-        testContext.assertTrue(ar.result().isEmpty());
+        testContext.assertNull(ar.result());
         async.complete();
       } else {
         ar.cause().printStackTrace();
@@ -64,12 +66,90 @@ public class RedisCacheTest {
   }
 
   @Test
+  public void testGetLoad(TestContext testContext) {
+    String key = UUID.randomUUID().toString();
+    AtomicBoolean check1 = new AtomicBoolean();
+    cache.get(key, ar -> {
+      if (ar.succeeded()) {
+        testContext.assertNull(ar.result());
+        check1.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check1.get());
+
+    AtomicBoolean check2 = new AtomicBoolean();
+    cache.get(key, (key1, asyncResultHandler) -> asyncResultHandler.handle(Future.succeededFuture(new JsonObject().put("val", key1))), ar -> {
+      if (ar.succeeded()) {
+        check2.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check2.get());
+
+    AtomicBoolean check3 = new AtomicBoolean();
+    cache.get(key, ar -> {
+      if (ar.succeeded()) {
+        testContext.assertEquals(key, ar.result().getString("val"));
+        check3.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check3.get());
+  }
+
+  @Test
+  public void testGetLoadFailed(TestContext testContext) {
+    String key = UUID.randomUUID().toString();
+    AtomicBoolean check1 = new AtomicBoolean();
+    cache.get(key, ar -> {
+      if (ar.succeeded()) {
+        testContext.assertNull(ar.result());
+        check1.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check1.get());
+
+    AtomicBoolean check2 = new AtomicBoolean();
+    cache.get(key, (key1, asyncResultHandler) -> asyncResultHandler.handle(Future.failedFuture("error")), ar -> {
+      if (ar.succeeded()) {
+        check2.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check2.get());
+
+    AtomicBoolean check3 = new AtomicBoolean();
+    cache.get(key, ar -> {
+      if (ar.succeeded()) {
+        testContext.assertNull(ar.result());
+        check3.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check3.get());
+  }
+
+  @Test
   public void testPut(TestContext testContext) {
     String key = UUID.randomUUID().toString();
     AtomicBoolean check1 = new AtomicBoolean();
     cache.get(key, ar -> {
       if (ar.succeeded()) {
-        testContext.assertTrue(ar.result().isEmpty());
+        testContext.assertNull(ar.result());
         check1.set(true);
       } else {
         ar.cause().printStackTrace();
@@ -105,18 +185,6 @@ public class RedisCacheTest {
   @Test
   public void testExpire(TestContext testContext) {
     String key = UUID.randomUUID().toString();
-    AtomicBoolean check1 = new AtomicBoolean();
-    cache.get(key, ar -> {
-      if (ar.succeeded()) {
-        testContext.assertTrue(ar.result().isEmpty());
-        check1.set(true);
-      } else {
-        ar.cause().printStackTrace();
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check1.get());
-
     AtomicBoolean check2 = new AtomicBoolean();
     cache.put(key, new JsonObject().put("val", key), ar -> {
       if (ar.succeeded()) {
@@ -128,16 +196,10 @@ public class RedisCacheTest {
     });
     Awaitility.await().until(() -> check2.get());
 
-    try {
-      TimeUnit.SECONDS.sleep(5);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
     AtomicBoolean check3 = new AtomicBoolean();
     cache.get(key, ar -> {
       if (ar.succeeded()) {
-        testContext.assertTrue(ar.result().isEmpty());
+        testContext.assertEquals(key, ar.result().getString("val"));
         check3.set(true);
       } else {
         ar.cause().printStackTrace();
@@ -145,5 +207,28 @@ public class RedisCacheTest {
       }
     });
     Awaitility.await().until(() -> check3.get());
+
+    AtomicBoolean check4 = new AtomicBoolean();
+    cache.evict(key, ar -> {
+      if (ar.succeeded()) {
+        check4.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check4.get());
+
+    AtomicBoolean check5 = new AtomicBoolean();
+    cache.get(key, ar -> {
+      if (ar.succeeded()) {
+        testContext.assertNull(ar.result());
+        check5.set(true);
+      } else {
+        ar.cause().printStackTrace();
+        testContext.fail();
+      }
+    });
+    Awaitility.await().until(() -> check5.get());
   }
 }

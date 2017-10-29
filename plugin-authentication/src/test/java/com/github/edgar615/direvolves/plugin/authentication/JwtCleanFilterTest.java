@@ -1,12 +1,12 @@
 package com.github.edgar615.direvolves.plugin.authentication;
 
+import com.github.edgar615.util.vertx.cache.CacheOptions;
+import com.github.edgar615.util.vertx.cache.GuavaCache;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.cache.CacheManager;
-import com.github.edgar615.direwolves.core.cache.CacheOptions;
-import com.github.edgar615.direwolves.core.cache.LocalCache;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
@@ -75,8 +75,8 @@ public class JwtCleanFilterTest {
     );
 
     provider = JWTAuth.create(vertx, config);
-
-    CacheManager.instance().addCache(new LocalCache("userCache", new CacheOptions()));
+    GuavaCache<String, JsonObject> cache = new GuavaCache<>(vertx, "userCache", new CacheOptions());
+    CacheManager.instance().addCache(cache);
   }
 
   @Test

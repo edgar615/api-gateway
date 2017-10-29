@@ -2,6 +2,11 @@
   "user" : {
     "userClaimKey": "userId",
     "permissionsClaimKey": "permissions",
-    "unique": true
+    "unique": true,
+    "cache": {
+      "type" : "local",
+      "expireAfterWrite": 1800,
+      "maximumSize": 50000
+    }
   }
 }

@@ -1,5 +1,8 @@
 package com.github.edgar615.direwolves.core.cache;
 
+import com.github.edgar615.util.vertx.cache.Cache;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
+import com.github.edgar615.util.vertx.cache.GuavaCache;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -18,7 +21,7 @@ public class LocalCacheFactory implements CacheFactory {
   }
 
   @Override
-  public Cache create(Vertx vertx, String cacheName, JsonObject config) {
-    return new LocalCache(cacheName, new CacheOptions(config));
+  public Cache<String, JsonObject> create(Vertx vertx, String cacheName, CacheOptions options) {
+    return new GuavaCache<>(vertx, cacheName, options);
   }
 }

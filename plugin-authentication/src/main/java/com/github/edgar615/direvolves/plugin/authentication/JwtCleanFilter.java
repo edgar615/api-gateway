@@ -1,9 +1,9 @@
 package com.github.edgar615.direvolves.plugin.authentication;
 
-import com.github.edgar615.direwolves.core.cache.Cache;
 import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.util.vertx.cache.Cache;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -63,7 +63,7 @@ public class JwtCleanFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     String userId = apiContext.principal().getValue(userKey).toString();
     //如果把userCache放在构造函数中初始化，可能会出现没有userCache的情况
-    Cache userCache = CacheManager.instance().getCache("userCache");
+    Cache<String, JsonObject> userCache = CacheManager.instance().getCache("userCache");
     String userCacheKey = namespace + ":user:" + userId;
     userCache.evict(userCacheKey, ar -> {
       LOGGER.info("---| [{}] [OK] [{}] [{}]",
