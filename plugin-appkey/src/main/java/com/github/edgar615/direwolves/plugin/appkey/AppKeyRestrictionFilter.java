@@ -61,7 +61,7 @@ public class AppKeyRestrictionFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     if (!apiContext.variables().containsKey("app.appKey")) {
-      return true;
+      return false;
     }
     return !globalBlacklist.isEmpty()
            || !globalWhitelist.isEmpty()

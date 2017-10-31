@@ -63,7 +63,7 @@ public class EventbusUtils {
             .setTraceId(id)
             .setLogType(LogType.SES)
             .setEvent(received.headers().get("x-request-address") + ".reply")
-            .addData("message", reply.encode())
+//            .addData("message", reply.encode())
             .setMessage("{}ms; {}bytes")
             .addArg(duration)
             .addArg(reply.toString().getBytes().length)

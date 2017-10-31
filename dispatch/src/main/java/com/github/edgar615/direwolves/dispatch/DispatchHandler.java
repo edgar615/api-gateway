@@ -17,6 +17,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Predicate;
@@ -97,6 +98,13 @@ public class DispatchHandler implements Handler<RoutingContext> {
   }
 
   private void response(RoutingContext rc, ApiContext apiContext) {
+    long createdOn = (long) apiContext.variables()
+            .getOrDefault("createdOn", Instant.now().getEpochSecond());
+    Log.create(LOGGER)
+            .setEvent("filter.completed")
+            .setMessage("[{}ms]")
+            .addArg(System.currentTimeMillis() - createdOn)
+            .info();
     rc.response().putHeader("x-request-id", apiContext.id());
     Result result = apiContext.result();
     int statusCode = result.statusCode();
