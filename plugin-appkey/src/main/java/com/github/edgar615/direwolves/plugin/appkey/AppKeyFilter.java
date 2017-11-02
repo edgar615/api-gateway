@@ -224,7 +224,7 @@ public class AppKeyFilter implements Filter {
                          JsonObject app) {
     String secret = app.getString(secretKey, "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
-    if (!clientSignValue.equals(serverSignValue)) {
+    if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
               .setEvent("sign.tripped")
