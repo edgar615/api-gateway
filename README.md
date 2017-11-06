@@ -607,3 +607,21 @@ HTTP调用支持断路器模式，eventbus暂不支持
         "x-app-verion:x-client-version"
       ]
     }
+
+
+# 断路器
+使用vert.x提供的断路器实现了简单的降级功能
+
+配置
+
+      "circuit.breaker": {
+        "maxFailures": 5, //最大失败次数，一旦超过这个次数，会打开断路器
+        "maxRetries": 0, //失败后重试的次数
+        "resetTimeout": 60000, //断路器从打开恢复到半开的时间，单位毫秒
+        "timeout": 3000, //请求的超时时间，单位毫秒，超过这个时间请求未结束会被认为是超时
+        "metricsRollingWindow": 10000, //度量窗口的滑动间隔，单位毫秒
+        "notificationPeriod": 2000, // 度量的通知间隔，单位毫秒
+        "notificationAddress": "vertx.circuit-breaker", //度量的通知地址
+        "cache.expires": 3600, //每个服务节点断路器的过期时间，单位秒，如果在这个时间内断路器没有被访问，会从缓存中删除断路器（下次使用时重新创建）
+        "state.announce": "direwolves.circuitbreaker.announce"        //断路器状态变化后的会向这个地址发送广播，负载均衡服务可以订阅这个事件更新服务节点的状态
+      }

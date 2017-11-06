@@ -19,7 +19,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Edgar on 2017/8/1.
+ * 断路器的注册类.
+ * 内部使用个Guava Cache来实现，使用expireAfterAccess来设置过期策略。
  *
  * @author Edgar  Date 2017/8/1
  */
@@ -28,28 +29,17 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
   private static final Logger LOGGER
           = LoggerFactory.getLogger(CircuitBreakerRegistry.class.getSimpleName());
 
-  private static final long DEFAULT_CACHE_EXPIRES = 24 * 3600 * 1000;
-
   private final Vertx vertx;
 
   private final LoadingCache<String, CircuitBreaker> cache;
 
-  private final CircuitBreakerOptions options;
+  private final CircuitBreakerRegistryOptions options;
 
-  private String announce = "direwolves.circuitbreaker.announce";
-
-  CircuitBreakerRegistryImpl(Vertx vertx, JsonObject config) {
+  CircuitBreakerRegistryImpl(Vertx vertx, CircuitBreakerRegistryOptions options) {
     this.vertx = vertx;
-    this.options = new CircuitBreakerOptions(config);
-    long cacheExpires = DEFAULT_CACHE_EXPIRES;
-    if (config.getValue("cache.expires") instanceof Number) {
-      cacheExpires = ((Number) config.getValue("cache.expires")).longValue();
-    }
-    if (config.getValue("circuitbreaker.announce") instanceof String) {
-      announce = (String) config.getValue("circuitbreaker.announce");
-    }
+    this.options = options;
     this.cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(cacheExpires, TimeUnit.MILLISECONDS)
+            .expireAfterAccess(options.getCacheExpires(), TimeUnit.SECONDS)
             .removalListener(new RemovalListener<String, CircuitBreaker>() {
               @Override
               public void onRemoval(RemovalNotification<String, CircuitBreaker> notification) {
@@ -102,7 +92,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
             .setEvent("breaker.reseted")
             .addData("name", circuitBreakerName)
             .info();
-    vertx.eventBus().publish(announce, new JsonObject()
+    vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
             .put("name", circuitBreakerName)
             .put("state", "halfOpen"));
   }
@@ -114,7 +104,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
             .setEvent("breaker.closed")
             .addData("name", circuitBreakerName)
             .info();
-    vertx.eventBus().publish(announce, new JsonObject()
+    vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
             .put("name", circuitBreakerName)
             .put("state", "close"));
   }
@@ -126,7 +116,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
             .setEvent("breaker.tripped")
             .addData("name", circuitBreakerName)
             .warn();
-    vertx.eventBus().publish(announce, new JsonObject()
+    vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
             .put("name", circuitBreakerName)
             .put("state", "open"));
   }

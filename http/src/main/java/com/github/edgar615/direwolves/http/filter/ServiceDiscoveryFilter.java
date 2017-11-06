@@ -3,12 +3,12 @@ package com.github.edgar615.direwolves.http.filter;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;
 import com.github.edgar615.direwolves.http.loadbalance.ServiceFinder;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -46,6 +46,7 @@ public class ServiceDiscoveryFilter implements Filter {
     ServiceFinder serviceFinder = ServiceFinder.create(vertx,
                                                        ServiceDiscovery.create(vertx, options));
     loadBalance = LoadBalance.create(serviceFinder, this.config);
+    //todo这个地址要可以修改
     vertx.eventBus().<JsonObject>consumer("direwolves.circuitbreaker.announce", msg -> {
       JsonObject jsonObject = msg.body();
       String serverId = jsonObject.getString("name");

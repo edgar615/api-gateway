@@ -27,12 +27,16 @@ import java.util.stream.Collectors;
 class ServiceFinderImpl implements ServiceFinder {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceFinder.class);
 
+  /**
+   * 本地缓存
+   */
   private final List<Record> records = new CopyOnWriteArrayList<>();
 
   private final ServiceDiscovery discovery;
 
   ServiceFinderImpl(Vertx vertx, ServiceDiscovery discovery) {
     this.discovery = discovery;
+    //启动时加载所有服务
     reload(ar -> {
       if (ar.succeeded()) {
         Log.create(LOGGER)
@@ -43,6 +47,7 @@ class ServiceFinderImpl implements ServiceFinder {
                 .setThrowable(ar.cause());
       }
     });
+    //每次收到某个服务的变动，就根据服务名重新加载所有服务
     String announce = discovery.options().getAnnounceAddress();
     vertx.eventBus().<JsonObject>consumer(announce, msg -> {
       Record record = new Record(msg.body());
