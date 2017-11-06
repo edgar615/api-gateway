@@ -1,4 +1,6 @@
 {
-   "timeout.enable" : true,
-   "timeout.expires": 300
+   "timeout" : {
+      "enable" : true,
+      "expires": 300
+   }
 }

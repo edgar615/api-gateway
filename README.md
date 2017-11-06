@@ -608,6 +608,23 @@ HTTP调用支持断路器模式，eventbus暂不支持
       ]
     }
 
+# 校验调用方的时间
+## Filter: TimeoutFilter
+调用方在QueryString中必须包含下列参数
+
+    timestamp	时间戳	int	是	unix时间戳
+
+如果参数不全或者客户端时间与服务端时间相差太久，服务端会认为是非法请求，返回1023的错误。
+
+- type PRE
+- order 0
+
+全局参数
+
+     "timeout" : {
+        "enable" : true, //是否启用filter，默认值true
+        "expires": 300 //系统允许客户端或服务端之间的时间误差，单位秒，默认值300
+     }
 
 # 断路器
 使用vert.x提供的断路器实现了简单的降级功能

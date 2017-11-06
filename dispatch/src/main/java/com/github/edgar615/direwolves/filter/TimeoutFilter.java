@@ -5,10 +5,10 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
 import io.vertx.core.Future;
@@ -28,8 +28,12 @@ import java.time.Instant;
  * <p>
  * 该filter可以接受下列的配置参数
  * <pre>
- *   timeout.enable 是否启用filter，默认值true
- *   timeout.expires 系统允许客户端或服务端之间的时间误差，单位秒，默认值300
+ *   {
+ * "timeout" : {
+ * "enable" : true, //是否启用filter，默认值true
+ * "expires": 300 //系统允许客户端或服务端之间的时间误差，单位秒，默认值300
+ * }
+ * }
  * </pre>
  * <p>
  * 该filter的order=0
@@ -79,7 +83,7 @@ public class TimeoutFilter implements Filter {
         || (timestamp < currentTime - timeout)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("time.tripped")
+              .setEvent("timeout.tripped")
               .setMessage("timestamp incorrect, client: {}, server:{}")
               .addArg(timestamp)
               .addArg(currentTime)
