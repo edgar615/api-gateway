@@ -76,7 +76,12 @@
         "user": {
           "userClaimKey": "userId",
           "permissionsClaimKey": "permissions",
-          "unique": true
+          "unique": true,
+          "cache": {
+            "type" : "local",
+            "expireAfterWrite": 1800,
+            "maximumSize": 5000
+          }
         },
         "timeout": {
           "expires": 300,
@@ -98,6 +103,11 @@
           "secretKey": "appSecret",
           "codeKey": "companyCode",
           "permissionKey": "scope",
+          "cache": {
+            "type" : "local",
+            "expireAfterWrite": 1800,
+            "maximumSize": 5000
+          },
           "data": [
             {
               "appKey": "RmOI7jCvDtfZ1RcAkea1",

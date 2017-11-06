@@ -5,6 +5,7 @@ import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.Result;
+import com.github.edgar615.direwolves.core.utils.CacheUtils;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.cache.Cache;
 import com.github.edgar615.util.vertx.cache.CacheOptions;
@@ -87,22 +88,7 @@ public class JwtBuildFilter implements Filter {
     this.userKey = userConfig.getString("userClaimKey", "userId");
     this.permissionsKey = userConfig.getString("permissionKey", "permissions");
 
-    //cache
-
-    CacheOptions cacheOptions = new CacheOptions();
-    String cacheType = config.getString("cache", "local");
-    CacheFactory factory = CacheFactory.get(cacheType);
-    if (userConfig.getValue("cache") instanceof JsonObject) {
-      cacheType = config.getString("cache", "local");
-      JsonObject cacheJson = userConfig.getJsonObject("cache");
-      cacheOptions.setExpireAfterWrite(cacheJson.getLong("expireAfterWrite", 1800l));
-      cacheOptions.setMaximumSize(cacheJson.getLong("maximumSize", 5000l));
-    } else {
-      cacheOptions.setExpireAfterWrite(1800l);
-      cacheOptions.setMaximumSize(5000l);
-    }
-    this.userCache = factory.create(vertx, "userCache", cacheOptions);
-    CacheManager.instance().addCache(userCache);
+    this.userCache = CacheUtils.createCache(vertx, "userCache", userConfig);
   }
 
   @Override
@@ -121,7 +107,7 @@ public class JwtBuildFilter implements Filter {
       return false;
     }
     return apiContext.apiDefinition()
-            .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
+                   .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
   }
 
   @Override
@@ -130,8 +116,8 @@ public class JwtBuildFilter implements Filter {
     JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
     Result result = apiContext.result();
     if (!result.isArray()
-            && result.statusCode() < 400
-            && result.responseObject().containsKey(userKey)) {
+        && result.statusCode() < 400
+        && result.responseObject().containsKey(userKey)) {
       JsonObject body = result.responseObject();
       String jti = UUID.randomUUID().toString();
       String userId = body.getValue(userKey).toString();
@@ -148,11 +134,11 @@ public class JwtBuildFilter implements Filter {
             String token = provider.generateToken(claims, new JWTOptions(this.jwtConfig));
             body.put("token", token);
             apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
-                    result.header()));
+                                                         result.header()));
             LOGGER.info("---| [{}] [OK] [{}] [{}]",
-                    apiContext.id(),
-                    this.getClass().getSimpleName(),
-                    "save token:" + userCacheKey);
+                        apiContext.id(),
+                        this.getClass().getSimpleName(),
+                        "save token:" + userCacheKey);
             completeFuture.complete(apiContext);
           } catch (Exception e) {
             Log.create(LOGGER)

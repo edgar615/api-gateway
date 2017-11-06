@@ -180,9 +180,10 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
       data : APPKEY的JSON数组，默认为[]，
       url: http获取appkey的接口地址，这个地址对应了一个API路由,如果没有这个配置，则不会从后端查询appkey,
       cache: {
+          "type" : "local", 缓存的类型：local，redis
           "expireAfterWrite": 1800, 缓存的过期时间，单位秒，默认值1800
           "maximumSize": 5000，缓存的最大数量，默认值5000
-      },
+      }
     }
 
 一个正确的appKey的JSON格式应该包括 appKey, appSecret, appCode, permissions四个属性
