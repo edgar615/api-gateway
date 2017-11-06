@@ -244,7 +244,9 @@ public class ServiceProviderTest {
   @Test
   public void testCircuitBreakerTripped() {
     provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.roundRobin());
+            .withStrategy(ChooseStrategy.roundRobin())
+            .addFilter(r -> !LoadBalanceStats.instance().get(r.getRegistration())
+                    .isCircuitBreakerTripped());
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);

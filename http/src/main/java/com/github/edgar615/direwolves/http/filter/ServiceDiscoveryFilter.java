@@ -6,6 +6,7 @@ import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
+import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceOptions;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;
 import com.github.edgar615.direwolves.http.loadbalance.ServiceFinder;
 import com.github.edgar615.util.log.Log;
@@ -37,17 +38,19 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private final LoadBalance loadBalance;
 
-  private JsonObject config;
-
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.config = config.getJsonObject("service.discovery", new JsonObject());
-    ServiceDiscoveryOptions options = new ServiceDiscoveryOptions(this.config);
+    JsonObject discoveryConfig = config.getJsonObject("service.discovery", new JsonObject());
+    ServiceDiscoveryOptions options = new ServiceDiscoveryOptions(discoveryConfig);
     ServiceFinder serviceFinder = ServiceFinder.create(vertx,
                                                        ServiceDiscovery.create(vertx, options));
-    loadBalance = LoadBalance.create(serviceFinder, this.config);
-    //todo这个地址要可以修改
-    vertx.eventBus().<JsonObject>consumer("direwolves.circuitbreaker.announce", msg -> {
+    JsonObject loadBalanceConfig = config.getJsonObject("load.balance", new JsonObject());
+    LoadBalanceOptions loadBalanceOptions = new LoadBalanceOptions(loadBalanceConfig);
+    loadBalance = LoadBalance.create(serviceFinder, loadBalanceOptions);
+    JsonObject circuitConfig = config.getJsonObject("circuit.breaker", new JsonObject());
+    String stateAnnounce =
+            circuitConfig.getString("state.announce", "direwolves.circuitbreaker.announce");
+    vertx.eventBus().<JsonObject>consumer(stateAnnounce, msg -> {
       JsonObject jsonObject = msg.body();
       String serverId = jsonObject.getString("name");
       String state = jsonObject.getString("state");
@@ -105,6 +108,7 @@ public class ServiceDiscoveryFilter implements Filter {
             .onFailure(throwable -> completeFuture.fail(throwable));
 
   }
+
 
   private Future<Record> serviceFuture(String traceId, String service) {
     Future<Record> future = Future.future();

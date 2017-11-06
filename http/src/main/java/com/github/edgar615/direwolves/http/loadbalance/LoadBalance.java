@@ -22,10 +22,10 @@ public interface LoadBalance {
    * }
    *
    * @param serviceFinder
-   * @param config
+   * @param options
    * @return
    */
-  static LoadBalance create(ServiceFinder serviceFinder, JsonObject config) {
-    return new LoadBalanceImpl(serviceFinder, config);
+  static LoadBalance create(ServiceFinder serviceFinder, LoadBalanceOptions options) {
+    return new LoadBalanceImpl(serviceFinder, options);
   }
 }

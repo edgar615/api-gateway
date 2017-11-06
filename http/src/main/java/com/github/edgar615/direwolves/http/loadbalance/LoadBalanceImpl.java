@@ -6,7 +6,6 @@ import com.google.common.cache.LoadingCache;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 
 import java.util.concurrent.ExecutionException;
@@ -19,14 +18,11 @@ import java.util.concurrent.ExecutionException;
 class LoadBalanceImpl implements LoadBalance {
 
   /**
-   * 配置
-   */
-  private final JsonObject config;
-
-  /**
    * 服务节点的状态集合
    */
   private final LoadBalanceStats stats;
+
+  private final LoadBalanceOptions options;
 
   /**
    * 服务发现的本地缓存
@@ -35,10 +31,10 @@ class LoadBalanceImpl implements LoadBalance {
 
   private LoadingCache<String, ServiceProvider> providerCache;
 
-  LoadBalanceImpl(ServiceFinder serviceFinder, JsonObject config) {
-    this.config = config;
+  LoadBalanceImpl(ServiceFinder serviceFinder, LoadBalanceOptions options) {
     this.serviceFinder = serviceFinder;
     this.stats = LoadBalanceStats.instance();
+    this.options = options;
     this.providerCache = CacheBuilder.newBuilder()
             .build(new CacheLoader<String, ServiceProvider>() {
               @Override
@@ -54,24 +50,7 @@ class LoadBalanceImpl implements LoadBalance {
   }
 
   private ServiceProvider createProvider(String service) {
-    JsonObject strategyConfig = config.getJsonObject("strategy", new JsonObject());
-    String strategyName = strategyConfig.getString(service, "round_robin");
-    ChooseStrategy strategy = ChooseStrategy.roundRobin();
-    if ("random".equalsIgnoreCase(strategyName)) {
-      strategy = ChooseStrategy.random();
-    }
-    if ("round_robin".equalsIgnoreCase(strategyName)) {
-      strategy = ChooseStrategy.roundRobin();
-    }
-    if ("sticky".equalsIgnoreCase(strategyName)) {
-      strategy = ChooseStrategy.sticky(ChooseStrategy.roundRobin());
-    }
-    if ("weight_round_robin".equalsIgnoreCase(strategyName)) {
-      strategy = ChooseStrategy.weightRoundRobin();
-    }
-    if ("last_conn".equalsIgnoreCase(strategyName)) {
-      strategy = ChooseStrategy.lastConnection();
-    }
+    ChooseStrategy strategy = options.getStrategy(service);
     return new ServiceProviderImpl(serviceFinder, service)
             .withStrategy(strategy)
             .addFilter(r -> !stats.get(r.getRegistration()).isCircuitBreakerTripped());

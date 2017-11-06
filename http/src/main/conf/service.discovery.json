@@ -1,0 +1,6 @@
+{
+  "service.discovery": {
+    "announceAddress": "vertx.discovery.announce",
+    "usageAddress" : "vertx.discovery.usage"
+  }
+}

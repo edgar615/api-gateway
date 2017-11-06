@@ -89,8 +89,10 @@ public class ServiceDiscoveryFilterTest {
     apiContext.setApiDefinition(definition);
 
     JsonObject config = new JsonObject();
+    JsonObject loadBalanceConfig = new JsonObject();
+    loadBalanceConfig.put("strategy", new JsonObject());
     config.put("service.discovery", new JsonObject()
-            .put("strategy", new JsonObject()));
+            .put("load.balance", loadBalanceConfig));
 
 
     filter = Filter.create(ServiceDiscoveryFilter.class.getSimpleName(), vertx, config);

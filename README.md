@@ -625,3 +625,35 @@ HTTP调用支持断路器模式，eventbus暂不支持
         "cache.expires": 3600, //每个服务节点断路器的过期时间，单位秒，如果在这个时间内断路器没有被访问，会从缓存中删除断路器（下次使用时重新创建）
         "state.announce": "direwolves.circuitbreaker.announce"        //断路器状态变化后的会向这个地址发送广播，负载均衡服务可以订阅这个事件更新服务节点的状态
       }
+
+# 负载均衡
+
+配置
+
+    "load.balance": {
+      "strategy": { //定义每个节点的负载均衡策略
+        "user": "random",
+        "device": "round_robin"
+      }
+    }
+
+目前提供了下列负载均衡策略：
+
+- random 随机选择
+- round_robin 轮询
+- weight_round_robin 基于权重的轮询
+- sticky 只要服务节点可用，永远选择这个节点
+- last_conn 最少连接数
+
+如果某个服务没有配置负载均衡策略，默认使用轮询
+
+# 服务发现
+
+vert.x的服务发现配置
+
+配置
+
+    "service.discovery": {
+      "announceAddress": "vertx.discovery.announce",
+      "usageAddress" : "vertx.discovery.usage"
+    }

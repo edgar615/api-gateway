@@ -19,19 +19,19 @@ class ServiceProviderImpl implements ServiceProvider {
 
   private final List<ServiceFilter> filters = new ArrayList<>();
 
-  private final ServiceFinder cache;
+  private final ServiceFinder serviceFinder;
 
   private final String service;
 
-  private final ServiceFilter circuitBreakerFilter = r ->
-          !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped();
+//  private final ServiceFilter circuitBreakerFilter = r ->
+//          !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped();
 
   private ChooseStrategy strategy = ChooseStrategy.roundRobin();
 
-  ServiceProviderImpl(ServiceFinder cache, String service) {
-    this.cache = cache;
+  ServiceProviderImpl(ServiceFinder serviceFinder, String service) {
+    this.serviceFinder = serviceFinder;
     this.service = service;
-    filters.add(circuitBreakerFilter);
+//    filters.add(circuitBreakerFilter);
   }
 
   @Override
@@ -52,7 +52,7 @@ class ServiceProviderImpl implements ServiceProvider {
   public void choose(Handler<AsyncResult<Record>> resultHandler) {
     Function<Record, Boolean> accept = r -> r.getName().equals(service)
                                             && filters.stream().allMatch(f -> f.apply(r));
-    cache.getRecords(accept, ar -> {
+    serviceFinder.getRecords(accept, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
         return;

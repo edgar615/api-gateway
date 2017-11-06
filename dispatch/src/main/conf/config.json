@@ -2,10 +2,16 @@
   "port": 9000,
   "namespace": "example",
   "cache": "local",
-  "service.discovery": {
-    "strategy": {
-      "user": "random",
-      "device": "round_robin"
+  "service": {
+    "discovery" : {
+      "announceAddress": "vertx.discovery.announce",
+      "usageAddress" : "vertx.discovery.usage"
+    },
+    "loadBalance" : {
+      "strategy": {
+        "user": "random",
+        "device": "round_robin"
+      }
     }
   },
   "jwt": {
