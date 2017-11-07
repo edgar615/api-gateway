@@ -19,7 +19,7 @@ public class RequestFallbackFilter implements Filter {
 
   @Override
   public int order() {
-    return 10100;
+    return 14000;
   }
 
   @Override

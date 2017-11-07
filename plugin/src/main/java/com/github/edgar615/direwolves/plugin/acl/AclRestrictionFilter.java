@@ -66,7 +66,7 @@ public class AclRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 1100;
+    return 12000;
   }
 
   @Override

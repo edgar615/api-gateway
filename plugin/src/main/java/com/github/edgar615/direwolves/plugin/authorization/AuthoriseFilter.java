@@ -38,7 +38,7 @@ public class AuthoriseFilter implements Filter {
 
   @Override
   public int order() {
-    return 1100;
+    return 11000;
   }
 
   @Override

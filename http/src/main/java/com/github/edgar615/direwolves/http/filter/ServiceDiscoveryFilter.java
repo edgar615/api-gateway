@@ -73,7 +73,7 @@ public class ServiceDiscoveryFilter implements Filter {
 
   @Override
   public int order() {
-    return 10000;
+    return 13000;
   }
 
   @Override

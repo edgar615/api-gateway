@@ -23,7 +23,7 @@ public abstract class RequestReplaceFilter  implements Filter {
 
   @Override
   public int order() {
-    return Integer.MAX_VALUE - 1;
+    return Integer.MAX_VALUE - 1000;
   }
 
   protected Multimap<String, String> replaceHeader(ApiContext apiContext,

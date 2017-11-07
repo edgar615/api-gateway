@@ -61,7 +61,7 @@ public class BackendVertifyFilter implements Filter {
 
   @Override
   public int order() {
-    return 1000;
+    return 10000;
   }
 
   @Override

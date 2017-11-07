@@ -63,7 +63,7 @@ public class IpRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 5;
+    return 7000;
   }
 
   @Override

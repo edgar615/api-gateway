@@ -58,7 +58,7 @@ public class StrictArgFilter implements Filter {
 
   @Override
   public int order() {
-    return 99;
+    return 8900;
   }
 
   @Override

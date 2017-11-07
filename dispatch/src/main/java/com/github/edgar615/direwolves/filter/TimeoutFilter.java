@@ -63,7 +63,7 @@ public class TimeoutFilter implements Filter {
 
   @Override
   public int order() {
-    return 0;
+    return 6000;
   }
 
   @Override

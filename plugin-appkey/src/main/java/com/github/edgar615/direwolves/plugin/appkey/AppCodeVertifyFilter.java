@@ -39,7 +39,7 @@ public class AppCodeVertifyFilter implements Filter {
 
   @Override
   public int order() {
-    return 1010;
+    return 10100;
   }
 
   @Override

@@ -55,7 +55,7 @@ public class AppKeyRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 11;
+    return 8100;
   }
 
   @Override

@@ -30,7 +30,7 @@ public class UrlArgFilter implements Filter {
 
   @Override
   public int order() {
-    return 100;
+    return 9000;
   }
 
   @Override

@@ -104,7 +104,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 如果未找到对应的API，范围资源不存在的异常。
 
 - type PRE
-- order -2147483648 （int的最小值）
+- order -2147482648
 
 # 路径参数（变量）
 ## Filter: PathParamFilter
@@ -113,7 +113,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 所有的参数名将保存在上下文变量中，可以通过$var.param0变量来获得
 
 - type PRE
-- order -2147483638
+- order -2147481648
 
 示例：
 
@@ -139,7 +139,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 调用方的ip从上下文读取`request.client_ip`变量
 
 - type PRE
-- order 5
+- order 7000
 
 全局参数
 
@@ -169,7 +169,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 调用方的ip从上下文读取`request.client_ip`变量
 
 - type PRE
-- order 10
+- order 8000
 
 全局参数
 
@@ -254,7 +254,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 调用方的appKey从上下文读取`app.appKey`变量。如果是没有定义appKey，永远成功，所以这个拦截器要放在AppKey校验的后面
 
 - type PRE
-- order 1100
+- order 8100
 
 全局参数
 
@@ -290,7 +290,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 调用方的ip从上下文读取`user.group`变量。如果是未登陆用户，永远成功，所以这个拦截器要放在身份认证的后面
 
 - type PRE
-- order 1100
+- order 12000
 
 全局参数
 
@@ -319,7 +319,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 ## Filter: AppCodeVertifyFilter
 
 - type PRE
-- order 1010
+- order 10100
 
 全局参数
 
@@ -344,7 +344,7 @@ device:write表示API的权限字符串
 如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量，如果`permissions`中不包括接口的scope，拒绝访问.
 
 - type PRE
-- order 1100
+- order 11000
 
 # Request降级
 ## Plugin: FallbackPlugin
@@ -372,7 +372,7 @@ device:write表示API的权限字符串
 ## Filter: RequestFallbackFilter
 
 - type PRE
-- order 10100
+- order 14000
 
 
 
@@ -479,7 +479,7 @@ device:write表示API的权限字符串
 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
 
 - type PRE
-- order 2147483647，int的最大值.
+- order 2147482647.
 
 示例
 
@@ -618,7 +618,7 @@ HTTP调用支持断路器模式，eventbus暂不支持
 如果参数不全或者客户端时间与服务端时间相差太久，服务端会认为是非法请求，返回1023的错误。
 
 - type PRE
-- order 0
+- order 6000
 
 全局参数
 

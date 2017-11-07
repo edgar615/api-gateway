@@ -34,7 +34,7 @@ public class PathParamFilter implements Filter {
 
   @Override
   public int order() {
-    return Integer.MIN_VALUE + 10;
+    return Integer.MIN_VALUE + 2000;
   }
 
   @Override

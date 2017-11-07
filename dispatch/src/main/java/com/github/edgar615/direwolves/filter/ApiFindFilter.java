@@ -52,7 +52,7 @@ public class ApiFindFilter implements Filter {
 
   @Override
   public int order() {
-    return Integer.MIN_VALUE;
+    return Integer.MIN_VALUE + 1000;
   }
 
   @Override

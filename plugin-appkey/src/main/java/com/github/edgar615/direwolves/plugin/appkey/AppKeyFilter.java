@@ -169,7 +169,7 @@ public class AppKeyFilter implements Filter {
 
   @Override
   public int order() {
-    return 10;
+    return 8000;
   }
 
   @Override
