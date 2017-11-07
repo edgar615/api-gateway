@@ -77,7 +77,7 @@ class ApiPluginCmd implements ApiCmd {
       return future;
     }
 
-    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace + ".api"));
+    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     discovery.getDefinitions(filter, ar -> {
       if (ar.failed()) {
         future.fail(ar.cause());

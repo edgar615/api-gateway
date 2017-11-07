@@ -1,6 +1,7 @@
 package com.github.edgar615.direwolves.dispatch;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
+import com.github.edgar615.util.base.Randoms;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -25,7 +26,7 @@ public class ApiContextTest {
 
   protected Vertx vertx;
 
-  protected int port = 8080;
+  protected int port = Integer.parseInt(Randoms.randomNumber(4));
 
   protected String host = "localhost";
 
@@ -59,7 +60,7 @@ public class ApiContextTest {
 
     vertx.createHttpServer()
             .requestHandler(router::accept)
-            .listen(8080, context.asyncAssertSuccess());
+            .listen(port, context.asyncAssertSuccess());
   }
 
   @After

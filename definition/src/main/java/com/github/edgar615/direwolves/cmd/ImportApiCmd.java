@@ -45,7 +45,7 @@ public class ImportApiCmd implements ApiCmd {
     Validations.validate(jsonObject.getMap(), rules);
     String namespace = jsonObject.getString("namespace");
     Future<JsonObject> future = Future.future();
-    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace + ".api"));
+    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     discovery.registerImporter(new FileApiImporter(), jsonObject, ar -> {
       if (ar.succeeded()) {
           future.complete(succeedResult());

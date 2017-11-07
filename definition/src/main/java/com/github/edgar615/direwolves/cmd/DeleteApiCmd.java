@@ -61,7 +61,7 @@ class DeleteApiCmd implements ApiCmd {
     Future<JsonObject> future = Future.future();
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
                                                  new ApiDiscoveryOptions(configuration)
-                                                         .setName(namespace + ".api"));
+                                                         .setName(namespace));
     discovery.getDefinitions(filter, ar -> {
       if (ar.failed()) {
         future.fail(ar.cause());

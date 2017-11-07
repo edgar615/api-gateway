@@ -53,7 +53,7 @@ class AddApiCmd implements ApiCmd {
     String data = jsonObject.getString("data");
     ApiDefinition apiDefinition = ApiDefinition.fromJson(new JsonObject(data));
     Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, new ApiDiscoveryOptions(configuration).setName(namespace + ".api"))
+    ApiDiscovery.create(vertx, new ApiDiscoveryOptions(configuration).setName(namespace))
             .publish(apiDefinition, ar -> {
               if (ar.failed()) {
                 future.fail(ar.cause());

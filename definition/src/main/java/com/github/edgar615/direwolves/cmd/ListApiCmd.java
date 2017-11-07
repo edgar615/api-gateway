@@ -57,7 +57,7 @@ class ListApiCmd implements ApiCmd {
       filter.put("name", name);
     }
     Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace + ".api"))
+    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace))
             .getDefinitions(filter, ar -> {
               if (ar.failed()) {
                 future.fail(ar.cause());

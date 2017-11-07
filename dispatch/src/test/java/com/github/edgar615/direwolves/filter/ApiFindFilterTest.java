@@ -46,7 +46,7 @@ public class ApiFindFilterTest {
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
-    apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace + ".api"));
+    apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
     ApiUtils.registerApi(apiDiscovery, devicePort);
   }
 

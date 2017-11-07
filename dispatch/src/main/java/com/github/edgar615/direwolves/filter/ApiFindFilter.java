@@ -41,7 +41,7 @@ public class ApiFindFilter implements Filter {
     String namespace = config.getString("namespace", "");
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
                                                  new ApiDiscoveryOptions()
-                                                         .setName(namespace + "" + ".api"));
+                                                         .setName(namespace));
     this.apiFinder = ApiFinder.create(vertx, discovery);
   }
 
