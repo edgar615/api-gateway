@@ -676,7 +676,7 @@ vert.x的服务发现配置
       "usageAddress" : "vertx.discovery.usage"
     }
 
-# 灰度发布
+# API版本
 
 目前仅支持基于请求头的灰度发布方案
 
