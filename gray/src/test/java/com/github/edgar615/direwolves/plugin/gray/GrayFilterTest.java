@@ -1,8 +1,7 @@
-package com.github.edgar615.direwolves.filter;
+package com.github.edgar615.direwolves.plugin.gray;
 
 import com.google.common.collect.Lists;
 
-import com.github.edgar615.direwolves.ApiUtils;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
@@ -31,17 +30,17 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2017/1/9
  */
 @RunWith(VertxUnitRunner.class)
-public class ApiFindFilterTest {
+public class GrayFilterTest {
 
   ApiDiscovery apiDiscovery;
+
+  int devicePort = Integer.parseInt(Randoms.randomNumber(4));
 
   private Vertx vertx;
 
   private String namespace = UUID.randomUUID().toString();
 
   private JsonObject config = new JsonObject().put("namespace", namespace);
-
-  int devicePort = Integer.parseInt(Randoms.randomNumber(4));
 
   @Before
   public void setUp(TestContext testContext) {
@@ -57,7 +56,7 @@ public class ApiFindFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(GrayFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -81,7 +80,7 @@ public class ApiFindFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(GrayFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -100,13 +99,13 @@ public class ApiFindFilterTest {
   }
 
   @Test
-  public void testConflictApi(TestContext testContext) {
+  public void testTwoApiButNoGray(TestContext testContext) {
     ApiContext apiContext =
             ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(GrayFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -123,4 +122,77 @@ public class ApiFindFilterTest {
       async.complete();
     });
   }
+
+  @Test
+  public void testFoundSingleVersion(TestContext testContext) {
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.POST, "/users", null, null, null);
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filter filter = Filter.create(GrayFilter.class.getSimpleName(), vertx, config);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Filters.doFilter(task, Lists.newArrayList(filter))
+            .andThen(context -> {
+              testContext.assertNotNull(context.apiDefinition());
+              testContext.assertEquals("add_user2", context.apiDefinition().name());
+              async.complete();
+            }).onFailure(throwable -> {
+      throwable.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testFoundFloor(TestContext testContext) {
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.POST, "/menus", null, null, null);
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filter filter = Filter.create(GrayFilter.class.getSimpleName(), vertx, config);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Filters.doFilter(task, Lists.newArrayList(filter))
+            .andThen(context -> {
+              testContext.assertNotNull(context.apiDefinition());
+              testContext.assertEquals("add_menu2", context.apiDefinition().name());
+              async.complete();
+            }).onFailure(throwable -> {
+      throwable.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testFoundCeil(TestContext testContext) {
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/menus", null, null, null);
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filter filter = Filter.create(GrayFilter.class.getSimpleName(), vertx, config);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Filters.doFilter(task, Lists.newArrayList(filter))
+            .andThen(context -> {
+              testContext.assertNotNull(context.apiDefinition());
+              testContext.assertEquals("list_menu3", context.apiDefinition().name());
+              async.complete();
+            }).onFailure(throwable -> {
+      throwable.printStackTrace();
+      testContext.fail();
+    });
+  }
+
 }

@@ -36,6 +36,14 @@ public class ApiUtils {
       seq.incrementAndGet();
     });
 
+    httpEndpoint = SimpleHttpEndpoint.http("list_device", HttpMethod.GET, "/devices",
+                                           devicePort, "localhost");
+    apiDefinition = ApiDefinition.create("list_device2", HttpMethod.GET, "/devices",
+                                         Lists.newArrayList(httpEndpoint));
+    apiDiscovery.publish(apiDefinition, ar -> {
+      seq.incrementAndGet();
+    });
+
     httpEndpoint = SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices/$var.param0",
                                            devicePort, "localhost");
     apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "/devices/([\\d+]+)",
@@ -67,7 +75,7 @@ public class ApiUtils {
       seq.incrementAndGet();
     });
 
-    Awaitility.await().until(() -> seq.get() == 6);
+    Awaitility.await().until(() -> seq.get() == 7);
   }
 
 }

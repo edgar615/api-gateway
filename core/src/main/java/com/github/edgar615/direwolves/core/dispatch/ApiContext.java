@@ -61,7 +61,7 @@ public interface ApiContext {
    *
    * @param principal 用户信息
    */
-  void setPrincipal(JsonObject principal);
+  ApiContext setPrincipal(JsonObject principal);
 
   /**
    * @return 变量
@@ -74,7 +74,7 @@ public interface ApiContext {
    * @param name  变量名
    * @param value 变量值
    */
-  void addVariable(String name, Object value);
+  ApiContext addVariable(String name, Object value);
 
   /**
    * @return api定义
@@ -86,7 +86,7 @@ public interface ApiContext {
    *
    * @param apiDefinition
    */
-  void setApiDefinition(ApiDefinition apiDefinition);
+  ApiContext setApiDefinition(ApiDefinition apiDefinition);
 
   /**
    * @return 经过requestTransformer后的请求.
@@ -96,7 +96,7 @@ public interface ApiContext {
   /**
    * @param request 将endpoint转换后的RPC请求
    */
-  void addRequest(RpcRequest request);
+  ApiContext addRequest(RpcRequest request);
 
   /**
    * @return RPC请求的结果.
@@ -106,7 +106,7 @@ public interface ApiContext {
   /**
    * @param response RPC请求的结果
    */
-  void addResponse(RpcResponse response);
+  ApiContext addResponse(RpcResponse response);
 
   /**
    * @return 最终聚合的需要返回给调用方的响应
@@ -116,7 +116,7 @@ public interface ApiContext {
   /**
    * @param result 设置最终的结果
    */
-  void setResult(Result result);
+  ApiContext setResult(Result result);
 
   /**
    * 计算RPC的ID，主要用于日志记录

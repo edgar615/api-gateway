@@ -57,7 +57,7 @@ public class ApiFindFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return true;
+    return apiContext.apiDefinition() == null;
   }
 
   @Override
@@ -71,27 +71,38 @@ public class ApiFindFilter implements Filter {
         completeFuture.fail(ar.cause());
         return;
       }
-      List<ApiDefinition> apiDefinitions = ar.result();
-      if (apiDefinitions.size() != 1) {
-        Log.create(LOGGER)
-                .setTraceId(apiContext.id())
-                .setEvent("api.discovery.failed")
-                .error();
-        SystemException se = SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
-        se.set("details", apiContext.method().name() + " " + apiContext.path());
-        completeFuture.fail(se);
+      try {
+        List<ApiDefinition> apiDefinitions = ar.result();
+        ApiDefinition apiDefinition = matchApi(apiDefinitions);
+        completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
+        return;
+      } catch (SystemException e) {
+        e.set("details", apiContext.method().name() + " " + apiContext.path());
+        failed(apiContext, completeFuture, e);
+        return;
+      } catch (Exception e) {
+        failed(apiContext, completeFuture, e);
         return;
       }
-      ApiDefinition apiDefinition = apiDefinitions.get(0);
-      apiContext.setApiDefinition(apiDefinition);
-
-//      try {
-//        ApiMetrics.instance().request(apiContext.id(), apiDefinition.name());
-//      } catch (Exception e) {
-//        e.printStackTrace();
-//      }
-      completeFuture.complete(apiContext);
     });
+  }
+
+  private void failed(ApiContext apiContext, Future<ApiContext> completeFuture, Exception e) {
+    Log.create(LOGGER)
+            .setTraceId(apiContext.id())
+            .setEvent("api.discovery.failed")
+            .error();
+    completeFuture.fail(e);
+  }
+
+  private ApiDefinition matchApi(List<ApiDefinition> apiDefinitions) {
+    if (apiDefinitions.isEmpty()) {//没有API
+      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+    }
+    if (apiDefinitions.size() != 1) {//有多个异常
+      throw SystemException.create(DefaultErrorCode.CONFLICT);
+    }
+    return apiDefinitions.get(0);
   }
 
 }

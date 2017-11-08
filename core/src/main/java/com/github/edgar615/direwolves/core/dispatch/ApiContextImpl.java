@@ -97,8 +97,9 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public void setPrincipal(JsonObject principal) {
+  public ApiContext setPrincipal(JsonObject principal) {
     this.principal = principal;
+    return this;
   }
 
   @Override
@@ -107,8 +108,9 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public void addVariable(String name, Object value) {
+  public ApiContext addVariable(String name, Object value) {
     variables.put(name, value);
+    return this;
   }
 
   @Override
@@ -117,8 +119,9 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public void setApiDefinition(ApiDefinition apiDefinition) {
+  public ApiContext setApiDefinition(ApiDefinition apiDefinition) {
     this.apiDefinition = apiDefinition;
+    return this;
   }
 
   @Override
@@ -127,8 +130,9 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public void addRequest(RpcRequest request) {
+  public ApiContext addRequest(RpcRequest request) {
     this.requests.add(request);
+    return this;
   }
 
   @Override
@@ -137,8 +141,9 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public void addResponse(RpcResponse response) {
+  public ApiContext addResponse(RpcResponse response) {
     this.responses.add(response);
+    return this;
   }
 
   @Override
@@ -147,8 +152,9 @@ class ApiContextImpl implements ApiContext {
   }
 
   @Override
-  public void setResult(Result result) {
+  public ApiContext setResult(Result result) {
     this.result = result;
+    return this;
   }
 
   @Override

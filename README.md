@@ -675,3 +675,34 @@ vert.x的服务发现配置
       "announceAddress": "vertx.discovery.announce",
       "usageAddress" : "vertx.discovery.usage"
     }
+
+# 灰度发布
+
+目前仅支持基于请求头的灰度发布方案
+
+调用方在请求头上加入
+
+x-api-verson : 版本号，使用日期格式 如20171108
+
+## VersionPlugin
+定义API版本的插件
+配置
+
+  "version": "20171108"
+
+注意：多版本共存是API的名称不能重复
+## HeaderGrayPlugin
+定义灰度发布的API
+配置
+
+  "gray": "floor" //floor：未匹配到用户请求的版本时匹配最低的版本，ceil：未匹配到用户请求的版本时匹配最高的版本
+
+需要使用灰度发布时，建议直接新定义一个只带灰度插件的API
+
+## Filter: GrayFilter
+根据灰度发布规则匹配合适的API，请求头中需要包括
+
+    x-api-version： api版本号
+
+- type PRE
+- order -2147482748

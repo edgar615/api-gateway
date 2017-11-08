@@ -23,4 +23,14 @@ public class MultimapUtilsTest {
     Assert.assertEquals("h2", MultimapUtils.getFirst(header, "h2"));
     Assert.assertNull(MultimapUtils.getFirst(header, "h3"));
   }
+
+  @Test
+  public void testGetCaseInsensitive() {
+    Multimap<String, String> header = ArrayListMultimap.create();
+    header.put("h1", "h1.1");
+    header.put("h1", "h1.2");
+    header.put("h2", "h2");
+    Assert.assertEquals(null, MultimapUtils.getFirst(header, "H1"));
+    Assert.assertEquals("h1.1", MultimapUtils.getCaseInsensitive(header, "H1"));
+  }
 }

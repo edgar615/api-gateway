@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Multimap的工具类.
@@ -15,6 +16,27 @@ public class MultimapUtils {
 
   private MultimapUtils() {
     throw new AssertionError("Not instantiable: " + MultimapUtils.class);
+  }
+
+  /**
+   * 获取Multimap中的第一个参数.
+   *
+   * @param multimap 参数列表
+   * @param key      参数名 忽略大小写
+   * @return 参数值
+   */
+  public static String getCaseInsensitive(Multimap<String, String> multimap, String key) {
+    Optional<String> optional = multimap.keySet().stream()
+            .filter(k -> k.equalsIgnoreCase(key))
+            .findFirst();
+    if (!optional.isPresent()) {
+      return null;
+    }
+    List<String> values = Lists.newArrayList(multimap.get(optional.get()));
+    if (values.isEmpty()) {
+      return null;
+    }
+    return values.get(0);
   }
 
   /**

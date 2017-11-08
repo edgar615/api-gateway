@@ -24,6 +24,7 @@
         <module>benchmark</module>
         <module>http</module>
         <module>circuit-breaker</module>
+        <module>gray</module>
     </modules>
 
     <properties>
