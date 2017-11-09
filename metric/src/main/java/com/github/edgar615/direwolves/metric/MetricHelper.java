@@ -2,6 +2,7 @@ package com.github.edgar615.direwolves.metric;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import io.vertx.ext.dropwizard.ThroughputMeter;
 import io.vertx.ext.dropwizard.ThroughputTimer;
 
@@ -28,6 +29,17 @@ public class MetricHelper {
       return new ThroughputTimer();
     }
   };
+
+  /**
+   * 根据vertx.metrics.options.registryName创建一个MetricRegistry，如果已经存在，直接使用存在的值
+   *
+   * @return
+   */
+  public static MetricRegistry getOrCreate() {
+    String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");
+    MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
+    return registry;
+  }
 
   public static <M extends Metric> M getOrAdd(MetricRegistry registry, String name,
                                               Function<Metric, M> metricProvider) {

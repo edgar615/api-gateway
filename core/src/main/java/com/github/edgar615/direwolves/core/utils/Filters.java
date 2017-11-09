@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Filter的工具类.
@@ -56,6 +57,19 @@ public class Filters {
    * @return Task ApiContext的异步任务
    */
   public static Task<ApiContext> doFilter(Task<ApiContext> task, List<Filter> filters) {
+    return doFilter(task, filters, null);
+  }
+
+  /**
+   * 按顺序执行filter.
+   *
+   * @param task     ApiContext的异步任务
+   * @param filters  filter的列表
+   * @param consumer 在每个filter处理完之后的额外操作
+   * @return Task ApiContext的异步任务
+   */
+  public static Task<ApiContext> doFilter(Task<ApiContext> task, List<Filter> filters,
+                                          Consumer<ApiContext> consumer) {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
@@ -77,6 +91,9 @@ public class Filters {
           try {
             filterStarted = (long) apiContext.variables()
                     .getOrDefault("filterStarted", System.currentTimeMillis());
+            if (consumer != null) {
+              consumer.accept(apiContext);
+            }
           } catch (Exception e) {
             //ignore
           }

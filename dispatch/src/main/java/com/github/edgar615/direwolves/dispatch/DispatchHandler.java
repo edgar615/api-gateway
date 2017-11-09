@@ -79,22 +79,31 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
   @Override
   public void handle(RoutingContext rc) {
-
     //创建上下文
     Task<ApiContext> task = Task.create();
     task.complete(ApiContextUtils.apiContext(rc));
-    task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()));
-    task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()));
+    task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()), rc);
+    task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()), rc);
     task = task.andThen("Response", apiContext -> response(rc, apiContext));
 //    task = doFilter(task, f -> Filter.AFTER_RESP.equalsIgnoreCase(f.type()));
     task.onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
   }
 
-  public Task<ApiContext> doFilter(Task<ApiContext> task, Predicate<Filter> filterPredicate) {
+  /**
+   * 执行filter，在每个filter执行成功完后将apiContext存入RoutingContext用于度量处理
+   *
+   * @param task
+   * @param filterPredicate
+   * @param rc
+   * @return
+   */
+  public Task<ApiContext> doFilter(Task<ApiContext> task, Predicate<Filter> filterPredicate,
+                                   RoutingContext rc) {
     List<Filter> postFilters = filters.stream()
             .filter(filterPredicate)
             .collect(Collectors.toList());
-    return Filters.doFilter(task, postFilters);
+    return Filters
+            .doFilter(task, postFilters, apiContext -> rc.data().put("apiContext", apiContext));
   }
 
   private void response(RoutingContext rc, ApiContext apiContext) {
