@@ -1,16 +1,13 @@
 {
   "verticles": {
-    "ServiceDiscoveryVerticle": {
-      "class": "com.github.edgar615.servicediscovery.verticle.ServiceDiscoveryVerticle",
+    "ZookeeperServiceDiscoveryVerticle": {
+      "class": "com.github.edgar615.servicediscovery.verticle.ZookeeperServiceDiscoveryVerticle",
       "instances": 1,
       "worker": false,
       "config": {
-        "importer": "zookeeper://test.ihorn.com.cn:2181",
-        "zookeeper.path": "/csst-microservice",
-        "consul.scan-period": 2000,
-        "strategy": {
-          "user": "random",
-          "device": "round_robin"
+        "zookeeper": {
+          "connect": "localhost:2181",
+          "path": "/micro-service"
         }
       }
     },
@@ -78,7 +75,7 @@
           "permissionsClaimKey": "permissions",
           "unique": true,
           "cache": {
-            "type" : "local",
+            "type": "local",
             "expireAfterWrite": 1800,
             "maximumSize": 5000
           }
@@ -104,7 +101,7 @@
           "codeKey": "companyCode",
           "permissionKey": "scope",
           "cache": {
-            "type" : "local",
+            "type": "local",
             "expireAfterWrite": 1800,
             "maximumSize": 5000
           },

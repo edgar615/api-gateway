@@ -676,6 +676,44 @@ vert.x的服务发现配置
       "usageAddress" : "vertx.discovery.usage"
     }
 
+JsonServiceDiscoveryVerticle直接使用本地JSON配置
+
+      "services": {
+        "user": [
+          {
+            "host": "192.168.0.100",
+            "port": 8080
+          },
+          {
+            "host": "192.168.0.101",
+            "port": 8080
+          }
+        ],
+        "device": [
+          {
+            "host": "192.168.0.100",
+            "port": 8081
+          }
+        ]
+      }
+
+ZookeeperServiceDiscoveryVerticle读取zookeeper
+
+     "zookeeper": {
+       "connect" : "localhost:2181",
+       "path" : "/micro-service",
+       "retry.sleep": 1000,
+       "retry.times": 3
+     }
+
+ConsulServiceDiscoveryVerticle读取Consul
+
+      "consul": {
+        "host": "localhost",
+        "port": 8500,
+        "scan-period": 2000
+      }
+
 # API版本
 
 目前仅支持基于请求头的灰度发布方案

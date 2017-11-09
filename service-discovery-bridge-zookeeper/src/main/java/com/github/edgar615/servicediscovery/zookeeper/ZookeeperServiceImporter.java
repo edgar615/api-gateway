@@ -168,10 +168,10 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
                     Future<Void> future) {
     this.vertx = vertx;
     this.publisher = publisher;
-    this.zkConnect = configuration.getString("zookeeper.connect", "localhost:2181");
-    this.basePath = configuration.getString("zookeeper.path", "/services");
-    this.sleepMsBetweenRetries = configuration.getInteger("zookeeper.retry.sleep", 1000);
-    this.retryTimes = configuration.getInteger("zookeeper.retry.times", 5);
+    this.zkConnect = configuration.getString("connect", "localhost:2181");
+    this.basePath = configuration.getString("path", "/services");
+    this.sleepMsBetweenRetries = configuration.getInteger("retry.sleep", 1000);
+    this.retryTimes = configuration.getInteger("retry.times", 5);
     // When the bridge is configured, ready and has imported / exported the initial services, it
     // must complete the given Future. If the bridge starts method is blocking, it must use an
     // executeBlocking construct, and complete the given future object
@@ -303,10 +303,7 @@ public class ZookeeperServiceImporter implements ServiceImporter, TreeCacheListe
     Record record = new Record();
     record.setName(instance.getName());
     String payload = instance.getPayload();
-    JsonObject meta = new JsonObject(payload);
-    if (meta.containsKey("version")) {
-      record.getMetadata().put("version", meta.getString("version"));
-    }
+//    JsonObject meta = new JsonObject(payload);
     record.getMetadata().put("zookeeper-payload", payload);
     record.getMetadata().put("zookeeper-service-type", instance.getServiceType().toString());
     record.getMetadata().put("zookeeper-host", instance.getAddress());

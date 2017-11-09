@@ -48,8 +48,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RpcFilterTest {
   private final List<Filter> filters = new ArrayList<>();
 
-  MockConsulHttpVerticle mockConsulHttpVerticle;
-
   private int port;
 
   private Vertx vertx;

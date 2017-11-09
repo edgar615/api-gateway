@@ -1,0 +1,8 @@
+{
+  "zookeeper": {
+    "connect" : "localhost:2181",
+    "path" : "/micro-service",
+    "retry.sleep": 1000,
+    "retry.times": 3
+  }
+}

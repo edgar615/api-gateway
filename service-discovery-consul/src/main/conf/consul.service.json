@@ -1,0 +1,7 @@
+{
+  "consul": {
+    "host": "localhost",
+    "port": 8500,
+    "scan-period": 2000
+  }
+}

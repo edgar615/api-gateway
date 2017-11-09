@@ -1,13 +1,27 @@
 {
   "verticles": {
-    "ServiceDiscoveryVerticle": {
-      "class": "com.github.edgar615.servicediscovery.verticle.ServiceDiscoveryVerticle",
+    "JsonServiceDiscoveryVerticle": {
+      "class": "com.github.edgar615.servicediscovery.verticle.JsonServiceDiscoveryVerticle",
       "instances": 1,
       "worker": false,
       "config": {
-        "strategy": {
-          "user": "random",
-          "device": "round_robin"
+        "services": {
+          "user": [
+            {
+              "host": "192.168.0.100",
+              "port": 8080
+            },
+            {
+              "host": "192.168.0.101",
+              "port": 8080
+            }
+          ],
+          "device": [
+            {
+              "host": "192.168.0.100",
+              "port": 8081
+            }
+          ]
         }
       }
     },
