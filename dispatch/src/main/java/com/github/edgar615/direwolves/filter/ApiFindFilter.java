@@ -38,7 +38,7 @@ public class ApiFindFilter implements Filter {
 
   public ApiFindFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    String namespace = config.getString("namespace", "");
+    String namespace = config.getString("namespace", "api-gateway");
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
                                                  new ApiDiscoveryOptions()
                                                          .setName(namespace));

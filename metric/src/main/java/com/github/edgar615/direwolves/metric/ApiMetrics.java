@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
 import io.vertx.core.spi.metrics.Metrics;
 import io.vertx.ext.dropwizard.ThroughputTimer;
 
@@ -37,8 +36,8 @@ public class ApiMetrics implements Metrics {
   private MetricRegistry registry;
 
 
-  private ApiMetrics(MetricRegistry registry, String baseName, int maxCacheSize) {
-    this.registry = registry;
+  private ApiMetrics( String baseName, int maxCacheSize) {
+    this.registry = MetricHelper.registry();
     this.baseName = baseName;
     this.cache = CacheBuilder.newBuilder()
             .maximumSize(maxCacheSize)
@@ -62,10 +61,10 @@ public class ApiMetrics implements Metrics {
     return instance;
   }
 
-  public static ApiMetrics create(MetricRegistry registry, String baseName, int maxCacheSize) {
+  public static ApiMetrics create(String baseName, int maxCacheSize) {
     if (instance == null) {
       synchronized (ApiMetrics.class) {
-        instance = new ApiMetrics(registry, baseName, maxCacheSize);
+        instance = new ApiMetrics( baseName, maxCacheSize);
       }
     }
     return instance;

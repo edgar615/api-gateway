@@ -48,8 +48,10 @@ public class DispatchHandler implements Handler<RoutingContext> {
    */
   private final List<Filter> filters;
 
-  private DispatchHandler(Vertx vertx, JsonObject config) {
+  private final String namespace;
 
+  private DispatchHandler(Vertx vertx, JsonObject config) {
+    namespace = config.getString("namespace", "api-gateway");
     List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(FilterFactory.class))
             .stream().map(f -> f.create(vertx, config))
             .collect(Collectors.toList());

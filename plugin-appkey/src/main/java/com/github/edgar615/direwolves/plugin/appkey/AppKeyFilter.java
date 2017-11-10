@@ -150,7 +150,7 @@ public class AppKeyFilter implements Filter {
     optionalRule.add("MD5");
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
-    this.namespace = config.getString("namespace", "");
+    this.namespace = config.getString("namespace", "api-gateway");
     JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
     this.secretKey = appKeyConfig.getString("secretKey", "appSecret");
     this.codeKey = appKeyConfig.getString("codeKey", "appCode");

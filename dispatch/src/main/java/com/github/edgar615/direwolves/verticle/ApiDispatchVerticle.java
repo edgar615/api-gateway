@@ -32,18 +32,11 @@ public class ApiDispatchVerticle extends AbstractVerticle {
             .addData("config", config())
             .info();
 
-    String namespace = config().getString("namespace", "");
-//    String address = RedisProvider.class.getName();
-//    if (!Strings.isNullOrEmpty(namespace)) {
-//      address = namespace + "." + address;
-//    }
+    String namespace = config().getString("namespace", "api-gateway");
 
     //读取命令
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, config(), importCmdFuture);
-
-//    ProxyHelper.registerService(RedisProvider.class, vertx, redisProvider,
-//                                address);
 
     //API Metrics
     String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");

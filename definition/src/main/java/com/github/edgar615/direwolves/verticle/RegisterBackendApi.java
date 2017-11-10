@@ -27,7 +27,7 @@ import java.util.ServiceLoader;
 public class RegisterBackendApi implements Initializable {
   @Override
   public void initialize(Vertx vertx, JsonObject config, Future<Void> complete) {
-    String namespace = config.getString("namespace", "");
+    String namespace = config.getString("namespace", "api-gateway");
     Lists.newArrayList(ServiceLoader.load(ApiCmdFactory.class))
             .stream()
             .map(f -> f.create(vertx, config))

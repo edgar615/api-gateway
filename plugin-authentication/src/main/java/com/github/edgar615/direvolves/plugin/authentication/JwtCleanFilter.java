@@ -34,7 +34,7 @@ public class JwtCleanFilter implements Filter {
    */
   JwtCleanFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.namespace = config.getString("namespace", "");
+    this.namespace = config.getString("namespace", "api-gateway");
     //user
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
     this.userKey = userConfig.getString("userClaimKey", "userId");

@@ -61,7 +61,7 @@ public class AuthenticationFilter implements Filter {
 
   AuthenticationFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.namespace = config.getString("namespace", "");
+    this.namespace = config.getString("namespace", "api-gateway");
     this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
 
     //user

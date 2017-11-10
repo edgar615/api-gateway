@@ -79,7 +79,7 @@ public class JwtBuildFilter implements Filter {
    */
   JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.namespace = config.getString("namespace", "");
+    this.namespace = config.getString("namespace", "api-gateway");
     //jwt
     this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
 
