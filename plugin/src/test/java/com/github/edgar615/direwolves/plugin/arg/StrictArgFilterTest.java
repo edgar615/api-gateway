@@ -48,16 +48,6 @@ public class StrictArgFilterTest {
   }
 
   @Test
-  public void testOrderAndType(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("enable", true);
-    filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(),
-                           new JsonObject().put("strict.arg", jsonObject));
-    Assert.assertEquals(99, filter.order());
-    Assert.assertEquals(Filter.PRE, filter.type());
-  }
-
-  @Test
   public void disabledShouldSuccess(TestContext testContext) {
     createApiContext();
     filter = Filter.create(StrictArgFilter.class.getSimpleName(), Vertx.vertx(), new JsonObject());

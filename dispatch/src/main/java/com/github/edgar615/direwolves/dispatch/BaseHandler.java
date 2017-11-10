@@ -1,10 +1,12 @@
 package com.github.edgar615.direwolves.dispatch;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
+import com.github.edgar615.direwolves.metric.ApiMetric;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.log.LogType;
-import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
@@ -31,13 +33,8 @@ public class BaseHandler implements Handler<RoutingContext> {
 
   @Override
   public void handle(RoutingContext rc) {
-    if ("1.0".equalsIgnoreCase(rc.request().getParam("v"))) {
-      rc.response().setChunked(true)
-              .putHeader("content-type", "application/json");
-    } else {
-      rc.response().setChunked(true)
-              .putHeader("content-type", "application/json;charset=utf-8");
-    }
+    rc.response().setChunked(true)
+            .putHeader("content-type", "application/json;charset=utf-8");
 
     String id = UUID.randomUUID().toString();
     rc.put("x-request-id", id);
@@ -63,6 +60,7 @@ public class BaseHandler implements Handler<RoutingContext> {
     });
 
     rc.addBodyEndHandler(v -> {
+      long duration = System.currentTimeMillis() - start;
       Log.create(LOGGER)
               .setTraceId(id)
               .setLogType(LogType.SS)
@@ -70,14 +68,25 @@ public class BaseHandler implements Handler<RoutingContext> {
               .setMessage(" [{}] [{}] [{}ms] [{} bytes]")
               .addArg(rc.response().getStatusCode())
               .addArg(mutiMapToString(rc.response().headers(), "no header"))
-              .addArg(System.currentTimeMillis() - start)
+              .addArg(duration)
               .addArg(rc.response().bytesWritten())
               .info();
-
-//      ApiMetrics.instance()
-//              .response(id, rc.response().getStatusCode(), System.currentTimeMillis() - start);
+      responseMetric(rc, duration);
     });
     rc.next();
+  }
+
+  private void responseMetric(RoutingContext rc, long duration) {
+    String namespace = (String) rc.data().get("namespace");
+    String apiName = (String) rc.data().get("apiName");
+    if (!Strings.isNullOrEmpty(apiName)
+        && !Strings.isNullOrEmpty(namespace)) {
+      try {
+        ApiMetric.response(namespace, apiName, rc.response().getStatusCode(), duration);
+      } catch (Exception e) {
+        //ignore
+      }
+    }
   }
 
   private String mutiMapToString(MultiMap map, String defaultString) {

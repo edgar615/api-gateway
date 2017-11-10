@@ -61,13 +61,6 @@ public class EventbusRequestTransformerFilterTest {
     vertx.close(testContext.asyncAssertSuccess());
   }
 
-
-  @Test
-  public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(15000, filter.order());
-    Assert.assertEquals(Filter.PRE, filter.type());
-  }
-
   @Test
   public void testSingleRequestTransformer(TestContext testContext) {
 

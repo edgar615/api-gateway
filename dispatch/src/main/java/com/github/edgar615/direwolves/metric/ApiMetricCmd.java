@@ -15,8 +15,6 @@ class ApiMetricCmd implements ApiCmd {
 
   private final MetricsService metricsService;
 
-//  private final String nodeId;
-
   ApiMetricCmd(Vertx vertx) {
     this.metricsService = MetricsService.create(vertx);
   }

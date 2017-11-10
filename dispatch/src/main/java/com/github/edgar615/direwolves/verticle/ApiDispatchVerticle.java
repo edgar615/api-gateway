@@ -1,13 +1,10 @@
 package com.github.edgar615.direwolves.verticle;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
 import com.github.edgar615.direwolves.core.cmd.CmdRegister;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.direwolves.dispatch.BaseHandler;
 import com.github.edgar615.direwolves.dispatch.DispatchHandler;
 import com.github.edgar615.direwolves.dispatch.FailureHandler;
-import com.github.edgar615.direwolves.metric.ApiMetrics;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.ext.web.Router;
@@ -37,11 +34,6 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     //读取命令
     Future<Void> importCmdFuture = Future.future();
     new CmdRegister().initialize(vertx, config(), importCmdFuture);
-
-    //API Metrics
-    String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");
-    MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
-    ApiMetrics.create(registry, namespace, 10000);
 
     //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());

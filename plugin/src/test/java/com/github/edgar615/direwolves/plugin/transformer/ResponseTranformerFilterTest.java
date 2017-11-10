@@ -59,12 +59,6 @@ public class ResponseTranformerFilterTest {
   }
 
   @Test
-  public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(1000, filter.order());
-    Assert.assertEquals(Filter.POST, filter.type());
-  }
-
-  @Test
   public void testGlobalTransformer(TestContext testContext) {
     JsonObject config = new JsonObject()
             .put("header.add", new JsonArray().add("gh2:gh2").add( "h1:h1"))

@@ -50,12 +50,6 @@ public class AuthoriseFilterTest {
   }
 
   @Test
-  public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(1100, filter.order());
-    Assert.assertEquals(Filter.PRE, filter.type());
-  }
-
-  @Test
   public void missAppShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
     Task<ApiContext> task = Task.create();

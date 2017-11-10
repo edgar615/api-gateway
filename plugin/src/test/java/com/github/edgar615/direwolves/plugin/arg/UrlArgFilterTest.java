@@ -64,12 +64,6 @@ public class UrlArgFilterTest {
   }
 
   @Test
-  public void testOrderAndType(TestContext testContext) {
-    Assert.assertEquals(100, filter.order());
-    Assert.assertEquals(Filter.PRE, filter.type());
-  }
-
-  @Test
   public void testMissParameterAllocateDefaultValue(TestContext testContext) {
     UrlArgPlugin plugin = (UrlArgPlugin) ApiPlugin.create(UrlArgPlugin.class.getSimpleName());
     Parameter parameter = Parameter.create("limit", 10)

@@ -75,7 +75,15 @@ public class ApiUtils {
       seq.incrementAndGet();
     });
 
-    Awaitility.await().until(() -> seq.get() == 7);
+    httpEndpoint = SimpleHttpEndpoint.http("list_device", HttpMethod.GET, "/devices",
+                                           devicePort, "localhost");
+    apiDefinition = ApiDefinition.create("list_device_version2", HttpMethod.GET, "/v2/devices",
+                                         Lists.newArrayList(httpEndpoint));
+    apiDiscovery.publish(apiDefinition, ar -> {
+      seq.incrementAndGet();
+    });
+
+    Awaitility.await().until(() -> seq.get() == 8);
   }
 
 }

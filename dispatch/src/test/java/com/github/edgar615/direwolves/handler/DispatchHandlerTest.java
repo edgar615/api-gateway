@@ -107,7 +107,7 @@ public class DispatchHandlerTest {
   public void testGetArray(TestContext testContext) {
     Async async = testContext.async();
     vertx.createHttpClient()
-            .get(port, "localhost", "/devices?timestamp=" + Instant.now().getEpochSecond(),
+            .get(port, "localhost", "/v2/devices?timestamp=" + Instant.now().getEpochSecond(),
                  resp -> {
                    System.out.println(resp.statusCode());
                    resp.bodyHandler(body -> {

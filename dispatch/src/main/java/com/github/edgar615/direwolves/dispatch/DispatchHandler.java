@@ -81,6 +81,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
 
   @Override
   public void handle(RoutingContext rc) {
+    rc.data().put("namespace", namespace);
     //创建上下文
     Task<ApiContext> task = Task.create();
     task.complete(ApiContextUtils.apiContext(rc));
@@ -105,7 +106,11 @@ public class DispatchHandler implements Handler<RoutingContext> {
             .filter(filterPredicate)
             .collect(Collectors.toList());
     return Filters
-            .doFilter(task, postFilters, apiContext -> rc.data().put("apiContext", apiContext));
+            .doFilter(task, postFilters, apiContext -> {
+              if (apiContext.apiDefinition() != null) {
+                rc.data().put("apiName", apiContext.apiDefinition().name());
+              }
+            });
   }
 
   private void response(RoutingContext rc, ApiContext apiContext) {
