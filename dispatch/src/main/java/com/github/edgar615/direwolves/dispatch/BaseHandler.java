@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
-import com.github.edgar615.direwolves.metric.ApiMetric;
+import com.github.edgar615.direwolves.core.metric.ApiMetric;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.log.LogType;
 import io.vertx.core.Handler;

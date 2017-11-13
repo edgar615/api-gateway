@@ -49,6 +49,11 @@
             <artifactId>service-discovery-zookeeper</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.edgar615</groupId>
+            <artifactId>service-discovery-json</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>

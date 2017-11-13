@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.metric;
+package com.github.edgar615.direwolves.core.metric;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;

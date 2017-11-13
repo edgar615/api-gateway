@@ -77,7 +77,8 @@ public class ApiFindFilter implements Filter {
         completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
         return;
       } catch (SystemException e) {
-        e.set("details", apiContext.method().name() + " " + apiContext.path());
+        e.set("details", "Undefined Api")
+                .set("api", apiContext.method().name() + " " + apiContext.path());
         failed(apiContext, completeFuture, e);
         return;
       } catch (Exception e) {

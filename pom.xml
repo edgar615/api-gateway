@@ -38,7 +38,7 @@
         <awaitility.version>2.0.0</awaitility.version>
         <vertx.version>3.4.2</vertx.version>
         <slf4j.version>1.7.14</slf4j.version>
-        <util.version>1.0.11</util.version>
+        <util.version>1.0.15</util.version>
         <vertx.util.version>1.0.14</vertx.util.version>
         <guava.version>21.0</guava.version>
 

@@ -744,3 +744,9 @@ x-api-verson : 版本号，使用日期格式 如20171108
 
 - type PRE
 - order -2147482748
+
+# 度量指标
+启动时增加参数
+
+    -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=my-registry
+

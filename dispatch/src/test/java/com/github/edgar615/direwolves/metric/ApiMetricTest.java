@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.metric;
 
-import com.codahale.metrics.MetricRegistry;
-import org.junit.Assert;
+import com.github.edgar615.direwolves.core.metric.ApiMetric;
 import org.junit.Test;
 
 import java.util.UUID;

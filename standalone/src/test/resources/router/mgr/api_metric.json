@@ -1,0 +1,27 @@
+{
+  "name": "api.metric.1.0.0",
+  "method": "GET",
+  "path": "/api/metric",
+  "scope": "api:read",
+  "url.arg": [
+    {
+      "name": "name"
+    }
+  ],
+  "endpoints": [
+    {
+      "policy": "req-resp",
+      "name": "api.metric",
+      "type": "eventbus",
+      "address" : "api.metric"
+    }
+  ],
+  "request.transformer": [
+    {
+      "name": "api.metric",
+      "body.add" : [
+        "name:$query.name"
+      ]
+    }
+  ]
+}
