@@ -51,7 +51,7 @@ public class HttpRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new SdHttpRpcHandlerFactory().create(vertx, new JsonObject(), null);
+    rpcHandler = new SdHttpRpcHandlerFactory().create(vertx, new JsonObject());
     serviceId = UUID.randomUUID().toString();
   }
 

@@ -33,7 +33,7 @@ public class DummyRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new DummyHandlerFactory().create(vertx, new JsonObject(), null);
+    rpcHandler = new DummyHandlerFactory().create(vertx, new JsonObject());
   }
 
   @After

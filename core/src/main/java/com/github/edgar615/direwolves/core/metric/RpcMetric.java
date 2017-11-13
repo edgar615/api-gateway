@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Edgar  Date 2017/3/30
  */
+@Deprecated
 public class RpcMetric implements Metrics {
 
   public static void request(String baseName, String server) {

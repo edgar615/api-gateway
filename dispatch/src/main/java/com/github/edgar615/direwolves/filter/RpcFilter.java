@@ -10,12 +10,11 @@ import com.github.edgar615.direwolves.core.rpc.FailureRpcHandler;
 import com.github.edgar615.direwolves.core.rpc.Fallbackable;
 import com.github.edgar615.direwolves.core.rpc.RpcHandler;
 import com.github.edgar615.direwolves.core.rpc.RpcHandlerFactory;
-import com.github.edgar615.direwolves.core.rpc.RpcMetric;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.RpcResponse;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.core.Future;
@@ -79,12 +78,11 @@ public class RpcFilter extends RequestReplaceFilter implements Filter {
   RpcFilter(Vertx vertx, JsonObject config) {
 
     this.vertx = vertx;
-    RpcMetric metric = null;
     this.config = config.getJsonObject("circuit.breaker", new JsonObject());
     circuitBreakerRegistry = CircuitBreakerRegistry.create(vertx, this.config);
 
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
-            .stream().map(f -> f.create(vertx, config, metric))
+            .stream().map(f -> f.create(vertx, config))
             .forEach(h -> handlers.put(h.type().toUpperCase(), h));
 
   }

@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.http;
 
 import com.github.edgar615.direwolves.core.rpc.RpcHandler;
 import com.github.edgar615.direwolves.core.rpc.RpcHandlerFactory;
-import com.github.edgar615.direwolves.core.rpc.RpcMetric;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -16,7 +15,7 @@ public class SdHttpRpcHandlerFactory implements RpcHandlerFactory {
   }
 
   @Override
-  public RpcHandler create(Vertx vertx, JsonObject config, RpcMetric metric) {
+  public RpcHandler create(Vertx vertx, JsonObject config) {
     return new SdHttpRpcHandler(vertx, config);
   }
 }

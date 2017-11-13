@@ -41,7 +41,7 @@ public class ReqRespRpcHandlerTest {
 
   @Before
   public void before(TestContext context) {
-    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject(), null);
+    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
   }
 
   @After
