@@ -220,4 +220,5 @@ public class ApiDefinitionTest {
     Assert.assertTrue(apiDefinition.match(new JsonObject().put("path2", "/devices/123")));
 
   }
+
 }
