@@ -174,9 +174,6 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 全局参数
 
     "appkey" : {
-      "secretKey": appkey对应密钥的属性名，默认值appSecret,
-      "codeKey": appkey对应编码的属性名，默认值appCode,
-      "permissionKey": appkey对应权限的属性名，默认值permissions,
       data : APPKEY的JSON数组，默认为[]，
       url: http获取appkey的接口地址，这个地址对应了一个API路由,如果没有这个配置，则不会从后端查询appkey,
       cache: {
@@ -186,20 +183,18 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
       }
     }
 
-一个正确的appKey的JSON格式应该包括 appKey, appSecret, appCode, permissions四个属性
+一个正确的appKey的JSON格式应该包括 appKey, appSecret, appCode, permissions四个属性。
+如果通过HTTP获取appKey的下游服务返回的JSON格式不是这几个属性，可以通过ResponseTransformerPlugin进行转换
 
 示例
 
       "appkey": {
-        "secretKey": "appSecret",
-        "codeKey": "companyCode",
-        "permissionKey": "scope",
         "data": [
           {
             "appKey": "RmOI7jCvDtfZ1RcAkea1",
             "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
             "appCode": 0,
-            "scope": "all"
+            "permissions": "all"
           }
         ],
         "url": "/appkey/import"

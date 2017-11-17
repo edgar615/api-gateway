@@ -1,14 +1,11 @@
 package com.github.edgar615.direvolves.plugin.authentication;
 
-import com.github.edgar615.direwolves.core.cache.CacheFactory;
-import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.Result;
 import com.github.edgar615.direwolves.core.utils.CacheUtils;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.cache.Cache;
-import com.github.edgar615.util.vertx.cache.CacheOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -47,13 +44,13 @@ public class JwtBuildFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final String userKey;
+  private final String userKey = "userId";
 
   private final Cache<String, JsonObject> userCache;
 
   private final String namespace;
 
-  private final String permissionsKey;
+  private final String permissionsKey = "permissions";
 
   private final JsonObject jwtConfig = new JsonObject()
           .put("path", "keystore.jceks")
@@ -85,10 +82,13 @@ public class JwtBuildFilter implements Filter {
 
     //user
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
-    this.userKey = userConfig.getString("userClaimKey", "userId");
-    this.permissionsKey = userConfig.getString("permissionKey", "permissions");
 
-    this.userCache = CacheUtils.createCache(vertx, "userCache", userConfig);
+    if (userConfig.getValue("cache") instanceof JsonObject) {
+      this.userCache = CacheUtils.createCache(vertx, "userCache",
+                                              userConfig.getJsonObject("cache"));
+    } else {
+      this.userCache = CacheUtils.createCache(vertx, "userCache", new JsonObject());
+    }
   }
 
   @Override

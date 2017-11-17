@@ -19,7 +19,7 @@ public class CacheUtils {
 
   /**
    * 创建一个cache的工具类
-   *
+   * cache
    * @param vertx
    * @param name   cache的名称
    * @param config 配置
@@ -30,16 +30,9 @@ public class CacheUtils {
                                                       JsonObject config) {
     //cache
     CacheOptions cacheOptions = new CacheOptions();
-    String cacheType = "local";
-    if (config.getValue("cache") instanceof JsonObject) {
-      JsonObject cacheJson = config.getJsonObject("cache");
-      cacheType = cacheJson.getString("type", "local");
-      cacheOptions.setExpireAfterWrite(cacheJson.getLong("expireAfterWrite", 1800l));
-      cacheOptions.setMaximumSize(cacheJson.getLong("maximumSize", 5000l));
-    } else {
-      cacheOptions.setExpireAfterWrite(1800l);
-      cacheOptions.setMaximumSize(5000l);
-    }
+    String cacheType = config.getString("type", "local");
+    cacheOptions.setExpireAfterWrite(config.getLong("expireAfterWrite", 1800l));
+    cacheOptions.setMaximumSize(config.getLong("maximumSize", 5000l));
     CacheFactory factory = CacheFactory.get(cacheType);
     Cache<String, JsonObject> cache = factory.create(vertx, name, cacheOptions);
     CacheManager.instance().addCache(cache);

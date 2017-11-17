@@ -51,10 +51,6 @@ public class HttpAppKeyImporterTest {
 
   private ApiContext apiContext;
 
-  private String secretKey = UUID.randomUUID().toString();
-
-  private String codeKey = UUID.randomUUID().toString();
-
   private Vertx vertx;
 
   @Before
@@ -81,13 +77,13 @@ public class HttpAppKeyImporterTest {
       if (reqCount.incrementAndGet() < 3) {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
-                .put(secretKey, appSecret)
-                .put(codeKey, appCode)
+                .put("appSecret", appSecret)
+                .put("appCode", appCode)
                 .put("permissions", "all");
         JsonObject jsonObject2 = new JsonObject()
                 .put("appKey", appKey2)
-                .put(secretKey, appSecret)
-                .put(codeKey, appCode)
+                .put("appSecret", appSecret)
+                .put("appCode", appCode)
                 .put("permissions", "all");
         JsonArray jsonArray = new JsonArray()
                 .add(jsonObject).add(jsonObject2);
@@ -95,13 +91,13 @@ public class HttpAppKeyImporterTest {
       } else {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", UUID.randomUUID().toString())
-                .put(secretKey, UUID.randomUUID().toString())
-                .put(codeKey, appCode)
+                .put("appSecret", UUID.randomUUID().toString())
+                .put("appCode", appCode)
                 .put("permissions", "all");
         JsonObject jsonObject2 = new JsonObject()
                 .put("appKey", appKey2)
-                .put(secretKey, appSecret)
-                .put(codeKey, appCode)
+                .put("appSecret", appSecret)
+                .put("appCode", appCode)
                 .put("permissions", "all");
         JsonArray jsonArray = new JsonArray()
                 .add(jsonObject).add(jsonObject2);

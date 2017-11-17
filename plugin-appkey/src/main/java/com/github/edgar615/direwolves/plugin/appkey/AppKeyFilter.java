@@ -123,12 +123,6 @@ public class AppKeyFilter implements Filter {
 
   private final String namespace;
 
-  private final String secretKey;
-
-  private final String codeKey;
-
-  private final String permissionsKey;
-
   private final Vertx vertx;
 
   private final Cache<String, JsonObject> cache;
@@ -152,11 +146,13 @@ public class AppKeyFilter implements Filter {
     commonParamRule.put("sign", Rule.required());
     this.namespace = config.getString("namespace", "api-gateway");
     JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
-    this.secretKey = appKeyConfig.getString("secretKey", "appSecret");
-    this.codeKey = appKeyConfig.getString("codeKey", "appCode");
-    this.permissionsKey = appKeyConfig.getString("permissionKey", "permissions");
+    if (appKeyConfig.getValue("cache") instanceof JsonObject) {
+      this.cache = CacheUtils.createCache(vertx, "appKeyCache",
+                                          appKeyConfig.getJsonObject("cache"));
+    } else {
+      this.cache = CacheUtils.createCache(vertx, "appKeyCache", new JsonObject());
+    }
 
-    this.cache = CacheUtils.createCache(vertx, "appKeyCache", appKeyConfig);
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
     appKeyConfig.put("port", config.getInteger("port", 9000));
     appKeyLoader = new AppKeyLoader(vertx, namespace + ":appkey:", appKeyConfig);
@@ -210,7 +206,7 @@ public class AppKeyFilter implements Filter {
   private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
                          Multimap<String, String> params, String clientSignValue, String signMethod,
                          JsonObject app) {
-    String secret = app.getString(secretKey, "UNKOWNSECRET");
+    String secret = app.getString("appSecret", "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
     if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
       Log.create(LOGGER)
@@ -232,8 +228,8 @@ public class AppKeyFilter implements Filter {
 //                              ());
 //      ApiContext.copyProperites(apiContext, newContext);
       apiContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
-      apiContext.addVariable("app.code", app.getInteger(codeKey, 0));
-      apiContext.addVariable("app.permissions", app.getString(permissionsKey, "default"));
+      apiContext.addVariable("app.code", app.getInteger("appCode", 0));
+      apiContext.addVariable("app.permissions", app.getString("permissions", "default"));
       completeFuture.complete(apiContext);
     }
   }

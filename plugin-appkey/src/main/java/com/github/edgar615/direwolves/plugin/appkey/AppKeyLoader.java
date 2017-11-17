@@ -35,7 +35,8 @@ class AppKeyLoader implements CacheLoader<String, JsonObject> {
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject jsonObject = config.getJsonArray("data").getJsonObject(i);
       String appKey = jsonObject.getString("appKey");
-      if (appKey != null) {
+      String appSecret = jsonObject.getString("appSecret");
+      if (appKey != null && appSecret != null) {
         localAppKeys.put(appKey, jsonObject);
       }
     }

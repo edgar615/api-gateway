@@ -62,10 +62,6 @@ public class AppKeyFilterTest {
 
   private ApiContext apiContext;
 
-  private String secretKey = UUID.randomUUID().toString();
-
-  private String codeKey = UUID.randomUUID().toString();
-
   private Vertx vertx;
 
   @Before
@@ -82,9 +78,7 @@ public class AppKeyFilterTest {
 
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
-    JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey);
+    JsonObject config = new JsonObject();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
@@ -107,15 +101,13 @@ public class AppKeyFilterTest {
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq2(TestContext testContext) {
     JsonObject origin = new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode)
+            .put("appSecret", appSecret)
+            .put("appCode", appCode)
             .put("appKey", UUID.randomUUID().toString());
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String url = Randoms.randomAlphabet(10);
     mockExistHttp(port, Randoms.randomAlphabet(5));
     JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey)
 //            .put("data", new JsonArray().add(origin))
             .put("url",url);
     filters.clear();
@@ -153,12 +145,10 @@ public class AppKeyFilterTest {
     definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
 
     JsonObject origin = new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode)
+            .put("appSecret", appSecret)
+            .put("appCode", appCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey)
             .put("data", new JsonArray().add(origin));
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
@@ -178,17 +168,15 @@ public class AppKeyFilterTest {
   @Test
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
 //    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
-//            .put(secretKey, appSecret)
-//            .put(codeKey, appCode), ar -> {
+//            .put("appSecret", appSecret)
+//            .put("appCode", appCode), ar -> {
 //
 //    });
     JsonObject origin = new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode)
+            .put("appSecret", appSecret)
+            .put("appCode", appCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey)
             .put("data", new JsonArray().add(origin));
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
@@ -231,12 +219,10 @@ public class AppKeyFilterTest {
   public void testSignWithoutBody(TestContext testContext) {
 
     JsonObject origin = new JsonObject()
-            .put(secretKey, appSecret)
-            .put(codeKey, appCode)
+            .put("appSecret", appSecret)
+            .put("appCode", appCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey)
             .put("data", new JsonArray().add(origin));
 
     filters.clear();
@@ -290,8 +276,6 @@ public class AppKeyFilterTest {
     String url = Randoms.randomAlphabet(10);
     mockExistHttp(port, url);
     JsonObject config = new JsonObject()
-            .put("secretKey", secretKey)
-            .put("codeKey", codeKey)
             .put("url",url);
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
@@ -355,8 +339,8 @@ public class AppKeyFilterTest {
       if (req.path().equals(url)) {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
-                .put(secretKey, appSecret)
-                .put(codeKey, appCode)
+                .put("appSecret", appSecret)
+                .put("appCode", appCode)
                 .put("permissions", "all");
         req.response().end(jsonObject.encode());
       } else {
