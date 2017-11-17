@@ -50,7 +50,7 @@ public class AuthticationFilterTest {
 
   private Vertx vertx;
 
-  private String userKey = UUID.randomUUID().toString();
+  private String userKey = "userId";
 
   private String namespace = UUID.randomUUID().toString();
 
@@ -221,7 +221,6 @@ public class AuthticationFilterTest {
             .andThen(context -> {
               JsonObject principal = context.principal();
               testContext.assertEquals(userId, principal.getInteger(userKey));
-              testContext.assertEquals(userId + "", principal.getValue("userId"));
               testContext.assertEquals("edgar", principal.getString("username"));
               async.complete();
             })
@@ -256,7 +255,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("jwt",
                                                new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject().put("userClaimKey", userKey)
+                                          .put("user", new JsonObject()
                                                   .put("unique", true))
                                           .put("namespace", namespace));
     filters.add(filter);
@@ -268,7 +267,6 @@ public class AuthticationFilterTest {
               JsonObject principal = context.principal();
               testContext.assertEquals("edgar", principal.getString("username"));
               testContext.assertEquals(userId, principal.getInteger(userKey));
-              testContext.assertEquals(userId + "", principal.getValue("userId"));
               async.complete();
             })
             .onFailure(throwable -> {
@@ -305,7 +303,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("jwt",
                                                new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject().put("userClaimKey", userKey)
+                                          .put("user", new JsonObject()
                                                   .put("unique", true))
                                           .put("namespace", namespace));
     filters.add(filter);
@@ -351,7 +349,7 @@ public class AuthticationFilterTest {
                                   vertx, new JsonObject()
                                           .put("jwt",
                                                new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject().put("userClaimKey", userKey))
+                                          .put("user", new JsonObject())
                                           .put("namespace", namespace));
     filters.add(filter);
 

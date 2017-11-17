@@ -45,7 +45,7 @@ public class JwtBuildFilterTest {
 
   private Vertx vertx;
 
-  private String userKey = UUID.randomUUID().toString();
+  private String userKey = "userId";
 
   private String namespace = UUID.randomUUID().toString();
 
@@ -95,7 +95,7 @@ public class JwtBuildFilterTest {
     JsonObject body = new JsonObject()
             .put("username", "edgar")
             .put("tel", "123456")
-            .put("userId", 10);
+            .put(UUID.randomUUID().toString(), 10);
     apiContext.setResult(Result.createJsonObject(200, body, null));
 
     Task<ApiContext> task = Task.create();

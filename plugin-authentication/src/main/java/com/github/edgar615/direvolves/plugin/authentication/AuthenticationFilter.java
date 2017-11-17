@@ -46,7 +46,7 @@ public class AuthenticationFilter implements Filter {
 
   private static final String AUTH_PREFIX = "Bearer ";
 
-  private final String userKey;
+  private final String userKey = "userId";
 
   private final boolean uniqueToken;
 
@@ -63,10 +63,8 @@ public class AuthenticationFilter implements Filter {
     this.vertx = vertx;
     this.namespace = config.getString("namespace", "api-gateway");
     this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
-
     //user
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
-    this.userKey = userConfig.getString("userClaimKey", "userId");
     this.uniqueToken = userConfig.getBoolean("unique", false);
   }
 
@@ -156,13 +154,13 @@ public class AuthenticationFilter implements Filter {
           if (uniqueToken) {
             String serverJti = ar.result().getString("jti", UUID.randomUUID().toString());
             if (serverJti.equalsIgnoreCase(clientJti)) {
-              userFuture.complete(ar.result().put("userId", userId));
+              userFuture.complete(ar.result());
             } else {
               userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
                                       .set("details", "The token has been kicked out"));
             }
           } else {
-            userFuture.complete(ar.result().put("userId", userId));
+            userFuture.complete(ar.result());
           }
 
         } else {

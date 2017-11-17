@@ -40,9 +40,6 @@ import java.util.UUID;
  * <pre>
  *   namespace 项目的命名空间，用来避免多个项目冲突，默认值""
  *   appkey : {
- *   secretKey 密钥的键值，默认值appSecret
- *   codeKey 编码的键值，默认值appCode
- *   permissionKey 权限的键值，默认值permissions
  *   data : APPKEY的JSON数组，默认为[]
  *   url: http获取appkey的接口地址，这个地址对应了一个API路由（不应该做appkey校验，而且只能内外访问）,如果没有这个配置，则不会从后端查询appkey
  *   cache: {
@@ -51,6 +48,9 @@ import java.util.UUID;
  *      },
  *   }
  * </pre>
+ * <p>
+ * 一个正确的appKey的JSON格式应该包括 appKey, appSecret, appCode, permissions四个属性。
+ * 如果通过HTTP获取appKey的下游服务返回的JSON格式不是这几个属性，可以通过ResponseTransformerPlugin进行转换
  * <p>
  * 该filter的order=10
  * <p>

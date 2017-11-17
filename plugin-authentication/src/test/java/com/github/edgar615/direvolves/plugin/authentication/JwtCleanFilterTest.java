@@ -51,7 +51,7 @@ public class JwtCleanFilterTest {
 
   private Vertx vertx;
 
-  private String userKey = UUID.randomUUID().toString();
+  private String userKey = "userId";
 
   private String namespace = UUID.randomUUID().toString();
 

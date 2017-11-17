@@ -68,8 +68,6 @@
           "expiresInSeconds": 1800
         },
         "user": {
-          "userClaimKey": "userId",
-          "permissionsClaimKey": "permissions",
           "unique": true
         },
         "timeout": {
