@@ -51,11 +51,26 @@
         "namespace": "example",
         "port": 9000,
         "bodyLimit":  1024,
-        "service.discovery": {
+        "service.discovery" : {
+          "announceAddress": "vertx.discovery.announce",
+          "usageAddress" : "vertx.discovery.usage",
+          "name": "service-discovery"
+        },
+        "load.balance" : {
           "strategy": {
             "user": "random",
             "device": "round_robin"
           }
+        },
+        "circuit.breaker": {
+          "maxFailures": 5,
+          "maxRetries": 0,
+          "resetTimeout": 60000,
+          "timeout": 3000,
+          "metricsRollingWindow": 10000,
+          "notificationPeriod": 2000,
+          "notificationAddress": "vertx.circuit-breaker",
+          "registry": "vertx.circuit.breaker.registry"
         },
         "jwt": {
           "path": "keystore.jceks",
@@ -115,16 +130,6 @@
             "signMethod",
             "sign"
           ]
-        },
-        "circuit.breaker": {
-          "maxFailures": 5,
-          "maxRetries": 0,
-          "resetTimeout": 60000,
-          "timeout": 3000,
-          "metricsRollingWindow": 10000,
-          "notificationPeriod": 2000,
-          "notificationAddress": "vertx.circuit-breaker",
-          "registry": "vertx.circuit.breaker.registry"
         },
         "rate.limiter": {
           "user_limiter": {
