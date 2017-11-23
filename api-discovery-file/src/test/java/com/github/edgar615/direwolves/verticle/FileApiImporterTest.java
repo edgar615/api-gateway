@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.definition;
+package com.github.edgar615.direwolves.verticle;
 
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;

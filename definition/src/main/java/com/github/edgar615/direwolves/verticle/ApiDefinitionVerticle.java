@@ -28,30 +28,26 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
   }
 
   public void initialize(Future<Void> startFuture) {
-    //读取路由
-    Future<Void> importApiFuture = Future.future();
-    new ImportApi().initialize(vertx, config(), importApiFuture);
     //读取命令
-    Future<Void> importCmdFuture = Future.future();
-    new CmdRegister().initialize(vertx, config(), importCmdFuture);
+    new CmdRegister().initialize(vertx, config(), startFuture);
 
-    CompositeFuture.all(importApiFuture, importCmdFuture)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                Log.create(LOGGER)
-                        .setEvent("definition.deployed.succeeed")
-                        .addData("verticle", this.getClass())
-                        .info();
-                startFuture.complete();
-              } else {
-                Log.create(LOGGER)
-                        .setEvent("definition.deployed.failed")
-                        .addData("verticle", this.getClass())
-                        .setThrowable(ar.cause())
-                        .info();
-                startFuture.fail(ar.cause());
-              }
-            });
+//    CompositeFuture.all(importCmdFuture)
+//            .setHandler(ar -> {
+//              if (ar.succeeded()) {
+//                Log.create(LOGGER)
+//                        .setEvent("definition.deployed.succeeed")
+//                        .addData("verticle", this.getClass())
+//                        .info();
+//                startFuture.complete();
+//              } else {
+//                Log.create(LOGGER)
+//                        .setEvent("definition.deployed.failed")
+//                        .addData("verticle", this.getClass())
+//                        .setThrowable(ar.cause())
+//                        .info();
+//                startFuture.fail(ar.cause());
+//              }
+//            });
   }
 
 

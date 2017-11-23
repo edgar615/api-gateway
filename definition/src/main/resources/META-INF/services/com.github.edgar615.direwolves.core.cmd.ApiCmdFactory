@@ -2,5 +2,4 @@ com.github.edgar615.direwolves.cmd.AddApiCmdFactory
 com.github.edgar615.direwolves.cmd.DeleteApiCmdFactory
 com.github.edgar615.direwolves.cmd.GetApiCmdFactory
 com.github.edgar615.direwolves.cmd.ListApiCmdFactory
-com.github.edgar615.direwolves.cmd.ImportApiCmdFactory
 com.github.edgar615.direwolves.cmd.ApiPluginCmdFactory

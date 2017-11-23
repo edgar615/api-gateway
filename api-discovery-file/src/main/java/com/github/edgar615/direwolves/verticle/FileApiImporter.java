@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.definition;
+package com.github.edgar615.direwolves.verticle;
 
 import com.github.edgar615.direwolves.core.apidiscovery.ApiImporter;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiPublisher;
@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2017/3/30
  */
-public class FileApiImporter implements ApiImporter {
+class FileApiImporter implements ApiImporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileApiImporter.class);
 

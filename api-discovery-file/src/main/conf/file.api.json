@@ -1,0 +1,8 @@
+{
+  "api.discovery" : {
+    "name" : "iotp-app",
+    "publishedAddress" : "direwolves.api.published",
+    "unpublishedAddress" : "direwolves.api.unpublished"
+  },
+  "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
+}

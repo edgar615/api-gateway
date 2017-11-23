@@ -1,14 +1,3 @@
 {
-  "api.discovery" : {
-    "importer" : {
-      "iotp-app" : {
-        "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
-      },
-      "iotp-om" : {
-        "file" : "standalone/src/test/resources/router"
-      }
-    },
-    "publishedAddress" : "direwolves.api.published",
-    "unpublishedAddress" : "direwolves.api.unpublished"
-  }
+
 }

@@ -35,15 +35,19 @@
       "instances": 1,
       "worker": false,
       "config": {
-        "api.discovery": {
-          "importer": {
-            "example": {
-              "file": "standalone/src/test/resources/router/mgr"
-            }
-          },
-          "publishedAddress": "direwolves.api.published",
-          "unpublishedAddress": "direwolves.api.unpublished"
-        }
+      }
+    },
+    "FileApiDiscoveryVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle",
+      "instances": 1,
+      "worker": false,
+      "config": {
+        "api.discovery" : {
+          "name" : "iotp-app",
+          "publishedAddress" : "direwolves.api.published",
+          "unpublishedAddress" : "direwolves.api.unpublished"
+        },
+        "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
       }
     },
     "ApiDispatchVerticle": {
@@ -56,6 +60,11 @@
         "namespace": "example",
         "port": 9000,
         "bodyLimit": 1024,
+        "api.discovery" : {
+          "name" : "example",
+          "publishedAddress" : "direwolves.api.published",
+          "unpublishedAddress" : "direwolves.api.unpublished"
+        },
         "service.discovery": {
           "announceAddress": "vertx.discovery.announce",
           "usageAddress": "vertx.discovery.usage",

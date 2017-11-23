@@ -11,7 +11,8 @@ API网关,准备造的一个轮子
 - **JsonServiceDiscoveryVerticle** 从配置文件中读取服务，并注册到ServiceDiscovery
 - **ConsulServiceDiscoveryVerticle**  直接从Consul中读取服务，并注册到ServiceDiscovery
 - **ZookeeperServiceDiscoveryVerticle** 直接从Zookeeper中读取服务，并注册到ServiceDiscovery
-- **ApiDefinitionVerticle** 加载API定义
+- **ApiDefinitionVerticle** 提供对API在线操作的工具
+- **FileApiDiscoveryVerticle** 从文件中读取API定义
 - **RedisVerticle** 创建RedisClient
 - **ApiDispatchVerticle** rest服务
 
@@ -209,28 +210,37 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 - **retry.sleep**: 重试间隔，单位毫秒
 - **retry.times**: 重试次数
 
-## ApiDefinitionVerticle
-用于实现Api定义的读取和删除，目前仅支持在启动时从文件中读取API定义
+## FileApiDiscoveryVerticle
+在启动时从文件中读取API定义
 配置示例
 ```
 {
   "api.discovery" : {
-    "importer" : {
-      "iotp-app" : {
-        "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
-      },
-      "iotp-om" : {
-        "file" : "standalone/src/test/resources/router"
-      }
-    },
+    "name" : "iotp-app",
     "publishedAddress" : "direwolves.api.published",
     "unpublishedAddress" : "direwolves.api.unpublished"
-  }
+  },
+  "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
 }
 ```
-- **publishedAddress**: 发布一个API后的广播地址，实际广播地址为 <网关名称>.<publishedAddress>
-- **unpublishedAddress**: 删除一个API后的广播地址，实际广播地址为 <网关名称>.<unpublishedAddress>
-- **api.discovery**: API的发现策略，目前仅支持从文件读取，马上会修改为和服务发现类似的模式，所以暂时不对里面的配置做描述
+### file
+API定义存放的路径
+###  api.discovery
+API发现组件的配置属性
+- **publishedAddress**: 发布一个API后的广播地址
+- **unpublishedAddress**: 删除一个API后的广播地址
+- **name**: API发现模块的名称，api-discovery组件会使用这个名称在vert.x的共享数据中存储API信息。
+
+**对于在集群模式下的的网关，不同业务的网关name、publishedAddress、unpublishedAddress三个属性不能相同，不然会导致API定义错乱**
+
+## ApiDefinitionVerticle
+定义了一些在线修改API定义的接口。后面详细介绍
+配置示例
+```
+{
+
+}
+```
 
 ### RedisVerticle
 创建一个RedisClient。这个RedisClient是一个共享对象，同一个应用里直接可以用这个对象。

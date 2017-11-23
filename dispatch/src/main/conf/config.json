@@ -6,6 +6,11 @@
     "compressionLevel":6,
     "compressionSupported" : false
   },
+  "api.discovery" : {
+    "name" : "example",
+    "publishedAddress" : "direwolves.api.published",
+    "unpublishedAddress" : "direwolves.api.unpublished"
+  },
   "service.discovery" : {
     "announceAddress": "vertx.discovery.announce",
     "usageAddress" : "vertx.discovery.usage",

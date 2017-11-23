@@ -46,10 +46,9 @@ public class GrayFilter implements Filter {
 
   public GrayFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    String namespace = config.getString("namespace", "api-gateway");
+    JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions()
-                                                         .setName(namespace));
+                                                 new ApiDiscoveryOptions(dicoveryConfig));
     this.apiFinder = ApiFinder.create(vertx, discovery);
   }
 
