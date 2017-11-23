@@ -52,10 +52,8 @@
       ],
       "config": {
         "namespace": "example",
-        "http": {
-          "port": 9000,
-          "bodyLimit":  1024
-        },
+        "port": 9000,
+        "bodyLimit":  1024,
         "service.discovery": {
           "strategy": {
             "user": "random",

@@ -40,14 +40,10 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 
-    final JsonObject httpConfig = new JsonObject();
-    if (config().getValue("http") instanceof JsonObject) {
-      httpConfig.mergeIn(config().getJsonObject("http"));
-    }
     Router router = Router.router(vertx);
     BodyHandler bodyHandler = BodyHandler.create();
-    if (httpConfig.containsKey("bodyLimit")) {
-      bodyHandler.setBodyLimit(httpConfig.getLong("bodyLimit"));
+    if (config().containsKey("bodyLimit")) {
+      bodyHandler.setBodyLimit(config().getLong("bodyLimit"));
     }
     router.route().handler(bodyHandler);
     router.route().handler(BaseHandler.create());
@@ -57,23 +53,30 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     router.route().handler(dispatchHandler)
             .failureHandler(FailureHandler.create());
 
-    vertx.createHttpServer(new HttpServerOptions(httpConfig))
+    HttpServerOptions options;
+    if (config().getValue("http") instanceof JsonObject) {
+      options = new HttpServerOptions(config().getJsonObject("http"));
+    } else {
+      options = new HttpServerOptions();
+    }
+
+    vertx.createHttpServer(options)
             .requestHandler(router::accept)
-            .listen(httpConfig.getInteger("port", 8080), ar -> {
+            .listen(config().getInteger("port", 8080), ar -> {
               if (ar.succeeded()) {
                 Log.create(LOGGER)
                         .setEvent("dispatch.start.succeeded")
                         .addData("namespace", namespace)
-                        .addData("port", httpConfig.getInteger("port", 8080))
+                        .addData("port", config().getInteger("port", 8080))
                         .info();
                 LOGGER.info("---| [Diaptacher Start] [OK] [{}]",
-                            httpConfig.getInteger("port", 8080));
+                            config().getInteger("port", 8080));
                 startFuture.complete();
               } else {
                 Log.create(LOGGER)
                         .setEvent("dispatch.start.failed")
                         .addData("namespace", namespace)
-                        .addData("port", httpConfig.getInteger("port", 8080))
+                        .addData("port", config().getInteger("port", 8080))
                         .setThrowable(ar.cause())
                         .error();
                 startFuture.fail(ar.cause());

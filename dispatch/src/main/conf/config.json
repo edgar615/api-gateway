@@ -1,8 +1,8 @@
 {
   "namespace": "example",
+  "port": 9000,
+  "bodyLimit":  1024,
   "http": {
-    "port": 80,
-    "bodyLimit":  1024,
     "compressionLevel":6,
     "compressionSupported" : false
   },

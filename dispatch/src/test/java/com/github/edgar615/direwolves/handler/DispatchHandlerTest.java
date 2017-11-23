@@ -44,7 +44,7 @@ public class DispatchHandlerTest {
 
   private JsonObject config = new JsonObject()
           .put("namespace", namespace)
-          .put("http", new JsonObject().put("port", port));
+          .put("port", port);
 
   @Before
   public void setUp(TestContext testContext) {
