@@ -5,6 +5,11 @@
       "instances": 1,
       "worker": false,
       "config": {
+        "service.discovery" : {
+          "announceAddress": "vertx.discovery.announce",
+          "usageAddress" : "vertx.discovery.usage",
+          "name": "service-discovery"
+        },
         "zookeeper": {
           "connect": "localhost:2181",
           "path": "/micro-service"

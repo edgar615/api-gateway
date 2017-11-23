@@ -5,6 +5,11 @@
       "instances": 1,
       "worker": false,
       "config": {
+        "service.discovery": {
+          "announceAddress": "vertx.discovery.announce",
+          "usageAddress": "vertx.discovery.usage",
+          "name": "service-discovery"
+        },
         "services": {
           "user": [
             {
@@ -50,13 +55,13 @@
       "config": {
         "namespace": "example",
         "port": 9000,
-        "bodyLimit":  1024,
-        "service.discovery" : {
+        "bodyLimit": 1024,
+        "service.discovery": {
           "announceAddress": "vertx.discovery.announce",
-          "usageAddress" : "vertx.discovery.usage",
+          "usageAddress": "vertx.discovery.usage",
           "name": "service-discovery"
         },
-        "load.balance" : {
+        "load.balance": {
           "strategy": {
             "user": "random",
             "device": "round_robin"

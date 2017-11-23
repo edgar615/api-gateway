@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.ServiceDiscoveryOptions;
 import io.vertx.servicediscovery.spi.ServiceImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,13 @@ public class ZookeeperServiceDiscoveryVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
+    ServiceDiscoveryOptions options;
+    if (config().getValue("service.discovery") instanceof JsonObject) {
+      options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
+    } else {
+      options = new ServiceDiscoveryOptions();
+    }
+    ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
 
     LOGGER.info("deploy ZookeeperServiceDiscoveryVerticle succeeded");
     if (config().getValue("zookeeper") instanceof JsonObject) {

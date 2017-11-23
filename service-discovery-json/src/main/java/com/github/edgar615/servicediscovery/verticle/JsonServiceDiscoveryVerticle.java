@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.ServiceDiscoveryOptions;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,13 @@ public class JsonServiceDiscoveryVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
+    ServiceDiscoveryOptions options;
+    if (config().getValue("service.discovery") instanceof JsonObject) {
+      options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
+    } else {
+      options = new ServiceDiscoveryOptions();
+    }
+    ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
 
     LOGGER.info("deploy JsonServiceDiscoveryVerticle succeeded");
     if (config().getValue("services") instanceof JsonObject) {

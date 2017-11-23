@@ -1,4 +1,9 @@
 {
+  "service.discovery": {
+    "announceAddress": "vertx.discovery.announce",
+    "usageAddress": "vertx.discovery.usage",
+    "name": "service-discovery"
+  },
   "consul": {
     "host": "localhost",
     "port": 8500,

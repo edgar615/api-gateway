@@ -1,7 +1,12 @@
 {
+  "service.discovery": {
+    "announceAddress": "vertx.discovery.announce",
+    "usageAddress": "vertx.discovery.usage",
+    "name": "service-discovery"
+  },
   "zookeeper": {
-    "connect" : "localhost:2181",
-    "path" : "/micro-service",
+    "connect": "localhost:2181",
+    "path": "/micro-service",
     "retry.sleep": 1000,
     "retry.times": 3
   }
