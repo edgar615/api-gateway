@@ -1,5 +1,3 @@
-
-
 # direwolves
 API网关,准备造的一个轮子
 
@@ -7,17 +5,264 @@ API网关,准备造的一个轮子
 
 **文档很久没更新了**
 
+## Verticle
+目前定义了一些Verticle：
+
+- **JsonServiceDiscoveryVerticle** 从配置文件中读取服务，并注册到ServiceDiscovery
+- **ConsulServiceDiscoveryVerticle**  直接从Consul中读取服务，并注册到ServiceDiscovery
+- **ZookeeperServiceDiscoveryVerticle** 直接从Zookeeper中读取服务，并注册到ServiceDiscovery
+- **ApiDefinitionVerticle** 加载API定义
+- **RedisVerticle** 创建RedisClient
+- **ApiDispatchVerticle** rest服务
+
+其中XXXServiceDiscoveryVerticle、ApiDefinitionVerticle、ApiDispatchVerticle可以使用集群模式分开独立部署。也可以使用MainVerticle作为一个单节点应用部署
+
+### MainVerticle
+MainVerticle是我实现的一个工具类——用于启动有多个Verticle的Vert.x应用。这个工具类的灵感来自https://github.com/groupon/vertx-utils 。
+
+1.在打包时需要通过maven-jar-plugin指定JAR的`Main-Class`为`io.vertx.core.Launcher`，同时指定`Launcher`的`Main-Verticle`为`com.github.edgar615.util.vertx.deployment.MainVerticle`。PS:使用其他的打包工具也可以。下面是一个完整示例
+```
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-jar-plugin</artifactId>
+	<version>2.6</version>
+	<configuration>
+		<archive>
+			<manifest>
+				<addClasspath>true</addClasspath>
+				<classpathPrefix>lib/</classpathPrefix>
+				<mainClass>io.vertx.core.Launcher</mainClass>
+			</manifest>
+			<manifestEntries>
+				<Main-Verticle>com.github.edgar615.util.vertx.deployment.MainVerticle</Main-Verticle>
+			</manifestEntries>
+		</archive>
+	</configuration>
+</plugin>
+```
+2. 启动MainVerticle
+
+  java -jar XXX.jar --conf=config.json
+
+3. config.json的配置说明
+  一个简单的例子：
+```
+{
+  "verticles": {
+    "ApiDefinitionVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
+      "instances": 1,
+      "worker": false,
+      "config": {
+        
+      }
+    },
+    "ApiDispatchVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "instances": 1,
+      "worker": false,
+      "dependencies": [
+      ],
+      "config": {
+        
+      }
+    }
+  }
+}
+```
+verticles是config.json中必须包含的JSON对象，这个JSON对象的属性名就是需要启动的Verticle的名字。我们通过ApiDispatchVerticle来看下启动一个Verticle需要配置配置属性
+```
+    "ApiDispatchVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "instances": 1,
+      "worker": false,
+      "dependencies": [
+      ],
+      "config": {
+        
+      }
+    }
+  }
+```
+- **ApiDispatchVerticle** Verticle的名称，在其他Verticle需要依赖这个Verticle的时候会被用到
+- **class** Verticle的class名称，必填项
+- **instances** 需要启动的示例数，默认为1
+- **worker** 是否使用工作线程启动，默认为false
+- **dependencies** 依赖的Verticle，JSON数组，数组的元素就是需要依赖的Verticle名称。一旦配置了依赖关系，这个Verticle就会在依赖的Verticle全部启动完之后才启动
+- **config** Verticle的配置项
+
+一个依赖的例子：
+```
+{
+  "verticles": {
+    "RedisVerticle": {
+      "class": "com.github.edgar615.direwolves.redis.RedisVerticle",
+      "instances": 1,
+      "worker": false,
+      "config": {
+
+      }
+    },
+    "ApiDispatchVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "instances": 1,
+      "worker": false,
+      "dependencies": [
+        "RedisVerticle"
+      ],
+      "config": {
+        
+      }
+    }
+  }
+}
+```
+### JsonServiceDiscoveryVerticle 
+在一些很小的应用中，并不需要consul、zookeeper这种动态的服务注册和发现机制。未了满足这种需求，可以将服务的映射地址写在JsonServiceDiscoveryVerticle的配置文件，由JsonServiceDiscoveryVerticle启动时读取，并最终注册到ServiceDiscovery。
+配置示例：
+```
+{
+  "service.discovery": {
+    "announceAddress": "vertx.discovery.announce",
+    "usageAddress": "vertx.discovery.usage",
+    "name": "service-discovery"
+  },
+  "services": {
+    "user": [
+      {
+        "host": "192.168.0.100",
+        "port": 8080
+      },
+      {
+        "host": "192.168.0.101",
+        "port": 8080
+      }
+    ],
+    "device": [
+      {
+        "host": "192.168.0.100",
+        "port": 8081
+      }
+    ]
+  }
+}
+```
+#### service.discovery
+service.discovery配置是vert.x提供的service-discovery组件的配置，我们只需要关注三个属性即可
+- **announceAddress**: 服务注册和卸载之后的广播地址，默认为vertx.discovery.announce
+- **usageAddress**: 服务被使用后的广播地址，默认为vertx.discovery.usage
+- **name**: 服务发现模块的名称，service-discovery组件会使用这个名称在vert.x的共享数据中存储服务信息。
+
+在后面ApiDispatchVerticle的文档中我们还会发现同样的service.discovery配置，同一个网关的这个配置需要保持一致。否则会导致服务发现模块不能正常工作。
+#### services
+服务的地址映射。services是一个JSON对象，它的属性名就是各个服务的名称，属性值是一个保存了各个服务节点信息的JSON数组。目前节点信息仅使用了`host`和`port`两个属性，如果后面有增加的属性再补充
+### ConsulServiceDiscoveryVerticle
+使用consul作为服务发现的底层。通过vert.x提供的vertx-service-discovery-bridge-consul组件定时读取consul中的服务信息并刷新到service-discovery
+配置示例
+```
+{
+  "service.discovery": {
+    "announceAddress": "vertx.discovery.announce",
+    "usageAddress": "vertx.discovery.usage",
+    "name": "service-discovery"
+  },
+  "consul": {
+    "host": "localhost",
+    "port": 8500,
+    "scan-period": 2000
+  }
+}
+```
+#### service.discovery
+与JsonServiceDiscoveryVerticle相同
+#### consul
+保存了vertx-service-discovery-bridge-consul需要的配置信息
+- **host**: consul的地址
+- **port**: consul的端口
+- **scan-period**: 读取consul的时间间隔，单位毫秒
+
+### ZookeeperServiceDiscoveryVerticle
+使用zookeeper作为服务发现的底层。监听zookeeper中的服务信息的变化并刷新到service-discovery。
+在实现这个模块的时候vert.x官方提供的zookeeper组件还有些BUG(不清楚现在有没有修复)，所以是我参考consul自己实现的。**由于一些遗留项目的服务注册playload用的String，所以这里也是使用string来定义的playload，在未来会修改这个实现**
+配置示例
+```
+{
+  "service.discovery": {
+    "announceAddress": "vertx.discovery.announce",
+    "usageAddress": "vertx.discovery.usage",
+    "name": "service-discovery"
+  },
+  "zookeeper": {
+    "connect": "localhost:2181",
+    "path": "/micro-service",
+    "retry.sleep": 1000,
+    "retry.times": 3
+  }
+}
+```
+#### service.discovery
+与JsonServiceDiscoveryVerticle相同
+#### zookeeper
+保存了zookeeper需要的配置信息
+- **connect**: zookeeper的地址和断开
+- **path**: 服务注册的根路径
+- **retry.sleep**: 重试间隔，单位毫秒
+- **retry.times**: 重试次数
+
+## ApiDefinitionVerticle
+用于实现Api定义的读取和删除，目前仅支持在启动时从文件中读取API定义
+配置示例
+```
+{
+  "api.discovery" : {
+    "importer" : {
+      "iotp-app" : {
+        "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
+      },
+      "iotp-om" : {
+        "file" : "standalone/src/test/resources/router"
+      }
+    },
+    "publishedAddress" : "direwolves.api.published",
+    "unpublishedAddress" : "direwolves.api.unpublished"
+  }
+}
+```
+- **publishedAddress**: 发布一个API后的广播地址，实际广播地址为 <网关名称>.<publishedAddress>
+- **unpublishedAddress**: 删除一个API后的广播地址，实际广播地址为 <网关名称>.<unpublishedAddress>
+- **api.discovery**: API的发现策略，目前仅支持从文件读取，马上会修改为和服务发现类似的模式，所以暂时不对里面的配置做描述
+
+### RedisVerticle
+创建一个RedisClient。这个RedisClient是一个共享对象，同一个应用里直接可以用这个对象。
+配置示例:
+```
+{
+  "redis" : {
+    "host": "localhost",
+    "port": 6379,
+    "auth": ""
+  }
+}
+```
+#### redis
+redis属性用于定义RedisOptions中定义的属性
+- **host** redis的地址
+- **port** redis的端口
+- **auth** redis的密码
+
+### ApiDispatchVerticle
+网关对外提供的REST服务。这个Verticle是整个网关的核心部分。会在后面详细介绍。
+如果系统使用了redis作为缓存，那么ApiDispatchVerticle的依赖中需要加上RedisVerticle
+
+***************************************************************************
+**华丽的分割线**
+**下面的文字是很早零零散散写的，毕竟凌乱**
+***************************************************************************
 TODO:
 
 对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
 
-request size limit(全局和单独)：限制过大流量的请求
-
-request termination 中断请求，用来做后端接口的升级维护
-
 请求头校验
-
-基于JSON配置的服务注册
 
 API版本：在响应头中增加API的版本，如果有过期时间说明过期时间
 

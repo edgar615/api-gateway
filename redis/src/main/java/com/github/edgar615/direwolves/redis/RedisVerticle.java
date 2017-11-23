@@ -26,7 +26,7 @@ public class RedisVerticle extends AbstractVerticle {
             .info();
     JsonObject redisConfig = config().getJsonObject("redis", new JsonObject());
     RedisClient redisClient = RedisClientHelper.createShared(vertx, redisConfig);
-    redisClient.info(ar -> {
+    redisClient.ping(ar -> {
       if (ar.succeeded()) {
         Log.create(LOGGER)
                 .setModule("redis")
