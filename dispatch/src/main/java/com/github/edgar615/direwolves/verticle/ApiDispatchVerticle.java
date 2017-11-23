@@ -7,6 +7,8 @@ import com.github.edgar615.direwolves.dispatch.FailureHandler;
 import com.github.edgar615.util.log.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ResponseTimeHandler;
@@ -38,9 +40,16 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     //Diapatch
     DispatchHandler dispatchHandler = DispatchHandler.create(vertx, config());
 
+    final JsonObject httpConfig = new JsonObject();
+    if (config().getValue("http") instanceof JsonObject) {
+      httpConfig.mergeIn(config().getJsonObject("http"));
+    }
     Router router = Router.router(vertx);
-    router.route().handler(BodyHandler.create());
-
+    BodyHandler bodyHandler = BodyHandler.create();
+    if (httpConfig.containsKey("bodyLimit")) {
+      bodyHandler.setBodyLimit(httpConfig.getLong("bodyLimit"));
+    }
+    router.route().handler(bodyHandler);
     router.route().handler(BaseHandler.create());
     router.route().handler(ResponseTimeHandler.create());
 
@@ -48,23 +57,23 @@ public class ApiDispatchVerticle extends AbstractVerticle {
     router.route().handler(dispatchHandler)
             .failureHandler(FailureHandler.create());
 
-    vertx.createHttpServer()
+    vertx.createHttpServer(new HttpServerOptions(httpConfig))
             .requestHandler(router::accept)
-            .listen(config().getInteger("port", 8080), ar -> {
+            .listen(httpConfig.getInteger("port", 8080), ar -> {
               if (ar.succeeded()) {
                 Log.create(LOGGER)
                         .setEvent("dispatch.start.succeeded")
                         .addData("namespace", namespace)
-                        .addData("port", config().getInteger("port", 8080))
+                        .addData("port", httpConfig.getInteger("port", 8080))
                         .info();
                 LOGGER.info("---| [Diaptacher Start] [OK] [{}]",
-                            config().getInteger("port", 8080));
+                            httpConfig.getInteger("port", 8080));
                 startFuture.complete();
               } else {
                 Log.create(LOGGER)
                         .setEvent("dispatch.start.failed")
                         .addData("namespace", namespace)
-                        .addData("port", config().getInteger("port", 8080))
+                        .addData("port", httpConfig.getInteger("port", 8080))
                         .setThrowable(ar.cause())
                         .error();
                 startFuture.fail(ar.cause());

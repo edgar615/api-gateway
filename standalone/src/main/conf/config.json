@@ -51,9 +51,11 @@
         "RedisVerticle"
       ],
       "config": {
-        "port": 9000,
         "namespace": "example",
-        "cache": "local",
+        "http": {
+          "port": 9000,
+          "bodyLimit":  1024
+        },
         "service.discovery": {
           "strategy": {
             "user": "random",

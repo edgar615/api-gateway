@@ -1,7 +1,11 @@
 {
-  "port": 9000,
   "namespace": "example",
-  "cache": "local",
+  "http": {
+    "port": 80,
+    "bodyLimit":  1024,
+    "compressionLevel":6,
+    "compressionSupported" : false
+  },
   "service": {
     "discovery" : {
       "announceAddress": "vertx.discovery.announce",
