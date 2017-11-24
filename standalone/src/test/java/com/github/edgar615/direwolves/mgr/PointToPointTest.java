@@ -31,7 +31,6 @@ public class PointToPointTest {
               System.out.println(resp.headers().names());
               resp.bodyHandler(body -> System.out.println(body.toString()));
             })
-//            .putHeader("Authorization", "Bearer " + token)
             .setChunked(true)
             .end(data.encode());
     Awaitility.await().until(() -> check.get());

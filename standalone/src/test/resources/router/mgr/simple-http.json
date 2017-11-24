@@ -1,0 +1,14 @@
+{
+  "name": "test-health-check",
+  "method": "GET",
+  "path": "/test/health-check",
+  "endpoints": [
+    {
+      "name": "health",
+      "type": "simple-http",
+      "path": "/health-check",
+      "host" : "127.0.0.1",
+      "port" : 10000
+    }
+  ]
+}

@@ -211,7 +211,7 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 - **retry.sleep**: 重试间隔，单位毫秒
 - **retry.times**: 重试次数
 
-## FileApiDiscoveryVerticle
+### FileApiDiscoveryVerticle
 在启动时从文件中读取API定义
 配置示例
 ```
@@ -234,7 +234,7 @@ API发现组件的配置属性
 
 **对于在集群模式下的的网关，不同业务的网关name、publishedAddress、unpublishedAddress三个属性不能相同，不然会导致API定义错乱**
 
-## ApiDefinitionVerticle
+### ApiDefinitionVerticle
 定义了一些在线修改API定义的接口。后面详细介绍
 配置示例
 ```
@@ -266,7 +266,7 @@ redis属性用于定义RedisOptions中定义的属性
 如果系统使用了redis作为缓存，那么ApiDispatchVerticle的依赖中需要加上RedisVerticle
 
 ## API定义
-API采用JSON格式定义，除了最核心的转发功能外，还可以通过插件的形式扩展API，用来实现不同的目的，如鉴权、参数校验等。
+API采用JSON格式来定义上层接口与下游服务直接的转发规则。
 一个最简单的例子
 ```
 {
@@ -307,28 +307,64 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 ```
 **policy** 
 因为vert.x有三种类型的事件，所以我们也定义了三种不同的endpoint。通过policy区分pub-sub、point-point、req-resp。转发的事件内容都是HTTP请求的请求体，但是我们可以通过请求转换插件实现更多功能
-### pub-sub
+#### pub-sub
 使用publish向所有订阅方广播事件，它不需要关注是否存在订阅方或者订阅方有无收到消息。所以这个类型的请求每次都是成功。
 返回结果
 ```
 {"result":1}
 ```
 我们可以通过响应转换插件对响应结果做更多的操作。
-### point-point
+#### point-point
 使用send向一个订阅方发送事件，它也不需要关注是否存在订阅方或者订阅方有无收到消息。所以这个类型的请求每次都是成功。
 返回结果
 ```
 {"result":1}
 ```
-### req-resp
+#### req-resp
 使用send向一个订阅方发送事件，并等待回应。如果订阅方不存在，请求会返回失败。
 定义方不存在的结果
 ```
 {"message":"Service Unavailable","details":"No handlers","code":1016}
 ```
+### simple-http
+向下游服务发起REST请求的Endpoint，在每个endpoint里需要配置下游服务的IP和端口
+配置示例
+```
+{
+  "name": "health",
+  "type": "simple-http",
+  "path": "/health-check",
+  "host" : "127.0.0.1",
+  "port" : 10000
+}
+```
+- **path** 下游服务的接口地址
+- **host** 下游服务的IP
+- **port** 下游服务的端口
 
+### http
+使用服务发现机制，搜索下游服务，然后再向下游服务发起REST请求的Endpoint。这是我们在网关里最常用的一个Endpoint
+配置示例
+```
+{
+  "name": "devices",
+  "type": "http",
+  "path": "/health-check",
+  "service" : "device"
+}
+```
+- **path** 下游服务的接口地址
+- **service** 下游服务的服务名称
+**使用这个endpoint需要配合XXXServiceDiscoveryVerticle才能实现**
 
+## 扩展
+签名API定义章节已经描述了如何使用最核心的的转发功能，但是在实际业务中API网关还需要承载更多的功能，如鉴权、参数校验、限流等等，我们通过Plugin和Filter两个组件组合使用来实现各种不同的需求。Plugin和Filter组合起来才能发挥API网关的最大威力。
+### API路由匹配
+当API网关收到调用方的请求后，首先需要通过api-discovery模块根据请求方法和请求地址匹配到对应的API定义才能继续处理请求。如果没有找到对应的API定义，会直接返回404。
+我定义了两种API匹配方式：ApiFindFilter和GrayFilter
+### ApiFindFilter
 
+### GrayFilter
 
 ***************************************************************************
 **华丽的分割线**

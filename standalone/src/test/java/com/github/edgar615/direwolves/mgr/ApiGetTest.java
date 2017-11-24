@@ -27,7 +27,6 @@ public class ApiGetTest {
               System.out.println(resp.headers().names());
               resp.bodyHandler(body -> System.out.println(body.toString()));
             })
-//            .putHeader("Authorization", "Bearer " + token)
             .setChunked(true)
             .end();
     Awaitility.await().until(() -> check.get());

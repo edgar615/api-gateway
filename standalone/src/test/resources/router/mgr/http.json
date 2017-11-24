@@ -1,0 +1,13 @@
+{
+  "name": "device-health-check",
+  "method": "GET",
+  "path": "/device/health-check",
+  "endpoints": [
+    {
+      "name": "devices",
+      "type": "http",
+      "path": "/health-check",
+      "service" : "device"
+    }
+  ]
+}
