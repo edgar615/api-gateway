@@ -412,7 +412,8 @@ x-api-verson : 20171108
 
 ~~因为调用方的鉴权是在查找API之后进行的，所以无法实现基于用户的灰度规则，但是将来我们可以扩展基于用户IP、按比例放量的灰度规则~~
 ### 断路器
-
+## 缓存
+后续更新
 ## CMD
 后续更新
 ## Metric
@@ -504,21 +505,8 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 # Cache
 
-# 路由定义
-## Endpoint
-
-### SimpleHttpEndpoint
-
-### SdHttpEndpoint
-
 # API查找
-## Filter: ApiFindFilter
-根据请求地址，在API路由规则中寻找匹配的API。
-如果未找到对应的API，范围资源不存在的异常。
 
-- type PRE
-- order -2147482648
-  如果根据method和路径的正则匹配到多个API，返回数据冲突的错误
 # 路径参数（变量）
 ## Filter: PathParamFilter
 将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.
@@ -1072,86 +1060,6 @@ HTTP调用支持断路器模式，eventbus暂不支持
 - last_conn 最少连接数
 
 如果某个服务没有配置负载均衡策略，默认使用轮询
-
-# 服务发现
-
-vert.x的服务发现配置
-
-配置
-
-    "service.discovery": {
-      "announceAddress": "vertx.discovery.announce",
-      "usageAddress" : "vertx.discovery.usage"
-    }
-
-JsonServiceDiscoveryVerticle直接使用本地JSON配置
-
-      "services": {
-        "user": [
-          {
-            "host": "192.168.0.100",
-            "port": 8080
-          },
-          {
-            "host": "192.168.0.101",
-            "port": 8080
-          }
-        ],
-        "device": [
-          {
-            "host": "192.168.0.100",
-            "port": 8081
-          }
-        ]
-      }
-
-ZookeeperServiceDiscoveryVerticle读取zookeeper
-
-     "zookeeper": {
-       "connect" : "localhost:2181",
-       "path" : "/micro-service",
-       "retry.sleep": 1000,
-       "retry.times": 3
-     }
-
-ConsulServiceDiscoveryVerticle读取Consul
-
-      "consul": {
-        "host": "localhost",
-        "port": 8500,
-        "scan-period": 2000
-      }
-
-# API版本
-
-目前仅支持基于请求头的灰度发布方案
-
-调用方在请求头上加入
-
-x-api-verson : 版本号，使用日期格式 如20171108
-
-## VersionPlugin
-定义API版本的插件
-配置
-
-  "version": "20171108"
-
-注意：多版本共存是API的名称不能重复
-## HeaderGrayPlugin
-定义灰度发布的API
-配置
-
-  "gray": "floor" //floor：未匹配到用户请求的版本时匹配最低的版本，ceil：未匹配到用户请求的版本时匹配最高的版本
-
-需要使用灰度发布时，建议直接新定义一个只带灰度插件的API
-
-## Filter: GrayFilter
-根据灰度发布规则匹配合适的API，请求头中需要包括
-
-    x-api-version： api版本号
-
-- type PRE
-- order -2147482748
 
 # 度量指标
 启动时增加参数
