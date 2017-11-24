@@ -3,8 +3,6 @@ API网关,准备造的一个轮子
 
 使用Vert.x实现
 
-**文档很久没更新了**
-
 ## Verticle
 目前定义了一些Verticle：
 
@@ -74,7 +72,7 @@ MainVerticle是我实现的一个工具类——用于启动有多个Verticle的
 ```
 verticles是config.json中必须包含的JSON对象，这个JSON对象的属性名就是需要启动的Verticle的名字。我们通过ApiDispatchVerticle来看下启动一个Verticle需要配置配置属性
 ```
-    "ApiDispatchVerticle": {
+"ApiDispatchVerticle": {
       "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
@@ -185,7 +183,7 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 
 ### ZookeeperServiceDiscoveryVerticle
 使用zookeeper作为服务发现的底层。监听zookeeper中的服务信息的变化并刷新到service-discovery。
-在实现这个模块的时候vert.x官方提供的zookeeper组件还有些BUG(不清楚现在有没有修复)，所以是我参考consul自己实现的。**由于一些遗留项目的服务注册playload用的String，所以这里也是使用string来定义的playload，在未来会修改这个实现**
+在实现这个模块的时候vert.x官方提供的zookeeper组件还有些BUG(不清楚现在有没有修复)，所以这部分是我参考consul自己实现的。**由于公司一些遗留项目的服务注册playload用的String，这里也是使用string来定义的playload，在未来会修改这个实现**
 配置示例
 ```
 {
@@ -235,8 +233,8 @@ API发现组件的配置属性
 **对于在集群模式下的的网关，不同业务的网关name、publishedAddress、unpublishedAddress三个属性不能相同，不然会导致API定义错乱**
 
 ### ApiDefinitionVerticle
-定义了一些在线修改API定义的接口。后面详细介绍
-配置示例
+定义了一些在线修改API定义的接口。后面详细
+配置示例（暂时未定义配置）
 ```
 {
 
@@ -291,7 +289,7 @@ API采用JSON格式来定义上层接口与下游服务直接的转发规则。
 ### dummy
 Dummy类型的Endpoint是最简单的endpoint，它不向下游服务转发请求，而是直接使用result作为返回。使用dummy，我们可以实现简单的ping-pong的健康检查功能。
 dummy类型的endpoint只有三个属性
-- **typee** dummy
+- **type** dummy
 - **name** endpoint的名称，所有的endpoint都必须有名称，后面有一些插件需要依赖于这个名称实现。这个名称可以随意定义，只要在同一个API定义中唯一就可以。
 - **result** dummy需要返回的JSON对象。目前不支持JSON数组
 ### eventbus
@@ -322,12 +320,12 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 ```
 #### req-resp
 使用send向一个订阅方发送事件，并等待回应。如果订阅方不存在，请求会返回失败。
-定义方不存在的结果
+订阅方不存在的结果
 ```
 {"message":"Service Unavailable","details":"No handlers","code":1016}
 ```
 ### simple-http
-向下游服务发起REST请求的Endpoint，在每个endpoint里需要配置下游服务的IP和端口
+向下游服务发起REST请求的Endpoint，在每个endpoint里需要配置下游服务的IP和端口。
 配置示例
 ```
 {
@@ -343,7 +341,7 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 - **port** 下游服务的端口
 
 ### http
-使用服务发现机制，搜索下游服务，然后再向下游服务发起REST请求的Endpoint。这是我们在网关里最常用的一个Endpoint
+使用服务发现机制，搜索下游服务，然后再向下游服务发起REST请求的Endpoint。这是我们在网关里最常用的一个Endpoint。
 配置示例
 ```
 {
@@ -358,7 +356,7 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 **使用这个endpoint需要配合XXXServiceDiscoveryVerticle才能实现**
 
 ## 扩展
-签名API定义章节已经描述了如何使用最核心的的转发功能，但是在实际业务中API网关还需要承载更多的功能，如鉴权、参数校验、限流等等，我们通过Plugin和Filter两个组件组合使用来实现各种不同的需求。Plugin和Filter组合起来才能发挥API网关的最大威力。
+前面API定义章节已经描述了如何使用最核心的的转发功能，但是在实际业务中API网关还需要承载更多的功能，如鉴权、参数校验、限流等等，我们通过Plugin和Filter两个组件组合使用来实现各种不同的需求。Plugin和Filter组合起来才能发挥API网关的最大威力。
 ### API路由匹配
 当API网关收到调用方的请求后，首先需要通过api-discovery模块根据请求方法和请求地址匹配到对应的API定义才能继续处理请求。如果没有找到对应的API定义，会直接返回404。
 我定义了两种API匹配方式：ApiFindFilter和GrayFilter
