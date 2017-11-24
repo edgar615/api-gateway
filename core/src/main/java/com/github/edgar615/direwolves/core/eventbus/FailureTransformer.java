@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.core.eventbus;
 
+import com.github.edgar615.util.exception.CustomErrorCode;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.ErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -47,11 +48,13 @@ public class FailureTransformer implements Function<Throwable, SystemException> 
       } else if (replyException.failureType() == ReplyFailure.RECIPIENT_FAILURE) {
         ErrorCode errorCode = DefaultErrorCode.getCode(replyException.failureCode());
         if (errorCode == null) {
-          errorCode = EventbusErrorCode.create(replyException.failureCode(), replyException.getMessage());
+          errorCode = CustomErrorCode.create(replyException.failureCode(), replyException
+                  .getMessage(), 400);
         }
         return SystemException.create(errorCode);
       } else {
-        ErrorCode errorCode = EventbusErrorCode.create(replyException.failureCode(), replyException.getMessage());
+        ErrorCode errorCode = CustomErrorCode.create(replyException.failureCode(), replyException
+                .getMessage(),400);
         return SystemException.create(errorCode);
       }
     } else {

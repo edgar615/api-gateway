@@ -3,11 +3,11 @@ package com.github.edgar615.direwolves.core.rpc.eventbus;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.definition.EventbusEndpoint;
-import com.github.edgar615.direwolves.core.eventbus.EventbusErrorCode;
 import com.github.edgar615.direwolves.core.rpc.RpcHandler;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.RpcResponse;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
+import com.github.edgar615.util.exception.CustomErrorCode;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.ErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -18,6 +18,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.ReplyFailure;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,18 +74,12 @@ public class EventbusRpcHandler implements RpcHandler {
 
   private void pubsub(JsonObject message, DeliveryOptions options, Future<RpcResponse> completed) {
 
-    vertx.eventBus().send(options.getHeaders().get("x-request-address"), message, options);
+    vertx.eventBus().publish(options.getHeaders().get("x-request-address"), message, options);
     JsonObject result = new JsonObject()
             .put("result", 1);
 
-    Log.create(LOGGER)
-            .setTraceId(options.getHeaders().get("x-request-id"))
-            .setLogType(LogType.CER)
-            .setEvent("EVENTBUS.pub-sub")
-            .setMessage(" [{}ms] [{} bytes]")
-            .addArg(0)
-            .addArg(result.encode().getBytes().length)
-            .info();
+    String id = options.getHeaders().get("x-request-id");
+    logSuccess("pub-sub", id, 0, result.encode().getBytes().length);
     completed.complete(
             RpcResponse.createJsonObject(options.getHeaders().get("x-request-id"), 200, result, 0));
   }
@@ -122,14 +117,8 @@ public class EventbusRpcHandler implements RpcHandler {
     JsonObject result = new JsonObject()
             .put("result", 1);
 
-    Log.create(LOGGER)
-            .setTraceId(options.getHeaders().get("x-request-id"))
-            .setLogType(LogType.CER)
-            .setEvent("EVENTBUS.point-point")
-            .setMessage(" [{}ms] [{} bytes]")
-            .addArg(0)
-            .addArg(result.encode().getBytes().length)
-            .info();
+    String id = options.getHeaders().get("x-request-id");
+    logSuccess("point-point", id, 0, result.encode().getBytes().length);
     completed.complete(
             RpcResponse.createJsonObject(options.getHeaders().get("x-request-id"), 200, result, 0));
   }
@@ -140,59 +129,69 @@ public class EventbusRpcHandler implements RpcHandler {
     final String address = options.getHeaders().get("x-request-address");
     vertx.eventBus().<JsonObject>send(address, message, options, ar -> {
       long elapsedTime = System.currentTimeMillis() - srated;
+      int bytes = 0;
       if (ar.succeeded()) {
-        if (!(ar.result().body() instanceof JsonObject)) {
-          completed.fail(SystemException.create(DefaultErrorCode.INVALID_TYPE)
-                                 .set("details", "expected:JsonObject"));
-          return;
-        }
-        JsonObject response = ar.result().body();
-
-        int bytes;
-        if (ar.result() == null) {
-          bytes = 0;
+        Object result = ar.result().body();
+        if (result instanceof JsonObject) {
+          bytes = result.toString().getBytes().length;
+          logSuccess("req-resp", id, elapsedTime, bytes);
+          completed.complete(
+                  RpcResponse.createJsonObject(id, 200, (JsonObject) result, elapsedTime));
+        } else if (result instanceof JsonArray) {
+          bytes = result.toString().getBytes().length;
+          logSuccess("req-resp", id, elapsedTime, bytes);
+          completed.complete(
+                  RpcResponse.createJsonArray(id, 200, (JsonArray) result, elapsedTime));
         } else {
-          bytes = ar.result().toString().getBytes().length;
-        }
-        Log.create(LOGGER)
-                .setTraceId(id)
-                .setLogType(LogType.CER)
-                .setEvent("EVENTBUS.req-resp")
-                .setMessage(" [{}ms] [{} bytes]")
-                .addArg(elapsedTime)
-                .addArg(bytes)
-                .info();
-        if (ar.result().body() == null) {
-          completed.fail(new NullPointerException("result is null"));
+          logError("req-resp", id, SystemException.create(DefaultErrorCode.INVALID_JSON));
+          completed.fail(SystemException.create(DefaultErrorCode.INVALID_JSON));
           return;
         }
-        completed.complete(
-                RpcResponse.createJsonObject(id, 200, response, elapsedTime));
       } else {
-        Log.create(LOGGER)
-                .setTraceId(id)
-                .setLogType(LogType.CER)
-                .setEvent("EVENTBUS.req-resp")
-                .setThrowable(ar.cause())
-                .error();
-
-        if (ar.cause() instanceof ReplyException) {
-          ReplyException ex = (ReplyException) ar.cause();
-          if (ex.failureType() == ReplyFailure.NO_HANDLERS) {
-            SystemException resourceNotFoundEx =
-                    SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                            .set("details", "No handlers: " + address);
-            completed.fail(resourceNotFoundEx);
-          } else {
-            ErrorCode errorCode = EventbusErrorCode.create(ex.failureCode(), ex.getMessage());
-            SystemException systemException
-                    = SystemException.create(errorCode);
-            completed.fail(systemException);
-          }
-        } else {
-          completed.fail(ar.cause());
-        }
+        logError("req-resp", id, SystemException.create(DefaultErrorCode.INVALID_JSON));
+        failed(completed, ar.cause());
       }
     });
+  }
+
+  private void logSuccess(String type, String id, long elapsedTime, int bytes) {
+    Log.create(LOGGER)
+            .setTraceId(id)
+            .setLogType(LogType.CER)
+            .setEvent("EVENTBUS." + type)
+            .setMessage(" [{}ms] [{} bytes]")
+            .addArg(elapsedTime)
+            .addArg(bytes)
+            .info();
+  }
+
+  private void logError(String type, String id, Throwable throwable) {
+    Log.create(LOGGER)
+            .setTraceId(id)
+            .setLogType(LogType.CER)
+            .setEvent("EVENTBUS." + type)
+            .setThrowable(throwable)
+            .error();
+  }
+
+
+  private void failed(Future<RpcResponse> completed,
+                      Throwable throwable) {
+    if (throwable instanceof ReplyException) {
+      ReplyException ex = (ReplyException) throwable;
+      if (ex.failureType() == ReplyFailure.NO_HANDLERS) {
+        SystemException resourceNotFoundEx =
+                SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
+                        .set("details", "No handlers");
+        completed.fail(resourceNotFoundEx);
+      } else {
+        ErrorCode errorCode = CustomErrorCode.create(ex.failureCode(), ex.getMessage(), 400);
+        SystemException systemException
+                = SystemException.create(errorCode);
+        completed.fail(systemException);
+      }
+    } else {
+      completed.fail(throwable);
+    }
   }
 }

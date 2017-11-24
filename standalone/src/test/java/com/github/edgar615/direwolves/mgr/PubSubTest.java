@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/2/7
  */
 @RunWith(VertxUnitRunner.class)
-public class DummyTest {
+public class PubSubTest {
 
   @Test
   public void testOk(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost", "/ping")
+    Vertx.vertx().createHttpClient().get(9000, "localhost", "/user/keepalive")
             .handler(resp -> {
               check.set(true);
               System.out.println(resp.statusCode());

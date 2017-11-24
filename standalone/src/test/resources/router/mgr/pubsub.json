@@ -1,0 +1,13 @@
+{
+  "name": "pub-sub",
+  "method": "GET",
+  "path": "/user/keepalive",
+  "endpoints": [
+    {
+      "name": "pub",
+      "type": "eventbus",
+      "policy" : "pub-sub",
+      "address" : "event.user.keepalive"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "point-point",
+  "method": "POST",
+  "path": "/user/location",
+  "endpoints": [
+    {
+      "name": "location",
+      "type": "eventbus",
+      "policy" : "point-point",
+      "address" : "event.user.location"
+    }
+  ]
+}

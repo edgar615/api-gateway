@@ -1,6 +1,7 @@
 package com.github.edgar615.direwolves.mgr;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.awaitility.Awaitility;
@@ -15,12 +16,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/2/7
  */
 @RunWith(VertxUnitRunner.class)
-public class DummyTest {
+public class ReqRespNoAddressTest {
 
   @Test
   public void testOk(TestContext testContext) {
     AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost", "/ping")
+    JsonObject data = new JsonObject()
+            .put("username", "1")
+            .put("password", "2");
+    Vertx.vertx().createHttpClient().post(9000, "localhost", "/user/login-error")
             .handler(resp -> {
               check.set(true);
               System.out.println(resp.statusCode());
@@ -29,7 +33,7 @@ public class DummyTest {
             })
 //            .putHeader("Authorization", "Bearer " + token)
             .setChunked(true)
-            .end();
+            .end(data.encode());
     Awaitility.await().until(() -> check.get());
   }
 

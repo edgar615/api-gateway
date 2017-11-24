@@ -12,7 +12,7 @@
     <artifactId>api-discovery-file</artifactId>
 
     <properties>
-        <main.verticle>com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle</main.verticle>
+        <main.verticle>com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle</main.verticle>
     </properties>
 
     <dependencies>

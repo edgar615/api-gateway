@@ -8,6 +8,7 @@ API网关,准备造的一个轮子
 ## Verticle
 目前定义了一些Verticle：
 
+- **MainVerticle** 启动多个Verticle的工具类
 - **JsonServiceDiscoveryVerticle** 从配置文件中读取服务，并注册到ServiceDiscovery
 - **ConsulServiceDiscoveryVerticle**  直接从Consul中读取服务，并注册到ServiceDiscovery
 - **ZookeeperServiceDiscoveryVerticle** 直接从Zookeeper中读取服务，并注册到ServiceDiscovery
@@ -220,10 +221,10 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
     "publishedAddress" : "direwolves.api.published",
     "unpublishedAddress" : "direwolves.api.unpublished"
   },
-  "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
+  "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
 }
 ```
-### file
+### path
 API定义存放的路径
 ###  api.discovery
 API发现组件的配置属性
@@ -264,9 +265,74 @@ redis属性用于定义RedisOptions中定义的属性
 网关对外提供的REST服务。这个Verticle是整个网关的核心部分。会在后面详细介绍。
 如果系统使用了redis作为缓存，那么ApiDispatchVerticle的依赖中需要加上RedisVerticle
 
+## API定义
+API采用JSON格式定义，除了最核心的转发功能外，还可以通过插件的形式扩展API，用来实现不同的目的，如鉴权、参数校验等。
+一个最简单的例子
+```
+{
+  "name": "ping",
+  "method": "GET",
+  "path": "/ping",
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+      }
+    }
+  ]
+}
+```
+- **name** API的名称，在同一个网关里，这个名称必须唯一。相同的名称会被覆盖
+- **method** API的HTTP方法，仅支持GET、POST、PUT、DELETE
+- **path** API的地址，支持正则表达式匹配，但是不支持ant格式的匹配
+- **endpoints** 下游服务的转发规则定义，JSON数字，一个API可以向多个下游服务转发。**考虑到分布式事务问题，建议只有GET请求才可以向多个下游服务转发**。为了满足不同的转发规则，我们定义了几个不同类型的Endpoint，稍后会详细介绍。
+**所有的下游服务的响应内容均要求是JSON格式**
+### dummy
+Dummy类型的Endpoint是最简单的endpoint，它不向下游服务转发请求，而是直接使用result作为返回。使用dummy，我们可以实现简单的ping-pong的健康检查功能。
+dummy类型的endpoint只有三个属性
+- **typee** dummy
+- **name** endpoint的名称，所有的endpoint都必须有名称，后面有一些插件需要依赖于这个名称实现。这个名称可以随意定义，只要在同一个API定义中唯一就可以。
+- **result** dummy需要返回的JSON对象。目前不支持JSON数组
+### eventbus
+eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
+配置示例：
+```
+{
+  "name": "pub",
+  "type": "eventbus",
+  "policy" : "pub-sub",
+  "address" : "event.user.keepalive"
+}
+```
+**policy** 
+因为vert.x有三种类型的事件，所以我们也定义了三种不同的endpoint。通过policy区分pub-sub、point-point、req-resp。转发的事件内容都是HTTP请求的请求体，但是我们可以通过请求转换插件实现更多功能
+### pub-sub
+使用publish向所有订阅方广播事件，它不需要关注是否存在订阅方或者订阅方有无收到消息。所以这个类型的请求每次都是成功。
+返回结果
+```
+{"result":1}
+```
+我们可以通过响应转换插件对响应结果做更多的操作。
+### point-point
+使用send向一个订阅方发送事件，它也不需要关注是否存在订阅方或者订阅方有无收到消息。所以这个类型的请求每次都是成功。
+返回结果
+```
+{"result":1}
+```
+### req-resp
+使用send向一个订阅方发送事件，并等待回应。如果订阅方不存在，请求会返回失败。
+定义方不存在的结果
+```
+{"message":"Service Unavailable","details":"No handlers","code":1016}
+```
+
+
+
+
 ***************************************************************************
 **华丽的分割线**
-**下面的文字是很早零零散散写的，毕竟凌乱**
+**下面的文字是很早零零散散写的，比较凌乱**
 ***************************************************************************
 TODO:
 
@@ -360,7 +426,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 - type PRE
 - order -2147482648
-
+如果根据method和路径的正则匹配到多个API，返回数据冲突的错误
 # 路径参数（变量）
 ## Filter: PathParamFilter
 将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.

@@ -1,5 +1,12 @@
 {
   "verticles": {
+    "EventbusTestVerticle": {
+      "class": "com.github.edgar615.direwolves.standalone.TestVerticle",
+      "instances": 1,
+      "worker": false,
+      "config": {
+      }
+    },
     "JsonServiceDiscoveryVerticle": {
       "class": "com.github.edgar615.servicediscovery.verticle.JsonServiceDiscoveryVerticle",
       "instances": 1,
@@ -43,11 +50,11 @@
       "worker": false,
       "config": {
         "api.discovery" : {
-          "name" : "iotp-app",
+          "name" : "example",
           "publishedAddress" : "direwolves.api.published",
           "unpublishedAddress" : "direwolves.api.unpublished"
         },
-        "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
+        "path" : "H:/dev/workspace/direwolves/standalone/src/test/resources/router/mgr"
       }
     },
     "ApiDispatchVerticle": {
@@ -104,7 +111,7 @@
           "enable": false
         },
         "strict.arg": {
-          "enable": true,
+          "enable": false,
           "query.excludes": [
             "appKey",
             "sign",
