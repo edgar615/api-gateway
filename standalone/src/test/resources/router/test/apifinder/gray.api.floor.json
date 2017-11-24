@@ -1,0 +1,14 @@
+{
+  "name": "gray.api.floor",
+  "method": "GET",
+  "path": "/gray",
+  "gray.header" : "floor",
+  "endpoints": [
+    {
+      "name": "gray",
+      "type": "dummy",
+      "result" : {
+      }
+    }
+  ]
+}

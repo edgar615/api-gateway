@@ -54,7 +54,7 @@
           "publishedAddress" : "direwolves.api.published",
           "unpublishedAddress" : "direwolves.api.unpublished"
         },
-        "path" : "H:/dev/workspace/direwolves/standalone/src/test/resources/router/mgr"
+        "path" : "H:/dev/workspace/direwolves/standalone/src/test/resources/router"
       }
     },
     "ApiDispatchVerticle": {

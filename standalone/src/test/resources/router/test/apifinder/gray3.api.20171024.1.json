@@ -1,0 +1,15 @@
+{
+  "name": "gray3.api.20171024",
+  "method": "GET",
+  "path": "/gray3",
+  "version" : "20171024",
+  "endpoints": [
+    {
+      "name": "gray",
+      "type": "dummy",
+      "result" : {
+        "version" : "20171124"
+      }
+    }
+  ]
+}

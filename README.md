@@ -366,11 +366,13 @@ Filter分为两种PRE和POST
 ### API路由匹配
 当API网关收到调用方的请求后，首先需要通过api-discovery模块根据请求方法和请求地址匹配到对应的API定义才能继续处理请求。如果没有找到对应的API定义，会直接返回404。
 我定义了两种API匹配方式：ApiFindFilter和GrayFilter
-#### ApiFindFilter
-默认使用的API查找， 如果未找到对应的API，返回404（资源不存在），如果根据正则匹配到多个API，返回500（数据冲突）。
+#### Filter: ApiFindFilter
+默认使用的API查找。如果未找到对应的API，返回404（资源不存在），如果根据正则匹配到多个API，返回500（数据冲突）。
 
 - **type** PRE
 - **order** -2147482648 
+
+**前置条件**：上下文中不存在API
 
 **灰度发布**
 随着业务的不断发展，需求变更，接口迭代越来越频繁，为了降低全线升级引起的潜在危害，我们一般会采用灰度升级的方案，将部分请求转发到新接口上，然后再根据用户的反馈及时完善相关功能。
@@ -384,7 +386,7 @@ x-api-verson : 20171108
 ```
 2. 不同版本的API使用VersionPlugin定义版本
 3. 定义一个带有HeaderGrayPlugin插件的API。（可以重新定义一个新的API，也可以在原有的API上定义，推荐前者）
-#### VersionPlugin
+#### Plugin: VersionPlugin
 用于定义API版本的插件，建议直接用日期来表示版本（GrayFilter并没有实现复杂的版本比较）
 配置
 ```
@@ -393,7 +395,7 @@ x-api-verson : 20171108
 - **version**，对应版本号，使用日期格式。
 
 **注意：多版本共存是API的名称不能重复**
-#### HeaderGrayPlugin
+#### Plugin: HeaderGrayPlugin
 用来声明基于请求头的灰度发布规则
 配置
 ```
@@ -402,11 +404,13 @@ x-api-verson : 20171108
 **gray.header**用来指明在未匹配到`x-api-version`声明的版本时时，采用哪种方式匹配API。
 - **floor** 匹配最低的版本
 - **ceil** 匹配最高的版本
-#### HeaderGrayFilter
+#### Filter: HeaderGrayFilter
 如果请求头中带有`x-api-version`则执行这个Filter。 如果未找到合适的API，返回404（资源不存在），如果匹配到多个API，返回500（数据冲突）。
 
 - **type** PRE
 - **order** -2147482748
+
+**前置条件**：上下文中不存在API
 
 在引入了plugin-gray包之后GrayFilter会在ApiFindFilter之前执行，如果通过GrayFilter找到了合适的API，那么ApiFindFilter不会再执行。
 
@@ -416,12 +420,20 @@ x-api-verson : 20171108
 参数名为param0  0表示匹配的第0个字符串，从0开始计算；参数值为正则表达式在请求路径中的值.
 所有的参数名将保存在上下文变量中，可以通过$var.param0变量来获得
 
-- type PRE
-- order -2147481648
+- **type** PRE
+- **order** -2147481648
+
+**前置条件**：所有请求都会执行
 
 示例：
-
-    API定义的路径为/devices/([\d+]+)，请求的路径为/devices/1，那么对应的参数名为param0，参数值为1
+```
+"path": "/regex/([\\d+]+)/test/([\\w+]+)",
+```
+用户请求 `/regex/95624/test/hlu6duKrlM`经过`PathParamFilter`解析之后会在上下文中保存两个变量
+```
+$var.param0:"95624"
+$var.param1:"hlu6duKrlM"}
+```
     
 ### 断路器
 ## 缓存

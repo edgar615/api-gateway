@@ -1,0 +1,15 @@
+{
+  "name": "gray2.api.floor",
+  "method": "GET",
+  "path": "/gray2",
+  "version" : "20171024",
+  "endpoints": [
+    {
+      "name": "gray",
+      "type": "dummy",
+      "result" : {
+        "version" : "20171024"
+      }
+    }
+  ]
+}

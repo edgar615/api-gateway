@@ -1,0 +1,19 @@
+{
+  "name": "regex.test",
+  "method": "GET",
+  "path": "/regex/([\\d+]+)/test/([\\w+]+)",
+  "endpoints": [
+    {
+      "name": "regex",
+      "type": "dummy",
+      "result": {
+      }
+    }
+  ],
+  "response.transformer": {
+    "body.add": [
+      "param0:$var.param0",
+      "param1:$var.param1"
+    ]
+  }
+}
