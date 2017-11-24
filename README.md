@@ -372,7 +372,7 @@ Filter分为两种PRE和POST
 - **type** PRE
 - **order** -2147482648 
 
-#### GrayFilter
+**灰度发布**
 随着业务的不断发展，需求变更，接口迭代越来越频繁，为了降低全线升级引起的潜在危害，我们一般会采用灰度升级的方案，将部分请求转发到新接口上，然后再根据用户的反馈及时完善相关功能。
 我们可以在两个地方来实现灰度升级的需求：
 1. 在Nginx层做灰度规则判断，
@@ -399,10 +399,10 @@ x-api-verson : 20171108
 ```
 "gray.header": "floor" 
 ```
-**gray.header**用来指明在未匹配到`x-api-version`时，采用哪种方式匹配API。
+**gray.header**用来指明在未匹配到`x-api-version`声明的版本时时，采用哪种方式匹配API。
 - **floor** 匹配最低的版本
 - **ceil** 匹配最高的版本
-#### GrayFilter
+#### HeaderGrayFilter
 如果请求头中带有`x-api-version`则执行这个Filter。 如果未找到合适的API，返回404（资源不存在），如果匹配到多个API，返回500（数据冲突）。
 
 - **type** PRE
@@ -411,6 +411,18 @@ x-api-verson : 20171108
 在引入了plugin-gray包之后GrayFilter会在ApiFindFilter之前执行，如果通过GrayFilter找到了合适的API，那么ApiFindFilter不会再执行。
 
 ~~因为调用方的鉴权是在查找API之后进行的，所以无法实现基于用户的灰度规则，但是将来我们可以扩展基于用户IP、按比例放量的灰度规则~~
+#### Filter: PathParamFilter
+将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.
+参数名为param0  0表示匹配的第0个字符串，从0开始计算；参数值为正则表达式在请求路径中的值.
+所有的参数名将保存在上下文变量中，可以通过$var.param0变量来获得
+
+- type PRE
+- order -2147481648
+
+示例：
+
+    API定义的路径为/devices/([\d+]+)，请求的路径为/devices/1，那么对应的参数名为param0，参数值为1
+    
 ### 断路器
 ## 缓存
 后续更新
@@ -507,18 +519,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 # API查找
 
-# 路径参数（变量）
-## Filter: PathParamFilter
-将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.
-参数名为param0  0表示第几个正则表达式，从0开始计算；参数值为正则表达式在请求路径中的值.
-所有的参数名将保存在上下文变量中，可以通过$var.param0变量来获得
 
-- type PRE
-- order -2147481648
-
-示例：
-
-    API定义的路径为/devices/([\d+]+)，请求的路径为/devices/1，那么对应的参数名为param0，参数值为1
 
 # IP限制
 ## Plugin: IpRestriction

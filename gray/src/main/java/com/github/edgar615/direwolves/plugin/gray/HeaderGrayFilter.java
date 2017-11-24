@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
  * 该filter的order=-2147484548, int的最小值
  * Created by edgar on 17-1-4.
  */
-public class GrayFilter implements Filter {
+public class HeaderGrayFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GrayFilter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HeaderGrayFilter.class);
 
   private static final String HEADER_NAME = "x-api-version";
 
@@ -44,7 +44,7 @@ public class GrayFilter implements Filter {
 
   private final ApiFinder apiFinder;
 
-  public GrayFilter(Vertx vertx, JsonObject config) {
+  public HeaderGrayFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
     ApiDiscovery discovery = ApiDiscovery.create(vertx,

@@ -10,14 +10,14 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/11/8
  */
-public class GrayFilterFactory implements FilterFactory {
+public class HeaderGrayFilterFactory implements FilterFactory {
   @Override
   public String name() {
-    return GrayFilter.class.getSimpleName();
+    return HeaderGrayFilter.class.getSimpleName();
   }
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new GrayFilter(vertx, config);
+    return new HeaderGrayFilter(vertx, config);
   }
 }
