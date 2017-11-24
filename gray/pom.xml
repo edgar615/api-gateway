@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>direwolves-gray</artifactId>
+    <artifactId>plugin-gray</artifactId>
 
     <dependencies>
         <dependency>

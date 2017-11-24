@@ -285,7 +285,7 @@ API采用JSON格式来定义上层接口与下游服务直接的转发规则。
 - **method** API的HTTP方法，仅支持GET、POST、PUT、DELETE
 - **path** API的地址，支持正则表达式匹配，但是不支持ant格式的匹配
 - **endpoints** 下游服务的转发规则定义，JSON数字，一个API可以向多个下游服务转发。**考虑到分布式事务问题，建议只有GET请求才可以向多个下游服务转发**。为了满足不同的转发规则，我们定义了几个不同类型的Endpoint，稍后会详细介绍。
-**所有的下游服务的响应内容均要求是JSON格式**
+  **所有的下游服务的响应内容均要求是JSON格式**
 ### dummy
 Dummy类型的Endpoint是最简单的endpoint，它不向下游服务转发请求，而是直接使用result作为返回。使用dummy，我们可以实现简单的ping-pong的健康检查功能。
 dummy类型的endpoint只有三个属性
@@ -353,16 +353,74 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 ```
 - **path** 下游服务的接口地址
 - **service** 下游服务的服务名称
-**使用这个endpoint需要配合XXXServiceDiscoveryVerticle才能实现**
+  **使用这个endpoint需要配合XXXServiceDiscoveryVerticle才能实现**
 
 ## 扩展
 前面API定义章节已经描述了如何使用最核心的的转发功能，但是在实际业务中API网关还需要承载更多的功能，如鉴权、参数校验、限流等等，我们通过Plugin和Filter两个组件组合使用来实现各种不同的需求。Plugin和Filter组合起来才能发挥API网关的最大威力。
+Filter分为两种PRE和POST
+- PRE 在向下游服务转发请求前执行
+- POST 在收到下游服务响应后执行
+
+每个Filter内部都有一个order，API网关在收到请求之后会按顺序执行Filter。
+
 ### API路由匹配
 当API网关收到调用方的请求后，首先需要通过api-discovery模块根据请求方法和请求地址匹配到对应的API定义才能继续处理请求。如果没有找到对应的API定义，会直接返回404。
 我定义了两种API匹配方式：ApiFindFilter和GrayFilter
-### ApiFindFilter
+#### ApiFindFilter
+默认使用的API查找， 如果未找到对应的API，返回404（资源不存在），如果根据正则匹配到多个API，返回500（数据冲突）。
 
-### GrayFilter
+- **type** PRE
+- **order** -2147482648 
+
+#### GrayFilter
+随着业务的不断发展，需求变更，接口迭代越来越频繁，为了降低全线升级引起的潜在危害，我们一般会采用灰度升级的方案，将部分请求转发到新接口上，然后再根据用户的反馈及时完善相关功能。
+我们可以在两个地方来实现灰度升级的需求：
+1. 在Nginx层做灰度规则判断，
+2. 在网关层做灰度规则判断
+  考虑到这种需求，我实现了一个很简单的基于请求头进行灰度规则的逻辑。这个灰度方案要求三处改动才能实现：
+3. 调用方发送服务端请求是加上版本号的请求头，如：
+```
+x-api-verson : 20171108
+```
+2. 不同版本的API使用VersionPlugin定义版本
+3. 定义一个带有HeaderGrayPlugin插件的API。（可以重新定义一个新的API，也可以在原有的API上定义，推荐前者）
+#### VersionPlugin
+用于定义API版本的插件，建议直接用日期来表示版本（GrayFilter并没有实现复杂的版本比较）
+配置
+```
+"version": "20171108"
+```
+- **version**，对应版本号，使用日期格式。
+
+**注意：多版本共存是API的名称不能重复**
+#### HeaderGrayPlugin
+用来声明基于请求头的灰度发布规则
+配置
+```
+"gray.header": "floor" 
+```
+**gray.header**用来指明在未匹配到`x-api-version`时，采用哪种方式匹配API。
+- **floor** 匹配最低的版本
+- **ceil** 匹配最高的版本
+#### GrayFilter
+如果请求头中带有`x-api-version`则执行这个Filter。 如果未找到合适的API，返回404（资源不存在），如果匹配到多个API，返回500（数据冲突）。
+
+- **type** PRE
+- **order** -2147482748
+
+在引入了plugin-gray包之后GrayFilter会在ApiFindFilter之前执行，如果通过GrayFilter找到了合适的API，那么ApiFindFilter不会再执行。
+
+~~因为调用方的鉴权是在查找API之后进行的，所以无法实现基于用户的灰度规则，但是将来我们可以扩展基于用户IP、按比例放量的灰度规则~~
+### 断路器
+
+## CMD
+后续更新
+## Metric
+后续更新
+## 日志
+后续更新
+## 基准测试
+后续更新
 
 ***************************************************************************
 **华丽的分割线**
@@ -460,7 +518,7 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 - type PRE
 - order -2147482648
-如果根据method和路径的正则匹配到多个API，返回数据冲突的错误
+  如果根据method和路径的正则匹配到多个API，返回数据冲突的错误
 # 路径参数（变量）
 ## Filter: PathParamFilter
 将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.

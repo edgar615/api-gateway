@@ -25,7 +25,7 @@ import java.util.List;
  * </pre>
  * <p>
  * <b>该filter应该在所有的filter之前执行</b>如果未找到对应的API定义，直接返回对应的异常。
- * 该filter的order=-2147483648, int的最小值
+ * 该filter的order=-2147482648
  * Created by edgar on 17-1-4.
  */
 public class ApiFindFilter implements Filter {
