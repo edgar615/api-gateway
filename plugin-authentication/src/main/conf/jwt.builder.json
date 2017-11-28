@@ -1,6 +1,8 @@
 {
   "jwt.builder": {
     "expiresInSeconds" : 3600,
-    "algorithm": "HS512"
+    "algorithm": "HS512",
+    "emptyingField" : true,
+    "claimKey": []
   }
 }

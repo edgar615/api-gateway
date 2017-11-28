@@ -8,6 +8,7 @@ import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.cache.Cache;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
@@ -16,6 +17,8 @@ import io.vertx.ext.auth.jwt.JWTOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -28,33 +31,16 @@ import java.util.UUID;
  * </pre>
  * jwt配置
  * <pre>
- *     "jwt" : {
- * "ignoreExpiration" : false, 是否忽略exp，默认false，
- * "audiences" : [],JSON数组，接收方,默认null
- * "issuer": "", 签发方 默认null
- * "subject": "", 签发对象 默认null
- * "leeway": 0  允许的时间差 默认0
+ * "jwt.builder": {
+ * "expiresInSeconds" : 3600,//TOKEN过期秒杀，默认null
+ * "algorithm": "HS512", //算法，默认HS256
+ * "emptyingField" : true, //生成TOKEN时清除其他属性 默认false
+ * "claimKey": [] //生成token时把除userId外的哪些属性存入claims
  * }
- * </pre>
- * <pre>
- *   "audiences" : []，
- *      "issuer": "",
- * "subject": "",
- * "leeway":
- *   "ignoreExpiration" :
- *   "permissionsClaimKey":用户权限字段 默认值permissions
- *   keystore.path 证书的路径，默认值keystore.jceks
- *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
- *   keystore.password 证书的密码，默认值secret
- *   jwt.alg 证书的算法，默认值HS512
- *  token.expires int token的过期时间exp，单位秒，默认值1800
- *
- *  jwt.userClaimKey token中的用户主键，默认值userId
- *   jwt.permissionKey 用户权限字段 默认值permissions
  * </pre>
  * keyStore配置
  * <pre>
- *     "keyStore" : {
+ * "keyStore" : {
  * "path": "keystore.jceks", 证书路径
  * "type": "jceks", 证书类型
  * "password": "secret" 证书密码
@@ -71,22 +57,13 @@ public class JwtBuildFilter implements Filter {
 
   private final String userKey = "userId";
 
-  private final Cache<String, JsonObject> userCache;
-
-  private final String namespace;
-
-  private final String permissionsKey = "permissions";
+  private boolean emptyingField = false;
 
   private final JWTAuthOptions jwtAuthOptions;
 
-  private final JsonObject defaultClaims = new JsonObject();
-
   private final JWTOptions jwtOptions;
 
-  private final JsonObject keyConfig = new JsonObject()
-          .put("path", "keystore.jceks")
-          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-          .put("password", "secret");
+  private final List<String> claimKey = new ArrayList<>();
 
   /**
    * @param vertx  Vertx
@@ -94,20 +71,23 @@ public class JwtBuildFilter implements Filter {
    */
   JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.namespace = config.getString("namespace", "api-gateway");
     if (config.getValue("jwt.builder") instanceof JsonObject) {
-      this.jwtOptions = new JWTOptions(config.getJsonObject("jwt.builder"));
+      JsonObject jwtBuilderConfig = config.getJsonObject("jwt.builder");
+      this.jwtOptions = new JWTOptions(jwtBuilderConfig);
+      if (jwtBuilderConfig.getValue("claimKey") instanceof JsonArray) {
+        jwtBuilderConfig.getJsonArray("claimKey").forEach(item -> {
+          if (item instanceof String)
+            claimKey.add((String) item);
+        });
+      }
+      if (jwtBuilderConfig.getValue("emptyingField") instanceof Boolean) {
+        emptyingField = jwtBuilderConfig.getBoolean("emptyingField");
+      }
     } else {
-      this.jwtOptions = new JWTOptions()
-              .setAlgorithm("HS512");
+      this.jwtOptions = new JWTOptions();
     }
     //jwt
-    if (config.getValue("jwt") instanceof JsonObject) {
-      this.jwtAuthOptions = new JWTAuthOptions(config.getJsonObject("jwt"));
-    } else {
-      this.jwtAuthOptions = new JWTAuthOptions();
-    }
-
+    this.jwtAuthOptions = new JWTAuthOptions();
     if (config.getValue("keyStore") instanceof JsonObject) {
       this.jwtAuthOptions
               .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
@@ -117,16 +97,6 @@ public class JwtBuildFilter implements Filter {
               .setType("jceks")
               .setPassword("secret");
       this.jwtAuthOptions.setKeyStore(keyStoreOptions);
-    }
-
-    //user
-    JsonObject userConfig = config.getJsonObject("user", new JsonObject());
-
-    if (userConfig.getValue("cache") instanceof JsonObject) {
-      this.userCache = CacheUtils.createCache(vertx, "userCache",
-                                              userConfig.getJsonObject("cache"));
-    } else {
-      this.userCache = CacheUtils.createCache(vertx, "userCache", new JsonObject());
     }
   }
 
@@ -145,59 +115,52 @@ public class JwtBuildFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.apiDefinition()
-                   .plugin(JwtBuildPlugin.class.getSimpleName()) != null;
+    JwtBuildPlugin plugin = (JwtBuildPlugin) apiContext.apiDefinition()
+            .plugin(JwtBuildPlugin.class.getSimpleName());
+    if (plugin == null) {
+      return false;
+    }
+    Result result = apiContext.result();
+    if (result == null) {
+      return false;
+    }
+    return !result.isArray()
+            && result.statusCode() < 400
+            && result.responseObject().containsKey(userKey);
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
     Result result = apiContext.result();
-    if (!result.isArray()
-        && result.statusCode() < 400
-        && result.responseObject().containsKey(userKey)) {
-      JsonObject body = result.responseObject();
-      String jti = UUID.randomUUID().toString();
-      String userId = body.getValue(userKey).toString();
-      JsonObject claims = defaultClaims.copy()
-              .put("jti", jti)
-              .put(userKey, userId);
-      String userCacheKey = namespace + ":user:" + userId;
-      JsonObject user = body.copy().put("jti", jti);
-      String permissions = user.getString(permissionsKey, "all");
-      user.put("permissions", permissions);
-      userCache.put(userCacheKey, user, ar -> {
-        if (ar.succeeded()) {
-          try {
-            String token = provider.generateToken(claims, jwtOptions);
-            body.put("token", token);
-            apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
-                                                         result.header()));
-            LOGGER.info("---| [{}] [OK] [{}] [{}]",
-                        apiContext.id(),
-                        this.getClass().getSimpleName(),
-                        "save token:" + userCacheKey);
-            completeFuture.complete(apiContext);
-          } catch (Exception e) {
-            Log.create(LOGGER)
-                    .setTraceId(apiContext.id())
-                    .setEvent("token.generate.failed")
-                    .setThrowable(e)
-                    .error();
-            completeFuture.fail(e);
-          }
-        } else {
-          Log.create(LOGGER)
-                  .setTraceId(apiContext.id())
-                  .setEvent("token.generate.failed")
-                  .setThrowable(ar.cause())
-                  .error();
-          completeFuture.fail(ar.cause());
-        }
-      });
-    } else {
+    JsonObject body = result.responseObject();
+    String jti = UUID.randomUUID().toString();
+    Object userId = body.getValue(userKey);
+    if (userId == null) {
       completeFuture.complete(apiContext);
+      return;
     }
+    JsonObject claims = new JsonObject()
+            .put("jti", jti)
+            .put(userKey, userId);
+    claimKey.forEach(k -> {
+      if (body.getValue(k) != null) {
+        claims.put(k, body.getValue(k));
+      }
+    });
+    String token = provider.generateToken(claims, jwtOptions);
+    if (emptyingField) {
+      body.clear().put("token", token);
+    } else {
+      body.put("token", token);
+    }
+    apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
+            result.header()));
+    LOGGER.info("---| [{}] [OK] [{}] [{}]",
+            apiContext.id(),
+            this.getClass().getSimpleName(),
+            "create token:" + userId);
+    completeFuture.complete(apiContext);
   }
 
 }
