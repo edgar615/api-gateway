@@ -4,7 +4,6 @@
     "audiences": [],
     "issuer": "",
     "subject": "",
-    "leeway": 0,
-    "expiresInSeconds" : 3600
+    "leeway": 0
   }
 }

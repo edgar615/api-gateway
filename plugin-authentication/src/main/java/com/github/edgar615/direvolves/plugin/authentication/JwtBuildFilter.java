@@ -9,7 +9,9 @@ import com.github.edgar615.util.vertx.cache.Cache;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.auth.jwt.JWTOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +25,40 @@ import java.util.UUID;
  * * 该filter可以接受下列的配置参数
  * <pre>
  *   namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ * </pre>
+ * jwt配置
+ * <pre>
+ *     "jwt" : {
+ * "ignoreExpiration" : false, 是否忽略exp，默认false，
+ * "audiences" : [],JSON数组，接收方,默认null
+ * "issuer": "", 签发方 默认null
+ * "subject": "", 签发对象 默认null
+ * "leeway": 0  允许的时间差 默认0
+ * }
+ * </pre>
+ * <pre>
+ *   "audiences" : []，
+ *      "issuer": "",
+ * "subject": "",
+ * "leeway":
+ *   "ignoreExpiration" :
+ *   "permissionsClaimKey":用户权限字段 默认值permissions
  *   keystore.path 证书的路径，默认值keystore.jceks
  *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
  *   keystore.password 证书的密码，默认值secret
  *   jwt.alg 证书的算法，默认值HS512
- *   jwt.audience string token的客户aud
- *   jwt.issuer string token的发行者iss
- *  jwt.subject string token的主题sub
  *  token.expires int token的过期时间exp，单位秒，默认值1800
  *
  *  jwt.userClaimKey token中的用户主键，默认值userId
  *   jwt.permissionKey 用户权限字段 默认值permissions
+ * </pre>
+ * keyStore配置
+ * <pre>
+ *     "keyStore" : {
+ * "path": "keystore.jceks", 证书路径
+ * "type": "jceks", 证书类型
+ * "password": "secret" 证书密码
+ * }
  * </pre>
  * 该filter的order=10000
  * Created by edgar on 16-11-26.
@@ -52,33 +77,47 @@ public class JwtBuildFilter implements Filter {
 
   private final String permissionsKey = "permissions";
 
-  private final JsonObject jwtConfig = new JsonObject()
+  private final JWTAuthOptions jwtAuthOptions;
+
+  private final JsonObject defaultClaims = new JsonObject();
+
+  private final JWTOptions jwtOptions;
+
+  private final JsonObject keyConfig = new JsonObject()
           .put("path", "keystore.jceks")
           .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-          .put("password", "secret")
-          .put("algorithm", "HS512")
-          .put("expiresInSeconds", 1800);
+          .put("password", "secret");
 
   /**
-   * <pre>
-   *     - keystore.path string 证书文件路径 默认值keystore.jceks
-   *     - keystore.type string 证书类型，可选值 jceks, jks,默认值jceks
-   *     - keystore.password string 证书密钥，默认值secret
-   *     - jwt.alg string jwt的加密算法,默认值HS512
-   *     - jwt.audience string token的客户aud
-   *     - jwt.issuer string token的发行者iss
-   *     - jwt.subject string token的主题sub
-   *     - token.expires int 过期时间exp，单位秒，默认值1800
-   * </pre>
-   *
    * @param vertx  Vertx
    * @param config 配置
    */
   JwtBuildFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     this.namespace = config.getString("namespace", "api-gateway");
+    if (config.getValue("jwt.builder") instanceof JsonObject) {
+      this.jwtOptions = new JWTOptions(config.getJsonObject("jwt.builder"));
+    } else {
+      this.jwtOptions = new JWTOptions()
+              .setAlgorithm("HS512");
+    }
     //jwt
-    this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
+    if (config.getValue("jwt") instanceof JsonObject) {
+      this.jwtAuthOptions = new JWTAuthOptions(config.getJsonObject("jwt"));
+    } else {
+      this.jwtAuthOptions = new JWTAuthOptions();
+    }
+
+    if (config.getValue("keyStore") instanceof JsonObject) {
+      this.jwtAuthOptions
+              .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
+    } else {
+      KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
+              .setPath("keystore.jceks")
+              .setType("jceks")
+              .setPassword("secret");
+      this.jwtAuthOptions.setKeyStore(keyStoreOptions);
+    }
 
     //user
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
@@ -112,8 +151,7 @@ public class JwtBuildFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    JsonObject jwtConfig = new JsonObject().put("keyStore", this.jwtConfig);
-    JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
+    JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
     Result result = apiContext.result();
     if (!result.isArray()
         && result.statusCode() < 400
@@ -121,7 +159,7 @@ public class JwtBuildFilter implements Filter {
       JsonObject body = result.responseObject();
       String jti = UUID.randomUUID().toString();
       String userId = body.getValue(userKey).toString();
-      JsonObject claims = new JsonObject()
+      JsonObject claims = defaultClaims.copy()
               .put("jti", jti)
               .put(userKey, userId);
       String userCacheKey = namespace + ":user:" + userId;
@@ -131,7 +169,7 @@ public class JwtBuildFilter implements Filter {
       userCache.put(userCacheKey, user, ar -> {
         if (ar.succeeded()) {
           try {
-            String token = provider.generateToken(claims, new JWTOptions(this.jwtConfig));
+            String token = provider.generateToken(claims, jwtOptions);
             body.put("token", token);
             apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
                                                          result.header()));

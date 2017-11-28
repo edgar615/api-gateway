@@ -1,0 +1,6 @@
+{
+  "jwt.builder": {
+    "expiresInSeconds" : 3600,
+    "algorithm": "HS512"
+  }
+}
