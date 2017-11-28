@@ -5,7 +5,7 @@
     "unique": true,
     "cache": {
       "type" : "local",
-      "expireAfterWrite": 1800,
+      "expireAfterWrite": 3600,
       "maximumSize": 50000
     }
   }

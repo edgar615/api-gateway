@@ -1,12 +1,10 @@
 {
-  "jwt" : {
-    "path": "keystore.jceks",
-    "type": "jceks",
-    "password": "secret",
-    "algorithm": "HS512",
-    "audience": "",
+  "jwt": {
+    "ignoreExpiration": false,
+    "audiences": [],
     "issuer": "",
     "subject": "",
-    "expiresInSeconds" : 1800
+    "leeway": 0,
+    "expiresInSeconds" : 3600
   }
 }

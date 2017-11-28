@@ -434,7 +434,41 @@ x-api-verson : 20171108
 $var.param0:"95624"
 $var.param1:"hlu6duKrlM"}
 ```
-    
+
+### 认证 Authentication 
+认证（Authentication ）是用来回答以下问题：
+- 用户是谁
+- 当前用户是否真的是他所代表的角色
+
+API网关需要处理身份认证的问题，避免下游服务重复实现身份认证导致的耦合和重复工作。
+我们采用JWT来做用户认证。JWT的生成可以由一个下游服务生成，也可以由API网关生成。下游服务的生成我们这里不做描述，下面我们来看下如何通过插件来生成JWT和校验JWT。
+#### Plugin: JwtBuildPlugin
+表明这个API在向调用方法返回前需要通过`JwtBuildFilter`来生成一个Token
+配置
+```
+"jwt.build": true 
+```
+- true 表示开启这个插件
+- false 表示关闭这个插件
+
+#### Filter: JwtBuildFilter
+根据响应体创建一个JWT，如何追加到响应体中
+
+- **type** POST
+- **order** 10000
+
+**前置条件**：JwtBuildPlugin开启
+
+配置
+```
+```
+
+### 授权 Authorization
+授权（Authorization）是用来回答以下问题：
+- 用户A是否被授权访问资源R
+- 用户A是否被授权执行P操作
+
+
 ### 断路器
 ## 缓存
 后续更新
