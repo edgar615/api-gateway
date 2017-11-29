@@ -5,7 +5,7 @@
     "cache": {
       "type" : "local",
       "expireAfterWrite": 3600,
-      "maximumSize": 50000
+      "maximumSize": 5000
     }
   }
 }

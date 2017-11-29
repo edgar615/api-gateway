@@ -22,13 +22,16 @@ import java.util.UUID;
  * </pre>
  * user
  * <pre>
- *     "keyStore" : {
- * "path": "keystore.jceks", 证书路径
- * "type": "jceks", 证书类型
- * "password": "secret" 证书密码
+ * "user" : {
+ * "loader" : "/users", //对应的API地址，最终发送的请求为http://127.0.0.1:${port}/{loader}?userId=${userId}
+ * "cache": {
+ * "type" : "local", //缓存类型 redis或local
+ * "expireAfterWrite": 3600, // 过期时间
+ * "maximumSize": 5000 //最大值
+ * }
  * }
  * </pre>
- * 该filter的order=10000
+ * 该filter的order=11000
  * Created by edgar on 16-11-26.
  */
 public class UserLoaderFilter implements Filter {
@@ -90,7 +93,7 @@ public class UserLoaderFilter implements Filter {
       return false;
     }
     return apiContext.principal().containsKey(userKey)
-            && userLoader != null;
+           && userLoader != null;
   }
 
   @Override

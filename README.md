@@ -552,6 +552,37 @@ keyStore配置与前面相同，不在描述。
 
 AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的principal中
 
+#### Filter: UserLoaderFilter
+根据AuthenticationFilter的结果，从下游服务中拉取用户信息并更新到principal中。
+为了提高性能，UserLoaderFilter内部使用了一个缓存来保存用户信息。
+
+- **type** PRE
+- **order** 11000
+
+**前置条件**：上下文中存在principal
+
+配置
+```
+  "user" : {
+    "loader" : "/users",
+    "cache": {
+      "type" : "local",
+      "expireAfterWrite": 3600,
+      "maximumSize": 5000
+    }
+  }
+```
+
+- **loader** 对应的API地址，最终发送的请求为http://127.0.0.1:${port}/{loader}?userId=${userId}
+- **cache** 用户缓存的配置
+
+cache
+- **type** 缓存类型，local和redis两种，默认为local
+- **expireAfterWrite** 缓存的过期时间，单位秒，默认1800
+- **maximumSize** 缓存的最大数量，默认5000，redis类型的缓存这个配置无效
+
+**loader的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**
+
 
 ### 授权 Authorization
 授权（Authorization）是用来回答以下问题：
