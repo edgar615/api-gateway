@@ -1,10 +1,10 @@
-package com.github.edgar615.direwolves.plugin.acl;
+package com.github.edgar615.direwolves.plugin.user;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -16,34 +16,33 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * ACL限制的filter.
- * 该filter从principal中读取读取调用方的group（角色），
- * 如果这个角色属于白名单，直接允许访问（不在考虑黑名单）；如果这个角色属于黑名单，直接返回1004的错误.
- * 如果没有group变量，直接返回1004的错误.
+ * User限制的filter.
+ * 该filter从API上下文中读取读取调用方的userId，
+ * 如果这个userId属于白名单，直接允许访问（不在考虑黑名单）；如果这个userId属于黑名单，直接返回1004的错误.
+ * 如果没有userId变量，直接返回1004的错误.
  * <p>
- * *</pre>
  * *该filter可以接受下列的配置参数
  * 该filter的order=1100
  * <p>
  * 接受的参数：
- * "acl.restriction" : {
- * "blacklist": ["guest],
- * "whitelist": ["user]
+ * "user.restriction" : {
+ * "blacklist": [1],
+ * "whitelist": [2]
  * }
  * Created by edgar on 16-12-24.
  */
-public class AclRestrictionFilter implements Filter {
+public class UserRestrictionFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AclRestrictionFilter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserRestrictionFilter.class);
 
   private final List<String> globalBlacklist = new ArrayList<>();
 
   private final List<String> globalWhitelist = new ArrayList<>();
 
-  private final String groupKey = "group";
+  private final String userKey = "userId";
 
-  public AclRestrictionFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("acl.restriction", new JsonObject());
+  public UserRestrictionFilter(JsonObject config) {
+    JsonObject jsonObject = config.getJsonObject("user.restriction", new JsonObject());
     JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
     JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {
@@ -70,34 +69,34 @@ public class AclRestrictionFilter implements Filter {
       return false;
     }
     return !globalBlacklist.isEmpty()
-           || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
+            || !globalWhitelist.isEmpty()
+            || apiContext.apiDefinition().plugin(UserRestrictionPlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    AclRestrictionPlugin plugin = (AclRestrictionPlugin) apiContext.apiDefinition()
-            .plugin(AclRestrictionPlugin.class.getSimpleName());
+    UserRestrictionPlugin plugin = (UserRestrictionPlugin) apiContext.apiDefinition()
+            .plugin(UserRestrictionPlugin.class.getSimpleName());
     List<String> blacklist = new ArrayList<>(globalBlacklist);
     List<String> whitelist = new ArrayList<>(globalWhitelist);
     if (plugin != null) {
       blacklist.addAll(plugin.blacklist());
       whitelist.addAll(plugin.whitelist());
     }
-    String group = apiContext.principal().getString(groupKey, "anonymous");
+    String userId = apiContext.principal().getValue(userKey).toString();
     List<String> black = blacklist.stream()
-            .filter(r -> checkGroup(r, group))
+            .filter(r -> checkGroup(r, userId))
             .collect(Collectors.toList());
     List<String> white = whitelist.stream()
-            .filter(r -> checkGroup(r, group))
+            .filter(r -> checkGroup(r, userId))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("acl.restriction.tripped")
+              .setEvent("user.restriction.tripped")
               .warn();
       completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-                                  .set("details", "The group is forbidden"));
+              .set("details", "The user is forbidden"));
     } else {
       completeFuture.complete(apiContext);
     }

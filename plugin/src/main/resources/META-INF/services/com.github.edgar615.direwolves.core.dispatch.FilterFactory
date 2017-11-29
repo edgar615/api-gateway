@@ -8,3 +8,4 @@ com.github.edgar615.direwolves.plugin.authorization.AuthoriseFilterFactory
 com.github.edgar615.direwolves.plugin.transformer.EventbusRequestTransformerFilterFactory
 com.github.edgar615.direwolves.plugin.acl.AclRestrictionFilterFactory
 com.github.edgar615.direwolves.plugin.fallback.RequestFallbackFilterFactory
+com.github.edgar615.direwolves.plugin.user.UserRestrictionFilterFactory
