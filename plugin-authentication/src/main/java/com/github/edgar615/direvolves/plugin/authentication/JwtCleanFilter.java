@@ -20,7 +20,7 @@ public class JwtCleanFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final String userKey;
+  private final String userKey = "userId";
 
   private final String namespace;
 
@@ -37,7 +37,6 @@ public class JwtCleanFilter implements Filter {
     this.namespace = config.getString("namespace", "api-gateway");
     //user
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
-    this.userKey = userConfig.getString("userClaimKey", "userId");
   }
 
   @Override
