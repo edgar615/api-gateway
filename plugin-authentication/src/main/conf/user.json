@@ -1,6 +1,5 @@
 {
   "user" : {
-    "unique": true,
     "loader" : "/users",
     "cache": {
       "type" : "local",
