@@ -218,8 +218,12 @@ public class AppKeyFilter implements Filter {
                                   .set("details", "The sign is incorrect"));
     } else {
       apiContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
-      apiContext.addVariable("app.companyCode", app.getInteger("companyCode", 0));
-      apiContext.addVariable("app.permissions", app.getString("permissions", "default"));
+      if (app.containsKey("developerCode")) {
+        apiContext.addVariable("app.developerCode", app.getValue("developerCode"));
+      }
+      if (app.containsKey("permissions")) {
+        apiContext.addVariable("app.permissions", app.getValue("permissions"));
+      }
       completeFuture.complete(apiContext);
     }
   }
