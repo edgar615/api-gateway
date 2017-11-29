@@ -1,13 +1,10 @@
 package com.github.edgar615.direvolves.plugin.authentication;
 
-import com.github.edgar615.util.vertx.cache.CacheOptions;
-import com.github.edgar615.util.vertx.cache.GuavaCache;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
@@ -20,8 +17,11 @@ import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -50,8 +50,6 @@ public class AuthticationFilterTest {
 
   private Vertx vertx;
 
-  private String userKey = "userId";
-
   private String namespace = UUID.randomUUID().toString();
 
   private int userId = Integer.parseInt(Randoms.randomNumber(5));
@@ -60,15 +58,12 @@ public class AuthticationFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
     filters.clear();
-    JsonObject config = new JsonObject().put("keyStore", new JsonObject()
-            .put("path", "keystore.jceks")
-            .put("type", "jceks")
-            .put("password", "secret")
-    );
+    KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
+            .setPath("keystore.jceks")
+            .setType("jceks")
+            .setPassword("INIHPMOZPO");
 
-    provider = JWTAuth.create(vertx, config);
-    GuavaCache<String, JsonObject> cache = new GuavaCache<>(vertx, "userCache", new CacheOptions());
-    CacheManager.instance().addCache(cache);
+    provider = JWTAuth.create(vertx, new JWTAuthOptions().setKeyStore(keyStoreOptions));
   }
 
   @Test
@@ -88,7 +83,7 @@ public class AuthticationFilterTest {
               throwable.printStackTrace();
               testContext.assertTrue(throwable instanceof SystemException);
               SystemException ex = (SystemException) throwable;
-              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+              testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
               async.complete();
             });
   }
@@ -108,6 +103,7 @@ public class AuthticationFilterTest {
     Filters.doFilter(task, Lists.newArrayList(filter))
             .andThen(context -> testContext.fail())
             .onFailure(throwable -> {
+              throwable.printStackTrace();
               testContext.assertTrue(throwable instanceof SystemException);
               SystemException ex = (SystemException) throwable;
               testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
@@ -118,10 +114,9 @@ public class AuthticationFilterTest {
   @Test
   public void jwtExpiredShouldThrowExpiredToken(TestContext testContext) {
     JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("exp", System.currentTimeMillis() / 1000 - 1000 * 30);
+            .put("userId", userId);
     String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+            provider.generateToken(claims, new JWTOptions().setExpiresInSeconds(-1000l * 30));
     ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
                                                                   "Bearer " + token),
                                              ArrayListMultimap.create());
@@ -144,33 +139,88 @@ public class AuthticationFilterTest {
   }
 
   @Test
-  public void unequalJtiShouldThrowExpiredTokenWhenRestrictedUniqueUser(TestContext testContext) {
-    CacheManager.instance().getCache("userCache")
-            .put(namespace + ":user:" + userId, new JsonObject()
-                    .put("userId", userId)
-                    .put("username", "password")
-                    .put("jti", jti), ar -> {
-
-            });
-
+  public void ignoreExpShouldSuccess(TestContext testContext) {
     JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("jti", UUID.randomUUID().toString());
-//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
-
+            .put("userId", userId)
+            .put("jti", jti);
     String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+            provider.generateToken(claims, new JWTOptions().setExpiresInSeconds(-1000l * 30));
     ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
                                                                   "Bearer " + token),
                                              ArrayListMultimap.create());
 
+    JsonObject jwtConfig = new JsonObject()
+            .put("ignoreExpiration", true);
     Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                   vertx, new JsonObject()
-                                          .put("jwt",
-                                               new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject().put("userClaimKey", userKey)
-                                                  .put("unique", true))
-                                          .put("namespace", namespace));
+                                          .put("jwt.auth", jwtConfig));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject principal = context.principal();
+              System.out.println(principal);
+              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(jti, principal.getString("jti"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void leewayShouldSuccess(TestContext testContext) {
+    JsonObject claims = new JsonObject()
+            .put("userId", userId)
+            .put("jti", jti);
+    String token =
+            provider.generateToken(claims, new JWTOptions().setExpiresInSeconds(-30l));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+    JsonObject jwtConfig = new JsonObject()
+            .put("leeway", 50);
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.auth", jwtConfig));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject principal = context.principal();
+              System.out.println(principal);
+              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(jti, principal.getString("jti"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void leewayThrowExpiredToken(TestContext testContext) {
+    JsonObject claims = new JsonObject()
+            .put("userId", userId);
+    String token =
+            provider.generateToken(claims, new JWTOptions().setExpiresInSeconds(-30l));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+    JsonObject jwtConfig  = new JsonObject()
+            .put("leeway", 10);
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.auth",jwtConfig));
     filters.add(filter);
 
     Task<ApiContext> task = Task.create();
@@ -187,159 +237,15 @@ public class AuthticationFilterTest {
   }
 
   @Test
-  public void unequalJtiShouldSuccessWhenUnrestrictedUniqueUser(TestContext testContext) {
-    CacheManager.instance().getCache("userCache")
-            .put(namespace + ":user:" + userId, new JsonObject()
-                    .put(userKey, userId)
-                    .put("username", "edgar")
-                    .put("jti", jti), ar -> {
-
-            });
+  public void testAuthSuccess(TestContext testContext) {
 
     JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("jti", UUID.randomUUID().toString());
-//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
-
-    String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
-    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
-                                                                  "Bearer " + token),
-                                             ArrayListMultimap.create());
-
-    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
-                                  vertx, new JsonObject()
-                                          .put("jwt",
-                                               new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject().put("userClaimKey", userKey))
-                                          .put("namespace", namespace));
-    filters.add(filter);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              JsonObject principal = context.principal();
-              testContext.assertEquals(userId, principal.getInteger(userKey));
-              testContext.assertEquals("edgar", principal.getString("username"));
-              async.complete();
-            })
-            .onFailure(throwable -> {
-              throwable.printStackTrace();
-              testContext.fail();
-            });
-  }
-
-  @Test
-  public void equalJtiShouldSuccessWhenRestrictedUniqueUser(TestContext testContext) {
-    CacheManager.instance().getCache("userCache")
-            .put(namespace + ":user:" + userId, new JsonObject()
-                    .put(userKey, userId)
-                    .put("username", "edgar")
-                    .put("jti", jti), ar -> {
-
-            });
-
-    JsonObject claims = new JsonObject()
-            .put(userKey, userId)
+            .put("userId", userId)
             .put("jti", jti);
 //                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
 
     String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
-    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
-                                                                  "Bearer " + token),
-                                             ArrayListMultimap.create());
-
-    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
-                                  vertx, new JsonObject()
-                                          .put("jwt",
-                                               new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject()
-                                                  .put("unique", true))
-                                          .put("namespace", namespace));
-    filters.add(filter);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              JsonObject principal = context.principal();
-              testContext.assertEquals("edgar", principal.getString("username"));
-              testContext.assertEquals(userId, principal.getInteger(userKey));
-              async.complete();
-            })
-            .onFailure(throwable -> {
-              throwable.printStackTrace();
-              testContext.fail();
-            });
-  }
-
-  @Test
-  public void unSavedJtiShouldThrownInvalidToken(TestContext testContext) {
-
-    CacheManager.instance().getCache("userCache")
-            .put(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
-                    .put("userId", userId)
-                    .put("username", "password")
-                    .put("jti", jti), ar -> {
-
-            });
-
-
-    JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("jti", UUID.randomUUID().toString());
-//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
-
-    String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
-    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
-                                                                  "Bearer " + token),
-                                             ArrayListMultimap.create());
-
-
-    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
-                                  vertx, new JsonObject()
-                                          .put("jwt",
-                                               new JsonObject().put("expiresInSeconds", 60 * 30))
-                                          .put("user", new JsonObject()
-                                                  .put("unique", true))
-                                          .put("namespace", namespace));
-    filters.add(filter);
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(throwable -> {
-              testContext.assertTrue(throwable instanceof SystemException);
-              SystemException ex = (SystemException) throwable;
-              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
-              async.complete();
-            });
-  }
-
-  @Test
-  public void missUserKeyShouldThrownInvalidToken(TestContext testContext) {
-
-    CacheManager.instance().getCache("userCache")
-            .put(namespace + ":user:" + Integer.parseInt(Randoms.randomNumber(4)), new JsonObject()
-//                    .put("userId", userId)
-                    .put("username", "password")
-                    .put("jti", jti), ar -> {
-
-            });
-
-
-    JsonObject claims = new JsonObject()
-            .put(userKey, userId)
-            .put("jti", jti);
-//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
-
-    String token =
-            provider.generateToken(claims, new JWTOptions().setAlgorithm("HS512"));
+            provider.generateToken(claims, new JWTOptions());
     ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
                                                                   "Bearer " + token),
                                              ArrayListMultimap.create());
@@ -357,8 +263,45 @@ public class AuthticationFilterTest {
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject principal = context.principal();
+              System.out.println(principal);
+              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(jti, principal.getString("jti"));
+              testContext.assertFalse(principal.containsKey("username"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void missUserIdShouldThrownInvalidToken(TestContext testContext) {
+
+    JsonObject claims = new JsonObject()
+            .put(UUID.randomUUID().toString(), userId)
+            .put("jti", jti);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token =
+            provider.generateToken(claims, new JWTOptions());
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
             .andThen(context -> testContext.fail())
             .onFailure(throwable -> {
+              throwable.printStackTrace();
               testContext.assertTrue(throwable instanceof SystemException);
               SystemException ex = (SystemException) throwable;
               testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
@@ -366,17 +309,160 @@ public class AuthticationFilterTest {
             });
   }
 
+  @Test
+  public void invalidIssShouldThrownInvalidToken(TestContext testContext) {
 
-  public String createToken(JsonObject claims) {
-    JsonObject config = new JsonObject()
-            .put("path", "keystore.jceks")
-            .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
-            .put("password", "secret")
-            .put("algorithm", "HS512")
-            .put("expiresInSeconds", 1800);
-    JsonObject jwtConfig = new JsonObject().put("keyStore", config);
-    JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
-    return provider.generateToken(claims, new JWTOptions(config));
+    JsonObject claims = new JsonObject()
+            .put("userId", userId)
+            .put("jti", jti);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token =
+            provider.generateToken(claims,
+                                   new JWTOptions().setIssuer(UUID.randomUUID().toString()));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+
+    JsonObject jwtConfig = new JsonObject()
+            .put("issuer", "edgar615");
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.auth", jwtConfig));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.fail();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.assertTrue(throwable instanceof SystemException);
+              SystemException ex = (SystemException) throwable;
+              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+              async.complete();
+            });
+  }
+
+  @Test
+  public void ValidIssShouldSuccess(TestContext testContext) {
+
+    JsonObject claims = new JsonObject()
+            .put("userId", userId)
+            .put("jti", jti);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String iss = UUID.randomUUID().toString();
+    String token =
+            provider.generateToken(claims, new JWTOptions().setIssuer(iss));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+
+    JsonObject jwtConfig = new JsonObject()
+            .put("issuer", iss);
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.auth", jwtConfig));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject principal = context.principal();
+              System.out.println(principal);
+              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(jti, principal.getString("jti"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void invalidAudShouldThrownInvalidToken(TestContext testContext) {
+
+    JsonObject claims = new JsonObject()
+            .put("userId", userId)
+            .put("jti", jti);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String token =
+            provider.generateToken(claims,
+                                   new JWTOptions().addAudience(UUID.randomUUID().toString()));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+
+    JsonObject jwtConfig = new JsonObject()
+            .put("audiences", new JsonArray().add("app"));
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.auth", jwtConfig));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.fail();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.assertTrue(throwable instanceof SystemException);
+              SystemException ex = (SystemException) throwable;
+              testContext.assertEquals(DefaultErrorCode.INVALID_TOKEN, ex.getErrorCode());
+              async.complete();
+            });
+  }
+
+  @Test
+  public void ValidAudShouldSuccess(TestContext testContext) {
+
+    JsonObject claims = new JsonObject()
+            .put("userId", userId)
+            .put("jti", jti);
+//                .put("exp", System.currentTimeMillis() / 1000 + 1000 * 30);
+
+    String aud = UUID.randomUUID().toString();
+    String token =
+            provider.generateToken(claims, new JWTOptions().addAudience(aud));
+    ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
+                                                                  "Bearer " + token),
+                                             ArrayListMultimap.create());
+
+
+    JsonObject jwtConfig = new JsonObject()
+            .put("audiences", new JsonArray().add(aud));
+    Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
+                                  vertx, new JsonObject()
+                                          .put("jwt.auth", jwtConfig));
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject principal = context.principal();
+              System.out.println(principal);
+              testContext.assertEquals(userId, principal.getInteger("userId"));
+              testContext.assertEquals(jti, principal.getString("jti"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              testContext.fail();
+            });
   }
 
   private ApiContext createApiContext(Multimap<String, String> header,

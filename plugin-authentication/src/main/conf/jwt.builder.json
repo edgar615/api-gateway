@@ -2,6 +2,11 @@
   "jwt.builder": {
     "expiresInSeconds" : 3600,
     "algorithm": "HS512",
+    "audience" : ["test"],
+    "subject": "app",
+    "issuer" : "edgar615",
+    "noTimestamp" : false,
+    "header" : {},
     "emptyingField" : true,
     "claimKey": []
   }

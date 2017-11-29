@@ -2,24 +2,25 @@ package com.github.edgar615.direvolves.plugin.authentication;
 
 import com.google.common.base.Strings;
 
+import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.log.Log;
+import com.github.edgar615.util.vertx.cache.Cache;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
-import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 身份认证.
@@ -27,19 +28,20 @@ import java.util.List;
  * 在校验通过之后，会在上下文中存入用户信息:
  * * 该filter可以接受下列的配置参数
  * <pre>
- "jwt.auth": {
- "ignoreExpiration": false, 是否校验exp 可选，默认false
- "audiences": [], 校验aud，JSON数组，可选
- "issuer": "", 校验iss，可选
- "leeway": 0 允许调用方与服务端的偏差
- }
+ *   namespace 项目的命名空间，用来避免多个项目冲突，默认值""
+ *   keystore.path 证书的路径，默认值keystore.jceks
+ *   keystore.type 证书的类型，默认值jceks，可选值：JKS, JCEKS, PKCS12, BKS，UBER
+ *   keystore.password 证书的密码，默认值secret
+ *   jwt.userClaimKey token中的用户主键，默认值userId
+ *   jwt.user.unique 每个用户的token是否必须唯一，默认值false
  * </pre>
  * 该filter的order=1000
  *
  * @author Edgar  Date 2016/10/31
  */
-public class AuthenticationFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
+@Deprecated
+public class RepeatLoginFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RepeatLoginFilter.class);
 
   private static final String HEADER_AUTH = "Authorization";
 
@@ -47,29 +49,24 @@ public class AuthenticationFilter implements Filter {
 
   private final String userKey = "userId";
 
+  private final boolean uniqueToken;
+
+  private final String namespace;
+
   private final Vertx vertx;
 
-  private final JWTAuthOptions jwtAuthOptions;
+  private JsonObject jwtConfig = new JsonObject()
+          .put("path", "keystore.jceks")
+          .put("type", "jceks")//JKS, JCEKS, PKCS12, BKS，UBER
+          .put("password", "secret");
 
-  AuthenticationFilter(Vertx vertx, JsonObject config) {
+  RepeatLoginFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    if (config.getValue("jwt.auth") instanceof JsonObject) {
-      JsonObject jwtConfig = config.getJsonObject("jwt.auth");
-      this.jwtAuthOptions = new JWTAuthOptions(jwtConfig);
-    } else {
-      this.jwtAuthOptions = new JWTAuthOptions();
-    }
-
-    if (config.getValue("keyStore") instanceof JsonObject) {
-      this.jwtAuthOptions
-              .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
-    } else {
-      KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
-              .setPath("keystore.jceks")
-              .setType("jceks")
-              .setPassword("INIHPMOZPO");
-      this.jwtAuthOptions.setKeyStore(keyStoreOptions);
-    }
+    this.namespace = config.getString("namespace", "api-gateway");
+    this.jwtConfig.mergeIn(config.getJsonObject("jwt", new JsonObject()));
+    //user
+    JsonObject userConfig = config.getJsonObject("user", new JsonObject());
+    this.uniqueToken = userConfig.getBoolean("unique", false);
   }
 
   @Override
@@ -93,7 +90,7 @@ public class AuthenticationFilter implements Filter {
     try {
       String token = extractToken(apiContext);
       Future<JsonObject> authFuture = auth(token);
-      authFuture
+      authFuture.compose(this::userCheck)
               .setHandler(ar -> {
                 if (ar.succeeded()) {
                   JsonObject principal = ar.result();
@@ -123,10 +120,7 @@ public class AuthenticationFilter implements Filter {
       List<String> authorizationHeaders = new ArrayList<>(apiContext.headers().get(HEADER_AUTH));
       String authorization = authorizationHeaders.get(0);
       if (!Strings.isNullOrEmpty(authorization) && authorization.startsWith(AUTH_PREFIX)) {
-        return authorization.substring(AUTH_PREFIX.length()).trim();
-      } else {
-        throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
-                .set("details", "The format of the token: Authorization:Bearer <token>");
+        return authorization.substring(AUTH_PREFIX.length());
       }
     }
     Log.create(LOGGER)
@@ -135,25 +129,60 @@ public class AuthenticationFilter implements Filter {
             .setMessage("Authorization is undefined")
             .error();
 
-    throw SystemException.create(DefaultErrorCode.INVALID_REQ)
-            .set("details", "Miss rquest header: Authorization");
+    throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+            .set("details", "Request header: Authorization is undefined");
+  }
+
+  private Future<JsonObject> userCheck(JsonObject principal) {
+    Future<JsonObject> userFuture = Future.future();
+    String clientJti = principal.getString("jti");
+    String userId = principal.getValue(userKey).toString();
+    if (userId == null) {
+      LOGGER.debug("jwt failed, error->userId not found");
+      userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+                              .set("details", "Token must contain " + userKey));
+    } else {
+      String userCacheKey = namespace + ":user:" + userId;
+      //如果把userCache放在构造函数中初始化，可能会出现没有userCache的情况
+      Cache<String, JsonObject> userCache = CacheManager.instance().getCache("userCache");
+      userCache.get(userCacheKey, ar -> {
+        if (ar.succeeded()) {
+          if (!ar.result().containsKey(userKey)) {
+            userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
+                                    .set("details", "The token has been removed"));
+            return;
+          }
+          if (uniqueToken) {
+            String serverJti = ar.result().getString("jti", UUID.randomUUID().toString());
+            if (serverJti.equalsIgnoreCase(clientJti)) {
+              userFuture.complete(ar.result());
+            } else {
+              userFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE_TOKEN)
+                                      .set("details", "The token has been kicked out"));
+            }
+          } else {
+            userFuture.complete(ar.result());
+          }
+
+        } else {
+          userFuture.fail(SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+                                  .set("details", "User not found"));
+        }
+      });
+    }
+    return userFuture;
   }
 
   private Future<JsonObject> auth(String token) {
     Future<JsonObject> authFuture = Future.future();
-    JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
+    JsonObject jwtConfig = new JsonObject().put("keyStore", this.jwtConfig);
+
+    JWTAuth provider = JWTAuth.create(vertx, jwtConfig);
     provider.authenticate(new JsonObject().put("jwt", token), ar -> {
       if (ar.succeeded()) {
         JsonObject principal = ar.result().principal();
         LOGGER.debug("jwt succeed");
-        if (principal.containsKey(userKey)) {
-          authFuture.complete(principal);
-        } else {
-          SystemException systemException = SystemException.create(DefaultErrorCode.INVALID_TOKEN)
-                  .set("details", "no " + userKey);
-          authFuture.fail(systemException);
-        }
-
+        authFuture.complete(principal);
       } else {
         LOGGER.debug("jwt failed, error->{}", ar.cause());
         fail(authFuture, ar);
@@ -165,12 +194,12 @@ public class AuthenticationFilter implements Filter {
   private void fail(Future<JsonObject> completeFuture, AsyncResult<User> ar) {
     String errorMessage = ar.cause().getMessage();
     if (errorMessage != null) {
-      if (errorMessage.startsWith("Expired JWT")) {
+      if (errorMessage.startsWith("Expired JWT token")) {
         completeFuture.fail(SystemException.wrap(DefaultErrorCode.EXPIRE_TOKEN, ar.cause())
-                                    .set("details", errorMessage));
-      } else if (errorMessage.startsWith("Invalid JWT")) {
+                                    .set("details", "Expired JWT token"));
+      } else if (errorMessage.startsWith("Invalid JWT token")) {
         completeFuture.fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause())
-                                    .set("details", errorMessage));
+                                    .set("details", "Invalid JWT token"));
       } else {
         completeFuture.fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
                                     .set("details", ar.cause().getMessage()));

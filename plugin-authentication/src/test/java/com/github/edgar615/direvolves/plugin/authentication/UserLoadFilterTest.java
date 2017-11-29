@@ -1,30 +1,32 @@
 package com.github.edgar615.direvolves.plugin.authentication;
 
-import com.github.edgar615.direwolves.core.cache.CacheManager;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.direwolves.core.dispatch.Result;
 import com.github.edgar615.direwolves.core.utils.Filters;
+import com.github.edgar615.util.base.Randoms;
 import com.github.edgar615.util.vertx.task.Task;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2016/10/31.
@@ -38,6 +40,10 @@ public class UserLoadFilterTest {
 
   Filter filter;
 
+  int port = Integer.parseInt(Randoms.randomNumber(4));
+
+  String id = UUID.randomUUID().toString();
+
   private Vertx vertx;
 
   private String namespace = UUID.randomUUID().toString();
@@ -46,29 +52,50 @@ public class UserLoadFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
     filters.clear();
+    AtomicBoolean completed = new AtomicBoolean();
+
+    vertx.createHttpServer().requestHandler(req -> {
+      String userId = req.getParam("userId");
+      if (id.equalsIgnoreCase(userId)) {
+        JsonObject jsonObject = new JsonObject()
+                .put("userId", userId)
+                .put("username", "edgar615");
+        req.response().end(jsonObject.encode());
+      } else {
+        req.response().setStatusCode(404)
+                .end();
+      }
+
+    }).listen(port, ar -> {
+      if (ar.succeeded()) {
+        completed.set(true);
+      } else {
+        ar.cause().printStackTrace();
+      }
+    });
+
+    Awaitility.await().until(() -> completed.get());
   }
 
   @Test
-  public void badRequestShouldNotContainToken(TestContext testContext) {
-    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject());
+  public void testNoLoader(TestContext testContext) {
+    filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
+                           new JsonObject());
     filters.add(filter);
     ApiContext apiContext = createContext();
 
     JsonObject body = new JsonObject()
-            .put("username", "edgar")
-            .put("tel", "123456")
             .put("userId", 10);
-    apiContext.setResult(Result.createJsonObject(400, body, null));
+    apiContext.setPrincipal(body);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              Result result = context.result();
-              System.out.println(result.responseObject());
-              testContext.assertFalse(result.responseObject().containsKey("token"));
+              JsonObject user = context.principal();
+              System.out.println(user);
+              testContext.assertFalse(user.containsKey("username"));
               async.complete();
             })
             .onFailure(throwable -> {
@@ -78,26 +105,26 @@ public class UserLoadFilterTest {
   }
 
   @Test
-  public void missUserKeyShouldNotContainToken(TestContext testContext) {
-    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject());
+  public void testNoUserId(TestContext testContext) {
+    JsonObject userConfig = new JsonObject()
+            .put("loader", "/" + UUID.randomUUID().toString());
+    filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
+                           new JsonObject().put("user", userConfig)
+                                   .put("port", port).put("namespace", namespace));
     filters.add(filter);
     ApiContext apiContext = createContext();
 
-    JsonObject body = new JsonObject()
-            .put("username", "edgar")
-            .put("tel", "123456")
-            .put(UUID.randomUUID().toString(), 10);
-    apiContext.setResult(Result.createJsonObject(200, body, null));
+    JsonObject body = new JsonObject();
+    apiContext.setPrincipal(body);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              Result result = context.result();
-              System.out.println(result.responseObject());
-              testContext.assertFalse(result.responseObject().containsKey("token"));
+              JsonObject user = context.principal();
+              System.out.println(user);
+              testContext.assertFalse(user.containsKey("username"));
               async.complete();
             })
             .onFailure(throwable -> {
@@ -107,51 +134,63 @@ public class UserLoadFilterTest {
   }
 
   @Test
-  public void validUserShouldContainToken(TestContext testContext) {
-    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject());
+  public void testNotExist(TestContext testContext) {
+    JsonObject userConfig = new JsonObject()
+            .put("loader", "/" + UUID.randomUUID().toString());
+    filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
+                           new JsonObject().put("user", userConfig)
+                                   .put("port", port).put("namespace", namespace));
     filters.add(filter);
     ApiContext apiContext = createContext();
 
     JsonObject body = new JsonObject()
-            .put("username", "edgar")
-            .put("tel", "123456")
-            .put("userId", 1);
-    apiContext.setResult(Result.createJsonObject(200, body, null));
-
-    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-                                                                      .class
-                                                                      .getSimpleName());
-    apiContext.apiDefinition().addPlugin(plugin);
+            .put("userId", UUID.randomUUID().toString());
+    apiContext.setPrincipal(body);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              Result result = context.result();
-              testContext.assertTrue(result.responseObject().containsKey("token"));
-              String token = result.responseObject().getString("token");
-              String token2 = Iterables.get(Splitter.on(".").split(token), 1);
-              JsonObject chaim = new JsonObject(new String(Base64.getDecoder().decode(token2)));
-              System.out.println(chaim);
-              System.out.println(new Date(chaim.getLong("exp") * 1000));
-              testContext.assertTrue(chaim.containsKey("jti"));
-
-              CacheManager.instance().getCache("userCache").get(namespace + ":user:" + 1, ar -> {
-                if (ar.succeeded()) {
-                  System.out.println(ar.result());
-                  async.complete();
-                } else {
-                  testContext.fail();
-                }
-              });
+              JsonObject user = context.principal();
+              System.out.println(user);
+              testContext.assertFalse(user.containsKey("username"));
+              async.complete();
             })
             .onFailure(throwable -> {
               throwable.printStackTrace();
               testContext.fail();
             });
+  }
 
+  @Test
+  public void testLoadSuccess(TestContext testContext) {
+    JsonObject userConfig = new JsonObject()
+            .put("loader", "/" + UUID.randomUUID().toString());
+    filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
+                           new JsonObject().put("user", userConfig)
+                                   .put("port", port).put("namespace", namespace));
+    filters.add(filter);
+    ApiContext apiContext = createContext();
+
+    JsonObject body = new JsonObject()
+            .put("userId", id);
+    apiContext.setPrincipal(body);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              JsonObject user = context.principal();
+              System.out.println(user);
+              testContext.assertTrue(user.containsKey("username"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
   }
 
   private ApiContext createContext() {

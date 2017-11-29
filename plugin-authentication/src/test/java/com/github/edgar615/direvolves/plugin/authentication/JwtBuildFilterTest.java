@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.github.edgar615.direwolves.core.cache.CacheManager;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
@@ -28,7 +27,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +55,7 @@ public class JwtBuildFilterTest {
   @Test
   public void badRequestShouldNotContainToken(TestContext testContext) {
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject());
+                           new JsonObject());
     filters.add(filter);
     ApiContext apiContext = createContext();
 
@@ -86,7 +84,7 @@ public class JwtBuildFilterTest {
   @Test
   public void missUserKeyShouldNotContainToken(TestContext testContext) {
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject());
+                           new JsonObject());
     filters.add(filter);
     ApiContext apiContext = createContext();
 
@@ -115,9 +113,9 @@ public class JwtBuildFilterTest {
   @Test
   public void testDefaultTokenNoExp(TestContext testContext) {
     JsonObject config = new JsonObject()
-            .put("algorithm", "HS512");
+            .put("algorithm", "HS256");
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject().put("jwt.builder", config));
+                           new JsonObject().put("jwt.builder", config));
     filters.add(filter);
     ApiContext apiContext = createContext();
 
@@ -160,10 +158,10 @@ public class JwtBuildFilterTest {
   @Test
   public void testTokenHasExp(TestContext testContext) {
     JsonObject config = new JsonObject()
-            .put("algorithm", "HS512")
+            .put("algorithm", "HS256")
             .put("expiresInSeconds", 1000);
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject().put("jwt.builder", config));
+                           new JsonObject().put("jwt.builder", config));
     filters.add(filter);
     ApiContext apiContext = createContext();
 
@@ -174,8 +172,8 @@ public class JwtBuildFilterTest {
     apiContext.setResult(Result.createJsonObject(200, body, null));
 
     JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-            .class
-            .getSimpleName());
+                                                                      .class
+                                                                      .getSimpleName());
     apiContext.apiDefinition().addPlugin(plugin);
 
     Task<ApiContext> task = Task.create();
@@ -206,11 +204,11 @@ public class JwtBuildFilterTest {
   @Test
   public void testOnlyContainsToken(TestContext testContext) {
     JsonObject config = new JsonObject()
-            .put("algorithm", "HS512")
+            .put("algorithm", "HS256")
             .put("emptyingField", true)
             .put("expiresInSeconds", 1000);
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject().put("jwt.builder", config));
+                           new JsonObject().put("jwt.builder", config));
     filters.add(filter);
     ApiContext apiContext = createContext();
 
@@ -221,8 +219,8 @@ public class JwtBuildFilterTest {
     apiContext.setResult(Result.createJsonObject(200, body, null));
 
     JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-            .class
-            .getSimpleName());
+                                                                      .class
+                                                                      .getSimpleName());
     apiContext.apiDefinition().addPlugin(plugin);
 
     Task<ApiContext> task = Task.create();
@@ -252,12 +250,12 @@ public class JwtBuildFilterTest {
   @Test
   public void testContainsTel(TestContext testContext) {
     JsonObject config = new JsonObject()
-            .put("algorithm", "HS512")
+            .put("algorithm", "HS256")
             .put("emptyingField", true)
             .put("claimKey", new JsonArray().add("tel").add("username"))
             .put("expiresInSeconds", 1000);
     filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
-            new JsonObject().put("jwt.builder", config));
+                           new JsonObject().put("jwt.builder", config));
     filters.add(filter);
     ApiContext apiContext = createContext();
 
@@ -268,8 +266,8 @@ public class JwtBuildFilterTest {
     apiContext.setResult(Result.createJsonObject(200, body, null));
 
     JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
-            .class
-            .getSimpleName());
+                                                                      .class
+                                                                      .getSimpleName());
     apiContext.apiDefinition().addPlugin(plugin);
 
     Task<ApiContext> task = Task.create();
@@ -289,6 +287,111 @@ public class JwtBuildFilterTest {
               testContext.assertTrue(chaim.containsKey("jti"));
               testContext.assertTrue(chaim.containsKey("tel"));
               testContext.assertTrue(chaim.containsKey("username"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void testCustomKeyStore(TestContext testContext) {
+    JsonObject config = new JsonObject()
+            .put("algorithm", "HS512");
+    JsonObject keyStore = new JsonObject()
+            .put("path", "test.jceks")
+            .put("password", "123456")
+            .put("type", "jceks");
+    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
+                           new JsonObject().put("jwt.builder", config)
+                                   .put("keyStore", keyStore));
+    filters.add(filter);
+    ApiContext apiContext = createContext();
+
+    JsonObject body = new JsonObject()
+            .put("username", "edgar")
+            .put("tel", "123456")
+            .put("userId", 1);
+    apiContext.setResult(Result.createJsonObject(200, body, null));
+
+    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
+                                                                      .class
+                                                                      .getSimpleName());
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              Result result = context.result();
+              System.out.println(result.responseObject());
+              testContext.assertTrue(result.responseObject().containsKey("userId"));
+              testContext.assertTrue(result.responseObject().containsKey("username"));
+              testContext.assertTrue(result.responseObject().containsKey("tel"));
+              testContext.assertTrue(result.responseObject().containsKey("token"));
+              String token = result.responseObject().getString("token");
+              String token2 = Iterables.get(Splitter.on(".").split(token), 1);
+              JsonObject chaim = new JsonObject(new String(Base64.getDecoder().decode(token2)));
+              System.out.println(chaim);
+              testContext.assertFalse(chaim.containsKey("exp"));
+              testContext.assertTrue(chaim.containsKey("jti"));
+              async.complete();
+            })
+            .onFailure(throwable -> {
+              throwable.printStackTrace();
+              testContext.fail();
+            });
+  }
+
+  @Test
+  public void testContainsOtherClaim(TestContext testContext) {
+    JsonObject config = new JsonObject()
+            .put("issuer", "edgar615")
+            .put("subject", "app")
+            .put("audience", new JsonArray().add("test"))
+            .put("noTimestamp", false)
+            .put("header", new JsonObject().put("foo", "bar"))
+            .put("expiresInSeconds", 1000);
+    filter = Filter.create(JwtBuildFilter.class.getSimpleName(), vertx,
+                           new JsonObject().put("jwt.builder", config));
+    filters.add(filter);
+    ApiContext apiContext = createContext();
+
+    JsonObject body = new JsonObject()
+            .put("username", "edgar")
+            .put("tel", "123456")
+            .put("userId", 1);
+    apiContext.setResult(Result.createJsonObject(200, body, null));
+
+    JwtBuildPlugin plugin = (JwtBuildPlugin) ApiPlugin.create(JwtBuildPlugin
+                                                                      .class
+                                                                      .getSimpleName());
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              Result result = context.result();
+              System.out.println(result.responseObject());
+              testContext.assertTrue(result.responseObject().containsKey("token"));
+              String token = result.responseObject().getString("token");
+              String token2 = Iterables.get(Splitter.on(".").split(token), 1);
+              JsonObject header = new JsonObject(new String(Base64.getDecoder().decode(Iterables
+                                                                                               .get(Splitter.on(".").split(token), 0))));
+              System.out.println(header);
+              JsonObject chaim = new JsonObject(new String(Base64.getDecoder().decode(token2)));
+              System.out.println(chaim);
+              testContext.assertTrue(chaim.containsKey("exp"));
+              testContext.assertTrue(chaim.containsKey("jti"));
+              testContext.assertEquals("edgar615", chaim.getString("iss"));
+              testContext.assertEquals("app", chaim.getString("sub"));
+              testContext.assertTrue(chaim.containsKey("iat"));
+              testContext.assertEquals("test", chaim.getJsonArray("aud").getString(0));
+              testContext.assertEquals("bar", header.getString("foo"));
               async.complete();
             })
             .onFailure(throwable -> {

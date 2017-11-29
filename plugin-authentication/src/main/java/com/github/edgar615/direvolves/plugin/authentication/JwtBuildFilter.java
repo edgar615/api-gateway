@@ -32,8 +32,13 @@ import java.util.UUID;
  * jwt配置
  * <pre>
  * "jwt.builder": {
- * "expiresInSeconds" : 3600,//TOKEN过期秒杀，默认null
+ * "expiresInSeconds" : 3600,//TOKEN过期秒数，可选 ，生成exp
  * "algorithm": "HS512", //算法，默认HS256
+ *  "audience" : ["test"], 接收该JWT的一方，可选
+ "subject": "app", 该JWT所面向的用户，可选
+ "issuer" : "edgar615", 该JWT的签发者，可选
+ "noTimestamp" : false, 是否生成iat 默认true，不生成
+ "header" : {}, 额外的头信息，可选
  * "emptyingField" : true, //生成TOKEN时清除其他属性 默认false
  * "claimKey": [] //生成token时把除userId外的哪些属性存入claims
  * }
@@ -95,7 +100,7 @@ public class JwtBuildFilter implements Filter {
       KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
               .setPath("keystore.jceks")
               .setType("jceks")
-              .setPassword("secret");
+              .setPassword("INIHPMOZPO");
       this.jwtAuthOptions.setKeyStore(keyStoreOptions);
     }
   }

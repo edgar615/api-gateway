@@ -452,21 +452,113 @@ API网关需要处理身份认证的问题，避免下游服务重复实现身�
 - false 表示关闭这个插件
 
 #### Filter: JwtBuildFilter
-根据响应体创建一个JWT，如何追加到响应体中
+根据响应体创建一个JWT，如何追加到响应体中。
+这个请求要求响应体中包括一个`userId`属性，如果响应体中没有这个属性，可以通过替换插件替换
 
 - **type** POST
 - **order** 10000
 
 **前置条件**：JwtBuildPlugin开启
 
+它依赖两个配置`jwt.builder`和`keyStore`
+jwt.builder配置
+```
+  "jwt.builder": {
+    "expiresInSeconds" : 3600,
+    "algorithm": "HS512",
+    "audience" : ["test"],
+    "subject": "app",
+    "issuer" : "edgar615",
+    "noTimestamp" : false,
+    "header" : {},
+    "emptyingField" : true,
+    "claimKey": []
+  }
+```
+
+- **expiresInSeconds** TOKEN过期秒数，可选，用来生成exp
+- **algorithm** keyStore的算法，默认HS256
+- **audience** 接收该JWT的一方，可选，JSON数组
+- **subject** 该JWT所面向的用户，可选
+- **issuer**  该JWT所面向的用户，可选
+- **noTimestamp** 是否生成iat 默认true，不生成
+- **header**  额外的头信息，可选
+- **emptyingField** 生成TOKEN时清除其他属性，返回结果里仅仅包括token, 默认false
+- **claimKey** 生成token时把除userId外的哪些属性存入claims， 可选
+
+keyStore配置
+```
+    "keyStore" : {
+      "path": "keystore.jceks",
+      "type": "jceks",
+      "password": "secret"
+    }
+```
+
+- **path** keyStore的存放路径，默认keystore.jceks
+- **type** keyStore的类型，默认 jceks
+- **password** keyStore的类型的密码，默认INIHPMOZPO
+
+keystore的生成方式
+```
+keytool -genseckey -keystore keystore.jceks -storetype jceks -storepass secret -keyalg HMacSHA256 -keysize 2048 -alias HS256 -keypass secret
+keytool -genseckey -keystore keystore.jceks -storetype jceks -storepass secret -keyalg HMacSHA384 -keysize 2048 -alias HS384 -keypass secret
+keytool -genseckey -keystore keystore.jceks -storetype jceks -storepass secret -keyalg HMacSHA512 -keysize 2048 -alias HS512 -keypass secret
+keytool -genkey -keystore keystore.jceks -storetype jceks -storepass secret -keyalg RSA -keysize 2048 -alias RS256 -keypass secret -sigalg SHA256withRSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 360
+keytool -genkey -keystore keystore.jceks -storetype jceks -storepass secret -keyalg RSA -keysize 2048 -alias RS384 -keypass secret -sigalg SHA384withRSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 360
+keytool -genkey -keystore keystore.jceks -storetype jceks -storepass secret -keyalg RSA -keysize 2048 -alias RS512 -keypass secret -sigalg SHA512withRSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 360
+keytool -genkeypair -keystore keystore.jceks -storetype jceks -storepass secret -keyalg EC -keysize 256 -alias ES256 -keypass secret -sigalg SHA256withECDSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 360
+keytool -genkeypair -keystore keystore.jceks -storetype jceks -storepass secret -keyalg EC -keysize 384 -alias ES384 -keypass secret -sigalg SHA384withECDSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 360
+keytool -genkeypair -keystore keystore.jceks -storetype jceks -storepass secret -keyalg EC -keysize 521 -alias ES512 -keypass secret -sigalg SHA512withECDSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 36
+```
+
+#### Plugin: AuthenticationPlugin
+表明这个API需要对JWT进行校验
 配置
 ```
+"authentication": true
 ```
+- true 表示开启这个插件
+- false 表示关闭这个插件
+
+#### Filter: AuthenticationFilter
+从请求头中取出下面格式的TOKEN，然后进行JWT的校验。
+```
+Authorization:Bearer <token>
+```
+
+- **type** PRE
+- **order** 10000
+
+**前置条件**：AuthenticationPlugin开启
+
+它依赖两个配置`jwt.auth`和`keyStore`
+jwt.auth配置
+```
+  "jwt.auth": {
+    "ignoreExpiration": false,
+    "audiences": [],
+    "issuer": "",
+    "leeway": 0
+  }
+```
+
+- **ignoreExpiration** 是否校验exp 可选，默认false
+- **audiences** 校验aud，JSON数组，可选
+- **issuer** 校验iss，可选
+- **leeway** 允许调用方与服务端的偏差
+
+keyStore配置与前面相同，不在描述。
+
+AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的principal中
+
 
 ### 授权 Authorization
 授权（Authorization）是用来回答以下问题：
 - 用户A是否被授权访问资源R
 - 用户A是否被授权执行P操作
+
+
 
 
 ### 断路器

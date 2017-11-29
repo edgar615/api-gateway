@@ -1,8 +1,7 @@
 {
   "user" : {
-    "userClaimKey": "userId",
-    "permissionsClaimKey": "permissions",
     "unique": true,
+    "loader" : "/users",
     "cache": {
       "type" : "local",
       "expireAfterWrite": 3600,
