@@ -1,6 +1,3 @@
 com.github.edgar615.direvolves.plugin.authentication.AuthenticationFilterFactory
 com.github.edgar615.direvolves.plugin.authentication.JwtBuildFilterFactory
-com.github.edgar615.direvolves.plugin.authentication.BackendAuthCodeFilterFactory
-com.github.edgar615.direvolves.plugin.authentication.BackendVertifyFilterFactory
-com.github.edgar615.direvolves.plugin.authentication.JwtCleanFilterFactory
 com.github.edgar615.direvolves.plugin.authentication.UserLoaderFilterFactory

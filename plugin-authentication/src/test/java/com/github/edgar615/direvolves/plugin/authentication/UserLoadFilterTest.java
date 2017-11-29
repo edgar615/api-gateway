@@ -107,7 +107,7 @@ public class UserLoadFilterTest {
   @Test
   public void testNoUserId(TestContext testContext) {
     JsonObject userConfig = new JsonObject()
-            .put("loader", "/" + UUID.randomUUID().toString());
+            .put("url", "/" + UUID.randomUUID().toString());
     filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
                            new JsonObject().put("user", userConfig)
                                    .put("port", port).put("namespace", namespace));
@@ -136,7 +136,7 @@ public class UserLoadFilterTest {
   @Test
   public void testNotExist(TestContext testContext) {
     JsonObject userConfig = new JsonObject()
-            .put("loader", "/" + UUID.randomUUID().toString());
+            .put("url", "/" + UUID.randomUUID().toString());
     filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
                            new JsonObject().put("user", userConfig)
                                    .put("port", port).put("namespace", namespace));
@@ -166,7 +166,7 @@ public class UserLoadFilterTest {
   @Test
   public void testLoadSuccess(TestContext testContext) {
     JsonObject userConfig = new JsonObject()
-            .put("loader", "/" + UUID.randomUUID().toString());
+            .put("url", "/" + UUID.randomUUID().toString());
     filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
                            new JsonObject().put("user", userConfig)
                                    .put("port", port).put("namespace", namespace));

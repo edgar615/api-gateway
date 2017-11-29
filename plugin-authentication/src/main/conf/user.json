@@ -1,6 +1,6 @@
 {
   "user" : {
-    "loader" : "/users",
+    "url" : "/users",
     "cache": {
       "type" : "local",
       "expireAfterWrite": 3600,

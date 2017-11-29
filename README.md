@@ -564,7 +564,7 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
 配置
 ```
   "user" : {
-    "loader" : "/users",
+    "url" : "/users",
     "cache": {
       "type" : "local",
       "expireAfterWrite": 3600,
@@ -573,7 +573,7 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
   }
 ```
 
-- **loader** 对应的API地址，最终发送的请求为http://127.0.0.1:${port}/{loader}?userId=${userId}
+- **url** 对应的API地址，最终发送的请求为http://127.0.0.1:${port}/{url}?userId=${userId}
 - **cache** 用户缓存的配置
 
 cache

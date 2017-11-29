@@ -65,10 +65,10 @@ public class UserLoaderFilter implements Filter {
       this.cache = CacheUtils.createCache(vertx, "userCache", new JsonObject());
     }
 
-    if (userConfig.getValue("loader") instanceof String) {
+    if (userConfig.getValue("url") instanceof String) {
       JsonObject httpConfig = new JsonObject();
       httpConfig.put("port", config.getInteger("port", 9000));
-      httpConfig.put("url", userConfig.getString("loader"));
+      httpConfig.put("url", userConfig.getString("url"));
       httpConfig.put("notExistsKey", NOT_EXISTS_KEY);
       userLoader = new UserLoader(vertx, namespace + ":u:", httpConfig);
     } else {

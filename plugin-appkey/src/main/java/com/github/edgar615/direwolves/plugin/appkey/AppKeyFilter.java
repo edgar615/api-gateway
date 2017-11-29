@@ -155,7 +155,7 @@ public class AppKeyFilter implements Filter {
 
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
     appKeyConfig.put("port", config.getInteger("port", 9000));
-    appKeyLoader = new AppKeyLoader(vertx, namespace + ":appkey:", appKeyConfig);
+    appKeyLoader = new AppKeyLoader(vertx, namespace + ":ak:", appKeyConfig);
   }
 
   @Override
@@ -217,25 +217,15 @@ public class AppKeyFilter implements Filter {
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                   .set("details", "The sign is incorrect"));
     } else {
-//      Multimap<String, String> newParams = ArrayListMultimap.create(apiContext.params());
-////      newParams.removeAll("sign");
-////      newParams.removeAll("signMethod");
-////      newParams.removeAll("v");
-////      newParams.removeAll("appKey");
-//      ApiContext newContext =
-//              ApiContext.create(apiContext.id(), apiContext.method(), apiContext.path(),
-//                                apiContext.headers(), newParams, apiContext.body
-//                              ());
-//      ApiContext.copyProperites(apiContext, newContext);
       apiContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
-      apiContext.addVariable("app.code", app.getInteger("appCode", 0));
+      apiContext.addVariable("app.companyCode", app.getInteger("companyCode", 0));
       apiContext.addVariable("app.permissions", app.getString("permissions", "default"));
       completeFuture.complete(apiContext);
     }
   }
 
   private String wrapKey(String appkey) {
-    return namespace + ":appkey:" + appkey;
+    return namespace + ":ak:" + appkey;
   }
 
   private String signTopRequest(Multimap<String, String> params, String secret, String signMethod) {
