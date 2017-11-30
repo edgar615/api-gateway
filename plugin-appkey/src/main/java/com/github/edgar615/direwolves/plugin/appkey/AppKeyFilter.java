@@ -189,9 +189,9 @@ public class AppKeyFilter implements Filter {
       if (ar.failed() || ar.result().containsKey(NOT_EXISTS_KEY)) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())
-                .setEvent("appkey.tripped")
-                .setMessage("Undefined appKey")
-                .error();
+                .setEvent("appKey.tripped")
+                .setMessage("[Undefined appKey]")
+                .warn();
         completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                     .set("details", "Undefined AppKey:" + appKey));
         return;
@@ -211,8 +211,8 @@ public class AppKeyFilter implements Filter {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
               .setEvent("appKey.tripped")
-              .setMessage("Incorrect sign")
-              .error();
+              .setMessage("[Incorrect sign]")
+              .info();
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                   .set("details", "Incorrect sign"));
     } else {

@@ -1,0 +1,21 @@
+{
+  "name": "appkey.blacklist",
+  "method": "GET",
+  "path": "/appkey/blacklist",
+  "appKey" : true,
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+        "appKey" : "$var.client.appKey",
+        "appId" : "$var.client.appId",
+        "permissions" : "$var.client.permissions"
+      }
+    }
+  ],
+  "appKey.restriction" : {
+    "blacklist" : ["FSG1NLKJqM4UKBsboS2j", "AEA3C65BFFCDC720AF5"],
+    "whitelist" : ["RmOI7jCvDtfZ1RcAkea1"]
+  }
+}

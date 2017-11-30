@@ -66,15 +66,19 @@
       {
         "appKey": "RmOI7jCvDtfZ1RcAkea1",
         "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
-        "appCode": 0,
-        "scope": "all"
+        "appId": 0,
+        "permissions": ["all"]
       }
     ],
-    "url": "/appkey/import"
+    "url": "/appkey/import",
+    "cache": {
+      "type": "local"
+    }
   },
-  "backend.permitted": [
-    "18627874615"
-  ],
+  "appKey.restriction" : {
+    "blacklist": ["YM2ILRYlK5GUpheJh63K"],
+    "whitelist": ["AEA3C65BFFCDC720AF5"]
+  },
   "request.transformer": {
     "query.remove": [
       "appKey",

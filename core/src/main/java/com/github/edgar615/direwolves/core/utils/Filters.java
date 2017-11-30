@@ -75,7 +75,7 @@ public class Filters {
         if (filter.shouldFilter(apiContext)) {
           Log.create(LOGGER)
                   .setTraceId(apiContext.id())
-                  .setEvent(filter.getClass().getSimpleName())
+                  .setEvent(filter.getClass().getSimpleName()+".invoke")
                   .info();
 
           apiContext.addVariable("filterStarted", System.currentTimeMillis());
@@ -100,7 +100,7 @@ public class Filters {
 
           Log.create(LOGGER)
                   .setTraceId(apiContext.id())
-                  .setEvent(filter.getClass().getSimpleName())
+                  .setEvent(filter.getClass().getSimpleName() + ".invoked")
                   .setMessage("[{}ms]")
                   .addArg(System.currentTimeMillis() - filterStarted)
                   .info();

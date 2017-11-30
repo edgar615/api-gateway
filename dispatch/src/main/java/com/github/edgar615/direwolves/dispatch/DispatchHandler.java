@@ -117,6 +117,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
     long createdOn = (long) apiContext.variables()
             .getOrDefault("createdOn", Instant.now().getEpochSecond());
     Log.create(LOGGER)
+            .setTraceId(apiContext.id())
             .setEvent("filter.completed")
             .setMessage("[{}ms]")
             .addArg(System.currentTimeMillis() - createdOn)

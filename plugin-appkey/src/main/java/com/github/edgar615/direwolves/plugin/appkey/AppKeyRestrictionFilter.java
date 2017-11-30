@@ -4,9 +4,12 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,8 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-12-24.
  */
 public class AppKeyRestrictionFilter implements Filter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyRestrictionFilter.class);
 
   private final List<String> globalBlacklist = new ArrayList<>();
 
@@ -60,7 +65,7 @@ public class AppKeyRestrictionFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    if (!apiContext.variables().containsKey("app.appKey")) {
+    if (!apiContext.variables().containsKey("client.appKey")) {
       return false;
     }
     return !globalBlacklist.isEmpty()
@@ -78,7 +83,7 @@ public class AppKeyRestrictionFilter implements Filter {
       blacklist.addAll(plugin.blacklist());
       whitelist.addAll(plugin.whitelist());
     }
-    String appKey = (String) apiContext.variables().getOrDefault("app.appKey", "anonymous");
+    String appKey = (String) apiContext.variables().getOrDefault("client.appKey", "anonymous");
     List<String> black = blacklist.stream()
             .filter(r -> checkGroup(r, appKey))
             .collect(Collectors.toList());
@@ -86,6 +91,11 @@ public class AppKeyRestrictionFilter implements Filter {
             .filter(r -> checkGroup(r, appKey))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("appKey.tripped")
+              .setMessage("[Forbidden]")
+              .error();
       completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
                                   .set("details", "The appKey is forbidden"));
     } else {

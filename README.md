@@ -734,6 +734,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 - blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
 > *代表所有
 
+**appKey不能同时存在于whitelist和blacklist，因为在设置某个appKey黑名单/白名单时会清除对应的白名单/黑名单**
 #### Filter: AppKeyRestrictionFilter
 校验调用方是否能够访问对应的API。禁止调用方访问会返回1004的错误码：
 
