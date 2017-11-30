@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * - notificationAddress  通知地址，默认值vertx.circuit-breaker
  * - registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
  */
-public class RpcFilter extends RequestReplaceFilter implements Filter {
+public class RpcFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RpcFilter.class);
 

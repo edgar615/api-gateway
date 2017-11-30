@@ -8,12 +8,9 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.Result;
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 将Result中的请求头，请求参数，请求体按照ResponseTransformerPlugin中的配置处理.
@@ -105,82 +102,16 @@ public class ResponseTransformerFilter implements Filter {
     boolean isArray = result.isArray();
     //body目前仅考虑JsonObject的替换
     Multimap<String, String> header =
-            replaceHeader(apiContext, tranformerHeaders(result.header(), plugin));
-
+            tranformerHeaders(result.header(), plugin);
     if (!isArray) {
-      if (result.statusCode() < 300) {
-        JsonObject body = replaceBody(apiContext, tranformerBody(result.responseObject(), plugin));
-        apiContext.setResult(Result.createJsonObject(result.statusCode(),
-                                                     body, header));
-      } else {
-        apiContext.setResult(Result.createJsonObject(result.statusCode(),
-                                                     result.responseObject(), header));
-      }
+      JsonObject body = tranformerBody(result.responseObject(), plugin);
+      apiContext.setResult(Result.createJsonObject(result.statusCode(),
+                                                   body, header));
     } else {
       apiContext.setResult(Result.createJsonArray(result.statusCode(),
                                                   result.responseArray(), header));
     }
   }
-
-  private Multimap<String, String> replaceHeader(ApiContext apiContext,
-                                                 Multimap<String, String> headers) {
-    Multimap<String, String> newHeaders = ArrayListMultimap.create();
-    for (String key : headers.keySet()) {
-      List<String> values = new ArrayList<>(headers.get(key));
-      for (String val : values) {
-        Object newVal = apiContext.getValueByKeyword(val);
-        if (newVal != null) {
-          newHeaders.put(key, newVal.toString());
-        }
-      }
-    }
-    return newHeaders;
-
-  }
-
-  private JsonObject replaceBody(ApiContext apiContext, JsonObject body) {
-    JsonObject newBody = new JsonObject();
-    if (body != null) {
-      for (String key : body.fieldNames()) {
-        Object newVal = getNewVal(apiContext, body.getValue(key));
-        if (newVal != null) {
-          newBody.put(key, newVal);
-        }
-      }
-    }
-    return newBody;
-
-  }
-
-  private Object getNewVal(ApiContext apiContext, Object value) {
-    if (value instanceof String) {
-      String val = (String) value;
-      return apiContext.getValueByKeyword(val);
-    } else if (value instanceof JsonArray) {
-      JsonArray val = (JsonArray) value;
-      JsonArray replacedArray = new JsonArray();
-      for (int i = 0; i < val.size(); i++) {
-        Object newVal = getNewVal(apiContext, val.getValue(i));
-        if (newVal != null) {
-          replacedArray.add(newVal);
-        }
-      }
-      return replacedArray.isEmpty() ? null : replacedArray;
-    } else if (value instanceof JsonObject) {
-      JsonObject val = (JsonObject) value;
-      JsonObject replacedObject = new JsonObject();
-      for (String key : val.fieldNames()) {
-        Object newVal = getNewVal(apiContext, val.getValue(key));
-        if (newVal != null) {
-          replacedObject.put(key, newVal);
-        }
-      }
-      return replacedObject.isEmpty() ? null : replacedObject;
-    } else {
-      return value;
-    }
-  }
-
 
   private Multimap<String, String> tranformerHeaders(Multimap<String, String> headers,
                                                      ResponseTransformerPlugin transformer) {

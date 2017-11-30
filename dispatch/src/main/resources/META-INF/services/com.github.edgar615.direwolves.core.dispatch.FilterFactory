@@ -9,3 +9,4 @@ com.github.edgar615.direwolves.filter.EventbusRequestReplaceFilterFactory
 com.github.edgar615.direwolves.filter.DummyRequestFilterFactory
 com.github.edgar615.direwolves.filter.RpcFilterFactory
 com.github.edgar615.direwolves.metric.MetricFilterFactory
+com.github.edgar615.direwolves.filter.ResponseReplaceFilterFactory
