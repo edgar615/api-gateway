@@ -105,7 +105,7 @@ public class UserLoaderFilter implements Filter {
                 .setTraceId(apiContext.id())
                 .setEvent("user.undefined")
                 .addData("user", userId)
-                .error();
+                .warn();
       } else {
         apiContext.principal().mergeIn(ar.result());
       }
