@@ -1,0 +1,16 @@
+{
+  "name": "jwt.auth",
+  "method": "GET",
+  "path": "/jwt",
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+        "userId": "$user.userId",
+        "username" : "$user.username"
+      }
+    }
+  ],
+  "authentication" : true
+}

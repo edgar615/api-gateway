@@ -2,9 +2,13 @@ package com.github.edgar615.direwolves.core.dispatch;
 
 import com.google.common.collect.ImmutableList;
 
+import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -16,6 +20,8 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-9-18.
  */
 public interface Filter {
+
+  Logger LOGGER = LoggerFactory.getLogger(Filter.class);
 
   List<FilterFactory> factories = ImmutableList.copyOf(ServiceLoader.load(FilterFactory.class));
 
@@ -69,6 +75,17 @@ public interface Filter {
       throw new NoSuchElementException("no such factory->" + name);
     }
     return list.get(0).create(vertx, config);
+  }
+
+  default void failed(Future<ApiContext> completeFuture,
+                      String traceId,
+                      String event,
+                      Throwable throwable) {
+    Log.create(LOGGER)
+            .setTraceId(traceId)
+            .setEvent(event)
+            .error();
+    completeFuture.fail(throwable);
   }
 
 }

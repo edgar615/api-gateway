@@ -1,0 +1,14 @@
+{
+  "name": "jwt.build.noUserId",
+  "method": "POST",
+  "path": "/notoken",
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+      }
+    }
+  ],
+  "jwt.build" : true
+}

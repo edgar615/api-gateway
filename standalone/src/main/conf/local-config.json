@@ -93,18 +93,17 @@
           "notificationAddress": "vertx.circuit-breaker",
           "registry": "vertx.circuit.breaker.registry"
         },
-        "jwt": {
-          "path": "keystore.jceks",
-          "type": "jceks",
-          "password": "secret",
-          "algorithm": "HS512",
-          "audience": "",
-          "issuer": "",
-          "subject": "",
-          "expiresInSeconds": 1800
+        "jwt.builder": {
+          "expiresInSeconds" : 3600,
+          "emptyingField" : true
         },
-        "user": {
-          "unique": true
+        "user" : {
+          "url" : "/users",
+          "cache": {
+            "type" : "local",
+            "expireAfterWrite": 3600,
+            "maximumSize": 5000
+          }
         },
         "timeout": {
           "expires": 300,

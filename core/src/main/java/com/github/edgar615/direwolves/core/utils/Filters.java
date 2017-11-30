@@ -5,8 +5,6 @@ import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.function.Consumer;
  * @author Edgar  Date 2016/9/20
  */
 public class Filters {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Filters.class);
 
   private Filters() {
     throw new AssertionError("Not instantiable: " + Filters.class);
@@ -73,7 +70,7 @@ public class Filters {
     for (Filter filter : filters) {
       task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
         if (filter.shouldFilter(apiContext)) {
-          Log.create(LOGGER)
+          Log.create(Filter.LOGGER)
                   .setTraceId(apiContext.id())
                   .setEvent(filter.getClass().getSimpleName()+".invoke")
                   .info();
@@ -98,7 +95,7 @@ public class Filters {
             //ignore
           }
 
-          Log.create(LOGGER)
+          Log.create(Filter.LOGGER)
                   .setTraceId(apiContext.id())
                   .setEvent(filter.getClass().getSimpleName() + ".invoked")
                   .setMessage("[{}ms]")

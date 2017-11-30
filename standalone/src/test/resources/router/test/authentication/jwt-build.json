@@ -1,0 +1,15 @@
+{
+  "name": "jwt.build",
+  "method": "POST",
+  "path": "/token",
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+        "userId": "$body.userId"
+      }
+    }
+  ],
+  "jwt.build" : true
+}

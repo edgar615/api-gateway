@@ -4,12 +4,9 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +30,6 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-12-24.
  */
 public class AppKeyRestrictionFilter implements Filter {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyRestrictionFilter.class);
 
   private final List<String> globalBlacklist = new ArrayList<>();
 
@@ -91,13 +86,10 @@ public class AppKeyRestrictionFilter implements Filter {
             .filter(r -> checkGroup(r, appKey))
             .collect(Collectors.toList());
     if (white.isEmpty() && !black.isEmpty()) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("appKey.tripped")
-              .setMessage("[Forbidden]")
-              .error();
-      completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-                                  .set("details", "The appKey is forbidden"));
+      SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+              .set("details", "The appKey is forbidden");
+      failed(completeFuture, apiContext.id(), "appKey.tripped", e);
+
     } else {
       completeFuture.complete(apiContext);
     }

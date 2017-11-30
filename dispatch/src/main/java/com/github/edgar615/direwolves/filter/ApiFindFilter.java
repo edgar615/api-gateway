@@ -8,12 +8,9 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -29,8 +26,6 @@ import java.util.List;
  * Created by edgar on 17-1-4.
  */
 public class ApiFindFilter implements Filter {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiFindFilter.class);
 
   private final Vertx vertx;
 
@@ -64,11 +59,7 @@ public class ApiFindFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     apiFinder.getDefinitions(apiContext.method().name(), apiContext.path(), ar -> {
       if (ar.failed()) {
-        Log.create(LOGGER)
-                .setTraceId(apiContext.id())
-                .setEvent("api.discovery.failed")
-                .error();
-        completeFuture.fail(ar.cause());
+        failed(completeFuture, apiContext.id(), "api.tripped", ar.cause());
         return;
       }
       try {
@@ -79,21 +70,13 @@ public class ApiFindFilter implements Filter {
       } catch (SystemException e) {
         e.set("details", "Undefined Api")
                 .set("api", apiContext.method().name() + " " + apiContext.path());
-        failed(apiContext, completeFuture, e);
+        failed(completeFuture, apiContext.id(), "api.tripped", e);
         return;
       } catch (Exception e) {
-        failed(apiContext, completeFuture, e);
+        failed(completeFuture, apiContext.id(), "api.tripped", e);
         return;
       }
     });
-  }
-
-  private void failed(ApiContext apiContext, Future<ApiContext> completeFuture, Exception e) {
-    Log.create(LOGGER)
-            .setTraceId(apiContext.id())
-            .setEvent("api.discovery.failed")
-            .error();
-    completeFuture.fail(e);
   }
 
   private ApiDefinition matchApi(List<ApiDefinition> apiDefinitions) {

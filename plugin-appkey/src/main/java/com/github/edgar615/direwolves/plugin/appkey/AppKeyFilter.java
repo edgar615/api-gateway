@@ -12,7 +12,6 @@ import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.util.base.EncryptUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
 import com.github.edgar615.util.vertx.cache.Cache;
@@ -20,8 +19,6 @@ import com.github.edgar615.util.vertx.cache.CacheLoader;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -117,8 +114,6 @@ import java.util.UUID;
  */
 public class AppKeyFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyFilter.class);
-
   private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
   private final String namespace;
@@ -187,13 +182,9 @@ public class AppKeyFilter implements Filter {
     }
     cache.get(wrapKey(appKey), appKeyLoader, ar -> {
       if (ar.failed() || ar.result().containsKey(NOT_EXISTS_KEY)) {
-        Log.create(LOGGER)
-                .setTraceId(apiContext.id())
-                .setEvent("appKey.tripped")
-                .setMessage("[Undefined appKey]")
-                .warn();
-        completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                    .set("details", "Undefined AppKey:" + appKey));
+        SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
+                .set("details", "Undefined AppKey:" + appKey);
+        failed(completeFuture, apiContext.id(), "appKey.tripped", e);
         return;
       }
       JsonObject jsonObject = ar.result();
@@ -208,13 +199,9 @@ public class AppKeyFilter implements Filter {
     String secret = app.getString("appSecret", "UNKOWNSECRET");
     String serverSignValue = signTopRequest(params, secret, signMethod);
     if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("appKey.tripped")
-              .setMessage("[Incorrect sign]")
-              .info();
-      completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                  .set("details", "Incorrect sign"));
+      SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
+              .set("details", "Incorrect sign");
+      failed(completeFuture, apiContext.id(), "appKey.tripped", e);
     } else {
       apiContext.addVariable("client.appKey", app.getString("appKey", "anonymous"));
       if (app.containsKey("appId")) {

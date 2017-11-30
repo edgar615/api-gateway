@@ -11,12 +11,9 @@ import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.List;
@@ -35,8 +32,6 @@ import java.util.stream.Collectors;
  * Created by edgar on 17-1-4.
  */
 public class HeaderGrayFilter implements Filter {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(HeaderGrayFilter.class);
 
   private static final String HEADER_NAME = "x-api-version";
 
@@ -71,11 +66,7 @@ public class HeaderGrayFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     apiFinder.getDefinitions(apiContext.method().name(), apiContext.path(), ar -> {
       if (ar.failed()) {
-        Log.create(LOGGER)
-                .setTraceId(apiContext.id())
-                .setEvent("api.discovery.failed")
-                .error();
-        completeFuture.fail(ar.cause());
+        failed(completeFuture, apiContext.id(), "api.tripped", ar.cause());
         return;
       }
       try {
@@ -87,23 +78,14 @@ public class HeaderGrayFilter implements Filter {
       } catch (SystemException e) {
         e.set("details", "Undefined Api")
                 .set("api", apiContext.method().name() + " " + apiContext.path());
-        failed(apiContext, completeFuture, e);
+        failed(completeFuture, apiContext.id(), "api.tripped", e);
         return;
       } catch (Exception e) {
-        failed(apiContext, completeFuture, e);
+        failed(completeFuture, apiContext.id(), "api.tripped", e);
         return;
       }
     });
   }
-
-  private void failed(ApiContext apiContext, Future<ApiContext> completeFuture, Exception e) {
-    Log.create(LOGGER)
-            .setTraceId(apiContext.id())
-            .setEvent("api.discovery.failed")
-            .error();
-    completeFuture.fail(e);
-  }
-
 
   private ApiDefinition matchApi(List<ApiDefinition> apiDefinitions, String reqVersion) {
     if (apiDefinitions.isEmpty()) {//没有API

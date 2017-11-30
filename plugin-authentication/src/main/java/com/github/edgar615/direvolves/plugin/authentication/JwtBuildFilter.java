@@ -3,9 +3,7 @@ package com.github.edgar615.direvolves.plugin.authentication;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.Result;
-import com.github.edgar615.direwolves.core.utils.CacheUtils;
 import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.vertx.cache.Cache;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -14,8 +12,6 @@ import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.auth.jwt.JWTOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +31,10 @@ import java.util.UUID;
  * "expiresInSeconds" : 3600,//TOKEN过期秒数，可选 ，生成exp
  * "algorithm": "HS512", //算法，默认HS256
  *  "audience" : ["test"], 接收该JWT的一方，可选
- "subject": "app", 该JWT所面向的用户，可选
- "issuer" : "edgar615", 该JWT的签发者，可选
- "noTimestamp" : false, 是否生成iat 默认true，不生成
- "header" : {}, 额外的头信息，可选
+ * "subject": "app", 该JWT所面向的用户，可选
+ * "issuer" : "edgar615", 该JWT的签发者，可选
+ * "noTimestamp" : false, 是否生成iat 默认true，不生成
+ * "header" : {}, 额外的头信息，可选
  * "emptyingField" : true, //生成TOKEN时清除其他属性 默认false
  * "claimKey": [] //生成token时把除userId外的哪些属性存入claims
  * }
@@ -56,19 +52,17 @@ import java.util.UUID;
  */
 public class JwtBuildFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(JwtBuildFilter.class);
-
   private final Vertx vertx;
 
   private final String userKey = "userId";
-
-  private boolean emptyingField = false;
 
   private final JWTAuthOptions jwtAuthOptions;
 
   private final JWTOptions jwtOptions;
 
   private final List<String> claimKey = new ArrayList<>();
+
+  private boolean emptyingField = false;
 
   /**
    * @param vertx  Vertx
@@ -81,8 +75,7 @@ public class JwtBuildFilter implements Filter {
       this.jwtOptions = new JWTOptions(jwtBuilderConfig);
       if (jwtBuilderConfig.getValue("claimKey") instanceof JsonArray) {
         jwtBuilderConfig.getJsonArray("claimKey").forEach(item -> {
-          if (item instanceof String)
-            claimKey.add((String) item);
+          if (item instanceof String) { claimKey.add((String) item); }
         });
       }
       if (jwtBuilderConfig.getValue("emptyingField") instanceof Boolean) {
@@ -130,8 +123,8 @@ public class JwtBuildFilter implements Filter {
       return false;
     }
     return !result.isArray()
-            && result.statusCode() < 400
-            && result.responseObject().containsKey(userKey);
+           && result.statusCode() < 400
+           && result.responseObject().containsKey(userKey);
   }
 
   @Override
@@ -142,6 +135,10 @@ public class JwtBuildFilter implements Filter {
     String jti = UUID.randomUUID().toString();
     Object userId = body.getValue(userKey);
     if (userId == null) {
+      Log.create(Filter.LOGGER)
+              .setEvent("jwt.build.ignore")
+              .setMessage("[Miss userId]")
+              .info();
       completeFuture.complete(apiContext);
       return;
     }
@@ -162,11 +159,7 @@ public class JwtBuildFilter implements Filter {
     //保存JTI，后面使用
     apiContext.addVariable("jti", jti);
     apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
-            result.header()));
-    LOGGER.info("---| [{}] [OK] [{}] [{}]",
-            apiContext.id(),
-            this.getClass().getSimpleName(),
-            "create token:" + userId);
+                                                 result.header()));
     completeFuture.complete(apiContext);
   }
 

@@ -6,7 +6,6 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -15,8 +14,6 @@ import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +24,18 @@ import java.util.List;
  * 在校验通过之后，会在上下文中存入用户信息:
  * * 该filter可以接受下列的配置参数
  * <pre>
- "jwt.auth": {
- "ignoreExpiration": false, 是否校验exp 可选，默认false
- "audiences": [], 校验aud，JSON数组，可选
- "issuer": "", 校验iss，可选
- "leeway": 0 允许调用方与服务端的偏差
- }
+ * "jwt.auth": {
+ * "ignoreExpiration": false, 是否校验exp 可选，默认false
+ * "audiences": [], 校验aud，JSON数组，可选
+ * "issuer": "", 校验iss，可选
+ * "leeway": 0 允许调用方与服务端的偏差
+ * }
  * </pre>
  * 该filter的order=1000
  *
  * @author Edgar  Date 2016/10/31
  */
 public class AuthenticationFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
   private static final String HEADER_AUTH = "Authorization";
 
@@ -100,18 +96,14 @@ public class AuthenticationFilter implements Filter {
                   apiContext.setPrincipal(principal);
                   completeFuture.complete(apiContext);
                 } else {
-                  Log.create(LOGGER)
-                          .setTraceId(apiContext.id())
-                          .setEvent("authentication.failed")
-                          .setThrowable(ar.cause())
-                          .error();
-                  completeFuture.fail(ar.cause());
+                  failed(completeFuture, apiContext.id(), "authentication.tripped", ar.cause());
                 }
               });
     } catch (Exception e) {
-      completeFuture.fail(e);
+      failed(completeFuture, apiContext.id(), "authentication.tripped", e);
     }
   }
+
 
   /**
    * 从header中提取token信息.
@@ -129,12 +121,6 @@ public class AuthenticationFilter implements Filter {
                 .set("details", "The format of the token: Authorization:Bearer <token>");
       }
     }
-    Log.create(LOGGER)
-            .setTraceId(apiContext.id())
-            .setEvent("authentication.failed")
-            .setMessage("Authorization is undefined")
-            .error();
-
     throw SystemException.create(DefaultErrorCode.INVALID_REQ)
             .set("details", "Miss rquest header: Authorization");
   }
@@ -145,7 +131,6 @@ public class AuthenticationFilter implements Filter {
     provider.authenticate(new JsonObject().put("jwt", token), ar -> {
       if (ar.succeeded()) {
         JsonObject principal = ar.result().principal();
-        LOGGER.debug("jwt succeed");
         if (principal.containsKey(userKey)) {
           authFuture.complete(principal);
         } else {
@@ -155,7 +140,6 @@ public class AuthenticationFilter implements Filter {
         }
 
       } else {
-        LOGGER.debug("jwt failed, error->{}", ar.cause());
         fail(authFuture, ar);
       }
     });
