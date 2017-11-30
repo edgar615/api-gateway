@@ -1,14 +1,16 @@
 {
   "appkey": {
-    "secretKey": "appSecret",
-    "codeKey": "appCode",
-    "permissionKey": "permissions",
     "cache": {
       "type" : "local",
       "expireAfterWrite": 1800,
       "maximumSize": 5000
     },
     "url": "/appkey/import",
-    "data": []
+    "data": [ {
+      "appKey": "RmOI7jCvDtfZ1RcAkea1",
+      "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
+      "appId": 0,
+      "permissions": "all"
+    }]
   }
 }

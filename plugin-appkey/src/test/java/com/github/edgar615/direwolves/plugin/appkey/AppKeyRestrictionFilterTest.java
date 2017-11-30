@@ -66,7 +66,7 @@ public class AppKeyRestrictionFilterTest {
             .put("whitelist", new JsonArray().add("group1"));
 
     filter = Filter.create(AppKeyRestrictionFilter.class.getSimpleName(), Vertx.vertx(),
-                         new JsonObject().put("appkey.restriction", config) );
+                         new JsonObject().put("appKey.restriction", config) );
 
     filters.clear();
     filters.add(filter);

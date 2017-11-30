@@ -124,9 +124,6 @@
           "body.excludes": []
         },
         "appkey": {
-          "secretKey": "appSecret",
-          "codeKey": "companyCode",
-          "permissionKey": "scope",
           "cache": {
             "type": "local",
             "expireAfterWrite": 1800,

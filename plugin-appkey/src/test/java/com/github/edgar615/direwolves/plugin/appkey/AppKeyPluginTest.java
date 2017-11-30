@@ -15,7 +15,7 @@ public class AppKeyPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-            .put("appkey", true);
+            .put("appKey", true);
     ApiPluginFactory factory = new AppKeyPluginFactory();
     AppKeyPlugin plugin = (AppKeyPlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
@@ -30,8 +30,8 @@ public class AppKeyPluginTest {
 
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("appkey"));
-    Assert.assertTrue(jsonObject.getBoolean("appkey", false));
+    Assert.assertTrue(jsonObject.containsKey("appKey"));
+    Assert.assertTrue(jsonObject.getBoolean("appKey", false));
   }
 
 }

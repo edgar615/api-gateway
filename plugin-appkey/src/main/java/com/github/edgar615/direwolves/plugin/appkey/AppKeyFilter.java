@@ -135,7 +135,6 @@ public class AppKeyFilter implements Filter {
     this.vertx = vertx;
     commonParamRule.put("appKey", Rule.required());
     commonParamRule.put("nonce", Rule.required());
-    commonParamRule.put("v", Rule.required());
     commonParamRule.put("signMethod", Rule.required());
     List<Object> optionalRule = new ArrayList<>();
     optionalRule.add("HMACSHA256");
@@ -190,8 +189,8 @@ public class AppKeyFilter implements Filter {
       if (ar.failed() || ar.result().containsKey(NOT_EXISTS_KEY)) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())
-                .setEvent("appkey.undefined")
-                .addData("appkey", appKey)
+                .setEvent("appkey.tripped")
+                .setMessage("Undefined appKey")
                 .error();
         completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
                                     .set("details", "Undefined AppKey:" + appKey));
@@ -211,18 +210,18 @@ public class AppKeyFilter implements Filter {
     if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("sign.tripped")
-              .addData("baseString", baseString(params))
+              .setEvent("appKey.tripped")
+              .setMessage("Incorrect sign")
               .error();
       completeFuture.fail(SystemException.create(DefaultErrorCode.INVALID_REQ)
-                                  .set("details", "The sign is incorrect"));
+                                  .set("details", "Incorrect sign"));
     } else {
-      apiContext.addVariable("app.appKey", app.getString("appKey", "anonymous"));
-      if (app.containsKey("developerCode")) {
-        apiContext.addVariable("app.developerCode", app.getValue("developerCode"));
+      apiContext.addVariable("client.appKey", app.getString("appKey", "anonymous"));
+      if (app.containsKey("appId")) {
+        apiContext.addVariable("client.appId", app.getValue("appId"));
       }
       if (app.containsKey("permissions")) {
-        apiContext.addVariable("app.permissions", app.getValue("permissions"));
+        apiContext.addVariable("client.permissions", app.getValue("permissions"));
       }
       completeFuture.complete(apiContext);
     }

@@ -16,10 +16,10 @@ import java.util.List;
 public class AppKeyRestrictionFactory implements ApiPluginFactory {
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("appkey.restriction")) {
+    if (!jsonObject.containsKey("appKey.restriction")) {
       return null;
     }
-    JsonObject config = jsonObject.getJsonObject("appkey.restriction", new JsonObject());
+    JsonObject config = jsonObject.getJsonObject("appKey.restriction", new JsonObject());
     JsonArray whiteArray = config.getJsonArray("whitelist", new JsonArray());
     JsonArray blackArray = config.getJsonArray("blacklist", new JsonArray());
     List<String> whitelist = new ArrayList<>();
@@ -40,7 +40,7 @@ public class AppKeyRestrictionFactory implements ApiPluginFactory {
   @Override
   public JsonObject encode(ApiPlugin plugin) {
     AppKeyRestriction appKeyRestriction = (AppKeyRestriction) plugin;
-    return new JsonObject().put("appkey.restriction", new JsonObject()
+    return new JsonObject().put("appKey.restriction", new JsonObject()
             .put("whitelist", new JsonArray(appKeyRestriction.whitelist()))
             .put("blacklist", new JsonArray(appKeyRestriction.blacklist())));
   }

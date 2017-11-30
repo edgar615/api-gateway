@@ -1,0 +1,17 @@
+{
+  "name": "appkey.get",
+  "method": "GET",
+  "path": "/appkey",
+  "appKey" : true,
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+        "appKey" : "$var.client.appKey",
+        "appId" : "$var.client.appId",
+        "permissions" : "$var.client.permissions"
+      }
+    }
+  ]
+}

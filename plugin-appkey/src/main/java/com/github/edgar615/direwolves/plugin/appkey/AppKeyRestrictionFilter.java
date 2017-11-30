@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * <p>
  * 该filter可以接受下列的配置参数
  * <pre>
- *     "appkey.restriction" : {
+ *     "appKey.restriction" : {
  * "whitelist" : [],
  * "blacklist" : []
  * }
@@ -37,7 +37,7 @@ public class AppKeyRestrictionFilter implements Filter {
 
 
   public AppKeyRestrictionFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("appkey.restriction", new JsonObject());
+    JsonObject jsonObject = config.getJsonObject("appKey.restriction", new JsonObject());
     JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
     JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {

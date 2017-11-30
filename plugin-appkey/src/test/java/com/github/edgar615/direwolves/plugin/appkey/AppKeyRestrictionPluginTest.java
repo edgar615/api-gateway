@@ -20,7 +20,7 @@ public class AppKeyRestrictionPluginTest {
             .put("whitelist", new JsonArray().add("super").add("admin"))
             .put("blacklist", new JsonArray().add("user"));
     JsonObject jsonObject = new JsonObject()
-            .put("appkey.restriction", config);
+            .put("appKey.restriction", config);
     ApiPluginFactory factory = new AppKeyRestrictionFactory();
     AppKeyRestriction acl = (AppKeyRestriction) factory.decode(jsonObject);
     Assert.assertEquals(2, acl.whitelist().size());
@@ -39,8 +39,8 @@ public class AppKeyRestrictionPluginTest {
 
     JsonObject jsonObject = acl.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("appkey.restriction"));
-    JsonObject config = jsonObject.getJsonObject("appkey.restriction");
+    Assert.assertTrue(jsonObject.containsKey("appKey.restriction"));
+    JsonObject config = jsonObject.getJsonObject("appKey.restriction");
     JsonArray blacklist = config.getJsonArray("blacklist");
     JsonArray whitelist = config.getJsonArray("whitelist");
     Assert.assertEquals(2, blacklist.size());

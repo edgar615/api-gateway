@@ -20,7 +20,7 @@ public class AppKeyPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("appkey", false)) {
+    if (jsonObject.getBoolean("appKey", false)) {
       return new AppKeyPluginImpl();
     }
     return null;
@@ -31,6 +31,6 @@ public class AppKeyPluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    return new JsonObject().put("appkey", true);
+    return new JsonObject().put("appKey", true);
   }
 }
