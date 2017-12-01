@@ -60,11 +60,29 @@ public class BaseHandler implements Handler<RoutingContext> {
     });
 
     rc.addBodyEndHandler(v -> {
-      long duration = System.currentTimeMillis() - start;
+      long now = System.currentTimeMillis();
+      long duration = now - start;
+      long reqTime = -1;
+      long apiTime = -1;
+      long responseTime = -1;
+      long apiCreatedOn = -1;
+      if (rc.data().containsKey("apiCreatedOn")) {
+        apiCreatedOn = (long) rc.data().get("apiCreatedOn");
+        apiTime = now - apiCreatedOn;
+        reqTime = apiCreatedOn - start;
+      }
+      if (rc.data().containsKey("responsedOn")) {
+        long responsedOn = (long) rc.data().get("responsedOn");
+        responseTime = now - responsedOn;
+        apiTime = responsedOn - apiCreatedOn;
+      }
       Log.create(LOGGER)
               .setTraceId(id)
               .setLogType(LogType.SS)
               .setEvent("http.reply")
+              .addData("bf", reqTime)//API处理之前的耗时
+              .addData("api", apiTime)//API处理的耗时
+              .addData("resp", responseTime)//响应耗时
               .setMessage(" [{}] [{}] [{}ms] [{} bytes]")
               .addArg(rc.response().getStatusCode())
               .addArg(mutiMapToString(rc.response().headers(), "no header"))

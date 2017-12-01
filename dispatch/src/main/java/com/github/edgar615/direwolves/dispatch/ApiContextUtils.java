@@ -58,8 +58,10 @@ public class ApiContextUtils {
       }
     }
     String id = (String) rc.data().getOrDefault("x-request-id", UUID.randomUUID().toString());
+    long createdOn = System.currentTimeMillis();
+    rc.data().put("apiCreatedOn", createdOn);
     ApiContext apiContext = ApiContext.create(id, method, path, headers, params, body);
-    apiContext.addVariable("createdOn", System.currentTimeMillis());
+    apiContext.addVariable("apiCreatedOn", createdOn);
     Map<String, Object> variables = getVariables(rc);
     variables.forEach((key, value) -> apiContext.addVariable(key, value));
     return apiContext;

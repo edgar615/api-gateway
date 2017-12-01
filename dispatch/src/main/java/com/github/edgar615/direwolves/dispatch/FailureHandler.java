@@ -32,7 +32,8 @@ public class FailureHandler implements Handler<RoutingContext> {
 
   public static void doHandle(RoutingContext rc, Throwable throwable) {
     String id = (String) rc.data().getOrDefault("x-request-id", UUID.randomUUID().toString());
-    int statusCode = 400;
+    rc.data().put("responsedOn", System.currentTimeMillis());
+    int statusCode;
     boolean printErrorMsg = false;
     JsonObject failureMsg = new JsonObject();
     HttpServerResponse response = rc.response();

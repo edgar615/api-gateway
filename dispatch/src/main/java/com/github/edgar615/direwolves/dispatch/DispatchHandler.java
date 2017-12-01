@@ -114,14 +114,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
   }
 
   private void response(RoutingContext rc, ApiContext apiContext) {
-    long createdOn = (long) apiContext.variables()
-            .getOrDefault("createdOn", Instant.now().getEpochSecond());
-    Log.create(LOGGER)
-            .setTraceId(apiContext.id())
-            .setEvent("filter.completed")
-            .setMessage("[{}ms]")
-            .addArg(System.currentTimeMillis() - createdOn)
-            .info();
+    rc.data().put("responsedOn", System.currentTimeMillis());
     rc.response().putHeader("x-request-id", apiContext.id());
     Result result = apiContext.result();
     int statusCode = result.statusCode();
