@@ -1,7 +1,7 @@
 {
-  "name": "jwt.auth",
+  "name": "jwt.blacklist",
   "method": "GET",
-  "path": "/jwt",
+  "path": "/jwt/blacklist",
   "authentication" : true,
   "endpoints": [
     {
@@ -13,5 +13,9 @@
         "fullname" : "$user.fullname"
       }
     }
-  ]
+  ],
+  "user.restriction" : {
+    "blacklist" : ["3", "4"],
+    "whitelist" : [2]
+  }
 }

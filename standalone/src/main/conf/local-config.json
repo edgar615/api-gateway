@@ -98,12 +98,16 @@
           "emptyingField" : true
         },
         "user" : {
-          "url" : "/users",
+          "url" : "/user/loader",
           "cache": {
             "type" : "local",
             "expireAfterWrite": 3600,
             "maximumSize": 5000
           }
+        },
+        "user.restriction" : {
+          "blacklist" : ["2", 8],
+          "whitelist" : [5, 4]
         },
         "timeout": {
           "expires": 300,

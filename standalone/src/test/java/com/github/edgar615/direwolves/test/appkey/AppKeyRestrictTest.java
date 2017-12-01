@@ -36,7 +36,6 @@ public class AppKeyRestrictTest {
               testContext.assertTrue(resp.headers().contains("x-request-id"));
               resp.bodyHandler(body -> {
                 System.out.println(body.toString());
-                JsonObject jsonObject = body.toJsonObject();
                 testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED.getNumber(),
                                          body.toJsonObject().getInteger("code"));
                 check.set(true);

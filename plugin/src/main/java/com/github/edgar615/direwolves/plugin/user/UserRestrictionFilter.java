@@ -46,10 +46,10 @@ public class UserRestrictionFilter implements Filter {
     JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
     JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
     for (int i = 0; i < blackArray.size(); i++) {
-      globalBlacklist.add(blackArray.getString(i));
+      globalBlacklist.add(blackArray.getValue(i).toString());
     }
     for (int i = 0; i < whiteArray.size(); i++) {
-      globalWhitelist.add(whiteArray.getString(i));
+      globalWhitelist.add(whiteArray.getValue(i).toString());
     }
   }
 

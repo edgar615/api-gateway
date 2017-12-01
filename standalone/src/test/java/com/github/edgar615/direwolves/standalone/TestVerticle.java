@@ -41,7 +41,23 @@ public class TestVerticle extends AbstractVerticle {
                 SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
         EventbusUtils.onFailure(msg, 0, systemException);
       }
+    });
 
+    vertx.eventBus().<JsonObject>consumer("job.user.get", msg -> {
+      System.out.println(msg.body());
+      String userId = msg.body().getString("userId");
+      if ("1".equalsIgnoreCase(userId)) {
+        JsonObject jsonObject = new JsonObject()
+                .put("userId", 1)
+                .put("username", "edgar")
+                .put("fullname", "edgar615")
+                .put("permissions", new JsonArray().add("all"));
+        EventbusUtils.reply(msg, jsonObject, 0);
+      } else {
+        SystemException systemException =
+                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+        EventbusUtils.onFailure(msg, 0, systemException);
+      }
     });
     vertx.createHttpServer()
             .requestHandler(req -> {
