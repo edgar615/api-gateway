@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * IP限制的filter.
@@ -36,8 +34,6 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-12-24.
  */
 public class IpRestrictionFilter implements Filter {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(IpRestrictionFilter.class);
 
   private final List<String> globalBlacklist = new ArrayList<>();
 
@@ -84,23 +80,28 @@ public class IpRestrictionFilter implements Filter {
       whitelist.addAll(plugin.whitelist());
     }
     String clientIp = (String) apiContext.variables().get("request.client_ip");
-    List<String> black = blacklist.stream()
-            .filter(r -> checkIp(r, clientIp))
-            .collect(Collectors.toList());
-    List<String> white = whitelist.stream()
-            .filter(r -> checkIp(r, clientIp))
-            .collect(Collectors.toList());
-    if (white.isEmpty() && !black.isEmpty()) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("ip.restriction.tripped")
-              .warn();
-      completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-                                  .set("details", "The ip is forbidden"));
-    } else {
+
+    //匹配到白名单则允许通过
+    if (satisfyList(clientIp, whitelist)) {
       completeFuture.complete(apiContext);
+      return;
     }
+    //匹配到黑名单则禁止通过
+    if (satisfyList(clientIp, blacklist)) {
+      SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+              .set("details", "The ip is forbidden");
+      failed(completeFuture, apiContext.id(), "ip.tripped", e);
+      return;
+    }
+    completeFuture.complete(apiContext);
   }
+
+  private boolean satisfyList(String ip, List<String> list) {
+    return list.stream()
+                   .filter(r -> checkIp(r, ip))
+                   .count() > 0;
+  }
+
 
   private boolean checkIp(String rule, String clientIp) {
     List<String> rules = Lists.newArrayList(Splitter.on(".").trimResults().split(rule));

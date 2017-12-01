@@ -30,7 +30,6 @@ class IpRestrictionImpl implements IpRestriction {
   @Override
   public IpRestriction addWhitelist(String ip) {
     Preconditions.checkNotNull(ip, "ip cannot be null");
-    Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
     blacklist.remove(ip);
     whitelist.add(ip);
     return this;
@@ -39,7 +38,6 @@ class IpRestrictionImpl implements IpRestriction {
   @Override
   public IpRestriction addBlacklist(String ip) {
     Preconditions.checkNotNull(ip, "ip cannot be null");
-    Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
     whitelist.remove(ip);
     blacklist.add(ip);
     return this;

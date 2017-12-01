@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.plugin.acl;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -13,17 +12,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * ACL限制的filter.
- * 该filter从principal中读取读取调用方的group（角色），
- * 如果这个角色属于白名单，直接允许访问（不在考虑黑名单）；如果这个角色属于黑名单，直接返回1004的错误.
- * 如果没有group变量，直接返回1004的错误.
+ * 该filter从principal中读取读取调用方的group,这个group的类型是字符串，
+ * <p>
+ * 白名单包含允许访问的group，来自白名单的group始终运行访问。但不在白名单中的group不会禁止访问
+ * 黑名单包含不允许访问的group，来自黑名单的group始终禁止访问
+ * 如果没有group变量，按照匿名用户anonymous处理.
  * <p>
  * *</pre>
  * *该filter可以接受下列的配置参数
- * 该filter的order=1100
+ * 该filter的order=12000
  * <p>
  * 接受的参数：
  * "acl.restriction" : {
@@ -33,8 +33,6 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-12-24.
  */
 public class AclRestrictionFilter implements Filter {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AclRestrictionFilter.class);
 
   private final List<String> globalBlacklist = new ArrayList<>();
 
@@ -85,23 +83,25 @@ public class AclRestrictionFilter implements Filter {
       whitelist.addAll(plugin.whitelist());
     }
     String group = apiContext.principal().getString(groupKey, "anonymous");
-    List<String> black = blacklist.stream()
-            .filter(r -> checkGroup(r, group))
-            .collect(Collectors.toList());
-    List<String> white = whitelist.stream()
-            .filter(r -> checkGroup(r, group))
-            .collect(Collectors.toList());
-    if (white.isEmpty() && !black.isEmpty()) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("acl.restriction.tripped")
-              .warn();
-      completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-                                  .set("details", "The group is forbidden"));
-    } else {
+    //匹配到白名单则允许通过
+    if (satisfyList(group, whitelist)) {
       completeFuture.complete(apiContext);
+      return;
     }
+    //匹配到黑名单则禁止通过
+    if (satisfyList(group, blacklist)) {
+      SystemException systemException = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+              .set("details", "The group is forbidden");
+      failed(completeFuture, apiContext.id(), "acl.tripped", systemException);
+      return;
+    }
+    completeFuture.complete(apiContext);
+  }
 
+  private boolean satisfyList(String group, List<String> list) {
+    return list.stream()
+                   .filter(r -> checkGroup(r, group))
+                   .count() > 0;
   }
 
   private boolean checkGroup(String rule, String group) {

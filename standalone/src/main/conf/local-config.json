@@ -109,6 +109,10 @@
           "blacklist" : ["2", 8],
           "whitelist" : [5, 4]
         },
+        "acl.restriction" : {
+          "blacklist" : ["testGroup3", "admin"],
+          "whitelist" : ["testGroup2"]
+        },
         "timeout": {
           "expires": 300,
           "enable": false

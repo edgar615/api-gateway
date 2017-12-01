@@ -30,7 +30,6 @@ class UserRestrictionPluginImpl implements UserRestrictionPlugin {
   @Override
   public UserRestrictionPlugin addWhitelist(String userId) {
     Preconditions.checkNotNull(userId, "userId cannot be null");
-    Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
     blacklist.remove(userId);
     whitelist.add(userId);
     return this;
@@ -39,7 +38,6 @@ class UserRestrictionPluginImpl implements UserRestrictionPlugin {
   @Override
   public UserRestrictionPlugin addBlacklist(String userId) {
     Preconditions.checkNotNull(userId, "userId cannot be null");
-    Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
     whitelist.remove(userId);
     blacklist.add(userId);
     return this;

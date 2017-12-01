@@ -592,8 +592,8 @@ cache
     "whitelist" : [2]
   }
 ```
-- whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
+- whitelist：白名单的数组，只要userId符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+- blacklist：黑名单的数组，只要userId符合黑名单规则，且不符合白名单规则，都不允许继续请求
 > *代表所有
 
 **userId不能同时存在于whitelist和blacklist，因为在设置某个userId黑名单/白名单时会清除对应的白名单/黑名单**
@@ -611,8 +611,38 @@ cache
     "whitelist" : [2]
   }
 ```
-配置示例与UserKeyRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestrictionPlugin插件来添加例外
+配置示例与UserRestrictionPlugin的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestrictionPlugin插件来添加例外
 
+#### Plugin: AclRestrictionPlugin
+表明API对调用方所属组做了限制。
+配置
+```
+  "acl.restriction" : {
+    "blacklist" : ["anonymous", "ordinary", "testGroup1"],
+    "whitelist" : ["admin"]
+  }
+```
+- whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
+> *代表所有
+
+**group不能同时存在于whitelist和blacklist，因为在设置某个group黑名单/白名单时会清除对应的白名单/黑名单**
+#### Filter: AclRestrictionFilter
+校验group是否能够访问对应的API。禁止访问会返回1004的错误码。
+如果用户没有group，默认为匿名用户`anonymous`
+
+- **type** PRE
+- **order** 12000
+
+**前置条件**：有AclRestrictionPlugin插件或者配置了`acl.restriction`的全局参数
+配置
+```
+  "acl.restriction" : {
+    "blacklist" : ["anonymous", "ordinary", "testGroup1"],
+    "whitelist" : ["admin"]
+  }
+```
+配置示例与AclRestrictionPlugin的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestrictionPlugin插件来添加例外
 
 ### 授权 Authorization
 授权（Authorization）是用来回答以下问题：

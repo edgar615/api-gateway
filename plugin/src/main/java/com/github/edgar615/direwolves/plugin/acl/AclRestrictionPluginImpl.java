@@ -30,7 +30,6 @@ class AclRestrictionPluginImpl implements AclRestrictionPlugin {
   @Override
   public AclRestrictionPlugin addWhitelist(String group) {
     Preconditions.checkNotNull(group, "group cannot be null");
-    Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
     blacklist.remove(group);
     whitelist.add(group);
     return this;
@@ -39,7 +38,6 @@ class AclRestrictionPluginImpl implements AclRestrictionPlugin {
   @Override
   public AclRestrictionPlugin addBlacklist(String group) {
     Preconditions.checkNotNull(group, "group cannot be null");
-    Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
     whitelist.remove(group);
     blacklist.add(group);
     return this;

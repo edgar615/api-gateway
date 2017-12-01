@@ -30,7 +30,6 @@ class AppKeyRestrictionImpl implements AppKeyRestriction {
   @Override
   public AppKeyRestriction addWhitelist(String appKey) {
     Preconditions.checkNotNull(appKey, "appKey cannot be null");
-    Preconditions.checkArgument(whitelist.size() <= 100, "whitelist must <= 100");
     blacklist.remove(appKey);
     whitelist.add(appKey);
     return this;
@@ -39,7 +38,6 @@ class AppKeyRestrictionImpl implements AppKeyRestriction {
   @Override
   public AppKeyRestriction addBlacklist(String appKey) {
     Preconditions.checkNotNull(appKey, "appKey cannot be null");
-    Preconditions.checkArgument(blacklist.size() <= 100, "blacklist must <= 100");
     whitelist.remove(appKey);
     blacklist.add(appKey);
     return this;

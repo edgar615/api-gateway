@@ -10,12 +10,15 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * AppKey限制的filter.
  * 该filter从API上下文中读取读取调用方的appKey，<code>app
- * .appKey</code>变量，如果这个appKey属于白名单，直接允许访问（不在考虑黑名单）；如果这个appKey属于黑名单，直接返回1004的错误.
+ * .appKey</code>变量
+ * <p>
+ * 白名单包含允许访问的appKey，来自白名单的appKey始终运行访问。但不在白名单中的appKey不会禁止访问
+ * 黑名单包含不允许访问的appKey，来自黑名单的appKey始终禁止访问
+ * 如果没有appKey变量，直接允许.
  * <p>
  * <p>
  * 该filter的order=11
@@ -79,27 +82,31 @@ public class AppKeyRestrictionFilter implements Filter {
       whitelist.addAll(plugin.whitelist());
     }
     String appKey = (String) apiContext.variables().getOrDefault("client.appKey", "anonymous");
-    List<String> black = blacklist.stream()
-            .filter(r -> checkGroup(r, appKey))
-            .collect(Collectors.toList());
-    List<String> white = whitelist.stream()
-            .filter(r -> checkGroup(r, appKey))
-            .collect(Collectors.toList());
-    if (white.isEmpty() && !black.isEmpty()) {
+    //匹配到白名单则允许通过
+    if (satisfyList(appKey, whitelist)) {
+      completeFuture.complete(apiContext);
+      return;
+    }
+    //匹配到黑名单则禁止通过
+    if (satisfyList(appKey, blacklist)) {
       SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "The appKey is forbidden");
       failed(completeFuture, apiContext.id(), "appKey.tripped", e);
-
-    } else {
-      completeFuture.complete(apiContext);
+      return;
     }
-
+    completeFuture.complete(apiContext);
   }
 
-  private boolean checkGroup(String rule, String group) {
+  private boolean satisfyList(String appKey, List<String> list) {
+    return list.stream()
+                   .filter(r -> checkAppKey(r, appKey))
+                   .count() > 0;
+  }
+
+  private boolean checkAppKey(String rule, String appKey) {
     if ("*".equals(rule)) {
       return true;
     }
-    return rule.equalsIgnoreCase(group);
+    return rule.equalsIgnoreCase(appKey);
   }
 }
