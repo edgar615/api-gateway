@@ -98,7 +98,7 @@ public class Filters {
           Log.create(Filter.LOGGER)
                   .setTraceId(apiContext.id())
                   .setEvent(filter.getClass().getSimpleName() + ".invoked")
-                  .setMessage("[{}ms]")
+                  .setMessage("{}ms")
                   .addArg(System.currentTimeMillis() - filterStarted)
                   .info();
         }

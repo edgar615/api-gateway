@@ -1,5 +1,5 @@
 {
-  "name": "appkey.get",
+  "name": "appkey.test",
   "method": "GET",
   "path": "/appkey",
   "appKey" : true,

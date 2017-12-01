@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.test.apifinder;
 
+import com.github.edgar615.util.base.Randoms;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -9,6 +10,7 @@ import org.awaitility.Awaitility;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -18,6 +20,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @RunWith(VertxUnitRunner.class)
 public class ConflictTest {
+
+//  @Test
+//  public void test() {
+//    System.out.println(Randoms.randomLowerAlphabet(20));
+//    System.out.println(UUID.randomUUID().toString().replace("-", ""));
+//  }
 
   @Test
   public void testOk(TestContext testContext) {

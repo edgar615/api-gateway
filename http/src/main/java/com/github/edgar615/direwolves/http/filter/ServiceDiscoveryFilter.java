@@ -137,7 +137,7 @@ public class ServiceDiscoveryFilter implements Filter {
               .setTraceId(traceId)
               .setEvent("service.discovered")
               .addData("service", service)
-              .setMessage("[{}]")
+              .setMessage("{}")
               .addArg(ar.result().toJson())
               .info();
       future.complete(record);

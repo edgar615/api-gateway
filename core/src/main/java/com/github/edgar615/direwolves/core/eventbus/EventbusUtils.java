@@ -33,7 +33,7 @@ public class EventbusUtils {
             .setLogType(LogType.SES)
             .setEvent(received.headers().get("x-request-address") + ".reply")
             .setThrowable(throwable)
-            .setMessage("duration:{}ms")
+            .setMessage("[{}ms]")
             .addArg(duration)
             .error();
 
@@ -64,7 +64,7 @@ public class EventbusUtils {
             .setLogType(LogType.SES)
             .setEvent(received.headers().get("x-request-address") + ".reply")
 //            .addData("message", reply.encode())
-            .setMessage("{}ms; {}bytes")
+            .setMessage("[{}ms] [{}bytes]")
             .addArg(duration)
             .addArg(reply.toString().getBytes().length)
             .info();

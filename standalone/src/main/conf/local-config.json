@@ -154,7 +154,7 @@
               "permissions": ["user:read","user:write","device:read","device:write","alarm:read"]
             }
           ],
-          "url": "/appkey/import",
+          "url": "/appkey/loader",
           "cache": {
             "type": "local"
           }

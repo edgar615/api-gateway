@@ -167,4 +167,30 @@ public class AppKeyTest {
     Awaitility.await().until(() -> check.get());
   }
 
+  @Test
+  public void testLoadAppKeySuccess(TestContext testContext) {
+    String query = new Api()
+            .setAppKey("pyuywmyijucuzlfkhxvs")
+            .setAppSecret("5416cc11b35d403bba9505a05954517a")
+            .addParam("id", Randoms.randomNumber(5))
+            .signTopRequest();
+    AtomicBoolean check = new AtomicBoolean();
+    Vertx.vertx().createHttpClient().get(9000, "localhost",
+                                         "/appkey?" + query)
+            .handler(resp -> {
+              testContext.assertEquals(200, resp.statusCode());
+              testContext.assertTrue(resp.headers().contains("x-request-id"));
+              resp.bodyHandler(body -> {
+                System.out.println(body.toString());
+                JsonObject jsonObject = body.toJsonObject();
+                testContext.assertEquals("pyuywmyijucuzlfkhxvs", jsonObject.getString("appKey"));
+                testContext.assertEquals(100, jsonObject.getValue("appId"));
+//                testContext.assertTrue(details.containsKey("signMethod"));
+                check.set(true);
+              });
+            })
+            .setChunked(true)
+            .end();
+    Awaitility.await().until(() -> check.get());
+  }
 }

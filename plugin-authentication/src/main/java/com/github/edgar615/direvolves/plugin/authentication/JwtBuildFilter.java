@@ -137,7 +137,7 @@ public class JwtBuildFilter implements Filter {
     if (userId == null) {
       Log.create(Filter.LOGGER)
               .setEvent("jwt.build.ignore")
-              .setMessage("[Miss userId]")
+              .setMessage("Miss userId")
               .info();
       completeFuture.complete(apiContext);
       return;
