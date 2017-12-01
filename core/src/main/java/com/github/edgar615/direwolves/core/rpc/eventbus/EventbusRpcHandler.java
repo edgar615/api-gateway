@@ -148,7 +148,7 @@ public class EventbusRpcHandler implements RpcHandler {
           return;
         }
       } else {
-        logError("req-resp", id, SystemException.create(DefaultErrorCode.INVALID_JSON));
+        logError("req-resp", id, ar.cause());
         failed(completed, ar.cause());
       }
     });

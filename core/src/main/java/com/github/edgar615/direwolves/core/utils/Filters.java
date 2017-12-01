@@ -8,6 +8,10 @@ import io.vertx.core.Future;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -67,9 +71,13 @@ public class Filters {
    */
   public static Task<ApiContext> doFilter(Task<ApiContext> task, List<Filter> filters,
                                           Consumer<ApiContext> consumer) {
+    Map<String, Boolean> invoked = new ConcurrentHashMap<>();
+    //andThen中使用shouldFilter判断是否输出invoked日志会出现判断错误，所有使用一个bool来判断，需要在flatMap中动态修改
     for (Filter filter : filters) {
-      task = task.flatMap(filter.getClass().getSimpleName(), apiContext -> {
+      String filterName = filter.getClass().getSimpleName();
+      task = task.flatMap(filterName, apiContext -> {
         if (filter.shouldFilter(apiContext)) {
+          invoked.put(filterName, true);
           Log.create(Filter.LOGGER)
                   .setTraceId(apiContext.id())
                   .setEvent(filter.getClass().getSimpleName()+".invoke")
@@ -83,7 +91,7 @@ public class Filters {
           return Future.succeededFuture(apiContext);
         }
       }).andThen(apiContext -> {
-        if (filter.shouldFilter(apiContext)) {
+        if (invoked.containsKey(filterName)) {
           long filterStarted = System.currentTimeMillis();
           try {
             filterStarted = (long) apiContext.variables()
@@ -98,7 +106,7 @@ public class Filters {
           Log.create(Filter.LOGGER)
                   .setTraceId(apiContext.id())
                   .setEvent(filter.getClass().getSimpleName() + ".invoked")
-                  .setMessage("{}ms")
+                  .setMessage("[{}ms]")
                   .addArg(System.currentTimeMillis() - filterStarted)
                   .info();
         }

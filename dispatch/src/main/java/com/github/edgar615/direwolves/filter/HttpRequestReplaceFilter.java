@@ -54,6 +54,12 @@ public class HttpRequestReplaceFilter extends RequestReplaceFilter implements Fi
       JsonObject body = replaceBody(apiContext, request.body());
       request.setBody(body);
     }
+    List<String> newPath = replacePath(apiContext, request);
+    request.setPath("/" + Joiner.on("/").join(newPath));
+
+  }
+
+  private List<String> replacePath(ApiContext apiContext, HttpRpcRequest request) {
     String path = request.path();
     List<String> pathList = Splitter.on("/").omitEmptyStrings().trimResults().splitToList(path);
     List<String> newPath = new ArrayList<>();
@@ -77,8 +83,7 @@ public class HttpRequestReplaceFilter extends RequestReplaceFilter implements Fi
         }
       }
     }
-    request.setPath("/" + Joiner.on("/").join(newPath));
-
+    return newPath;
   }
 
 }

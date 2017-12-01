@@ -220,7 +220,7 @@ public class SimpleHttpHandler implements RpcHandler {
     Log.create(LOGGER)
             .setTraceId(httpRpcRequest.id())
             .setLogType(LogType.CS)
-            .setEvent(type().toUpperCase())
+            .setEvent("HTTP")
             .addData("server", httpRpcRequest.host() + ":" + httpRpcRequest.port())
             .setMessage("[{}] [{}] [{}] [{}]")
             .addArg(httpRpcRequest.method().name() + " " + httpRpcRequest.path())
