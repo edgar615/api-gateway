@@ -6,7 +6,7 @@
   "endpoints": [
     {
       "name": "ping",
-      "type": "dummy",
+      "type": "dummy",JsonO
       "result" : {
         "userId": "$user.userId",
         "username" : "$user.username",

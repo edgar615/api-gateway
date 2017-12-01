@@ -38,7 +38,8 @@ public class TestVerticle extends AbstractVerticle {
         EventbusUtils.reply(msg, jsonObject, 0);
       } else {
         SystemException systemException =
-                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
+                        .set("foo", "bar");
         EventbusUtils.onFailure(msg, 0, systemException);
       }
     });
@@ -55,7 +56,8 @@ public class TestVerticle extends AbstractVerticle {
         EventbusUtils.reply(msg, jsonObject, 0);
       } else {
         SystemException systemException =
-                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+                SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
+                .set("foo", "bar");
         EventbusUtils.onFailure(msg, 0, systemException);
       }
     });
