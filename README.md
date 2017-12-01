@@ -611,7 +611,7 @@ cache
     "whitelist" : [2]
   }
 ```
-配置示例与AppKeyRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestrictionPlugin插件来添加例外
+配置示例与UserKeyRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestrictionPlugin插件来添加例外
 
 
 ### 授权 Authorization
