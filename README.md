@@ -583,6 +583,36 @@ cache
 
 **url的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**
 
+#### Plugin: UserRestrictionPlugin
+表明API对调用方的userId做了限制。
+配置
+```
+  "user.restriction" : {
+    "blacklist" : ["3", "4"],
+    "whitelist" : [2]
+  }
+```
+- whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
+- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
+> *代表所有
+
+**userId不能同时存在于whitelist和blacklist，因为在设置某个userId黑名单/白名单时会清除对应的白名单/黑名单**
+#### Filter: UserRestrictionFilter
+校验userId是否能够访问对应的API。禁止访问会返回1004的错误码：
+
+- **type** PRE
+- **order** 10500
+
+**前置条件**：有UserRestrictionPlugin插件或者配置了`user.restriction`的全局参数
+配置
+```
+  "user.restriction" : {
+    "blacklist" : ["3", "4"],
+    "whitelist" : [2]
+  }
+```
+配置示例与AppKeyRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestrictionPlugin插件来添加例外
+
 
 ### 授权 Authorization
 授权（Authorization）是用来回答以下问题：

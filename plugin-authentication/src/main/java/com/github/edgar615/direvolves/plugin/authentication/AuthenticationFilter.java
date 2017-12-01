@@ -96,11 +96,11 @@ public class AuthenticationFilter implements Filter {
                   apiContext.setPrincipal(principal);
                   completeFuture.complete(apiContext);
                 } else {
-                  failed(completeFuture, apiContext.id(), "authentication.tripped", ar.cause());
+                  failed(completeFuture, apiContext.id(), "jwt.tripped", ar.cause());
                 }
               });
     } catch (Exception e) {
-      failed(completeFuture, apiContext.id(), "authentication.tripped", e);
+      failed(completeFuture, apiContext.id(), "jwt.tripped", e);
     }
   }
 

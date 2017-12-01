@@ -60,7 +60,7 @@ public class UserRestrictionFilter implements Filter {
 
   @Override
   public int order() {
-    return 12000;
+    return 10500;
   }
 
   @Override
@@ -93,7 +93,7 @@ public class UserRestrictionFilter implements Filter {
     if (white.isEmpty() && !black.isEmpty()) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("user.restriction.tripped")
+              .setEvent("user.tripped")
               .warn();
       completeFuture.fail(SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "The user is forbidden"));
