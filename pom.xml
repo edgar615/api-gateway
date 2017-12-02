@@ -14,9 +14,9 @@
         <module>core</module>
         <module>plugin</module>
         <module>redis</module>
-        <module>plugin-authentication</module>
-        <module>plugin-appkey</module>
-        <module>plugin-ratelimit</module>
+        <module>authentication</module>
+        <module>appkey</module>
+        <module>ratelimit</module>
         <module>standalone</module>
         <module>service-discovery-bridge-zookeeper</module>
         <module>benchmark</module>
@@ -26,7 +26,7 @@
         <module>service-discovery-json</module>
         <module>service-discovery-zookeeper</module>
         <module>service-discovery-consul</module>
-        <module>api-discovery-file</module>
+        <module>api-file</module>
     </modules>
 
     <properties>

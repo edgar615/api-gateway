@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>standalone</artifactId>
+    <artifactId>direwolves-standalone</artifactId>
 
     <dependencies>
         <dependency>
@@ -30,7 +30,7 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>api-discovery-file</artifactId>
+            <artifactId>direwolves-api-file</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -74,19 +74,19 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>plugin-authentication</artifactId>
+            <artifactId>direwolves-authentication</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>plugin-appkey</artifactId>
+            <artifactId>direwolves-appkey</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>plugin-gray</artifactId>
+            <artifactId>direwolves-gray</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>api-discovery-file</artifactId>
+    <artifactId>direwolves-api-file</artifactId>
 
     <properties>
         <main.verticle>com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle</main.verticle>
@@ -61,7 +61,7 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>plugin-authentication</artifactId>
+            <artifactId>direwolves-authentication</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

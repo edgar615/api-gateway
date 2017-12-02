@@ -9,10 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugin-ratelimit</artifactId>
-    <properties>
-        <redis.util.version>0.0.2</redis.util.version>
-    </properties>
+    <artifactId>direwolves-authentication</artifactId>
+
 
     <dependencies>
         <dependency>
@@ -34,12 +32,7 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-redis-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>vertx-util-redis</artifactId>
-            <version>${redis.util.version}</version>
+            <artifactId>vertx-auth-jwt</artifactId>
         </dependency>
 
         <dependency>
@@ -48,12 +41,6 @@
             <version>${project.parent.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-redis</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

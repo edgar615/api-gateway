@@ -61,13 +61,13 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>plugin-authentication</artifactId>
+            <artifactId>direwolves-authentication</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>plugin-appkey</artifactId>
+            <artifactId>direwolves-appkey</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
