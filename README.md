@@ -305,6 +305,9 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 ```
 **policy** 
 因为vert.x有三种类型的事件，所以我们也定义了三种不同的endpoint。通过policy区分pub-sub、point-point、req-resp。转发的事件内容都是HTTP请求的请求体，但是我们可以通过请求转换插件实现更多功能
+
+对于eventbus的使用有一个需要注意的地方，eventbus并没有queryString的概念，所以如果API调用没有请求体，向下游的eventbus的转发的事件就是一个空的JSON对象，此时需要我们使用转换插件将queryString或者header加入到body中。
+
 #### pub-sub
 使用publish向所有订阅方广播事件，它不需要关注是否存在订阅方或者订阅方有无收到消息。所以这个类型的请求每次都是成功。
 返回结果
@@ -901,7 +904,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 - **body.add** 数组，需要增加的请求体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
 
 **上述的转换的值支持使用$变量来表示，$变量最终会经过ReplaceFilter进行填充**
-#### Filter: RequestTransformerFilter
+#### Filter: HttpRequestTransformerFilter
 对HTTP类型的请求进行转换。
 
 - **type** PRE
@@ -909,7 +912,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 
 **前置条件**：
 - 转发的请求中有HTTP类型的请求
-- 配置中有`request.transformer`的全局参数或者定义了RequestTransformerPlugin
+- 配置中有`request.transformer`的全局参数或者api定义了RequestTransformerPlugin
 配置
 ```
  "request.transformer": {
@@ -950,6 +953,58 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 配置示例与RequestTransformerPlugin的类似。但是全局配置针对所有的转发请求都有效，所以它直接使用一个JSON对象保存转换规则。
 **先执行全局规则的转换，在执行插件的转换**
 转换规则的执行顺序为：remove replace add
+#### Filter EventbusRequestTransformerFilter
+对Eventbus类型的请求进行转换。于RequestTransformerFilter类似。
+**注意：**eventbus并没有queryString的概念，所以如果API调用没有请求体，向下游的eventbus的转发的事件就是一个空的JSON对象，此时需要我们使用转换插件将queryString或者header加入到body中。
+#### Filter: HttpRequestReplaceFilter
+用于将请求参数中带变量的参数用变量的实际值替换，一般与`request.transformer`结合使用
+
+对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.(不考虑嵌套的集合),
+例如：`q1 : $header.h1`对应的值是`[h1.1, h1.2]`，那么最终替换之后的新值是 `q1 : [h1.1,h1.2]`而不是 `q1 : [[h1.1,h1.2]]`
+
+- type PRE
+- order 2147482647.
+
+**前置条件**： 转发的请求中有HTTP类型的请求
+
+http类型的请求支持在请求路径中使用变量，如`/users/$user.userId`
+
+一个例子
+```
+"request.transformer": [
+  {
+	"name": "add_cateye",
+	"body.add": [
+	  "userId:$user.userId",
+	  "username:$user.username",
+	  "companyCode:$user.companyCode"
+	],
+	"header.add": [
+	  "x-auth-userId:$user.userId",
+	  "x-auth-companyCode:$user.companyCode",
+	  "x-policy-owner:individual"
+	]
+  }
+]
+```
+经过HttpRequestReplaceFilter之后，body中的元素包括
+```
+    "userId":1,
+    "username":"edgar",
+    "companyCode":0
+```
+header中的元素包括
+```
+    "x-auth-userId":"1",
+    "x-auth-companyCode":"0",
+    "x-policy-owner" : "individual"
+```
+#### Filter: EventbusRequestReplaceFilter
+于HttpRequestReplaceFilter类似
+
+**前置条件**： 转发的请求中有HTTP类型的请求
+
+**注意：**EventbusRequestReplaceFilter不支持对eventbus的地址做转换，因为对于eventbus来说每个事件地址应该是固定的。
 
 #### Plugin: ResponseTransformerPlugin
 与请求转换类型，将响应的结果按照一定的规则做转换.
@@ -994,7 +1049,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 - **type** POST
 - **order** 1000
 
-**前置条件**：配置中有`response.transformer`ResponseTransformerPlugin
+**前置条件**：配置中有`response.transformer`或者API有ResponseTransformerPlugin
 
 配置
 ```
@@ -1056,13 +1111,10 @@ eventbus的全局替换
 
 基于版本/用户的灰度发布（在nginx上处理可能更好）参考 http://www.ttlsa.com/linux/meizu-ad-http-api-sou/
 
-## API Definition
+## TODO
 
-重写eventbus类型的endpoint
-
-监控
-
-后台
+- 监控
+- 后台
 
 打包
 ***还未找到更好的方法*
@@ -1150,44 +1202,7 @@ device:write表示API的权限字符串
 
 
 
-## Filter: HttpRequestReplaceFilter
-用于将请求参数中的带变量的参数用变量的替换，一般与request.transformer结合使用
 
-对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.(不考虑嵌套的集合),
-例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
-
-- type PRE
-- order 2147482647.
-
-示例
-
-    "request.transformer": [
-      {
-        "name": "add_cateye",
-        "body.add": [
-          "userId:$user.userId",
-          "username:$user.username",
-          "companyCode:$user.companyCode"
-        ],
-        "header.add": [
-          "x-auth-userId:$user.userId",
-          "x-auth-companyCode:$user.companyCode",
-          "x-policy-owner:individual"
-        ]
-      }
-    ]
-
-经过HttpRequestReplaceFilter之后，body中的元素包括
-
-    "userId":1,
-    "username":"edgar",
-    "companyCode":0
-
-header中的元素包括
-
-    "x-auth-userId":"1",
-    "x-auth-companyCode":"0",
-    "x-policy-owner" : "individual"
 
 # RPC调用
 ## Filter RpcFilter

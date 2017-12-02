@@ -58,11 +58,11 @@ import java.util.Collection;
  * }
  * Created by edgar on 16-9-20.
  */
-public class RequestTransformerFilter implements Filter {
+public class HttpRequestTransformerFilter implements Filter {
 
   private final RequestTransformer globalTransfomer; //= RequestTransformer.create("global");
 
-  RequestTransformerFilter(JsonObject config) {
+  HttpRequestTransformerFilter(JsonObject config) {
     JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
     if (jsonObject.isEmpty()) {
       globalTransfomer = null;

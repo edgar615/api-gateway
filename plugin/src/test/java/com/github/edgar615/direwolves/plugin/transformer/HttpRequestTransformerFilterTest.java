@@ -20,7 +20,6 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,11 +34,11 @@ import java.util.UUID;
  * @author Edgar  Date 2016/9/20
  */
 @RunWith(VertxUnitRunner.class)
-public class RequestTransformerFilterTest {
+public class HttpRequestTransformerFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
-  RequestTransformerFilter filter;
+  HttpRequestTransformerFilter filter;
 
   private ApiContext apiContext;
 
@@ -49,7 +48,7 @@ public class RequestTransformerFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = new RequestTransformerFilter(new JsonObject());
+    filter = new HttpRequestTransformerFilter(new JsonObject());
 
     filters.clear();
     filters.add(filter);
@@ -75,7 +74,7 @@ public class RequestTransformerFilterTest {
             .put("body.add", new JsonArray().add("b2:b2").add( "b1:b1"))
             .put("body.remove", new JsonArray().add("b3").add( "b4"))
             .put("body.replace", new JsonArray().add("b5:rb5").add( "b6:rb6"));
-    filter = new RequestTransformerFilter(new JsonObject().put("request.transformer", config));
+    filter = new HttpRequestTransformerFilter(new JsonObject().put("request.transformer", config));
     filters.clear();
     filters.add(filter);
     SimpleHttpRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
