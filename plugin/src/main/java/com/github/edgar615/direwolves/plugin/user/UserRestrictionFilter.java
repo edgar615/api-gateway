@@ -68,14 +68,14 @@ public class UserRestrictionFilter implements Filter {
     }
     return !globalBlacklist.isEmpty()
            || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(UserRestrictionPlugin.class.getSimpleName())
+           || apiContext.apiDefinition().plugin(UserRestriction.class.getSimpleName())
               != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    UserRestrictionPlugin plugin = (UserRestrictionPlugin) apiContext.apiDefinition()
-            .plugin(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin = (UserRestriction) apiContext.apiDefinition()
+            .plugin(UserRestriction.class.getSimpleName());
     List<String> blacklist = new ArrayList<>(globalBlacklist);
     List<String> whitelist = new ArrayList<>(globalWhitelist);
     if (plugin != null) {

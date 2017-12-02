@@ -12,7 +12,7 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class AclRestrictionPluginTest {
+public class AclRestrictionTest {
 
   @Test
   public void testDecode() {
@@ -22,15 +22,15 @@ public class AclRestrictionPluginTest {
     JsonObject jsonObject = new JsonObject()
             .put("acl.restriction", config);
     ApiPluginFactory factory = new AclRestrictionFactory();
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) factory.decode(jsonObject);
+    AclRestriction acl = (AclRestriction) factory.decode(jsonObject);
     Assert.assertEquals(2, acl.whitelist().size());
     Assert.assertEquals(1, acl.blacklist().size());
   }
 
   @Test
   public void testEncode() {
-    ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(AclRestriction.class.getSimpleName());
+    AclRestriction acl = (AclRestriction) plugin;
     acl.addWhitelist("user")
             .addBlacklist("super")
             .addBlacklist("admin");
@@ -49,8 +49,8 @@ public class AclRestrictionPluginTest {
 
   @Test
   public void testRemove() {
-    ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(AclRestriction.class.getSimpleName());
+    AclRestriction acl = (AclRestriction) plugin;
     acl.addWhitelist("user")
             .addBlacklist("super")
             .addBlacklist("admin");
@@ -65,8 +65,8 @@ public class AclRestrictionPluginTest {
 
   @Test
   public void testRemoveAll() {
-    ApiPlugin plugin = ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
-    AclRestrictionPlugin acl = (AclRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(AclRestriction.class.getSimpleName());
+    AclRestriction acl = (AclRestriction) plugin;
     acl.addWhitelist("user")
             .addBlacklist("super")
             .addBlacklist("admin");

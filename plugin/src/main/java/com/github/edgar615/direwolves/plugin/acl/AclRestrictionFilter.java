@@ -7,8 +7,6 @@ import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,13 +67,13 @@ public class AclRestrictionFilter implements Filter {
     }
     return !globalBlacklist.isEmpty()
            || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(AclRestrictionPlugin.class.getSimpleName()) != null;
+           || apiContext.apiDefinition().plugin(AclRestriction.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    AclRestrictionPlugin plugin = (AclRestrictionPlugin) apiContext.apiDefinition()
-            .plugin(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin = (AclRestriction) apiContext.apiDefinition()
+            .plugin(AclRestriction.class.getSimpleName());
     List<String> blacklist = new ArrayList<>(globalBlacklist);
     List<String> whitelist = new ArrayList<>(globalWhitelist);
     if (plugin != null) {

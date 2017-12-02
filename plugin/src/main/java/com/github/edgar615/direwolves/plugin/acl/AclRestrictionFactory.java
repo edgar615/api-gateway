@@ -31,7 +31,7 @@ public class AclRestrictionFactory implements ApiPluginFactory {
       blacklist.add(blackArray.getString(i));
     }
 
-    AclRestrictionPlugin plugin = new AclRestrictionPluginImpl();
+    AclRestriction plugin = new AclRestrictionImpl();
     whitelist.forEach(w -> plugin.addWhitelist(w));
     blacklist.forEach(b -> plugin.addBlacklist(b));
     return plugin;
@@ -39,19 +39,19 @@ public class AclRestrictionFactory implements ApiPluginFactory {
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    AclRestrictionPlugin aclRestrictionPlugin = (AclRestrictionPlugin) plugin;
+    AclRestriction aclRestriction = (AclRestriction) plugin;
     return new JsonObject().put("acl.restriction", new JsonObject()
-            .put("whitelist", new JsonArray(aclRestrictionPlugin.whitelist()))
-            .put("blacklist", new JsonArray(aclRestrictionPlugin.blacklist())));
+            .put("whitelist", new JsonArray(aclRestriction.whitelist()))
+            .put("blacklist", new JsonArray(aclRestriction.blacklist())));
   }
 
   @Override
   public String name() {
-    return AclRestrictionPlugin.class.getSimpleName();
+    return AclRestriction.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new AclRestrictionPluginImpl();
+    return new AclRestrictionImpl();
   }
 }

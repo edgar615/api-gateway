@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.plugin.user;
+package com.github.edgar615.direwolves.plugin.acl;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * @author Edgar  Date 2016/10/21
  */
-class UserRestrictionPluginImpl implements UserRestrictionPlugin {
+class AclRestrictionImpl implements AclRestriction {
   /**
    * 白名单
    */
@@ -24,47 +24,47 @@ class UserRestrictionPluginImpl implements UserRestrictionPlugin {
    */
   private final Set<String> blacklist = new HashSet<>();
 
-  UserRestrictionPluginImpl() {
+  AclRestrictionImpl() {
   }
 
   @Override
-  public UserRestrictionPlugin addWhitelist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    blacklist.remove(userId);
-    whitelist.add(userId);
+  public AclRestriction addWhitelist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
+    blacklist.remove(group);
+    whitelist.add(group);
     return this;
   }
 
   @Override
-  public UserRestrictionPlugin addBlacklist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    whitelist.remove(userId);
-    blacklist.add(userId);
+  public AclRestriction addBlacklist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
+    whitelist.remove(group);
+    blacklist.add(group);
     return this;
   }
 
   @Override
-  public UserRestrictionPlugin removeWhitelist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    whitelist.remove(userId);
+  public AclRestriction removeWhitelist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
+    whitelist.remove(group);
     return this;
   }
 
   @Override
-  public UserRestrictionPlugin removeBlacklist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    blacklist.remove(userId);
+  public AclRestriction removeBlacklist(String group) {
+    Preconditions.checkNotNull(group, "group cannot be null");
+    blacklist.remove(group);
     return this;
   }
 
   @Override
-  public UserRestrictionPlugin clearWhitelist() {
+  public AclRestriction clearWhitelist() {
     whitelist.clear();
     return this;
   }
 
   @Override
-  public UserRestrictionPlugin clearBlacklist() {
+  public AclRestriction clearBlacklist() {
     blacklist.clear();
     return this;
   }
@@ -82,7 +82,7 @@ class UserRestrictionPluginImpl implements UserRestrictionPlugin {
   @Override
   public String toString() {
     return MoreObjects
-            .toStringHelper("UserRestrictionPlugin")
+            .toStringHelper("UserRestriction")
             .add("whitelist", whitelist)
             .add("blacklist", blacklist)
             .toString();

@@ -9,7 +9,7 @@ import com.github.edgar615.direwolves.core.definition.HttpEndpoint;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.plugin.acl.AclRestrictionFactory;
-import com.github.edgar615.direwolves.plugin.acl.AclRestrictionPlugin;
+import com.github.edgar615.direwolves.plugin.acl.AclRestriction;
 import com.github.edgar615.direwolves.plugin.appkey.AppKeyPlugin;
 import com.github.edgar615.direwolves.plugin.appkey.AppKeyPluginFactory;
 import com.github.edgar615.direwolves.plugin.arg.BodyArgPlugin;
@@ -20,7 +20,6 @@ import com.github.edgar615.direwolves.plugin.arg.UrlArgPluginFactory;
 import com.github.edgar615.direwolves.plugin.ip.IpRestriction;
 import com.github.edgar615.direwolves.plugin.ip.IpRestrictionFactory;
 import com.github.edgar615.util.validation.Rule;
-import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.http.HttpMethod;
 import org.openjdk.jmh.annotations.*;
 
@@ -76,9 +75,9 @@ public class ApiContextBenchmarks {
     IpRestriction ipRestriction = (IpRestriction) new IpRestrictionFactory().create();
     apiDefinition.addPlugin(ipRestriction);
 
-    AclRestrictionPlugin aclRestrictionPlugin =
-            (AclRestrictionPlugin) new AclRestrictionFactory().create();
-    apiDefinition.addPlugin(aclRestrictionPlugin);
+    AclRestriction aclRestriction =
+            (AclRestriction) new AclRestrictionFactory().create();
+    apiDefinition.addPlugin(aclRestriction);
 
     AppKeyPlugin appKeyPlugin = (AppKeyPlugin) new AppKeyPluginFactory().create();
     apiDefinition.addPlugin(appKeyPlugin);

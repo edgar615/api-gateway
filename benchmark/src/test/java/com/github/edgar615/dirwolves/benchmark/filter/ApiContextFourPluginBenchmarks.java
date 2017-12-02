@@ -9,7 +9,7 @@ import com.github.edgar615.direwolves.core.definition.HttpEndpoint;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.plugin.acl.AclRestrictionFactory;
-import com.github.edgar615.direwolves.plugin.acl.AclRestrictionPlugin;
+import com.github.edgar615.direwolves.plugin.acl.AclRestriction;
 import com.github.edgar615.direwolves.plugin.arg.BodyArgPlugin;
 import com.github.edgar615.direwolves.plugin.arg.BodyArgPluginFactory;
 import com.github.edgar615.direwolves.plugin.arg.Parameter;
@@ -75,9 +75,9 @@ public class ApiContextFourPluginBenchmarks {
     IpRestriction ipRestriction = (IpRestriction) new IpRestrictionFactory().create();
     apiDefinition.addPlugin(ipRestriction);
 
-    AclRestrictionPlugin aclRestrictionPlugin =
-            (AclRestrictionPlugin) new AclRestrictionFactory().create();
-    apiDefinition.addPlugin(aclRestrictionPlugin);
+    AclRestriction aclRestriction =
+            (AclRestriction) new AclRestrictionFactory().create();
+    apiDefinition.addPlugin(aclRestriction);
 
     apiContext.setApiDefinition(apiDefinition);
   }

@@ -2,8 +2,6 @@ package com.github.edgar615.direwolves.plugin.user;
 
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.ApiPluginFactory;
-import com.github.edgar615.direwolves.plugin.acl.AclRestrictionFactory;
-import com.github.edgar615.direwolves.plugin.acl.AclRestrictionPlugin;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
@@ -14,7 +12,7 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/21
  */
-public class UserRestrictionPluginTest {
+public class UserRestrictionTest {
 
   @Test
   public void testDecode() {
@@ -24,15 +22,15 @@ public class UserRestrictionPluginTest {
     JsonObject jsonObject = new JsonObject()
             .put("user.restriction", config);
     ApiPluginFactory factory = new UserRestrictionFactory();
-    UserRestrictionPlugin plugin = (UserRestrictionPlugin) factory.decode(jsonObject);
+    UserRestriction plugin = (UserRestriction) factory.decode(jsonObject);
     Assert.assertEquals(2, plugin.whitelist().size());
     Assert.assertEquals(1, plugin.blacklist().size());
   }
 
   @Test
   public void testEncode() {
-    ApiPlugin plugin = ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
-    UserRestrictionPlugin restrictionPlugin = (UserRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(UserRestriction.class.getSimpleName());
+    UserRestriction restrictionPlugin = (UserRestriction) plugin;
     restrictionPlugin.addWhitelist("1")
             .addBlacklist("2")
             .addBlacklist("3");
@@ -51,8 +49,8 @@ public class UserRestrictionPluginTest {
 
   @Test
   public void testRemove() {
-    ApiPlugin plugin = ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
-    UserRestrictionPlugin restrictionPlugin = (UserRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(UserRestriction.class.getSimpleName());
+    UserRestriction restrictionPlugin = (UserRestriction) plugin;
     restrictionPlugin.addWhitelist("1")
             .addBlacklist("2")
             .addBlacklist("3");
@@ -66,8 +64,8 @@ public class UserRestrictionPluginTest {
 
   @Test
   public void testRemoveAll() {
-    ApiPlugin plugin = ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
-    UserRestrictionPlugin restrictionPlugin = (UserRestrictionPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(UserRestriction.class.getSimpleName());
+    UserRestriction restrictionPlugin = (UserRestriction) plugin;
     restrictionPlugin.addWhitelist("1")
             .addBlacklist("2")
             .addBlacklist("3");

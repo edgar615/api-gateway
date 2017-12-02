@@ -31,7 +31,7 @@ public class UserRestrictionFactory implements ApiPluginFactory {
       blacklist.add(blackArray.getValue(i).toString());
     }
 
-    UserRestrictionPlugin plugin = new UserRestrictionPluginImpl();
+    UserRestriction plugin = new UserRestrictionImpl();
     whitelist.forEach(w -> plugin.addWhitelist(w));
     blacklist.forEach(b -> plugin.addBlacklist(b));
     return plugin;
@@ -39,19 +39,19 @@ public class UserRestrictionFactory implements ApiPluginFactory {
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    UserRestrictionPlugin userRestrictionPlugin = (UserRestrictionPlugin) plugin;
+    UserRestriction userRestriction = (UserRestriction) plugin;
     return new JsonObject().put("user.restriction", new JsonObject()
-            .put("whitelist", new JsonArray(userRestrictionPlugin.whitelist()))
-            .put("blacklist", new JsonArray(userRestrictionPlugin.blacklist())));
+            .put("whitelist", new JsonArray(userRestriction.whitelist()))
+            .put("blacklist", new JsonArray(userRestriction.blacklist())));
   }
 
   @Override
   public String name() {
-    return UserRestrictionPlugin.class.getSimpleName();
+    return UserRestriction.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new UserRestrictionPluginImpl();
+    return new UserRestrictionImpl();
   }
 }

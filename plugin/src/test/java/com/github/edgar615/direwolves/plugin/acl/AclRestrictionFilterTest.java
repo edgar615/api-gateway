@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by edgar on 16-10-28.
@@ -73,8 +72,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testNoGroupShouldSuccess(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin =
+            (AclRestriction) ApiPlugin.create(AclRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     apiContext.setPrincipal(null);
     apiContext.apiDefinition().addPlugin(plugin);
@@ -95,8 +94,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testGlobalBlackGroupShouldForbidden(TestContext testContext) {
-//    UserRestrictionPlugin plugin =
-//            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+//    UserRestriction plugin =
+//            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
 //    plugin.addBlacklist("testGroup");
 //    apiContext.apiDefinition().addPlugin(plugin);
     apiContext.setPrincipal(new JsonObject().put(groupKey, "guest"));
@@ -115,8 +114,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testGlobalWhiteShouldAlwaysAllow(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin =
+            (AclRestriction) ApiPlugin.create(AclRestriction.class.getSimpleName());
     plugin.addBlacklist("group1");
     apiContext.setPrincipal(new JsonObject().put(groupKey, "group1"));
     apiContext.apiDefinition().addPlugin(plugin);
@@ -133,8 +132,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testBlackGroupShouldForbidden(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin =
+            (AclRestriction) ApiPlugin.create(AclRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -152,8 +151,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testWildcardBlackShouldForbidden(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin =
+            (AclRestriction) ApiPlugin.create(AclRestriction.class.getSimpleName());
     plugin.addBlacklist("*");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
@@ -171,8 +170,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testWhiteShouldAlwaysAllow(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin =
+            (AclRestriction) ApiPlugin.create(AclRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     plugin.addWhitelist("testGroup");
     apiContext.apiDefinition().addPlugin(plugin);
@@ -189,8 +188,8 @@ public class AclRestrictionFilterTest {
 
   @Test
   public void testWildcardWhiteShouldAlwaysAllow(TestContext testContext) {
-    AclRestrictionPlugin plugin =
-            (AclRestrictionPlugin) ApiPlugin.create(AclRestrictionPlugin.class.getSimpleName());
+    AclRestriction plugin =
+            (AclRestriction) ApiPlugin.create(AclRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
     plugin.addWhitelist("*");
     Task<ApiContext> task = Task.create();

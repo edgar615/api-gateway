@@ -6,8 +6,6 @@ import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.Filters;
-import com.github.edgar615.direwolves.plugin.acl.AclRestrictionFilter;
-import com.github.edgar615.direwolves.plugin.acl.AclRestrictionPlugin;
 import com.github.edgar615.util.base.Randoms;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -74,8 +72,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testNoUserShouldSuccess(TestContext testContext) {
-    UserRestrictionPlugin plugin =
-            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin =
+            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
     plugin.addBlacklist("3");
     apiContext.setPrincipal(null);
     apiContext.apiDefinition().addPlugin(plugin);
@@ -96,8 +94,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testGlobalBlackShouldForbidden(TestContext testContext) {
-//    UserRestrictionPlugin plugin =
-//            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+//    UserRestriction plugin =
+//            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
 //    plugin.addBlacklist("testGroup");
 //    apiContext.apiDefinition().addPlugin(plugin);
     apiContext.setPrincipal(new JsonObject().put(userKey, 1));
@@ -116,8 +114,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testGlobalWhiteShouldAlwaysAllow(TestContext testContext) {
-    UserRestrictionPlugin plugin =
-            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin =
+            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
     int userId = Integer.parseInt(Randoms.randomNumber(6));
     plugin.addBlacklist("2");
     apiContext.setPrincipal(new JsonObject().put(userKey, 2));
@@ -135,8 +133,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testBlackShouldForbidden(TestContext testContext) {
-    UserRestrictionPlugin plugin =
-            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin =
+            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
     int userId = Integer.parseInt(Randoms.randomNumber(6));
     plugin.addBlacklist(userId + "");
     apiContext.setPrincipal(new JsonObject().put(userKey, userId));
@@ -156,8 +154,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testWildcardBlackShouldForbidden(TestContext testContext) {
-    UserRestrictionPlugin plugin =
-            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin =
+            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
     int userId = Integer.parseInt(Randoms.randomNumber(6));
     plugin.addBlacklist("*");
     apiContext.setPrincipal(new JsonObject().put(userKey, userId));
@@ -177,8 +175,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testWhiteShouldAlwaysAllow(TestContext testContext) {
-    UserRestrictionPlugin plugin =
-            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin =
+            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
     int userId = Integer.parseInt(Randoms.randomNumber(6));
     plugin.addBlacklist("" + userId);
     plugin.addWhitelist("" + userId);
@@ -196,8 +194,8 @@ public class UserRestrictionFilterTest {
 
   @Test
   public void testWildcardWhiteShouldAlwaysAllow(TestContext testContext) {
-    UserRestrictionPlugin plugin =
-            (UserRestrictionPlugin) ApiPlugin.create(UserRestrictionPlugin.class.getSimpleName());
+    UserRestriction plugin =
+            (UserRestriction) ApiPlugin.create(UserRestriction.class.getSimpleName());
     int userId = Integer.parseInt(Randoms.randomNumber(6));
     plugin.addBlacklist("" + userId);
     plugin.addWhitelist("*");
