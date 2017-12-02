@@ -48,7 +48,7 @@ public class EventbusRequestTransformerFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = new EventbusRequestTransformerFilter();
+    filter = new EventbusRequestTransformerFilter(new JsonObject());
 
     filters.clear();
     filters.add(filter);

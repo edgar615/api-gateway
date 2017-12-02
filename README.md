@@ -1081,75 +1081,70 @@ header中的元素包括
 **先执行全局规则的转换，在执行插件的转换**
 转换规则的执行顺序为：remove replace add
 
+#### Filter: ResponseReplaceFilter
+对响应结中的变量进行替换，一般与`response.transformer`结合使用。与RequestReplaceFilter类似。
+暂时不支持JSON数组类型的响应体
+
+- type POST
+- order 2000
+
+**前置条件**： 所有请求
+
 ### 断路器
 ## 缓存
 后续更新
 ## CMD
 后续更新
 ## Metric
+```
+-Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=my-registry
+```
 后续更新
 ## 日志
 后续更新
 ## 基准测试
 后续更新
+## 打包
+单机模式安装standalone处理即可,**但是集群模式目前还未找到更好的方法**
+在整个开发编译过程中都不需要依赖hazelcast和logback组件，但是在在集群部署时依赖hazelcast，所以在打包的时候需要加入hazelcast，找到了三种方式：
+
+1. 将hazelcast引入依赖（不喜欢）
+2. 通过maven-jar-plugin增加Class-Path，然后通过`java -jar`启动
+```
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-jar-plugin</artifactId>
+	<configuration>
+		<archive>
+			<manifest>
+				<addClasspath>true</addClasspath>
+				<classpathPrefix>lib/</classpathPrefix>
+				<mainClass>io.vertx.core.Launcher</mainClass>
+			</manifest>
+			<manifestEntries>
+				<Class-Path>ext/hazelcast-3.6.3.jar ext/vertx-hazelcast-3.4.2.jar ext/logback-core-1.1.2.jar ext/logback-classic-1.1.2.jar</Class-Path>
+				<Main-Verticle>${main.verticle}</Main-Verticle>
+			</manifestEntries>
+		</archive>
+	</configuration>
+</plugin>
+```
+3. 通过-cp指定classpath，**java -jar会忽略-cp**，所以我们只能通过-cp来运行Main方法
+```
+java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle --cluster
+```
+**windows用;分隔,linux用:分隔**
+## TODO
+
+- 监控
+- 后台
+- 对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请
+- 所有的全局插件配置均可以动态修改(配置管理)
 
 ***************************************************************************
 **华丽的分割线**
 **下面的文字是很早零零散散写的，比较凌乱**
 ***************************************************************************
-TODO:
-
-对于GET请求，对于相同的请求可以做缓存、节流（throttleFirst，throttleLast）：在一个时间窗口内，如果有重复的请求正在处理，合并减少向后端服务发送请求
-
-请求头校验
-
-API版本：在响应头中增加API的版本，如果有过期时间说明过期时间
-
-eventbus的全局替换
-
-所有的全局插件配置均可以动态修改(配置管理，eventbus)
-
-基于版本/用户的灰度发布（在nginx上处理可能更好）参考 http://www.ttlsa.com/linux/meizu-ad-http-api-sou/
-
-## TODO
-
-- 监控
-- 后台
-
-打包
-***还未找到更好的方法*
-在整个开发编译过程中都不需要依赖hazelcast和logback组件，但是在在集群部署时依赖hazelcast，所以在打包的时候需要加入hazelcast，找到了三种方式：
-
-1. 将hazelcast引入依赖（不喜欢）
-2. 通过maven-jar-plugin增加Class-Path，然后通过`java -jar`启动
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <addClasspath>true</addClasspath>
-                        <classpathPrefix>lib/</classpathPrefix>
-                        <mainClass>io.vertx.core.Launcher</mainClass>
-                    </manifest>
-                    <manifestEntries>
-                        <Class-Path>ext/hazelcast-3.6.3.jar ext/vertx-hazelcast-3.4.2.jar ext/logback-core-1.1.2.jar ext/logback-classic-1.1.2.jar</Class-Path>
-                        <Main-Verticle>${main.verticle}</Main-Verticle>
-                    </manifestEntries>
-                </archive>
-            </configuration>
-        </plugin>
-
-
-
-3. 通过-cp指定classpath，**java -jar会忽略-cp**，所以我们只能通过-cp来运行Main方法
-
-java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle --cluster
-
-**windows用;分隔,linux用:分隔**
-
-# Cache
 
 
 
@@ -1198,12 +1193,6 @@ device:write表示API的权限字符串
 - type PRE
 - order 14000
 
-
-
-
-
-
-
 # RPC调用
 ## Filter RpcFilter
 
@@ -1234,9 +1223,6 @@ HTTP调用支持断路器模式，eventbus暂不支持
 - notificationPeriod  通知周期，单位毫秒，默认值2000
 - notificationAddress  通知地址，默认值vertx.circuit-breaker
 - registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
-
-# Response转换
-
 
 # 校验调用方的时间
 ## Filter: TimeoutFilter
@@ -1293,9 +1279,3 @@ HTTP调用支持断路器模式，eventbus暂不支持
 - last_conn 最少连接数
 
 如果某个服务没有配置负载均衡策略，默认使用轮询
-
-# 度量指标
-启动时增加参数
-
-    -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=my-registry
-

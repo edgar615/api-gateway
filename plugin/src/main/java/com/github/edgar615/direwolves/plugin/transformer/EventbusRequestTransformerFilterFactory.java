@@ -21,6 +21,6 @@ public class EventbusRequestTransformerFilterFactory implements FilterFactory {
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new EventbusRequestTransformerFilter();
+    return new EventbusRequestTransformerFilter(config);
   }
 }

@@ -1,14 +1,15 @@
 package com.github.edgar615.direwolves.plugin.transformer;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusRpcRequest;
+import com.github.edgar615.direwolves.core.rpc.http.HttpRpcRequest;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import io.vertx.core.Future;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Collection;
@@ -23,7 +24,17 @@ import java.util.Collection;
  */
 public class EventbusRequestTransformerFilter implements Filter {
 
-  EventbusRequestTransformerFilter() {
+  private final RequestTransformer globalTransfomer;
+
+
+  EventbusRequestTransformerFilter(JsonObject config) {
+    JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
+    if (jsonObject.isEmpty()) {
+      globalTransfomer = null;
+    } else {
+      globalTransfomer = RequestTransformer.create("global");
+      RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
+    }
   }
 
   @Override
@@ -41,11 +52,14 @@ public class EventbusRequestTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return apiContext.apiDefinition()
-                   .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
-           && apiContext.requests().size() > 0
-           && apiContext.requests().stream()
-                   .anyMatch(e -> e instanceof EventbusRpcRequest);
+    if (apiContext.requests().size() > 0
+            && apiContext.requests().stream()
+            .anyMatch(e -> e instanceof EventbusRpcRequest)) {
+      return globalTransfomer != null
+              || apiContext.apiDefinition()
+              .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
+    }
+    return false;
   }
 
   @Override
@@ -53,12 +67,23 @@ public class EventbusRequestTransformerFilter implements Filter {
     for (int i = 0; i < apiContext.requests().size(); i++) {
       RpcRequest request = apiContext.requests().get(i);
       if (request instanceof EventbusRpcRequest) {
+        if (globalTransfomer != null) {
+          doTransformer((EventbusRpcRequest) request, globalTransfomer);
+        }
         transformer(apiContext, (EventbusRpcRequest) request);
       }
     }
     completeFuture.complete(apiContext);
   }
 
+  private void doTransformer(EventbusRpcRequest request, RequestTransformer transformer) {
+    Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
+    request.clearHeaders().addHeaders(headers);
+    if (request.message() != null) {
+      JsonObject body = tranformerBody(request.message(), transformer);
+      request.replaceMessage(body);
+    }
+  }
 
   private void transformer(ApiContext apiContext, EventbusRpcRequest request) {
     String name = request.name();
@@ -67,12 +92,7 @@ public class EventbusRequestTransformerFilter implements Filter {
                     .plugin(RequestTransformerPlugin.class.getSimpleName());
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
-      Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
-      request.clearHeaders().addHeaders(headers);
-      if (request.message() != null) {
-        JsonObject body = tranformerBody(request.message(), transformer);
-        request.replaceMessage(body);
-      }
+      doTransformer(request, transformer);
     }
   }
 
