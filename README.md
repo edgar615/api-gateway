@@ -632,8 +632,8 @@ cache
 用户的group有两个来源：1.AuthenticationFilter通过后从TOKEN中解析的group，2.UserLoaderFilter从下游服务读取的group（如果读取到group会覆盖）。
 
 > 我处理的业务来说group并不是有下游服务指定的，而是在创建token的时候通过替换插件直接指定的组。
-> 
-如果用户没有group，默认为匿名用户`anonymous`
+>
+> 如果用户没有group，默认为匿名用户`anonymous`
 
 - **type** PRE
 - **order** 12000
@@ -845,6 +845,187 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 ```
 配置示例与IpRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过IpRestriction插件来添加例外
 
+### Transfomer
+#### Plugin: RequestTransformerPlugin
+有时候下游服务需要的参数与API网关公布出去的参数并不相同，此时我们可以通过RequestTransformerPlugin将请求参数按照一定的规则转换之后提供给下游服务。
+配置
+```
+  "request.transformer": [
+    {
+      "name": "alarm_list",
+      "header.add": [
+        "x-auth-userId:$user.userId",
+        "x-auth-companyCode:$user.companyCode",
+        "x-policy-owner:individual"
+      ],
+      "header.remove": [
+        "Authorization"
+      ],
+      "header.replace": [
+        "x-app-verion:x-client-version"
+      ],
+      "query.add": [
+        "userId:$user.userId"
+      ],
+      "query.remove": [
+        "appKey",
+        "nonce"
+      ],
+      "query.replace": [
+        "x-app-verion:x-client-version"
+      ],
+      "body.add": [
+        "userId:$user.userId"
+      ],
+      "body.remove": [
+        "appKey",
+        "nonce"
+      ],
+      "body.replace": [
+        "x-app-verion:x-client-version"
+      ]
+    }
+  ]
+```
+`request.transformer`使用一个JSON数组来保存每个下游服务的转换规则，数组中每个JSO你对象的属性如下
+
+- **name** endpoint的名称，必填项，只有这个名称的endpoint才会执行参数转换
+- **header.remove** 数组，需要删除的请求头
+- **query.remove** 数组，需要删除的请求参数
+- **body.remove** 数组，需要删除的请求体
+- **header.replace** 数组，需要重命名的请求头，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- **query.replace** 数组，需要重命名的请求参数，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- **body.replace** 数组，需要重命名的请求体，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- **header.add** 数组，需要增加的请求头，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+- **query.add** 数组，需要增加的请求参数，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+- **body.add** 数组，需要增加的请求体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+
+**上述的转换的值支持使用$变量来表示，$变量最终会经过ReplaceFilter进行填充**
+#### Filter: RequestTransformerFilter
+对HTTP类型的请求进行转换。
+
+- **type** PRE
+- **order** 15000
+
+**前置条件**：
+- 转发的请求中有HTTP类型的请求
+- 配置中有`request.transformer`的全局参数或者定义了RequestTransformerPlugin
+配置
+```
+ "request.transformer": {
+   "header.add": [
+	 "x-auth-userId:$user.userId",
+	 "x-auth-companyCode:$user.companyCode",
+	 "x-policy-owner:individual"
+   ],
+   "header.remove": [
+	 "Authorization"
+   ],
+   "header.replace": [
+	 "x-app-verion:x-client-version"
+   ],
+   "query.add": [
+	 "userId:$user.userId"
+   ],
+   "query.remove": [
+	 "appKey",
+	 "nonce"
+   ],
+   "query.replace": [
+	 "x-app-verion:x-client-version"
+   ],
+   "body.add": [
+	 "userId:$user.userId"
+   ],
+   "body.remove": [
+	 "appKey",
+	 "nonce"
+   ],
+   "body.replace": [
+	 "x-app-verion:x-client-version"
+   ]
+ }
+
+```
+配置示例与RequestTransformerPlugin的类似。但是全局配置针对所有的转发请求都有效，所以它直接使用一个JSON对象保存转换规则。
+**先执行全局规则的转换，在执行插件的转换**
+转换规则的执行顺序为：remove replace add
+
+#### Plugin: ResponseTransformerPlugin
+与请求转换类型，将响应的结果按照一定的规则做转换.
+
+配置示例：
+```
+"response.transformer": {
+  "header.add": [
+	"x-auth-userId:$user.userId",
+	"x-auth-companyCode:$user.companyCode",
+	"x-policy-owner:individual"
+  ],
+  "header.remove": [
+	"Authorization"
+  ],
+  "header.replace": [
+	"x-app-verion:x-client-version"
+  ],
+  "body.add": [
+	"userId:$user.userId"
+  ],
+  "body.remove": [
+	"appKey",
+	"nonce"
+  ],
+  "body.replace": [
+	"x-app-verion:x-client-version"
+  ]
+}
+```
+响应的转换规则并没有query.xxx规则，而且响应转换是将所有的响应合并后才执行的，所以不需要为每个转发定义转换规则。**目前我们直接将下游服务的响应头丢弃了，所以header的转换规则不需要考虑下游服务的响应头**
+
+
+- **header.remove** 数组，需要删除的响应头
+- **body.remove** 数组，需要删除的响应体
+- **header.replace** 数组，需要重命名的响应头，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- **body.replace** 数组，需要重命名的响应体，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
+- **header.add** 数组，需要增加的响应头，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+- **body.add** 数组，需要增加的响应体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
+
+#### Filter ResponseTransformerFilter
+- **type** POST
+- **order** 1000
+
+**前置条件**：配置中有`response.transformer`ResponseTransformerPlugin
+
+配置
+```
+  "response.transformer": {
+    "header.add": [
+      "x-auth-userId:$user.userId",
+      "x-auth-companyCode:$user.companyCode",
+      "x-policy-owner:individual"
+    ],
+    "header.remove": [
+      "Authorization"
+    ],
+    "header.replace": [
+      "x-app-verion:x-client-version"
+    ],
+    "body.add": [
+      "userId:$user.userId"
+    ],
+    "body.remove": [
+      "appKey",
+      "nonce"
+    ],
+    "body.replace": [
+      "x-app-verion:x-client-version"
+    ]
+  }
+```
+配置示例与ResponseTransformerPlugin的类似。
+**先执行全局规则的转换，在执行插件的转换**
+转换规则的执行顺序为：remove replace add
+
 ### 断路器
 ## 缓存
 后续更新
@@ -916,128 +1097,9 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 **windows用;分隔,linux用:分隔**
 
-配置项
-
-- port int api的http端口
-- filter array 启用filter,会按照在数组中定义对顺序执行,可选值 jwt, app_key
-- keystore.path string 证书文件路径 默认值keystore.jceks
-- keystore.type string 证书类型，可选值 jceks, jks,默认值jceks
-- keystore.password string 证书密钥，默认值secret
-- jwt.alg string jwt的加密算法,默认值HS512
-
-
-    `HS256`:: HMAC using SHA-256 hash algorithm
-    `HS384`:: HMAC using SHA-384 hash algorithm
-    `HS512`:: HMAC using SHA-512 hash algorithm
-    `RS256`:: RSASSA using SHA-256 hash algorithm
-    `RS384`:: RSASSA using SHA-384 hash algorithm
-    `RS512`:: RSASSA using SHA-512 hash algorithm
-    `ES256`:: ECDSA using P-256 curve and SHA-256 hash algorithm
-    `ES384`:: ECDSA using P-384 curve and SHA-384 hash algorithm
-    `ES512`:: ECDSA using P-521 curve and SHA-512 hash algorithm
-
-
 # Cache
 
-# API查找
 
-
-
-# IP限制
-## Plugin: IpRestriction
-对调用方的ip增加白名单和黑名单限制
-
-配置示例：
-
-    "ip.restriction" : {
-         "whitelist" : ["192.168.0.1", "10.4.7.*"],
-         "blacklist" : ["192.168.0.100"]
-    }
-
-- whitelist：白名单的数组，支持*的通配符，只要调用方的ip符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-- blacklist：黑名单的数组，支持*的通配符，只要调用方的ip符合黑名单规则，且不符合白名单规则，都不允许继续请求
-
-禁止访问对调用方会返回1004的错误码
-
-## Filter: IpRestrictionFilter
-调用方的ip从上下文读取`request.client_ip`变量
-
-- type PRE
-- order 7000
-
-全局参数
-
-    "ip.restriction" : {
-      "blacklist": [],
-      "whitelist": []
-    }
-
-示例
-
-    "ip.restriction" : {
-      "blacklist": ["10.4.7.15"],
-      "whitelist": ["192.168.1.*"]]
-    }
-
-
-# ACL限制
-## Plugin: AclRestriction
-对调用API的组（仅检查登录用户）增加白名单和黑名单限制
-
-配置示例：
-
-    "acl.restriction" : {
-         "whitelist" : ["group1", "group2],
-         "blacklist" : [guest]
-    }
-
-- whitelist：白名单的数组，只要调用方所在组符合白名单规则，不管是否符合黑名单规则，都允许继续请求
-- blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
-
-禁止访问对调用方会返回1004的错误码
-
-## Filter: AclRestrictionFilter
-调用方的ip从上下文读取`user.group`变量。如果是未登陆用户，永远成功，所以这个拦截器要放在身份认证的后面
-
-- type PRE
-- order 12000
-
-全局参数
-
-    "acl.restriction" : {
-      "blacklist": [],
-      "whitelist": [],
-      "groupKey": "group"
-    }
-
-示例
-
-    "acl.restriction" : {
-      "blacklist": ["guest],
-      "whitelist": ["user],
-      "groupKey": "role"
-    }
-
-# AppCode校验（项目的特殊需求）
-## Plugin: AppCodeVertifyPlugin
-校验appKey对应的appCode属性(上下文中的app.code)和用户对应的appCode属性(可以由app.codeKey指定)是否一致。
-
-配置示例：
-
-    "app.code.vertify": true
-
-## Filter: AppCodeVertifyFilter
-
-- type PRE
-- order 10100
-
-全局参数
-
-    app.codeKey 编码的键值，默认值appCode
-
-示例
-
-    "app.codeKey" : "companyCode"
 
 # 授权校验
 ## Plugin: AuthorisePlugin
@@ -1086,100 +1148,6 @@ device:write表示API的权限字符串
 
 
 
-# Request转换
-## Plugin: RequestTransformerPlugin
-将转发的请求参数按照一定的规则做转换
-
-配置示例：
-
-    "request.transformer": {
-        "name": "alarm_list",
-        "header.add": [
-          "x-auth-userId:$user.userId",
-          "x-auth-companyCode:$user.companyCode",
-          "x-policy-owner:individual"
-        ],
-        "header.remove": [
-          "Authorization"
-        ],
-        "header.replace": [
-          "x-app-verion:x-client-version"
-        ],
-        "query.add": [
-          "userId:$user.userId"
-        ],
-        "query.remove": [
-          "appKey",
-          "nonce"
-        ],
-        "query.replace": [
-          "x-app-verion:x-client-version"
-        ],
-        "body.add": [
-          "userId:$user.userId"
-        ],
-        "body.remove": [
-          "appKey",
-          "nonce"
-        ],
-        "body.replace": [
-          "x-app-verion:x-client-version"
-        ]
-      }
-
-- name endpoint的名称，必填项，只有这个名称的endpoint才会执行参数转换
-- header.remove 数组，需要删除的请求头
-- query.remove 数组，需要删除的请求参数
-- body.remove 数组，需要删除的请求体
-- header.replace 数组，需要重命名的请求头，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
-- query.replace 数组，需要重命名的请求参数，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
-- body.replace 数组，需要重命名的请求体，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
-- header.add 数组，需要增加的请求头，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
-- query.add 数组，需要增加的请求参数，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
-- body.add 数组，需要增加的请求体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
-
-执行的顺序：remove replace add
-
-## Filter: RequestTransformerFilter
-
-- type PRE
-- order 15000
-
-全局参数，对所有的请求都支持的参数转换
-
-     "request.transformer": {
-       "header.add": [
-         "x-auth-userId:$user.userId",
-         "x-auth-companyCode:$user.companyCode",
-         "x-policy-owner:individual"
-       ],
-       "header.remove": [
-         "Authorization"
-       ],
-       "header.replace": [
-         "x-app-verion:x-client-version"
-       ],
-       "query.add": [
-         "userId:$user.userId"
-       ],
-       "query.remove": [
-         "appKey",
-         "nonce"
-       ],
-       "query.replace": [
-         "x-app-verion:x-client-version"
-       ],
-       "body.add": [
-         "userId:$user.userId"
-       ],
-       "body.remove": [
-         "appKey",
-         "nonce"
-       ],
-       "body.replace": [
-         "x-app-verion:x-client-version"
-       ]
-     }
 
 
 ## Filter: HttpRequestReplaceFilter
@@ -1253,71 +1221,7 @@ HTTP调用支持断路器模式，eventbus暂不支持
 - registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
 
 # Response转换
-## Plugin: ResponseTransformerPlugin
-将响应的结果按照一定的规则做转换，目前还是比较简单的版本，还未完全实现.
 
-配置示例：
-
-    "response.transformer": {
-      "header.add": [
-        "x-auth-userId:$user.userId",
-        "x-auth-companyCode:$user.companyCode",
-        "x-policy-owner:individual"
-      ],
-      "header.remove": [
-        "Authorization"
-      ],
-      "header.replace": [
-        "x-app-verion:x-client-version"
-      ],
-      "body.add": [
-        "userId:$user.userId"
-      ],
-      "body.remove": [
-        "appKey",
-        "nonce"
-      ],
-      "body.replace": [
-        "x-app-verion:x-client-version"
-      ]
-    }
-
-- header.remove 数组，需要删除的响应头
-- body.remove 数组，需要删除的响应体
-- header.replace 数组，需要重命名的响应头，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
-- body.replace 数组，需要重命名的响应体，数组中每个元素的格式为h1:v1,其中h1表示需要被重命名的属性名，v1表示重命名后的属性名
-- header.add 数组，需要增加的响应头，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
-- body.add 数组，需要增加的响应体，数组中每个元素的格式为h1:v1,其中h1表示键，v1表示值
-
-## Filter ResponseTransformerFilter
-- type POST
-- order 1000
-
-全局参数，对所有的请求都支持的响应转换
-
-    "response.transformer": {
-      "header.add": [
-        "x-auth-userId:$user.userId",
-        "x-auth-companyCode:$user.companyCode",
-        "x-policy-owner:individual"
-      ],
-      "header.remove": [
-        "Authorization"
-      ],
-      "header.replace": [
-        "x-app-verion:x-client-version"
-      ],
-      "body.add": [
-        "userId:$user.userId"
-      ],
-      "body.remove": [
-        "appKey",
-        "nonce"
-      ],
-      "body.replace": [
-        "x-app-verion:x-client-version"
-      ]
-    }
 
 # 校验调用方的时间
 ## Filter: TimeoutFilter
