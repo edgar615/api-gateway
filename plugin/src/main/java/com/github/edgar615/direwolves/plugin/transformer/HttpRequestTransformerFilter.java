@@ -135,8 +135,7 @@ public class HttpRequestTransformerFilter implements Filter {
     request.clearParams().addParams(params);
     Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
     request.clearHeaders().addHeaders(headers);
-    if (request.method() == HttpMethod.POST
-        || request.method() == HttpMethod.PUT) {
+    if (request.body() != null) {
       JsonObject body = tranformerBody(request.body(), transformer);
       request.setBody(body);
     }

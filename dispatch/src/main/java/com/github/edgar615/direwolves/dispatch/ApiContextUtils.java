@@ -44,7 +44,8 @@ public class ApiContextUtils {
     Multimap<String, String> headers = toMultimap(rc.request().headers());
     Multimap<String, String> params = toMultimap(rc.request().params());
     JsonObject body = null;
-    if (method == HttpMethod.POST || method == HttpMethod.PUT) {
+    if (method == HttpMethod.POST || method == HttpMethod.PUT
+            || method == HttpMethod.DELETE) {
       if (rc.getBody() != null && rc.getBody().length() > 0) {
         try {
           body = rc.getBodyAsJson();
@@ -52,9 +53,6 @@ public class ApiContextUtils {
           throw SystemException.create(DefaultErrorCode.INVALID_JSON)
                   .set("details", "Request body must be JSON Object");
         }
-      } else {
-        throw SystemException.create(DefaultErrorCode.INVALID_JSON)
-                .set("details", "Request body must be JSON Object");
       }
     }
     String id = (String) rc.data().getOrDefault("x-request-id", UUID.randomUUID().toString());
