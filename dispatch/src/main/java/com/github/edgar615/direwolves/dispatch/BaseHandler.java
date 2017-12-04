@@ -13,6 +13,8 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -56,7 +58,7 @@ public class BaseHandler implements Handler<RoutingContext> {
 
     rc.addHeadersEndHandler(v -> {
       rc.response().putHeader("x-server-time",
-                              ISO8601Utils.format(new Date(), false, TimeZone.getDefault()));
+                              ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME ));
     });
 
     rc.addBodyEndHandler(v -> {
