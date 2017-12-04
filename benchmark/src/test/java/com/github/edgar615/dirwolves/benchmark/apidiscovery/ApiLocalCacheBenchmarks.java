@@ -4,8 +4,9 @@ import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiFinder;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.verticle.ImportApi;
+import com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -73,14 +74,14 @@ public class ApiLocalCacheBenchmarks {
       vertx = Vertx.vertx();
       ApiDiscovery apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName
               ("app"));
-      JsonObject app = new JsonObject()
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
-      JsonObject om = new JsonObject()
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\om");
+      JsonObject apiConfig = new JsonObject()
+              .put("name", "app");
       JsonObject config = new JsonObject()
-              .put("importer", new JsonObject().put("app", app).put("om", om));
-      new ImportApi().initialize(vertx, new JsonObject().put("api.discovery", config), Future
-              .<Void>future());
+              .put("api.discovery", apiConfig)
+              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
+      vertx.deployVerticle(FileApiDiscoveryVerticle.class,
+                           new DeploymentOptions().setConfig(config),
+                           Future.future());
       try {
         TimeUnit.SECONDS.sleep(2);
       } catch (InterruptedException e) {
