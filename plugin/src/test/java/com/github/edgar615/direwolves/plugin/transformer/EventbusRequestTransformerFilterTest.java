@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.EventbusEndpoint;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
@@ -15,12 +14,12 @@ import com.github.edgar615.direwolves.core.utils.Filters;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,12 +46,6 @@ public class EventbusRequestTransformerFilterTest {
   @Before
   public void setUp() {
     vertx = Vertx.vertx();
-
-    filter = new EventbusRequestTransformerFilter(new JsonObject());
-
-    filters.clear();
-    filters.add(filter);
-
     createApiContext();
   }
 
@@ -62,41 +55,52 @@ public class EventbusRequestTransformerFilterTest {
   }
 
   @Test
-  public void testSingleRequestTransformer(TestContext testContext) {
-
-    RequestTransformer transformer = createRequestTransformer();
-    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
-            .create(RequestTransformerPlugin.class.getSimpleName());
-    plugin.addTransformer(transformer);
+  public void testHeaderAdd(TestContext testContext) {
+    JsonObject config = new JsonObject()
+            .put("header.add", new JsonArray().add("h1:h1.1").add("h1:h1.2"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
     Multimap<String, String> ebHeaders = ArrayListMultimap.create();
-    ebHeaders.put("h3", "h3");
-    ebHeaders.put("h5", "h5");
-
-    JsonObject jsonObject = new JsonObject()
-            .put("b3", "b3")
-            .put("b5", "b5");
 
     apiContext.addRequest(EventbusRpcRequest
-                                  .create("a", "send_log", "send_log", EventbusEndpoint.REQ_RESP,
-                                          ebHeaders, jsonObject));
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()));
 
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.addHeader("h2", "h2").addHeader("h1", "h1.3");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
     apiContext.apiDefinition().addPlugin(plugin);
+
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
-              testContext.assertEquals(1, context.requests().size());
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
               EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
-              testContext.assertEquals(3, request.headers().size());
-              testContext.assertFalse(request.headers().containsKey("h3"));
-              testContext.assertFalse(request.headers().containsKey("h5"));
-              testContext.assertTrue(request.headers().containsKey("rh5"));
-              testContext.assertEquals(3, request.message().size());
-              testContext.assertFalse(request.message().containsKey("b3"));
-              testContext.assertFalse(request.message().containsKey("b5"));
-              testContext.assertTrue(request.message().containsKey("rb5"));
-              System.out.println(request);
+              testContext.assertEquals(4, request.headers().size());
+              testContext.assertTrue(request.headers().containsKey("h1"));
+              testContext.assertTrue(request.headers().containsKey("h2"));
+              testContext.assertEquals(3, request.headers().get("h1").size());
+              testContext.assertEquals(1, request.headers().get("h2").size());
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertTrue(request.headers().containsKey("h1"));
+              testContext.assertEquals(2, request.headers().get("h1").size());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();
@@ -105,59 +109,422 @@ public class EventbusRequestTransformerFilterTest {
   }
 
   @Test
-  public void testTwoRequestTransformer(TestContext testContext) {
+  public void testHeaderReplace(TestContext testContext) {
 
-    RequestTransformer transformer = createRequestTransformer();
-
-    RequestTransformerPlugin plugin = (RequestTransformerPlugin) ApiPlugin
-            .create(RequestTransformerPlugin.class.getSimpleName());
-    plugin.addTransformer(transformer);
+    JsonObject config = new JsonObject()
+            .put("header.replace", new JsonArray().add("h1:nh1").add("h2:nh2"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
     Multimap<String, String> ebHeaders = ArrayListMultimap.create();
-    ebHeaders.put("h3", "h3");
-    ebHeaders.put("h5", "h5");
-
-    JsonObject jsonObject = new JsonObject()
-            .put("b3", "b3")
-            .put("b5", "b5");
+    ebHeaders.put("h1", "h1");
+    ebHeaders.put("h4", "h4.1");
+    ebHeaders.put("h4", "h4.2");
 
     apiContext.addRequest(EventbusRpcRequest
-                                  .create("a", "send_log", "send_log", EventbusEndpoint.REQ_RESP,
-                                          ebHeaders, jsonObject));
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()));
+
 
     apiContext.addRequest(EventbusRpcRequest
-                                  .create("a", "send_log2", "send_log", EventbusEndpoint.REQ_RESP,
-                                          ebHeaders, jsonObject));
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
 
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.replaceHeader("h3", "nh3")
+            .replaceHeader("h4", "nh4")
+            .replaceHeader("nh4", "nh4.1");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
     apiContext.apiDefinition().addPlugin(plugin);
+
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
             .andThen(context -> {
+              System.out.println(context.requests());
               testContext.assertEquals(2, context.requests().size());
               EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
-              System.out.println(request);
               testContext.assertEquals(3, request.headers().size());
+              testContext.assertFalse(request.headers().containsKey("h1"));
+              testContext.assertFalse(request.headers().containsKey("h2"));
               testContext.assertFalse(request.headers().containsKey("h3"));
-              testContext.assertFalse(request.headers().containsKey("h5"));
-              testContext.assertTrue(request.headers().containsKey("rh5"));
-              testContext.assertEquals(3, request.message().size());
-              testContext.assertFalse(request.message().containsKey("b3"));
-              testContext.assertFalse(request.message().containsKey("b5"));
-              testContext.assertTrue(request.message().containsKey("rb5"));
+              testContext.assertFalse(request.headers().containsKey("h4"));
+              testContext.assertTrue(request.headers().containsKey("nh1"));
+              testContext.assertFalse(request.headers().containsKey("nh4"));
+              testContext.assertTrue(request.headers().containsKey("nh4.1"));
+              testContext.assertEquals(1, request.headers().get("nh1").size());
+              testContext.assertEquals(2, request.headers().get("nh4.1").size());
 
               request = (EventbusRpcRequest) context.requests().get(1);
-              System.out.println(request);
-              testContext.assertEquals(2, request.headers().size());
-              testContext.assertTrue(request.headers().containsKey("h3"));
-              testContext.assertTrue(request.headers().containsKey("h5"));
-              testContext.assertFalse(request.headers().containsKey("rh5"));
-              testContext.assertEquals(2, request.message().size());
-              testContext.assertTrue(request.message().containsKey("b3"));
-              testContext.assertTrue(request.message().containsKey("b5"));
-              testContext.assertFalse(request.message().containsKey("rb5"));
+              testContext.assertFalse(request.headers().containsKey("h1"));
               async.complete();
-            }).onFailure(t -> testContext.fail());
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testHeaderRemove(TestContext testContext) {
+
+    JsonObject config = new JsonObject()
+            .put("header.remove", new JsonArray().add("h1").add("h2"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    ebHeaders.put("h1", "h1");
+    ebHeaders.put("h4", "h4.1");
+    ebHeaders.put("h4", "h4.2");
+    ebHeaders.put("h5", "h5");
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()));
+
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.removeHeader("h3")
+            .removeHeader("h4");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              testContext.assertEquals(1, request.headers().size());
+              testContext.assertFalse(request.headers().containsKey("h1"));
+              testContext.assertFalse(request.headers().containsKey("h2"));
+              testContext.assertFalse(request.headers().containsKey("h3"));
+              testContext.assertFalse(request.headers().containsKey("h4"));
+              testContext.assertTrue(request.headers().containsKey("h5"));
+              testContext.assertEquals(1, request.headers().get("h5").size());
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertFalse(request.headers().containsKey("h1"));
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testHeaderOrder(TestContext testContext) {
+    //先删掉某个请求头，replace不起作用，add会是一个新元素
+    JsonObject config = new JsonObject()
+            .put("header.remove", new JsonArray().add("h1"))
+            .put("header.replace", new JsonArray().add("h1:rh1"))
+            .put("header.add", new JsonArray().add("h1:ah1"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
+
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    ebHeaders.put("h1", "h1");
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()));
+
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.removeHeader("h2")
+            .replaceHeader("h2", "rh2")
+            .addHeader("h2", "ah2");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              testContext.assertEquals(2, request.headers().size());
+              testContext.assertTrue(request.headers().containsKey("h1"));
+              testContext.assertTrue(request.headers().containsKey("h2"));
+              testContext.assertEquals("ah1", request.headers().get("h1").iterator().next());
+              testContext.assertEquals("ah2", request.headers().get("h2").iterator().next());
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertTrue(request.headers().containsKey("h1"));
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testBodyAdd(TestContext testContext) {
+    JsonObject config = new JsonObject()
+            .put("body.add", new JsonArray().add("b1:b1.1").add("b1:b1.2"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()));
+
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.addBody("b2", "b2").addBody("b1", "b1.3");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertTrue(request.message().containsKey("b1"));
+              testContext.assertTrue(request.message().containsKey("b2"));
+              testContext.assertEquals("b1.3", request.message().getString("b1"));
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertTrue(request.message().containsKey("b1"));
+              testContext.assertFalse(request.message().containsKey("b2"));
+              testContext.assertEquals("b1.2", request.message().getString("b1"));
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testBodyReplace(TestContext testContext) {
+
+    JsonObject config = new JsonObject()
+            .put("body.replace", new JsonArray().add("b1:nb1").add("b2:nb2"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()
+                                                  .put("b1", "b1")
+                                                  .put("b4",
+                                                       new JsonArray().add("b4.1").add("b4.2"))));
+
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.replaceBody("b3", "nb3")
+            .replaceBody("b4", "nb4")
+            .replaceBody("nb4", "nb4.1");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertFalse(request.message().containsKey("b1"));
+              testContext.assertFalse(request.message().containsKey("b2"));
+              testContext.assertFalse(request.message().containsKey("b3"));
+              testContext.assertFalse(request.message().containsKey("b4"));
+              testContext.assertTrue(request.message().containsKey("nb1"));
+              testContext.assertFalse(request.message().containsKey("nb4"));
+              testContext.assertTrue(request.message().containsKey("nb4.1"));
+              testContext.assertEquals("b1", request.message().getString("nb1"));
+              testContext.assertEquals(2, request.message().getJsonArray("nb4.1").size());
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertTrue(request.message().isEmpty());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testBodyRemove(TestContext testContext) {
+
+    JsonObject config = new JsonObject()
+            .put("body.remove", new JsonArray().add("b1").add("b2"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
+
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()
+                                                  .put("b1", "b1")
+                                                  .put("b4",
+                                                       new JsonArray().add("b4.1").add("b4.2"))
+                                                  .put("b5", "b5")));
+
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.removeBody("b3")
+            .removeBody("b4");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertFalse(request.message().containsKey("b1"));
+              testContext.assertFalse(request.message().containsKey("b2"));
+              testContext.assertFalse(request.message().containsKey("b3"));
+              testContext.assertFalse(request.message().containsKey("b4"));
+              testContext.assertTrue(request.message().containsKey("b5"));
+              testContext.assertEquals("b5", request.message().getString("b5"));
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertTrue(request.message().isEmpty());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testBodyOrder(TestContext testContext) {
+    //先删掉某个请求头，replace不起作用，add会是一个新元素
+    JsonObject config = new JsonObject()
+            .put("body.remove", new JsonArray().add("b1"))
+            .put("body.replace", new JsonArray().add("b1:rb1"))
+            .put("body.add", new JsonArray().add("b1:ab1"));
+    filter = new EventbusRequestTransformerFilter(
+            new JsonObject().put("request.transformer", config));
+    filters.clear();
+    filters.add(filter);
+
+    Multimap<String, String> ebHeaders = ArrayListMultimap.create();
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("a", "add_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ebHeaders, new JsonObject()
+                                                  .put("b1", "b1")));
+
+
+    apiContext.addRequest(EventbusRpcRequest
+                                  .create("b", "update_device", "send_log", EventbusEndpoint
+                                                  .REQ_RESP,
+                                          ArrayListMultimap.create(), new JsonObject()));
+
+    RequestTransformer transformer = RequestTransformer.create("add_device");
+
+    transformer.removeBody("b2")
+            .replaceBody("b2", "rb2")
+            .addBody("b2", "ab2");
+
+    RequestTransformerPlugin plugin = new RequestTransformerPluginImpl()
+            .addTransformer(transformer);
+    apiContext.apiDefinition().addPlugin(plugin);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              EventbusRpcRequest request = (EventbusRpcRequest) context.requests().get(0);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertTrue(request.message().containsKey("b1"));
+              testContext.assertTrue(request.message().containsKey("b2"));
+              testContext.assertEquals("ab1", request.message().getString("b1"));
+              testContext.assertEquals("ab2", request.message().getString("b2"));
+
+              request = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertEquals(0, request.headers().size());
+              testContext.assertEquals(1, request.message().size());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
   }
 
   private void createApiContext() {
@@ -173,31 +540,6 @@ public class EventbusRequestTransformerFilterTest {
     ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
             .newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-  }
-
-  private RequestTransformer createRequestTransformer() {
-    RequestTransformer transformer = RequestTransformer.create("send_log");
-    transformer.removeHeader("h3");
-    transformer.removeHeader("h4");
-    transformer.removeParam("q3");
-    transformer.removeParam("q4");
-    transformer.removeBody("b3");
-    transformer.removeBody("b4");
-
-    transformer.replaceHeader("h5", "rh5");
-    transformer.replaceHeader("h6", "rh6");
-    transformer.replaceParam("q5", "rq5");
-    transformer.replaceParam("q6", "rq6");
-    transformer.replaceBody("b5", "rb5");
-    transformer.replaceBody("b6", "rb6");
-
-    transformer.addHeader("h2", "h2");
-    transformer.addHeader("h1", "h1");
-    transformer.addParam("q1", "q1");
-    transformer.addParam("q2", "q2");
-    transformer.addBody("b1", "b1");
-    transformer.addBody("b2", "b2");
-    return transformer;
   }
 
 }
