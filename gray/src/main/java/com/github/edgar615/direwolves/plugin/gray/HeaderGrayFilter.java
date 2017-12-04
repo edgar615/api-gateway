@@ -76,8 +76,9 @@ public class HeaderGrayFilter implements Filter {
         completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
         return;
       } catch (SystemException e) {
-        e.set("details", "Undefined Api")
-                .set("api", apiContext.method().name() + " " + apiContext.path());
+        e.set("details", String.format("Undefined Api %s:%s",
+                                       apiContext.method().name(),
+                                       apiContext.path()));
         failed(completeFuture, apiContext.id(), "api.tripped", e);
         return;
       } catch (Exception e) {
