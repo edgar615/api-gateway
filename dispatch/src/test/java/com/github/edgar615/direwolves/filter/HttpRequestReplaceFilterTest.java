@@ -49,7 +49,232 @@ public class HttpRequestReplaceFilterTest {
     vertx.close(testContext.asyncAssertSuccess());
   }
 
+  @Test
+  public void testReplaceParamsFromHeader(TestContext testContext) {
+    Multimap<String, String> params = ArrayListMultimap.create();
 
+    Multimap<String, String> headers = ArrayListMultimap.create();
+    headers.put("h1", "h1.1");
+    headers.put("h1", "h1.2");
+    headers.put("h2", "h2");
+
+    JsonObject jsonObject = new JsonObject();
+
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device")
+            .setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("q1", "$header.h1")
+            .addParam("q2", "$header.h2")
+            .addParam("q3", "$header.h3")
+            .addParam("foo", "bar");
+    apiContext.addRequest(httpRpcRequest);
+
+    Filter filter =
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(1, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              System.out.println(request.params());
+              testContext.assertEquals(4, request.params().size());
+              testContext.assertEquals(2, request.params().get("q1").size());
+              testContext.assertEquals("bar", request.params().get("foo").iterator().next());
+              testContext.assertEquals("h1.1", request.params().get("q1").iterator().next());
+              testContext.assertEquals("h2", request.params().get("q2").iterator().next());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
+  @Test
+  public void testReplaceParamsFromQuery(TestContext testContext) {
+    Multimap<String, String> params = ArrayListMultimap.create();
+    params.put("q1", "q1.1");
+    params.put("q1", "q1.2");
+    params.put("q2", "q2");
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+
+    JsonObject jsonObject = new JsonObject();
+
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device")
+            .setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("foo", "bar")
+            .addParam("q1", "$query.q1")
+            .addParam("q2", "$query.q2")
+            .addParam("q3", "$query.q3");
+    apiContext.addRequest(httpRpcRequest);
+
+    Filter filter =
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(1, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              System.out.println(request.params());
+              testContext.assertEquals(4, request.params().size());
+              testContext.assertEquals(2, request.params().get("q1").size());
+              testContext.assertEquals("bar", request.params().get("foo").iterator().next());
+              testContext.assertEquals("q1.1", request.params().get("q1").iterator().next());
+              testContext.assertEquals("q2", request.params().get("q2").iterator().next());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
+  @Test
+  public void testReplaceParamsFromBody(TestContext testContext) {
+    Multimap<String, String> params = ArrayListMultimap.create();
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+
+    JsonObject jsonObject = new JsonObject()
+            .put("b1", new JsonArray().add("b1.1").add("b1.2"))
+            .put("b2", "b2")
+            .put("obj", new JsonObject().put("foo", "bar"));
+
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device")
+            .setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("foo", "bar")
+            .addParam("q1", "$body.b1")
+            .addParam("q2", "$body.b2")
+            .addParam("q3", "$body.b3")
+            .addParam("q4", "$body.obj");
+    apiContext.addRequest(httpRpcRequest);
+
+    Filter filter =
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(1, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              System.out.println(request.params());
+              testContext.assertEquals(5, request.params().size());
+              testContext.assertEquals(2, request.params().get("q1").size());
+              testContext.assertEquals("bar", request.params().get("foo").iterator().next());
+              testContext.assertEquals("b1.1", request.params().get("q1").iterator().next());
+              testContext.assertEquals("b2", request.params().get("q2").iterator().next());
+              testContext.assertEquals("{\"foo\":\"bar\"}", request.params().get("q4").iterator
+                      ().next());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
+
+  @Test
+  public void testReplaceParamsFromUser(TestContext testContext) {
+    Multimap<String, String> params = ArrayListMultimap.create();
+
+    Multimap<String, String> headers = ArrayListMultimap.create();
+
+    JsonObject jsonObject = new JsonObject();
+
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+    apiContext.setPrincipal(new JsonObject()
+                                    .put("u1", new JsonArray().add("u1.1").add("u1.2"))
+                                    .put("u2", "u2")
+                                    .put("obj", new JsonObject().put("foo", "bar")));
+
+    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                             "add_device")
+            .setHost("localhost")
+            .setPort(8080)
+            .setHttpMethod(HttpMethod.POST)
+            .setPath("/")
+            .addParam("foo", "bar")
+            .addParam("q1", "$user.u1")
+            .addParam("q2", "$user.u2")
+            .addParam("q3", "$user.u3")
+            .addParam("q4", "$user.obj");
+    apiContext.addRequest(httpRpcRequest);
+
+    Filter filter =
+            Filter.create(HttpRequestReplaceFilter.class.getSimpleName(), vertx, new JsonObject());
+    filters.add(filter);
+
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(1, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              System.out.println(request.params());
+              testContext.assertEquals(5, request.params().size());
+              testContext.assertEquals(2, request.params().get("q1").size());
+              testContext.assertEquals("bar", request.params().get("foo").iterator().next());
+              testContext.assertEquals("u1.1", request.params().get("q1").iterator().next());
+              testContext.assertEquals("u2", request.params().get("q2").iterator().next());
+              testContext.assertEquals("{\"foo\":\"bar\"}", request.params().get("q4").iterator
+                      ().next());
+              async.complete();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+
+  }
+
+
+  //分割线
   @Test
   public void testReplaceParams(TestContext testContext) {
     Multimap<String, String> params = ArrayListMultimap.create();
