@@ -40,7 +40,7 @@ public class ResponseReplaceFilter extends ReplaceFilter implements Filter {
     boolean isArray = result.isArray();
     //body目前仅考虑JsonObject的替换
     Multimap<String, String> header =
-            replaceHeader(apiContext, result.header());
+            replaceHeader(apiContext, result.headers());
 
     if (!isArray) {
       JsonObject body = replaceBody(apiContext, result.responseObject());

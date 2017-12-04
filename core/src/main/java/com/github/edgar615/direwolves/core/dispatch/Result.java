@@ -38,7 +38,7 @@ public interface Result {
   /**
    * @return json对象
    */
-  Multimap<String, String> header();
+  Multimap<String, String> headers();
 
   int byteSize();
 
@@ -116,9 +116,9 @@ public interface Result {
 
   default Result copy() {
     if (isArray()) {
-      return Result.createJsonArray(statusCode(), responseArray().copy(), header());
+      return Result.createJsonArray(statusCode(), responseArray().copy(), headers());
     }
-    return Result.createJsonObject(statusCode(), responseObject(), header());
+    return Result.createJsonObject(statusCode(), responseObject(), headers());
   }
 
 }

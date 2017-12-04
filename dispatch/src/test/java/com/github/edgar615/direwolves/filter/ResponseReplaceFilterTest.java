@@ -95,15 +95,15 @@ public class ResponseReplaceFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
              Result result = context.result();
-              System.out.println(result.header());
-              testContext.assertEquals(7, result.header().keySet().size());
-              testContext.assertEquals("q1.1", result.header().get("h1").iterator().next());
-              testContext.assertEquals("var_bar", result.header().get("h2").iterator().next());
-              testContext.assertEquals("1", result.header().get("h3").iterator().next());
-              testContext.assertEquals("1", result.header().get("h4").iterator().next());
-              testContext.assertTrue(result.header().get("h5").isEmpty());
-              testContext.assertEquals(1, result.header().get("h6").size());
-              testContext.assertEquals("1", result.header().get("h7").iterator().next());
+              System.out.println(result.headers());
+              testContext.assertEquals(7, result.headers().keySet().size());
+              testContext.assertEquals("q1.1", result.headers().get("h1").iterator().next());
+              testContext.assertEquals("var_bar", result.headers().get("h2").iterator().next());
+              testContext.assertEquals("1", result.headers().get("h3").iterator().next());
+              testContext.assertEquals("1", result.headers().get("h4").iterator().next());
+              testContext.assertTrue(result.headers().get("h5").isEmpty());
+              testContext.assertEquals(1, result.headers().get("h6").size());
+              testContext.assertEquals("1", result.headers().get("h7").iterator().next());
               async.complete();
             }).onFailure(t -> {
       t.printStackTrace();

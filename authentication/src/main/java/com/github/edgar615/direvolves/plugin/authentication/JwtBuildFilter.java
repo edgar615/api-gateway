@@ -159,7 +159,7 @@ public class JwtBuildFilter implements Filter {
     //保存JTI，后面使用
     apiContext.addVariable("jti", jti);
     apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
-                                                 result.header()));
+                                                 result.headers()));
     completeFuture.complete(apiContext);
   }
 

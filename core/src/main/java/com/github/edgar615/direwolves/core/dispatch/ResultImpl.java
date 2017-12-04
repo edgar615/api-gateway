@@ -104,7 +104,7 @@ class ResultImpl implements Result {
   }
 
   @Override
-  public Multimap<String, String> header() {
+  public Multimap<String, String> headers() {
     return ImmutableMultimap.copyOf(headers);
   }
 

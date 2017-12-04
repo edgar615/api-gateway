@@ -98,11 +98,11 @@ public class Api {
     return this;
   }
 
-  public JsonObject getBody() {
+  public JsonObject body() {
     return body;
   }
 
-  public String setAppKey() {
+  public String appKey() {
     return appKey;
   }
 
@@ -111,7 +111,7 @@ public class Api {
     return this;
   }
 
-  public String setAppSecret() {
+  public String appSecret() {
     return appSecret;
   }
 
@@ -120,7 +120,7 @@ public class Api {
     return this;
   }
 
-  public String setSignMethod() {
+  public String signMethod() {
     return signMethod;
   }
 
@@ -129,7 +129,7 @@ public class Api {
     return this;
   }
 
-  public String setToken() {
+  public String token() {
     return token;
   }
 

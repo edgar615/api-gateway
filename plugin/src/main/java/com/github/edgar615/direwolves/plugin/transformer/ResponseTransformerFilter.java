@@ -102,7 +102,7 @@ public class ResponseTransformerFilter implements Filter {
     boolean isArray = result.isArray();
     //body目前仅考虑JsonObject的替换
     Multimap<String, String> header =
-            tranformerHeaders(result.header(), plugin);
+            tranformerHeaders(result.headers(), plugin);
     if (!isArray) {
       JsonObject body = tranformerBody(result.responseObject(), plugin);
       apiContext.setResult(Result.createJsonObject(result.statusCode(),
@@ -124,7 +124,7 @@ public class ResponseTransformerFilter implements Filter {
       }
     });
     transformer.headerAdded().forEach(
-            entry -> newHeader.replaceValues(entry.getKey(), Lists.newArrayList(entry.getValue())));
+            entry -> newHeader.put(entry.getKey(), entry.getValue()));
     return newHeader;
   }
 
