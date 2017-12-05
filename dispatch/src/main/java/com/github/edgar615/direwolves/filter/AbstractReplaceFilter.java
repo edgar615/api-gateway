@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * @author Edgar  Date 2017/11/30
  */
-public class ReplaceFilter {
+public abstract class AbstractReplaceFilter {
   protected Multimap<String, String> replaceHeader(ApiContext apiContext,
                                                    Multimap<String, String> headers) {
     Multimap<String, String> newHeaders = ArrayListMultimap.create();

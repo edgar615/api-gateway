@@ -105,7 +105,7 @@ public class JwtBuildFilter implements Filter {
 
   @Override
   public int order() {
-    return 10000;
+    return 20000;
   }
 
   @Override

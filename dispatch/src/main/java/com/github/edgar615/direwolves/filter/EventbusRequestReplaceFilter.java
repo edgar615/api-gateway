@@ -20,7 +20,7 @@ import io.vertx.core.json.JsonObject;
  * 对于params和headers，如果新值是集合或者数组，将集合或数组的元素一个个放入params或headers，而不是将一个集合直接放入.
  * 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
  */
-public class EventbusRequestReplaceFilter extends RequestReplaceFilter implements Filter {
+public class EventbusRequestReplaceFilter extends AbstractRequestReplaceFilter implements Filter {
   EventbusRequestReplaceFilter() {
   }
 

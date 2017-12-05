@@ -39,7 +39,7 @@ public class ExtractResultFilter implements Filter {
 
   @Override
   public int order() {
-    return 0;
+    return Integer.MAX_VALUE + 1000;
   }
 
   @Override

@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
  * 目前body只考虑JsonObject类型的result修改，对JsonArray暂不支持.
  * Created by edgar on 16-9-20.
  */
-public class ResponseReplaceFilter extends ReplaceFilter implements Filter {
+public class ResponseReplaceFilter extends AbstractReplaceFilter implements Filter {
 
   ResponseReplaceFilter() {
   }
@@ -25,7 +25,7 @@ public class ResponseReplaceFilter extends ReplaceFilter implements Filter {
 
   @Override
   public int order() {
-    return 2000;
+    return Integer.MAX_VALUE - 1000;
   }
 
   @Override
