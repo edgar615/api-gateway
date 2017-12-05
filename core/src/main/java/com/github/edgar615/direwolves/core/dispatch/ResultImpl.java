@@ -126,4 +126,16 @@ class ResultImpl implements Result {
     return helper.toString();
   }
 
+  @Override
+  public Result addHeader(String name, String value) {
+    this.headers.put(name, value);
+    return this;
+  }
+
+  @Override
+  public Result addHeaders(Multimap<String, String> header) {
+    this.headers.putAll(header);
+    return this;
+  }
+
 }

@@ -42,6 +42,10 @@ public interface Result {
 
   int byteSize();
 
+  Result addHeader(String name, String value);
+
+  Result addHeaders(Multimap<String, String> header);
+
   /**
    * 创建一个JsonObject的响应.
    *
