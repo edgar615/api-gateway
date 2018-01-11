@@ -40,7 +40,8 @@ public class HeaderGrayFilterTest {
 
   private String namespace = UUID.randomUUID().toString();
 
-  private JsonObject config = new JsonObject().put("namespace", namespace);
+  private JsonObject config = new JsonObject().put("api.discovery", new JsonObject()
+          .put("name", namespace));
 
   @Before
   public void setUp(TestContext testContext) {
