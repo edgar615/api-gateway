@@ -27,6 +27,14 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
 
   @Override
   public ApiDefinition apply(JsonObject jsonObject) {
+    ApiDefinition apiDefinition = createApiDefinition(jsonObject);
+    final ApiDefinition finalApiDefinition = apiDefinition;
+    ApiPlugin.factories
+            .forEach(f -> finalApiDefinition.addPlugin((ApiPlugin) f.decode(jsonObject)));
+    return apiDefinition;
+  }
+
+  private ApiDefinition createApiDefinition(JsonObject jsonObject) {
     Preconditions.checkArgument(jsonObject.containsKey("name"), "api name cannot be null");
     Preconditions.checkArgument(jsonObject.containsKey("path"), "api path cannot be null");
     Preconditions
@@ -34,11 +42,26 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
     String name = jsonObject.getString("name");
     String path = jsonObject.getString("path");
     HttpMethod method = method(jsonObject.getString("method", "get"));
-
-    ApiDefinition apiDefinition = ApiDefinition
-            .create(name, method, path, createEndpoints(jsonObject.getJsonArray("endpoints")));
-    ApiPlugin.factories.forEach(f -> apiDefinition.addPlugin((ApiPlugin) f.decode(jsonObject)));
-    return apiDefinition;
+    if (jsonObject.getValue("type") instanceof String
+        && "ant".equalsIgnoreCase(jsonObject.getString("type"))) {
+      AntPathApiDefinitionImpl antPathApiDefinition =
+              (AntPathApiDefinitionImpl) ApiDefinition.createAnt(name, method, path,
+                                                                 createEndpoints(jsonObject
+                                                                                         .getJsonArray(
+                                                                                                 "endpoints")));
+      if (jsonObject.getValue("ignoredPatterns") instanceof JsonArray) {
+        jsonObject.getJsonArray("ignoredPatterns").forEach(o -> {
+          if (o instanceof String) {
+            String pattern = (String) o;
+            antPathApiDefinition.addIgnoredPattern(pattern);
+          }
+        });
+      }
+      return antPathApiDefinition;
+    } else {
+      return ApiDefinition
+              .create(name, method, path, createEndpoints(jsonObject.getJsonArray("endpoints")));
+    }
   }
 
   private HttpMethod method(String method) {

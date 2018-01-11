@@ -39,7 +39,8 @@ public class PathParamFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition() != null;
+    return apiContext.apiDefinition() != null
+            && !apiContext.apiDefinition().antStyle();
   }
 
   @Override

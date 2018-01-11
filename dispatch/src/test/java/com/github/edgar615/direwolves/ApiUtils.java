@@ -83,7 +83,23 @@ public class ApiUtils {
       seq.incrementAndGet();
     });
 
-    Awaitility.await().until(() -> seq.get() == 8);
+    httpEndpoint = SimpleHttpEndpoint.http("get_user", HttpMethod.GET, "/user",
+                                           devicePort, "localhost");
+    apiDefinition = ApiDefinition.create("get_user", HttpMethod.GET, "/user/([\\d+]+)",
+                                         Lists.newArrayList(httpEndpoint));
+    apiDiscovery.publish(apiDefinition, ar -> {
+      seq.incrementAndGet();
+    });
+
+    httpEndpoint = SimpleHttpEndpoint.http("userAnt", HttpMethod.GET, "/user/",
+                                           devicePort, "localhost");
+    apiDefinition = ApiDefinition.createAnt("userAnt", HttpMethod.GET, "/user/**",
+                                         Lists.newArrayList(httpEndpoint));
+    apiDiscovery.publish(apiDefinition, ar -> {
+      seq.incrementAndGet();
+    });
+
+    Awaitility.await().until(() -> seq.get() == 10);
   }
 
 }

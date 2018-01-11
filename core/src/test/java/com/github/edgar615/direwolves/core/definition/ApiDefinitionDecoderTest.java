@@ -40,6 +40,8 @@ public class ApiDefinitionDecoderTest {
     Assert.assertEquals(HttpMethod.GET, httpEndpoint.method());
 
     Assert.assertEquals(0, apiDefinition.plugins().size());
+
+    Assert.assertFalse(apiDefinition instanceof AntPathApiDefinitionImpl);
   }
 
   @Test

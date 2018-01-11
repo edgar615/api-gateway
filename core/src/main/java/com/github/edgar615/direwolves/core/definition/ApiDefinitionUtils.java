@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.core.definition;
 
+import com.github.edgar615.direwolves.core.utils.AntPathMatcher;
 import io.vertx.core.json.JsonObject;
 
 import java.util.regex.Matcher;
@@ -22,7 +23,7 @@ class ApiDefinitionUtils {
           match = match(definition.method().name(), filter.getString("method"));
           break;
         case "path":
-          match = matchPath(definition.pattern(), filter.getString("path"));
+          match = matchPath(definition, filter.getString("path"));
           break;
         default:
           // metadata
@@ -38,12 +39,26 @@ class ApiDefinitionUtils {
     return true;
   }
 
-  static boolean matchPath(Pattern pattern, String expected) {
+  static boolean matchPath(ApiDefinition definition, String expected) {
     if (expected.endsWith("/") && expected.length() > 1) {
       expected = expected.substring(0, expected.length() - 1);
     }
-    Matcher matcher = pattern.matcher(expected);
-    return matcher.matches();
+    if (definition instanceof AntPathApiDefinitionImpl) {
+      AntPathMatcher matcher = new AntPathMatcher.Builder().build();
+      return !matchIgnore((AntPathApiDefinitionImpl) definition, matcher, expected)
+              && matcher.isMatch(definition.path(), expected);
+    } else {
+      Pattern pattern = definition.pattern();
+      Matcher matcher = pattern.matcher(expected);
+      return matcher.matches();
+    }
+
+  }
+
+  static boolean matchIgnore(AntPathApiDefinitionImpl definition, AntPathMatcher matcher,
+                             String expected) {
+    return definition.ignoredPatterns()
+            .stream().anyMatch(p -> matcher.isMatch(p, expected));
   }
 
   static boolean match(Object actual, Object expected) {

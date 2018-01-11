@@ -13,6 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 该filter根据请求从API路由注册表中读取到对应的API定义.
@@ -81,6 +82,26 @@ public class ApiFindFilter implements Filter {
   }
 
   private ApiDefinition matchApi(List<ApiDefinition> apiDefinitions) {
+    if (apiDefinitions.isEmpty()) {//没有API
+      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
+    }
+    if (apiDefinitions.size() == 1) {//只有一个
+      return apiDefinitions.get(0);
+    }
+    List<ApiDefinition> regexApiList = apiDefinitions.stream()
+            .filter(d -> !d.antStyle())
+            .collect(Collectors.toList());
+    if (regexApiList.isEmpty()) {
+      List<ApiDefinition> antApiList = apiDefinitions.stream()
+              .filter(d -> d.antStyle())
+              .collect(Collectors.toList());
+      return extractApi(antApiList);
+    } else {
+      return extractApi(regexApiList);
+    }
+  }
+
+  private ApiDefinition extractApi(List<ApiDefinition> apiDefinitions) {
     if (apiDefinitions.isEmpty()) {//没有API
       throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
     }

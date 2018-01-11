@@ -285,7 +285,14 @@ redis属性用于定义RedisOptions中定义的属性
 
 ## API定义
 API采用JSON格式来定义上层接口与下游服务直接的转发规则。
-一个最简单的例子
+Api定义支持两种风格的路径
+
+- 正则表达式，用于精确定义某个API
+- Ant风格，用于定义下游服务的一组API
+
+网关在查找API定义的时候优先查找正则表达式风格的API，如果匹配到合适的API，就不在继续查找Ant风格的API
+
+正则表达式的一个最简单的例子
 ```
 {
   "name": "ping",
@@ -303,7 +310,7 @@ API采用JSON格式来定义上层接口与下游服务直接的转发规则。
 ```
 - **name** API的名称，在同一个网关里，这个名称必须唯一。相同的名称会被覆盖
 - **method** API的HTTP方法，仅支持GET、POST、PUT、DELETE
-- **path** API的地址，支持正则表达式匹配，但是不支持ant格式的匹配
+- **path** API的地址，支持正则表达式匹配
 - **endpoints** 下游服务的转发规则定义，JSON数字，一个API可以向多个下游服务转发。**考虑到分布式事务问题，建议只有GET请求才可以向多个下游服务转发**。为了满足不同的转发规则，我们定义了几个不同类型的Endpoint，稍后会详细介绍。
   **所有的下游服务的响应内容均要求是JSON格式**
 ### dummy
@@ -377,7 +384,31 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 - **path** 下游服务的接口地址
 - **service** 下游服务的服务名称
   **使用这个endpoint需要配合XXXServiceDiscoveryVerticle才能实现**
-
+## Ant风格的地址匹配
+有时候如果我们针对API一个个配置匹配
+规则如下：
+```
+？匹配一个字符
+*匹配0个或多个字符
+**匹配0个或多个目录
+```
+示例
+```
+{
+  "name": "user-ant",
+  "method": "GET",
+  "path": "/v1/user/**",
+  "type" : "ant",
+  "endpoints": [
+    {
+      "name": "user-ant",
+      "type": "http",
+      "path": "/v1/$var.extractPath",
+      "service" : "user"
+    }
+  ]
+}
+```
 ## 扩展
 前面API定义章节已经描述了如何使用最核心的的转发功能，但是在实际业务中API网关还需要承载更多的功能，如鉴权、参数校验、限流等等，我们通过Plugin和Filter两个组件组合使用来实现各种不同的需求。Plugin和Filter组合起来才能发挥API网关的最大威力。
 Filter分为两种PRE和POST
@@ -446,7 +477,7 @@ x-api-verson : 20171108
 - **type** PRE
 - **order** -2147481648
 
-**前置条件**：所有请求都会执行
+**前置条件**：使用正则表达式匹配的API
 
 示例：
 ```
@@ -455,9 +486,24 @@ x-api-verson : 20171108
 用户请求 `/regex/95624/test/hlu6duKrlM`经过`PathParamFilter`解析之后会在上下文中保存两个变量
 ```
 $var.param0:"95624"
-$var.param1:"hlu6duKrlM"}
+$var.param1:"hlu6duKrlM"
 ```
+#### Filter: AntPathParamFilter
+将匹配ant风格的路径保存在上下文变量中，可以通过$var.extractPath变量来获得
 
+- **type** PRE
+- **order** -2147481648
+
+**前置条件**：使用Ant匹配的API
+
+示例：
+```
+"path": "/ant/**",
+```
+用户请求 `/ant/95624/test/hlu6duKrlM`经过`AntPathParamFilter`解析之后会在上下文中保存两个变量
+```
+$var.extractPath:"95624/test/hlu6duKrlM"
+```
 ### 认证 Authentication 
 认证（Authentication ）是用来回答以下问题：
 - 用户是谁

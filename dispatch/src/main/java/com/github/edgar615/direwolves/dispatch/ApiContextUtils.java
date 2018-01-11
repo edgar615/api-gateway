@@ -73,7 +73,7 @@ public class ApiContextUtils {
 //    variables.put("request.method", req.method().name());
 //    variables.put("request.query_string", req.query());
 //    variables.put("request.uri", req.uri());
-//    variables.put("request.path_info", req.path());
+    variables.put("request.path", req.path());
     variables.put("request.client_ip", getClientIp(req));
     return variables;
   }

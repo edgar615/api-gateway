@@ -1,0 +1,14 @@
+{
+  "name": "user-ant",
+  "method": "GET",
+  "path": "/v1/user/**",
+  "type" : "ant",
+  "endpoints": [
+    {
+      "name": "user-ant",
+      "type": "http",
+      "path": "/v1/$var.extractPath",
+      "service" : "user"
+    }
+  ]
+}

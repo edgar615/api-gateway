@@ -124,4 +124,52 @@ public class ApiFindFilterTest {
       async.complete();
     });
   }
+
+  @Test
+  public void testRegexBeforAnt(TestContext testContext) {
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/user/1", null, null, null);
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Filters.doFilter(task, Lists.newArrayList(filter))
+            .andThen(context -> {
+              testContext.assertNotNull(context.apiDefinition());
+              testContext.assertEquals("get_user", context.apiDefinition().name());
+              async.complete();
+            }).onFailure(throwable -> {
+      throwable.printStackTrace();
+      testContext.fail();
+    });
+  }
+
+  @Test
+  public void testAnt(TestContext testContext) {
+    ApiContext apiContext =
+            ApiContext.create(HttpMethod.GET, "/user/abc", null, null, null);
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
+    try {
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Filters.doFilter(task, Lists.newArrayList(filter))
+            .andThen(context -> {
+              testContext.assertNotNull(context.apiDefinition());
+              testContext.assertEquals("userAnt", context.apiDefinition().name());
+              async.complete();
+            }).onFailure(throwable -> {
+      throwable.printStackTrace();
+      testContext.fail();
+    });
+  }
 }

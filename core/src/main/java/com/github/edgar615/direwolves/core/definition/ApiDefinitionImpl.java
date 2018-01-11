@@ -69,7 +69,8 @@ class ApiDefinitionImpl implements ApiDefinition {
   private final List<ApiPlugin> plugins = new ArrayList<>();
 
   ApiDefinitionImpl(String name, HttpMethod method, String path,
-                    List<Endpoint> endpoints) {
+                    List<Endpoint> endpoints,
+                    Pattern pattern) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
@@ -86,7 +87,7 @@ class ApiDefinitionImpl implements ApiDefinition {
     this.method = method;
     this.path = path;
     this.endpoints = ImmutableList.copyOf(endpoints);
-    this.pattern = Pattern.compile(path);
+    this.pattern = pattern;
   }
 
   @Override

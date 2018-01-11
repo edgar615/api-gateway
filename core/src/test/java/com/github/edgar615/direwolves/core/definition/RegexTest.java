@@ -62,6 +62,12 @@ public class RegexTest {
     Assert.assertTrue(result);
     displayParam(matcher);
 
+    pattern = Pattern.compile("\\{[^/]+?\\}");
+    matcher = pattern.matcher("/devices/134/d-d/3445");
+    result = matcher.matches();
+System.out.println(result);
+    displayParam(matcher);
+
   }
 
   private void displayParam(Matcher matcher) {

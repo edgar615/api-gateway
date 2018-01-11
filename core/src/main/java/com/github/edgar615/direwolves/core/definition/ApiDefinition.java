@@ -70,7 +70,18 @@ public interface ApiDefinition {
 
   static ApiDefinition create(String name, HttpMethod method, String path,
                               List<Endpoint> endpoints) {
-    return new ApiDefinitionImpl(name, method, path, endpoints);
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
+    if (path.endsWith("/")) {
+      path = path.substring(0, path.length() - 1);
+    }
+    return new ApiDefinitionImpl(name, method, path, endpoints, Pattern.compile(path));
+  }
+
+  static ApiDefinition createAnt(String name, HttpMethod method, String path,
+                              List<Endpoint> endpoints) {
+    return new AntPathApiDefinitionImpl(name, method, path, endpoints);
   }
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
@@ -96,35 +107,15 @@ public interface ApiDefinition {
   }
 
   /**
-   * 校验传入的参数是否符合api定义.
-   * 只有当method相同，且path符合ApiDefinition的正则表达式才认为二者匹配.
-   *
-   * @param method 请求方法
-   * @param path   路径
-   * @return true 符合
+   * 是否是ant风格
+   * @return
    */
-  @Deprecated
-  default boolean match(HttpMethod method, String path) {
-    if (method != method()) {
-      return false;
-    }
-    Pattern pattern = pattern();
-    Matcher matcher = pattern.matcher(path);
-    return matcher.matches();
+  default boolean antStyle() {
+    return this instanceof AntPathApiDefinitionImpl;
   }
 
   default JsonObject toJson() {
     return ApiDefinitionEncoder.instance().apply(this);
-  }
-
-  /**
-   * 对性能有损耗
-   * @return
-   */
-  @Deprecated
-  default ApiDefinition copy() {
-    JsonObject jsonObject = toJson();
-    return ApiDefinition.fromJson(jsonObject);
   }
 
   default boolean match(JsonObject filter) {
