@@ -3,6 +3,7 @@ package com.github.edgar615.direvolves.plugin.authentication;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.CacheUtils;
+import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.cache.Cache;
 import com.github.edgar615.util.vertx.cache.CacheLoader;
@@ -56,7 +57,7 @@ public class UserLoaderFilter implements Filter {
    */
   UserLoaderFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.namespace = config.getString("namespace", "api-gateway");
+    this.namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
     JsonObject userConfig = config.getJsonObject("user", new JsonObject());
     if (userConfig.getValue("cache") instanceof JsonObject) {
       this.cache = CacheUtils.createCache(vertx, "userCache",
@@ -67,7 +68,7 @@ public class UserLoaderFilter implements Filter {
 
     if (userConfig.getValue("url") instanceof String) {
       JsonObject httpConfig = new JsonObject();
-      httpConfig.put("port", config.getInteger("port", 9000));
+      httpConfig.put("port", config.getInteger("port", Consts.DEFAULT_PORT));
       httpConfig.put("url", userConfig.getString("url"));
       httpConfig.put("notExistsKey", NOT_EXISTS_KEY);
       userLoader = new UserLoader(vertx, namespace + ":u:", httpConfig);

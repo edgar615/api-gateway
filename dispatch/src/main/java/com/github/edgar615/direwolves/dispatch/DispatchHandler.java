@@ -7,6 +7,7 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.FilterFactory;
 import com.github.edgar615.direwolves.core.dispatch.Result;
+import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.direwolves.core.utils.Filters;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
@@ -51,7 +52,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
   private final String namespace;
 
   private DispatchHandler(Vertx vertx, JsonObject config) {
-    namespace = config.getString("namespace", "api-gateway");
+    namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
     List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(FilterFactory.class))
             .stream().map(f -> f.create(vertx, config))
             .collect(Collectors.toList());

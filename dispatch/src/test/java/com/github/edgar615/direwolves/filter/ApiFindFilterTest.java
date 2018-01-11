@@ -39,7 +39,8 @@ public class ApiFindFilterTest {
 
   private String namespace = UUID.randomUUID().toString();
 
-  private JsonObject config = new JsonObject().put("namespace", namespace);
+  private JsonObject config = new JsonObject().put("api.discovery", new JsonObject()
+  .put("name", namespace));
 
   int devicePort = Integer.parseInt(Randoms.randomNumber(4));
 

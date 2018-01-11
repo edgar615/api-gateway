@@ -230,7 +230,7 @@ API发现组件的配置属性
 - **unpublishedAddress**: 删除一个API后的广播地址
 - **name**: API发现模块的名称，api-discovery组件会使用这个名称在vert.x的共享数据中存储API信息。
 
-**对于在集群模式下的的网关，不同业务的网关name、publishedAddress、unpublishedAddress三个属性不能相同，不然会导致API定义错乱**
+**如果在一个应用里支持多个API网关，可以定义多个FileApiDiscoveryVerticle，但是需要注意不同业务的网关name、publishedAddress、unpublishedAddress三个属性不能相同，不然会导致API定义错乱**
 
 ### ApiDefinitionVerticle
 定义了一些在线修改API定义的接口。后面详细
@@ -262,6 +262,26 @@ redis属性用于定义RedisOptions中定义的属性
 ### ApiDispatchVerticle
 网关对外提供的REST服务。这个Verticle是整个网关的核心部分。会在后面详细介绍。
 如果系统使用了redis作为缓存，那么ApiDispatchVerticle的依赖中需要加上RedisVerticle
+#### 基础设置
+```
+ "namespace": "example", 网关的名称，默认为api-gatewawe
+ "port": 9000, 网关的端口，默认为9000
+ "bodyLimit": 1024, 请求体的body限制，-1为不限制，默认为不限制
+```
+#### CORS配置
+网关默认不支持跨域访问，如果需要支持跨域，可以通过CORS配置开启
+```
+  "cors": {
+    "allowedOriginPattern": "*.edgar615.com",
+    "maxAgeSeconds": 1000,
+    "allowedHeaders": ["*"],
+    "allowedMethods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+  }
+```
+- **allowedOriginPattern** 允许的origin，默认为 *
+- **maxAgeSeconds** 预检请求的有效期
+- **allowedHeaders** 服务器支持的头信息
+- **allowedMethods** 服务器支持的HTTP方法
 
 ## API定义
 API采用JSON格式来定义上层接口与下游服务直接的转发规则。
@@ -913,7 +933,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 **前置条件**：
 - 转发的请求中有HTTP类型的请求
 - 配置中有`request.transformer`的全局参数或者api定义了RequestTransformerPlugin
-配置
+  配置
 ```
  "request.transformer": {
    "header.add": [

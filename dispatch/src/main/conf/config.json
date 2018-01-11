@@ -2,6 +2,9 @@
   "namespace": "example",
   "port": 9000,
   "bodyLimit":  1024,
+  "cors" : {
+
+  },
   "http": {
     "compressionLevel":6,
     "compressionSupported" : false

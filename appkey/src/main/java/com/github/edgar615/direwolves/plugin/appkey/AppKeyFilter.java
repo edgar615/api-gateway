@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.CacheUtils;
+import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.util.base.EncryptUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
@@ -138,7 +139,7 @@ public class AppKeyFilter implements Filter {
     optionalRule.add("MD5");
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
-    this.namespace = config.getString("namespace", "api-gateway");
+    this.namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
     JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
     if (appKeyConfig.getValue("cache") instanceof JsonObject) {
       this.cache = CacheUtils.createCache(vertx, "appKeyCache",
@@ -148,7 +149,7 @@ public class AppKeyFilter implements Filter {
     }
 
     appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
-    appKeyConfig.put("port", config.getInteger("port", 9000));
+    appKeyConfig.put("port", config.getInteger("port", Consts.DEFAULT_PORT));
     appKeyLoader = new AppKeyLoader(vertx, namespace + ":ak:", appKeyConfig);
   }
 

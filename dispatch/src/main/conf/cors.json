@@ -1,0 +1,8 @@
+{
+  "cors": {
+    "allowedOriginPattern": "*.edgar615.com",
+    "maxAgeSeconds": 1000,
+    "allowedHeaders": ["*"],
+    "allowedMethods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+  }
+}
