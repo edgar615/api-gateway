@@ -27,6 +27,7 @@
         <module>service-discovery-zookeeper</module>
         <module>service-discovery-consul</module>
         <module>api-file</module>
+        <module>scope</module>
     </modules>
 
     <properties>

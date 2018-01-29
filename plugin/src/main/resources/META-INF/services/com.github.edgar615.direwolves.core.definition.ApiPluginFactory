@@ -4,7 +4,6 @@ com.github.edgar615.direwolves.plugin.arg.UrlArgPluginFactory
 com.github.edgar615.direwolves.plugin.arg.BodyArgPluginFactory
 com.github.edgar615.direwolves.plugin.transformer.RequestTransformerPluginFactory
 com.github.edgar615.direwolves.plugin.transformer.ResponseTransformerPluginFactory
-com.github.edgar615.direwolves.plugin.authorization.AuthorisePluginFactory
 com.github.edgar615.direwolves.plugin.arg.StrictArgPluginFactory
 com.github.edgar615.direwolves.plugin.fallback.FallbackPluginFactory
 com.github.edgar615.direwolves.plugin.user.UserRestrictionFactory

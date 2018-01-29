@@ -2,5 +2,3 @@ com.github.edgar615.direwolves.plugin.ip.AddBlacklistCmd
 com.github.edgar615.direwolves.plugin.ip.DeleteBlacklistCmd
 com.github.edgar615.direwolves.plugin.ip.AddWhitelistCmd
 com.github.edgar615.direwolves.plugin.ip.DeleteWhitelistCmd
-com.github.edgar615.direwolves.plugin.authorization.AddAuthoriseCmd
-com.github.edgar615.direwolves.plugin.authorization.DeleteAuthoriseCmd

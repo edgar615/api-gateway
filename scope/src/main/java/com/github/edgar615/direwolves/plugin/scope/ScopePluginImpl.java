@@ -1,18 +1,18 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.google.common.base.MoreObjects;
 
 /**
  * Created by edgar on 16-12-25.
  */
-public class AuthorisePluginImpl implements AuthorisePlugin {
+public class ScopePluginImpl implements ScopePlugin {
 
   private String scope = "default";
 
-  AuthorisePluginImpl() {
+  ScopePluginImpl() {
   }
 
-  AuthorisePluginImpl(String scope) {
+  ScopePluginImpl(String scope) {
     this.scope = scope;
   }
 
@@ -28,7 +28,7 @@ public class AuthorisePluginImpl implements AuthorisePlugin {
   @Override
   public String toString() {
     return MoreObjects
-            .toStringHelper("AuthorisePlugin")
+            .toStringHelper("ScopePlugin")
             .add("scope", scope)
             .toString();
   }

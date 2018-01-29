@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -19,7 +19,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +30,7 @@ import java.util.List;
  * Created by edgar on 16-12-25.
  */
 @RunWith(VertxUnitRunner.class)
-public class AuthoriseFilterTest {
+public class ScopeFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -43,7 +42,7 @@ public class AuthoriseFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = Filter.create(AuthoriseFilter.class.getSimpleName(), vertx, new JsonObject());
+    filter = Filter.create(ScopeFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.clear();
     filters.add(filter);
 
@@ -153,8 +152,8 @@ public class AuthoriseFilterTest {
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    AuthorisePluginImpl plugin =
-            (AuthorisePluginImpl) ApiPlugin.create(AuthorisePlugin.class.getSimpleName());
+    ScopePluginImpl plugin =
+            (ScopePluginImpl) ApiPlugin.create(ScopePlugin.class.getSimpleName());
     plugin.setScope("user.read");
     definition.addPlugin(plugin);
     return apiContext;

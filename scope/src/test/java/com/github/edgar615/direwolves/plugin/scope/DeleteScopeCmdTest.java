@@ -1,10 +1,9 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.google.common.collect.Lists;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
-import com.github.edgar615.util.validation.ValidationException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
@@ -14,11 +13,11 @@ import org.junit.Test;
 /**
  * Created by edgar on 17-1-21.
  */
-public class AddAuthoriseCmdTest {
+public class DeleteScopeCmdTest {
 
   ApiDefinition definition;
 
-  AddAuthoriseCmd cmd;
+  DeleteScopeCmd cmd;
 
   @Before
   public void setUp() {
@@ -29,32 +28,20 @@ public class AddAuthoriseCmdTest {
     definition = ApiDefinition
         .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
 
-    cmd = new AddAuthoriseCmd();
+    definition.addPlugin(ScopePlugin.create("device:get"));
+
+    cmd = new DeleteScopeCmd();
   }
 
   @Test
-  public void testAddSuccess() {
+  public void testDeleteSuccess() {
     JsonObject jsonObject = new JsonObject()
         .put("scope", "device:get");
-
-    Assert.assertEquals(0, definition.plugins().size());
-
-    cmd.handle(definition, jsonObject);
     Assert.assertEquals(1, definition.plugins().size());
 
-  }
-
-  @Test
-  public void missScopeShouldThrowValidationException() {
-    JsonObject jsonObject = new JsonObject()
-        .put("ip", "192.168.1.100");
-    try {
-      cmd.handle(definition, jsonObject);
-      Assert.fail();
-    } catch (Exception e) {
-      e.printStackTrace();
-      Assert.assertTrue(e instanceof ValidationException);
-    }
+    cmd.handle(definition, jsonObject);
+    Assert.assertEquals(0, definition.plugins().size());
 
   }
+
 }

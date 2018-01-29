@@ -4,7 +4,6 @@ com.github.edgar615.direwolves.plugin.arg.StrictArgFilterFactory
 com.github.edgar615.direwolves.plugin.transformer.RequestTransformerFilterFactory
 com.github.edgar615.direwolves.plugin.transformer.ResponseTransformerFilterFactory
 com.github.edgar615.direwolves.plugin.ip.IpRestrictionFilterFactory
-com.github.edgar615.direwolves.plugin.authorization.AuthoriseFilterFactory
 com.github.edgar615.direwolves.plugin.transformer.EventbusRequestTransformerFilterFactory
 com.github.edgar615.direwolves.plugin.acl.AclRestrictionFilterFactory
 com.github.edgar615.direwolves.plugin.fallback.RequestFallbackFilterFactory

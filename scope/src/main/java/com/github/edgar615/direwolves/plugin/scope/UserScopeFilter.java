@@ -1,20 +1,30 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.CacheUtils;
+import com.github.edgar615.direwolves.core.utils.Consts;
+import com.github.edgar615.direwolves.redis.RedisCache;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
+import com.github.edgar615.util.vertx.cache.Cache;
+import com.github.edgar615.util.vertx.cache.CacheLoader;
+import com.github.edgar615.util.vertx.redis.RedisClientHelper;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * 权限校验的filter.
@@ -26,9 +36,41 @@ import java.util.Set;
  *
  *   该filter的order=1100
  */
-public class AuthoriseFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthoriseFilter.class);
-  AuthoriseFilter(Vertx vertx, JsonObject config) {
+public class UserScopeFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserScopeFilter.class);
+  private final String namespace;
+
+  private final Vertx vertx;
+
+  private final Cache<String, JsonObject> cache;
+
+  private final CacheLoader<String, JsonObject> appKeyLoader;
+
+  private final String NOT_EXISTS_KEY = UUID.randomUUID().toString();
+
+  UserScopeFilter(Vertx vertx, JsonObject config) {
+    this.vertx = vertx;
+    this.namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
+    JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
+    if (appKeyConfig.getValue("cache") instanceof JsonObject) {
+      this.cache = CacheUtils.createCache(vertx, "appKeyCache",
+                                          appKeyConfig.getJsonObject("cache"));
+    } else {
+      this.cache = CacheUtils.createCache(vertx, "appKeyCache", new JsonObject());
+    }
+
+//    RedisClient redisClient = RedisClientHelper.getShared(vertx);
+//    RedisCache redisCache =  new RedisCache(redisClient, cacheName, options);
+
+    appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
+    appKeyConfig.put("port", config.getInteger("port", Consts.DEFAULT_PORT));
+    appKeyLoader = new CacheLoader<String, JsonObject>() {
+      @Override
+      public void load(String key, Handler<AsyncResult<JsonObject>> handler) {
+
+      }
+    };
+
   }
 
   @Override
@@ -43,13 +85,13 @@ public class AuthoriseFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().plugin(AuthorisePlugin.class.getSimpleName()) != null;
+    return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    AuthorisePlugin plugin = (AuthorisePlugin) apiContext.apiDefinition()
-            .plugin(AuthorisePlugin.class.getSimpleName());
+    ScopePlugin plugin = (ScopePlugin) apiContext.apiDefinition()
+            .plugin(ScopePlugin.class.getSimpleName());
     String appScope = plugin.scope();
     boolean appMatch = true;
     if (apiContext.variables().containsKey("app.permissions")) {

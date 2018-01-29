@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.github.edgar615.direwolves.core.cmd.ApiSubCmd;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
@@ -6,22 +6,22 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * 删除鉴权的命令
- *命令字:authorise.delete
+ *命令字:scope.delete
  * @author Edgar  Date 2017/1/20
  */
-public class DeleteAuthoriseCmd implements ApiSubCmd {
+public class DeleteScopeCmd implements ApiSubCmd {
 
-  public DeleteAuthoriseCmd() {
+  public DeleteScopeCmd() {
   }
 
   @Override
   public String cmd() {
-    return "authorise.delete";
+    return "scope.delete";
   }
 
   @Override
   public void handle(ApiDefinition definition, JsonObject jsonObject) {
-    definition.removePlugin(AuthorisePlugin.class.getSimpleName());
+    definition.removePlugin(ScopePlugin.class.getSimpleName());
 
   }
 

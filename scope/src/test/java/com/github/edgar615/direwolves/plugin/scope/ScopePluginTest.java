@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.ApiPluginFactory;
@@ -11,20 +11,20 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class AuthorisePluginTest {
+public class ScopePluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
             .put("scope", "user.read");
-    ApiPluginFactory factory = new AuthorisePluginFactory();
-    AuthorisePlugin plugin = (AuthorisePlugin) factory.decode(config);
+    ApiPluginFactory factory = new ScopePluginFactory();
+    ScopePlugin plugin = (ScopePlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
     Assert.assertEquals("user.read", plugin.scope());
   }
 
   @Test
   public void testEncode() {
-    AuthorisePluginImpl plugin = (AuthorisePluginImpl) ApiPlugin.create(AuthorisePlugin
+    ScopePluginImpl plugin = (ScopePluginImpl) ApiPlugin.create(ScopePlugin
                                                                                 .class
                                                                                 .getSimpleName());
     plugin.setScope("user.read");
@@ -35,7 +35,7 @@ public class AuthorisePluginTest {
 
   @Test
   public void testNullShoudReturnEmptyJson() {
-    ApiPluginFactory factory = new AuthorisePluginFactory();
+    ApiPluginFactory factory = new ScopePluginFactory();
     JsonObject jsonObject = factory.encode(null);
     Assert.assertTrue(jsonObject.isEmpty());
   }

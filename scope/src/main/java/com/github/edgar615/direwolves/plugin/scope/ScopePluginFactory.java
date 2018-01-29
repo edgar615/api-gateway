@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 import com.github.edgar615.direwolves.core.definition.ApiPluginFactory;
@@ -8,22 +8,22 @@ import io.vertx.core.json.JsonObject;
  * 权限校验的工厂类.
  * Created by edgar on 16-12-25.
  */
-public class AuthorisePluginFactory implements ApiPluginFactory {
+public class ScopePluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
-    return AuthorisePlugin.class.getSimpleName();
+    return ScopePlugin.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new AuthorisePluginImpl();
+    return new ScopePluginImpl();
   }
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
     if (jsonObject.containsKey("scope")) {
       String scope = jsonObject.getString("scope", "default");
-      return new AuthorisePluginImpl(scope);
+      return new ScopePluginImpl(scope);
     }
     return null;
   }
@@ -33,7 +33,7 @@ public class AuthorisePluginFactory implements ApiPluginFactory {
     if (plugin == null) {
       return new JsonObject();
     }
-    AuthorisePlugin authorisePlugin = (AuthorisePlugin) plugin;
-    return new JsonObject().put("scope", authorisePlugin.scope());
+    ScopePlugin scopePlugin = (ScopePlugin) plugin;
+    return new JsonObject().put("scope", scopePlugin.scope());
   }
 }

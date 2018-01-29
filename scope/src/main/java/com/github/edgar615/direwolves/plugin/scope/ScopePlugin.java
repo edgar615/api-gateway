@@ -1,4 +1,4 @@
-package com.github.edgar615.direwolves.plugin.authorization;
+package com.github.edgar615.direwolves.plugin.scope;
 
 import com.github.edgar615.direwolves.core.definition.ApiPlugin;
 
@@ -11,16 +11,16 @@ import com.github.edgar615.direwolves.core.definition.ApiPlugin;
  * <p>
  * Created by edgar on 16-12-25.
  */
-public interface AuthorisePlugin extends ApiPlugin {
+public interface ScopePlugin extends ApiPlugin {
 
-  static AuthorisePlugin create(String scope) {
-    return new AuthorisePluginImpl(scope);
+  static ScopePlugin create(String scope) {
+    return new ScopePluginImpl(scope);
   }
 
   String scope();
 
   @Override
   default String name() {
-    return AuthorisePlugin.class.getSimpleName();
+    return ScopePlugin.class.getSimpleName();
   }
 }
