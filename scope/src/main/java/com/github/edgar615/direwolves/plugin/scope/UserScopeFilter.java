@@ -1,13 +1,9 @@
 package com.github.edgar615.direwolves.plugin.scope;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
-
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.CacheUtils;
 import com.github.edgar615.direwolves.core.utils.Consts;
-import com.github.edgar615.direwolves.redis.RedisCache;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.log.Log;
@@ -22,9 +18,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * 权限校验的filter.
@@ -46,7 +39,7 @@ public class UserScopeFilter implements Filter {
 
   private final CacheLoader<String, JsonObject> appKeyLoader;
 
-  private final String NOT_EXISTS_KEY = UUID.randomUUID().toString();
+  private final RedisClient redisClient;
 
   UserScopeFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -59,10 +52,9 @@ public class UserScopeFilter implements Filter {
       this.cache = CacheUtils.createCache(vertx, "appKeyCache", new JsonObject());
     }
 
-//    RedisClient redisClient = RedisClientHelper.getShared(vertx);
+    this.redisClient = RedisClientHelper.getShared(vertx);
 //    RedisCache redisCache =  new RedisCache(redisClient, cacheName, options);
 
-    appKeyConfig.put("notExistsKey", NOT_EXISTS_KEY);
     appKeyConfig.put("port", config.getInteger("port", Consts.DEFAULT_PORT));
     appKeyLoader = new CacheLoader<String, JsonObject>() {
       @Override
@@ -85,50 +77,48 @@ public class UserScopeFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null;
+    return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null
+            && apiContext.principal() != null;
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     ScopePlugin plugin = (ScopePlugin) apiContext.apiDefinition()
             .plugin(ScopePlugin.class.getSimpleName());
-    String appScope = plugin.scope();
-    boolean appMatch = true;
-    if (apiContext.variables().containsKey("app.permissions")) {
-      Set<String> permissions = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults()
-                                                        .split((String) apiContext.variables()
-                                                                .get("app.permissions")));
-      appMatch = permissions.contains("all") || permissions.contains(appScope);
-    }
-    boolean userMatch = true;
-    if (apiContext.principal() != null) {
-      Set<String> permissions = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults()
-                                                        .split(apiContext.principal()
-                                                                       .getString("permissions",
-                                                                                  "all")));
-      userMatch = permissions.contains("all") || permissions.contains(appScope);
-    }
-
-    if (userMatch && appMatch) {
-      completeFuture.complete(apiContext);
-    } else {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("authorise.failed")
-              .addData("userMatch", userMatch)
-              .addData("appMatch", appMatch)
-              .warn();
-      SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED);
-      if (!userMatch) {
-        ex.set("details", "User does not have permission");
+    String apiScope = plugin.scope();
+    String userId = apiContext.principal().getValue("userId").toString();
+    String cacheKey = "user:permission:" + userId;
+    redisClient.hget(cacheKey, apiScope, ar -> {
+      if (ar.succeeded()) {
+        if (ar.result().equals("1")) {
+          //通过
+          completeFuture.complete(apiContext);
+        } else if (ar.result().equals("0")) {
+          //不通过
+          Log.create(LOGGER)
+                  .setTraceId(apiContext.id())
+                  .setEvent("user.scope.failed")
+                  .warn();
+          SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+            .set("details", "User does not have permission");
+          completeFuture.fail(ex);
+        } else {
+          //没找到对应的数据，通过URL检查
+          HttpScopeLoader loader = new HttpScopeLoader(vertx, new JsonObject());
+          loader.load(userId, apiScope, loadResult -> {
+            String pass = "0";
+            if (loadResult.succeeded()) {
+              pass = "1";
+            }
+            redisClient.hset(cacheKey, apiScope, pass, Future.<Long>future().completer());
+            //设置过期时间
+            redisClient.expire(cacheKey, 30 * 60l, Future.<Long>future().completer());
+          });
+        }
+      } else {
+        //降级通过URL检查
       }
-      if (!appMatch) {
-        ex.set("details", "AppKey does not have permission");
-      }
-      completeFuture.fail(ex);
-    }
-
-
+    });
   }
 
 }
