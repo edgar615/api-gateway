@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2017/1/9
  */
 @RunWith(VertxUnitRunner.class)
-public class HeaderGrayFilterTest {
+public class ClientApiVersionFilterTest {
 
   ApiDiscovery apiDiscovery;
 
@@ -57,7 +57,7 @@ public class HeaderGrayFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(HeaderGrayFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ClientApiVersionFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -81,7 +81,7 @@ public class HeaderGrayFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(HeaderGrayFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ClientApiVersionFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -106,7 +106,7 @@ public class HeaderGrayFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(HeaderGrayFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ClientApiVersionFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -131,7 +131,7 @@ public class HeaderGrayFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(HeaderGrayFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ClientApiVersionFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -155,7 +155,7 @@ public class HeaderGrayFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(HeaderGrayFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ClientApiVersionFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -179,7 +179,7 @@ public class HeaderGrayFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(HeaderGrayFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ClientApiVersionFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {

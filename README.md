@@ -428,18 +428,15 @@ Filter分为两种PRE和POST
 
 **前置条件**：上下文中不存在API
 
-**灰度发布**
-随着业务的不断发展，需求变更，接口迭代越来越频繁，为了降低全线升级引起的潜在危害，我们一般会采用灰度升级的方案，将部分请求转发到新接口上，然后再根据用户的反馈及时完善相关功能。
-我们可以在两个地方来实现灰度升级的需求：
-1. 在Nginx层做灰度规则判断，
-2. 在网关层做灰度规则判断
-  考虑到这种需求，我实现了一个很简单的基于请求头进行灰度规则的逻辑。这个灰度方案要求三处改动才能实现：
-3. 调用方发送服务端请求是加上版本号的请求头，如：
+**多版本匹配**
+随着业务的不断发展，需求变更，APP迭代越来越频繁，过老的版本不会强制更新，因此API接口避免不了出现多个版本的情况。为了解决多版本匹配的问题，采用下面的策略
+
+1. 调用方发送服务端请求是加上版本号的请求头，如：
 ```
 x-api-verson : 20171108
 ```
 2. 不同版本的API使用VersionPlugin定义版本
-3. 定义一个带有HeaderGrayPlugin插件的API。（可以重新定义一个新的API，也可以在原有的API上定义，推荐前者）
+3. 定义一个带有ClientApiVersionPlugin插件的API。（可以重新定义一个新的API，也可以在原有的API上定义，推荐前者）
 #### Plugin: VersionPlugin
 用于定义API版本的插件，建议直接用日期来表示版本（GrayFilter并没有实现复杂的版本比较）
 配置
@@ -449,16 +446,17 @@ x-api-verson : 20171108
 - **version**，对应版本号，使用日期格式。
 
 **注意：多版本共存是API的名称不能重复**
-#### Plugin: HeaderGrayPlugin
+#### Plugin: ClientApiVersionPlugin
 用来声明基于请求头的灰度发布规则
 配置
 ```
-"gray.header": "floor" 
+"ca.version": "floor"
 ```
-**gray.header**用来指明在未匹配到`x-api-version`声明的版本时时，采用哪种方式匹配API。
+**ca.version**用来指明在未匹配到`x-api-version`声明的版本时时，采用哪种方式匹配API。
 - **floor** 匹配最低的版本
 - **ceil** 匹配最高的版本
-#### Filter: HeaderGrayFilter
+#### Filter: ClientApiVersionFilter
+
 如果请求头中带有`x-api-version`则执行这个Filter。 如果未找到合适的API，返回404（资源不存在），如果匹配到多个API，返回500（数据冲突）。
 
 - **type** PRE
@@ -466,9 +464,10 @@ x-api-verson : 20171108
 
 **前置条件**：上下文中不存在API
 
-在引入了plugin-gray包之后GrayFilter会在ApiFindFilter之前执行，如果通过GrayFilter找到了合适的API，那么ApiFindFilter不会再执行。
+在引入了plugin-gray包之后ClientApiVersionFilter会在ApiFindFilter之前执行，如果通过ClientApiVersionFilter找到了合适的API，那么ApiFindFilter不会再执行。
 
-~~因为调用方的鉴权是在查找API之后进行的，所以无法实现基于用户的灰度规则，但是将来我们可以扩展基于用户IP、按比例放量的灰度规则~~
+根据x-api-version我们可以实现一些简易的灰度发布规则，后面灰度发布部分会详细描述
+
 #### Filter: PathParamFilter
 将API定义中的正则表达式与请求路径做匹配，然后将正则表达式所对应的值转换为对应的参数.
 参数名为param0  0表示匹配的第0个字符串，从0开始计算；参数值为正则表达式在请求路径中的值.
@@ -751,7 +750,7 @@ device:write表示API的权限字符串
 
 - type PRE
 - order 11000
-**前置条件**：ScopePlugin开启，且上下文中存在用户变量
+  **前置条件**：ScopePlugin开启，且上下文中存在用户变量
 
 ### AppKey
 一般开放平台的API都需要根据`App Key`和`App Secret`来验证调用方的合法性。
@@ -1085,7 +1084,7 @@ API网关可以根据配置对参数类型，参数值进行一些简单的校�
 ```
 - **enable** true表示默认对所有的API都开启StrictArgPlugin（如果API需要单独关闭这个功能，可以通过StrictArgPlugin来设置）
 - **query.excludes** 查询字符串中忽略的参数，这些参数即使各个API没有定义，也允许调用方传入，注意用来处理一些公共参数
--  **body.excludes** 请求体中忽略的参数，这些参数即使各个API没有定义，也允许调用方传入，注意用来处理一些公共参数
+- **body.excludes** 请求体中忽略的参数，这些参数即使各个API没有定义，也允许调用方传入，注意用来处理一些公共参数
 
 如果校验失败，会返回1009参数非法的错误
 
@@ -1350,7 +1349,27 @@ header中的元素包括
 后续更新
 ## 日志
 后续更新
+
+## 灰度发布
+
+**灰度发布**
+随着业务的不断发展，需求变更，接口迭代越来越频繁，为了降低全线升级引起的潜在危害，我们一般会采用灰度升级的方案，将部分请求转发到新接口上，然后再根据用户的反馈及时完善相关功能。
+我们可以在两个地方来实现灰度升级的需求：
+
+1. 在Nginx层做灰度规则判断，
+2. 在网关层做灰度规则判断
+   考虑到这种需求，我实现了一个很简单的基于请求头进行灰度规则的逻辑。这个灰度方案要求三处改动才能实现：
+3. 调用方发送服务端请求是加上版本号的请求头，如：
+
+```
+x-api-verson : 20171108
+```
+
+1. 不同版本的API使用VersionPlugin定义版本
+2. 定义一个带有ClientApiVersionPlugin插件的API。（可以重新定义一个新的API，也可以在原有的API上定义，推荐前者）
+
 ## 基准测试
+
 后续更新
 ## 打包
 单机模式安装standalone处理即可,**但是集群模式目前还未找到更好的方法**

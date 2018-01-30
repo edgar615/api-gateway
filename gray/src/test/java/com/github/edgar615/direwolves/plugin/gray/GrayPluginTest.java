@@ -16,35 +16,35 @@ public class GrayPluginTest {
   @Test
   public void testDecode() {
     JsonObject jsonObject = new JsonObject();
-    ApiPluginFactory factory = new HeaderGrayPluginFactory();
-    HeaderGrayPlugin plugin = (HeaderGrayPlugin) factory.decode(jsonObject);
+    ApiPluginFactory factory = new ClientApiVersionPluginFactory();
+    ClientApiVersionPlugin plugin = (ClientApiVersionPlugin) factory.decode(jsonObject);
     Assert.assertNull(plugin);
 
     jsonObject = new JsonObject()
-            .put("gray.header", "20170102");
-    plugin = (HeaderGrayPlugin) factory.decode(jsonObject);
+            .put("ca.version", "20170102");
+    plugin = (ClientApiVersionPlugin) factory.decode(jsonObject);
     Assert.assertNull(plugin);
 
     jsonObject = new JsonObject()
-            .put("gray.header", "floor");
-    plugin = (HeaderGrayPlugin) factory.decode(jsonObject);
+            .put("ca.version", "floor");
+    plugin = (ClientApiVersionPlugin) factory.decode(jsonObject);
     Assert.assertEquals("floor", plugin.type());
 
     jsonObject = new JsonObject()
-            .put("gray.header", "ceil");
-    plugin = (HeaderGrayPlugin) factory.decode(jsonObject);
+            .put("ca.version", "ceil");
+    plugin = (ClientApiVersionPlugin) factory.decode(jsonObject);
     Assert.assertEquals("ceil", plugin.type());
   }
 
   @Test
   public void testEncode() {
-    ApiPlugin plugin = ApiPlugin.create(HeaderGrayPlugin.class.getSimpleName());
-    HeaderGrayPlugin versionPlugin = (HeaderGrayPlugin) plugin;
+    ApiPlugin plugin = ApiPlugin.create(ClientApiVersionPlugin.class.getSimpleName());
+    ClientApiVersionPlugin versionPlugin = (ClientApiVersionPlugin) plugin;
     versionPlugin.floor();
 
     JsonObject jsonObject = versionPlugin.encode();
     System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("gray.header"));
-    Assert.assertEquals("floor", jsonObject.getString("gray.header"));
+    Assert.assertTrue(jsonObject.containsKey("ca.version"));
+    Assert.assertEquals("floor", jsonObject.getString("ca.version"));
   }
 }

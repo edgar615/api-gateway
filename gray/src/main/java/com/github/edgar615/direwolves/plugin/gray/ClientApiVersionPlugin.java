@@ -12,7 +12,7 @@ import com.github.edgar615.direwolves.core.definition.ApiPlugin;
  *
  * @author Edgar  Date 2017/11/6
  */
-public class HeaderGrayPlugin implements ApiPlugin {
+public class ClientApiVersionPlugin implements ApiPlugin {
 
   /**
    * floor默认取最低版本，ceil默认取最高的版本
@@ -23,22 +23,22 @@ public class HeaderGrayPlugin implements ApiPlugin {
     return type;
   }
 
-  public HeaderGrayPlugin() {
+  public ClientApiVersionPlugin() {
     this.type = "floor";
   }
 
-  public HeaderGrayPlugin floor() {
+  public ClientApiVersionPlugin floor() {
     this.type = "floor";
     return this;
   }
 
-  public HeaderGrayPlugin ceil() {
+  public ClientApiVersionPlugin ceil() {
     this.type = "ceil";
     return this;
   }
 
   @Override
   public String name() {
-    return HeaderGrayPlugin.class.getSimpleName();
+    return ClientApiVersionPlugin.class.getSimpleName();
   }
 }

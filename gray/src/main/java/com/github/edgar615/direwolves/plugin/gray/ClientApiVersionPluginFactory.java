@@ -9,28 +9,28 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2017/11/7
  */
-public class HeaderGrayPluginFactory implements ApiPluginFactory {
+public class ClientApiVersionPluginFactory implements ApiPluginFactory {
   @Override
   public String name() {
-    return HeaderGrayPlugin.class.getSimpleName();
+    return ClientApiVersionPlugin.class.getSimpleName();
   }
 
   @Override
   public ApiPlugin create() {
-    return new HeaderGrayPlugin();
+    return new ClientApiVersionPlugin();
   }
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getValue("gray.header") instanceof String) {
-      String type = jsonObject.getString("gray.header", "floor");
+    if (jsonObject.getValue("ca.version") instanceof String) {
+      String type = jsonObject.getString("ca.version", "floor");
       if ("floor".equalsIgnoreCase(type)) {
-        HeaderGrayPlugin plugin = new HeaderGrayPlugin();
+        ClientApiVersionPlugin plugin = new ClientApiVersionPlugin();
         plugin.floor();
         return plugin;
       }
       if ("ceil".equalsIgnoreCase(type)) {
-        HeaderGrayPlugin plugin = new HeaderGrayPlugin();
+        ClientApiVersionPlugin plugin = new ClientApiVersionPlugin();
         plugin.ceil();
         return plugin;
       }
@@ -41,9 +41,9 @@ public class HeaderGrayPluginFactory implements ApiPluginFactory {
 
   @Override
   public JsonObject encode(ApiPlugin plugin) {
-    HeaderGrayPlugin headerGrayPlugin = (HeaderGrayPlugin) plugin;
-    if (headerGrayPlugin != null) {
-      return new JsonObject().put("gray.header", headerGrayPlugin.type());
+    ClientApiVersionPlugin clientApiVersionPlugin = (ClientApiVersionPlugin) plugin;
+    if (clientApiVersionPlugin != null) {
+      return new JsonObject().put("ca.version", clientApiVersionPlugin.type());
     }
     return new JsonObject();
   }

@@ -48,7 +48,7 @@ public class ApiUtils {
                                            devicePort, "localhost");
     apiDefinition = ApiDefinition.create("add_user", HttpMethod.POST, "/users",
                                          Lists.newArrayList(httpEndpoint));
-    HeaderGrayPlugin grayPlugin = new HeaderGrayPlugin();
+    ClientApiVersionPlugin grayPlugin = new ClientApiVersionPlugin();
     apiDefinition.addPlugin(grayPlugin);
     apiDiscovery.publish(apiDefinition, ar -> {
       seq.incrementAndGet();
@@ -70,7 +70,7 @@ public class ApiUtils {
                                            devicePort, "localhost");
     apiDefinition = ApiDefinition.create("add_menu", HttpMethod.POST, "/menus",
                                          Lists.newArrayList(httpEndpoint));
-     grayPlugin = new HeaderGrayPlugin();
+     grayPlugin = new ClientApiVersionPlugin();
     apiDefinition.addPlugin(grayPlugin);
     apiDiscovery.publish(apiDefinition, ar -> {
       seq.incrementAndGet();
@@ -102,7 +102,7 @@ public class ApiUtils {
                                            devicePort, "localhost");
     apiDefinition = ApiDefinition.create("list_menu", HttpMethod.GET, "/menus",
                                          Lists.newArrayList(httpEndpoint));
-    grayPlugin = new HeaderGrayPlugin();
+    grayPlugin = new ClientApiVersionPlugin();
     grayPlugin.ceil();
     apiDefinition.addPlugin(grayPlugin);
     apiDiscovery.publish(apiDefinition, ar -> {

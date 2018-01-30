@@ -2,7 +2,7 @@
   "name": "gray2.api.ceil",
   "method": "GET",
   "path": "/gray2",
-  "gray.header" : "ceil",
+  "ca.version" : "ceil",
   "endpoints": [
     {
       "name": "gray",

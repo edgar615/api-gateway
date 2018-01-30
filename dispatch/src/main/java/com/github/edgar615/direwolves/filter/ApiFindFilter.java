@@ -88,6 +88,7 @@ public class ApiFindFilter implements Filter {
     if (apiDefinitions.size() == 1) {//只有一个
       return apiDefinitions.get(0);
     }
+    //优先选择正则匹配的API
     List<ApiDefinition> regexApiList = apiDefinitions.stream()
             .filter(d -> !d.antStyle())
             .collect(Collectors.toList());

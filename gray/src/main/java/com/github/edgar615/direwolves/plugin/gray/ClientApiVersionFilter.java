@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * 该filter的order=-2147484548, int的最小值
  * Created by edgar on 17-1-4.
  */
-public class HeaderGrayFilter implements Filter {
+public class ClientApiVersionFilter implements Filter {
 
   private static final String HEADER_NAME = "x-api-version";
 
@@ -39,7 +39,7 @@ public class HeaderGrayFilter implements Filter {
 
   private final ApiFinder apiFinder;
 
-  public HeaderGrayFilter(Vertx vertx, JsonObject config) {
+  public ClientApiVersionFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
@@ -96,25 +96,25 @@ public class HeaderGrayFilter implements Filter {
       return apiDefinitions.get(0);
     }
     List<ApiDefinition> grayDefinitions = apiDefinitions.stream()
-            .filter(d -> d.plugin(HeaderGrayPlugin.class.getSimpleName()) != null)
+            .filter(d -> d.plugin(ClientApiVersionPlugin.class.getSimpleName()) != null)
             .collect(Collectors.toList());
     if (grayDefinitions.size() != 1) {//有且只能由一个灰度插件，其他情况异常
       throw SystemException.create(DefaultErrorCode.CONFLICT);
     }
     ApiDefinition grayDefinition = grayDefinitions.get(0);
-    HeaderGrayPlugin headerGrayPlugin =
-            (HeaderGrayPlugin) grayDefinition.plugin(HeaderGrayPlugin.class.getSimpleName());
+    ClientApiVersionPlugin clientApiVersionPlugin =
+            (ClientApiVersionPlugin) grayDefinition.plugin(ClientApiVersionPlugin.class.getSimpleName());
 
     if (Strings.isNullOrEmpty(reqVersion)) {
       //没有请求头，使用默认配置
-      return matchDefault(apiDefinitions, headerGrayPlugin);
+      return matchDefault(apiDefinitions, clientApiVersionPlugin);
     } else {
-      return matchWithVersion(apiDefinitions, reqVersion, headerGrayPlugin);
+      return matchWithVersion(apiDefinitions, reqVersion, clientApiVersionPlugin);
     }
   }
 
   private ApiDefinition matchWithVersion(List<ApiDefinition> apiDefinitions, String reqVersion,
-                                         HeaderGrayPlugin grayPlugin) {
+                                         ClientApiVersionPlugin grayPlugin) {
     List<ApiDefinition> matchDefinitions = apiDefinitions.stream()
             .filter(d -> {
               VersionPlugin versionPlugin =
@@ -134,7 +134,7 @@ public class HeaderGrayFilter implements Filter {
   }
 
   private ApiDefinition matchDefault(List<ApiDefinition> apiDefinitions,
-                                     HeaderGrayPlugin grayPlugin) {
+                                     ClientApiVersionPlugin grayPlugin) {
     Comparator<ApiDefinition> comparator = (o1, o2) -> {
       VersionPlugin v1 = (VersionPlugin) o1.plugin(VersionPlugin.class.getSimpleName());
       VersionPlugin v2 = (VersionPlugin) o2.plugin(VersionPlugin.class.getSimpleName());
