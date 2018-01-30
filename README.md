@@ -744,11 +744,15 @@ device:write表示API的权限字符串
 - order 11000
 
 
+**前置条件**：ScopePlugin开启，且上下文中存在`client.permissions`变量
+
 #### Filter: UserScopeFilter
 如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量(JSON数组)，如果`permissions`中不包括接口的scope，拒绝访问.
 
 - type PRE
 - order 11000
+**前置条件**：ScopePlugin开启，且上下文中存在用户变量
+
 ### AppKey
 一般开放平台的API都需要根据`App Key`和`App Secret`来验证调用方的合法性。
 - **App Key** 应用唯一的识别标志，服务提供方通过App Key鉴别应用的身份
@@ -941,7 +945,151 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 ```
 配置示例与IpRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过IpRestriction插件来添加例外
 
-### Transfomer
+### 参数校验
+
+API网关可以根据配置对参数类型，参数值进行一些简单的校验，减少下游服务对非法请求处理而带来的消耗和处理成本。
+
+#### Plugin: UrlArgPlugin
+
+检查API的URL查询字符串
+配置
+
+```
+  "url.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "deviceType",
+      "rules": {
+        "integer": true
+      }
+    }
+  ]
+```
+
+- name 表示参数名
+- default_value 表示如果调用方没有指定参数值时使用的默认值
+- rules 用来定义参数的各种校验规则
+
+目前API网关支持下列几种校验规则:
+
+- "required": true 必填项
+- "regex": "[0-9A-F]{16}" 正则表达式
+- "fixLength" : 3 字符串长度必须等于3
+- "minLength" : 3 字符串长度必须大于等于3
+- "maxLength" : 3 字符串长度必须小于等于3
+- "min" : 3 参数值大于等于3
+- "max" : 3 参数值小于等于3
+- "prohibited": true 禁止传入这个参数
+- "email": true 必须是email格式
+- "integer": true 必须是整数
+- "bool": true 必须是布尔值
+- "list": true  必须是JSON数组
+- "map": true  必须是JSONObject
+- "optional": [1,2,3] 必须是1，2，3中的一个
+
+#### Filter: UrlArgFilter
+
+校验查询字符串的参数
+
+- **type** PRE
+- **order** 9000
+
+**前置条件**：UrlArgPlugin开启
+
+如果校验失败，会返回1009参数非法的错误
+
+#### Plugin: BodyArgPlugin
+
+检查API的请求体
+配置
+
+```
+  "body.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "deviceType",
+      "rules": {
+        "integer": true
+      }
+    }
+  ]
+```
+除了插件的名称和UrlArgPlugin不一样外，其他地方没有区别，不再详细描述
+
+#### Filter: BodyArgFilter
+
+校验查询字符串的参数
+
+- **type** PRE
+- **order** 9000
+
+**前置条件**：BodyArgPlugin开启
+
+如果校验失败，会返回1009参数非法的错误
+
+#### Plugin: StrictArgPlugin
+
+是否需要严格校验调用方传入的参数
+配置
+
+```
+  "strict.arg": true
+```
+如果开启这个插件，这个API将不允许调用方传入UrlArgPlugin和BodyArgPlugin没有定义的参数
+
+#### Filter: StrictArgFilter
+
+校验查询字符串的参数
+
+- **type** PRE
+- **order** 8900
+
+**前置条件**：StrictArgPlugin开启且
+全局配置
+```
+  "strict.arg" : {
+    "enable" : true,
+    "query.excludes" : ["appKey", "sign", "signMethod", "v", "nonce", "timestamp"],
+    "body.excludes" : []
+  }
+```
+- **enable** true表示默认对所有的API都开启StrictArgPlugin（如果API需要单独关闭这个功能，可以通过StrictArgPlugin来设置）
+- **query.excludes** 查询字符串中忽略的参数，这些参数即使各个API没有定义，也允许调用方传入，注意用来处理一些公共参数
+-  **body.excludes** 请求体中忽略的参数，这些参数即使各个API没有定义，也允许调用方传入，注意用来处理一些公共参数
+
+如果校验失败，会返回1009参数非法的错误
+
+### 请求/响应转换
 #### Plugin: RequestTransformerPlugin
 有时候下游服务需要的参数与API网关公布出去的参数并不相同，此时我们可以通过RequestTransformerPlugin将请求参数按照一定的规则转换之后提供给下游服务。
 配置

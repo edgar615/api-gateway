@@ -22,8 +22,8 @@ public class StrictArgPluginFactory implements ApiPluginFactory {
 
   @Override
   public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.containsKey("strict_arg")) {
-      return new StrictArgPlugin(jsonObject.getBoolean("strict_arg"));
+    if (jsonObject.containsKey("strict.arg")) {
+      return new StrictArgPlugin(jsonObject.getBoolean("strict.arg"));
     }
     return null;
   }
@@ -31,6 +31,6 @@ public class StrictArgPluginFactory implements ApiPluginFactory {
   @Override
   public JsonObject encode(ApiPlugin plugin) {
     StrictArgPlugin strictArgPlugin = (StrictArgPlugin) plugin;
-    return new JsonObject().put("strict_arg", strictArgPlugin.strict());
+    return new JsonObject().put("strict.arg", strictArgPlugin.strict());
   }
 }

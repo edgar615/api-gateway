@@ -92,6 +92,10 @@ class RulesDecoder implements Function<JsonObject, List<Rule>> {
           "true".equals(value.toString())) {
         rules.add(Rule.bool());
       }
+      if ("bool".equals(key) &&
+          "true".equals(value.toString())) {
+        rules.add(Rule.bool());
+      }
       if ("list".equals(key) &&
           "true".equals(value.toString())) {
         rules.add(Rule.list());

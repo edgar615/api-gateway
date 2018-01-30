@@ -30,8 +30,6 @@ import java.util.Set;
 public class StrictArgFilter implements Filter {
   private static final Logger LOGGER = LoggerFactory.getLogger(StrictArgFilter.class);
 
-  private final String configPrefix = "strict.arg.";
-
   private final Set<String> excludeQuery = new HashSet<>();
 
   private final Set<String> excludeBody = new HashSet<>();
