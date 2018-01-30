@@ -1,6 +1,7 @@
 package com.github.edgar615.direwolves.plugin.scope;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
@@ -20,16 +21,16 @@ import java.util.Set;
 /**
  * 权限校验的filter.
  * <p>
- * 如果接口包括Authentication插件，那么在AuthenticationFilter调用之后会在用户属性中存入<b>permissions</b>变量
+ * 如果接口包括AppKeyPlugin插件，那么在AppKeyFilter调用之后会在上下文中存入<b>app.permissions</b>变量
  * 如果调用方或者用户没有对应的权限，直接返回1004的错误.
  * <p>
  * <p>
  * 该filter的order=1100
  */
-public class UserScopeFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserScopeFilter.class);
+public class AppKeyScopeFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyScopeFilter.class);
 
-  UserScopeFilter(Vertx vertx, JsonObject config) {
+  AppKeyScopeFilter(Vertx vertx, JsonObject config) {
   }
 
   @Override
@@ -45,7 +46,7 @@ public class UserScopeFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null
-           && apiContext.principal() != null;
+           && apiContext.variables().containsKey("client.permissions");
   }
 
   @Override
@@ -55,17 +56,16 @@ public class UserScopeFilter implements Filter {
     String appScope = plugin.scope();
 
     Set<String> permissions = new HashSet<>();
-    Object userPermissions = apiContext.principal()
-            .getString("permissions", "all");
-    if (userPermissions instanceof String) {
+    Object clientPermissions = apiContext.variables().get("client.permissions");
+    if (clientPermissions instanceof String) {
       permissions.addAll(Splitter.on(",")
                                  .omitEmptyStrings().trimResults()
-                                 .splitToList((String) userPermissions));
+                                 .splitToList((String) clientPermissions));
     }
-    if (userPermissions instanceof JsonArray) {
-      JsonArray jsonArray = (JsonArray) userPermissions;
+    if (clientPermissions instanceof JsonArray) {
+      JsonArray jsonArray = (JsonArray) clientPermissions;
       jsonArray.forEach(o -> {
-        if (o instanceof String) {
+        if (o instanceof String ) {
           permissions.add((String) o);
         }
       });
@@ -77,10 +77,10 @@ public class UserScopeFilter implements Filter {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
               .setEvent("scope.tripped")
-              .setMessage("User does not have permission")
+              .setMessage("AppKey does not have permission")
               .warn();
       SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "User does not have permission");
+              .set("details", "AppKey does not have permission");
       completeFuture.fail(ex);
     }
 

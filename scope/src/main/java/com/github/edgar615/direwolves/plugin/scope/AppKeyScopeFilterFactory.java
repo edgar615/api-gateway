@@ -8,14 +8,14 @@ import io.vertx.core.json.JsonObject;
 /**
  * Created by edgar on 16-12-22.
  */
-public class ScopeFilterFactory implements FilterFactory {
+public class AppKeyScopeFilterFactory implements FilterFactory {
   @Override
   public String name() {
-    return ScopeFilter.class.getSimpleName();
+    return AppKeyScopeFilter.class.getSimpleName();
   }
 
   @Override
   public Filter create(Vertx vertx, JsonObject config) {
-    return new ScopeFilter(vertx, config);
+    return new AppKeyScopeFilter(vertx, config);
   }
 }

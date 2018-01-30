@@ -1,9 +1,15 @@
 package com.github.edgar615.direwolves.redis;
 
-import com.github.edgar615.util.vertx.cache.*;
+import com.github.edgar615.util.vertx.cache.Cache;
+import com.github.edgar615.util.vertx.cache.CacheEvictor;
+import com.github.edgar615.util.vertx.cache.CacheLoader;
+import com.github.edgar615.util.vertx.cache.CacheOptions;
+import com.github.edgar615.util.vertx.cache.CacheWriter;
+import com.github.edgar615.util.vertx.redis.RedisClientHelper;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 
@@ -26,6 +32,13 @@ public class RedisCache implements Cache<String, JsonObject> {
     this.expires = options.getExpireAfterWrite();
   }
 
+  public static RedisCache create(Vertx vertx, String cacheName,
+                                  CacheOptions options) {
+    RedisClient redisClient = RedisClientHelper.getShared(vertx);
+    return new RedisCache(redisClient, cacheName, options);
+  }
+
+
   @Override
   public String name() {
     return name;
@@ -39,7 +52,7 @@ public class RedisCache implements Cache<String, JsonObject> {
         return;
       }
       if (ar.result() == null
-              || ar.result().isEmpty()) {
+          || ar.result().isEmpty()) {
         handler.handle(Future.succeededFuture(null));
         return;
       }
@@ -48,14 +61,15 @@ public class RedisCache implements Cache<String, JsonObject> {
   }
 
   @Override
-  public void get(String key, CacheLoader<String, JsonObject> cacheLoader, Handler<AsyncResult<JsonObject>> handler) {
+  public void get(String key, CacheLoader<String, JsonObject> cacheLoader,
+                  Handler<AsyncResult<JsonObject>> handler) {
     redisClient.hgetall(key, ar -> {
       if (ar.failed()) {
         handler.handle(Future.failedFuture(ar.cause()));
         return;
       }
       if (ar.result() != null
-              && !ar.result().isEmpty()) {
+          && !ar.result().isEmpty()) {
         handler.handle(Future.succeededFuture(ar.result()));
         return;
       }
@@ -93,7 +107,8 @@ public class RedisCache implements Cache<String, JsonObject> {
   }
 
   @Override
-  public void put(String key, JsonObject value, CacheWriter<String, JsonObject> cacheWriter, Handler<AsyncResult<Void>> resultHandler) {
+  public void put(String key, JsonObject value, CacheWriter<String, JsonObject> cacheWriter,
+                  Handler<AsyncResult<Void>> resultHandler) {
     cacheWriter.write(key, value, ar -> {
       if (ar.succeeded()) {
         //如果缓存更新失败，会有数据不一致问题
@@ -105,7 +120,8 @@ public class RedisCache implements Cache<String, JsonObject> {
   }
 
   @Override
-  public void evict(String key, CacheEvictor<String> cacheEvictor, Handler<AsyncResult<JsonObject>> handler) {
+  public void evict(String key, CacheEvictor<String> cacheEvictor,
+                    Handler<AsyncResult<JsonObject>> handler) {
     cacheEvictor.delete(key, ar -> {
       if (ar.succeeded()) {
         //如果缓存删除失败，会有数据不一致问题
@@ -116,7 +132,8 @@ public class RedisCache implements Cache<String, JsonObject> {
     });
   }
 
-  private void load(String key, CacheLoader<String, JsonObject> cacheLoader, Handler<AsyncResult<JsonObject>> handler) {
+  private void load(String key, CacheLoader<String, JsonObject> cacheLoader,
+                    Handler<AsyncResult<JsonObject>> handler) {
     Future<JsonObject> loaderFuture = Future.future();
     cacheLoader.load(key, loaderFuture.completer());
     loaderFuture.compose(s -> {

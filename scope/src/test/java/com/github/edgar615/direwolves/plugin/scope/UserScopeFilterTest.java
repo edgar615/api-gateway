@@ -30,7 +30,7 @@ import java.util.List;
  * Created by edgar on 16-12-25.
  */
 @RunWith(VertxUnitRunner.class)
-public class ScopeFilterTest {
+public class UserScopeFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -42,54 +42,10 @@ public class ScopeFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = Filter.create(ScopeFilter.class.getSimpleName(), vertx, new JsonObject());
+    filter = Filter.create(UserScopeFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.clear();
     filters.add(filter);
 
-  }
-
-  @Test
-  public void missAppShouldPass(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> async.complete())
-            .onFailure(t -> {
-              testContext.fail();
-            });
-  }
-
-  @Test
-  public void invalidAppShouldThrowNoAuthority(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    apiContext.addVariable("app.permissions", "user.write, device.wirte");
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
-              async.complete();
-            });
-  }
-
-  @Test
-  public void validAppShouldPass(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    apiContext.addVariable("app.permissions", "user.read, device.wirte");
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> async.complete())
-            .onFailure(t -> {
-              testContext.fail();
-            });
   }
 
   @Test
@@ -140,6 +96,23 @@ public class ScopeFilterTest {
               testContext.fail();
             });
   }
+
+  @Test
+  public void allPermissionShouldPass(TestContext testContext) {
+    ApiContext apiContext = createContext();
+    apiContext.addVariable("app.permissions", "user.read, device.wirte");
+    apiContext.setPrincipal(new JsonObject().put("permissions", "all"));
+    apiContext.setPrincipal(new JsonObject());
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> async.complete())
+            .onFailure(t -> {
+              testContext.fail();
+            });
+  }
+
 
   private ApiContext createContext() {
     Multimap<String, String> params = ArrayListMultimap.create();

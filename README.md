@@ -722,6 +722,33 @@ cache
 - 用户A是否被授权访问资源R
 - 用户A是否被授权执行P操作
 
+#### Plugin: ScopePlugin
+
+校验对应的appkey或者用户是否有API的访问权限。
+
+配置示例：
+
+```
+"scope": "device:write"
+
+```
+
+device:write表示API的权限字符串
+
+为了减少API网关与下游服务直接的交互，调用方或用户拥有的权限在做身份认证的时候就从下游服务获取。
+#### Filter: AppKeyScopeFilter
+
+如果调用方通过了AppKey的校验，会在上下文中保存`client.permissions`的变量(JSON数组)，如果`app.permissions`中不包括接口的scope，拒绝访问.
+
+- type PRE
+- order 11000
+
+
+#### Filter: UserScopeFilter
+如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量(JSON数组)，如果`permissions`中不包括接口的scope，拒绝访问.
+
+- type PRE
+- order 11000
 ### AppKey
 一般开放平台的API都需要根据`App Key`和`App Secret`来验证调用方的合法性。
 - **App Key** 应用唯一的识别标志，服务提供方通过App Key鉴别应用的身份
@@ -1157,6 +1184,13 @@ header中的元素包括
 **前置条件**： 所有请求
 
 ### 断路器
+
+### 降级
+
+### 限流
+
+### 负载均衡
+
 ## 缓存
 后续更新
 ## CMD
@@ -1214,24 +1248,8 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 
 
-# 授权校验
-## Plugin: AuthorisePlugin
-校验对应的appkey或者用户是否有API的访问权限。
+- Request降级
 
-配置示例：
-
-    "scope": "device:write"
-
-device:write表示API的权限字符串
-
-## Filter: AuthoriseFilter
-如果调用方通过了AppKey的校验，会在上下文中保存`app.permissions`的变量，如果`app.permissions`中不包括接口的scope，拒绝访问.
-如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量，如果`permissions`中不包括接口的scope，拒绝访问.
-
-- type PRE
-- order 11000
-
-# Request降级
 ## Plugin: FallbackPlugin
 支持远程调用的降级
 
