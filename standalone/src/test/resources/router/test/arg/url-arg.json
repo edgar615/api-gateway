@@ -1,0 +1,39 @@
+{
+  "name": "url.arg.test",
+  "method": "GET",
+  "path": "/arg/url",
+  "url.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    },
+    {
+      "name": "deviceType",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+        "limit" : "$query.limit",
+        "start" : "$query.start"
+      }
+    }
+  ]
+}

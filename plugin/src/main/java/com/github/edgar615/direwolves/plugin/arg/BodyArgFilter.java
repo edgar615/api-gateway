@@ -59,7 +59,7 @@ public class BodyArgFilter implements Filter {
   }
 
   public ApiContext checkDefaultValue(ApiContext apiContext, BodyArgPlugin plugin) {
-    Map<String, String> defaultMap = allocateDefaultValue(apiContext, plugin);
+    Map<String, Object> defaultMap = allocateDefaultValue(apiContext, plugin);
     JsonObject body = apiContext.body().copy();
     defaultMap.forEach((k, v) -> {
       body.put(k, v);
@@ -71,13 +71,13 @@ public class BodyArgFilter implements Filter {
     return context;
   }
 
-  public Map<String, String> allocateDefaultValue(ApiContext apiContext, BodyArgPlugin plugin) {
-    Map<String, String> defaultMap = new HashMap<>();
+  public Map<String, Object> allocateDefaultValue(ApiContext apiContext, BodyArgPlugin plugin) {
+    Map<String, Object> defaultMap = new HashMap<>();
     plugin.parameters().stream()
             .filter(p -> p.defaultValue() != null)
             .forEach(p -> {
               if (!apiContext.body().containsKey(p.name())) {
-                defaultMap.put(p.name(), p.defaultValue().toString());
+                defaultMap.put(p.name(), p.defaultValue());
               }
             });
     return defaultMap;

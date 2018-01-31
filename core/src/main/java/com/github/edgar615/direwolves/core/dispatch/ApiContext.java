@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.RpcResponse;
+import com.github.edgar615.direwolves.core.utils.NumberUtils;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
@@ -242,7 +243,13 @@ public interface ApiContext {
       if (list.isEmpty()) {
         return null;
       } else if (list.size() == 1) {
-        return list.get(0);
+        //query需要判断一下字符串是不是数字，是数字的直接转为对应的数字
+        String value = list.get(0);
+        Number number = NumberUtils.tryParse(value);
+        if (number == null) {
+          return value;
+        }
+        return number;
       } else {
         return list;
       }
