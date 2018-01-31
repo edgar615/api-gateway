@@ -5,8 +5,8 @@ import com.google.common.base.Strings;
 
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.github.edgar615.direwolves.core.metric.ApiMetric;
-import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.log.LogType;
+import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.direwolves.core.utils.LogType;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;

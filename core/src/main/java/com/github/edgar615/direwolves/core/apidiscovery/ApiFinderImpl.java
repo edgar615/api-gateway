@@ -1,7 +1,7 @@
 package com.github.edgar615.direwolves.core.apidiscovery;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

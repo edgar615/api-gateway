@@ -1,6 +1,6 @@
 package com.github.edgar615.direwolves.redis;
 
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.vertx.redis.RedisClientHelper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -29,13 +29,11 @@ public class RedisVerticle extends AbstractVerticle {
     redisClient.ping(ar -> {
       if (ar.succeeded()) {
         Log.create(LOGGER)
-                .setModule("redis")
                 .setEvent("redis.started.succeed")
                 .info();
         startFuture.complete();
       } else {
         Log.create(LOGGER)
-                .setModule("redis")
                 .setEvent("redis.started.failed")
                 .error();
         startFuture.fail(ar.cause());

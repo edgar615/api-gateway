@@ -3,7 +3,7 @@ package com.github.edgar615.direwolves.verticle;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiImporter;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiPublisher;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -44,17 +44,16 @@ class FileApiImporter implements ApiImporter {
       if (ar.succeeded()) {
         List<Future> futures = addApiList(apiPublisher, ar.result());
         Log.create(LOGGER)
-                .setEvent("api.import.succeeded")
+                .setEvent("api.succeed")
                 .addData("path", path)
-                .setMessage("Import api from file")
                 .info();
 
         checkResult(futures, complete);
 
       } else {
         Log.create(LOGGER)
-                .setEvent("api.import.failed")
-                .setMessage("Import api from file")
+                .setEvent("api.failed")
+                .addData("path", path)
                 .setThrowable(ar.cause())
                 .error();
         complete.fail(ar.cause());

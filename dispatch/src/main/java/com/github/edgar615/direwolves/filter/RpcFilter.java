@@ -14,7 +14,7 @@ import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.RpcResponse;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.core.Future;
@@ -144,7 +144,6 @@ public class RpcFilter implements Filter {
             && "open circuit".equals(ar.cause().getMessage())) {
           Log.create(LOGGER)
                   .setTraceId(traceId)
-                  .setModule("RPC")
                   .setEvent("BreakerTripped")
                   .error();
           future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)

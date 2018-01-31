@@ -1,7 +1,7 @@
 package com.github.edgar615.direwolves.verticle;
 
 import com.github.edgar615.direwolves.core.cmd.CmdRegister;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;

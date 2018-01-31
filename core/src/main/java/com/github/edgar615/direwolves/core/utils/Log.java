@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.core.utils;
 
 import com.google.common.base.Strings;
 
-import com.github.edgar615.util.log.LogType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

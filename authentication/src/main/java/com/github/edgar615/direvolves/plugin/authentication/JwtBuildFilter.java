@@ -3,7 +3,7 @@ package com.github.edgar615.direvolves.plugin.authentication;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.Result;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -136,7 +136,7 @@ public class JwtBuildFilter implements Filter {
     Object userId = body.getValue(userKey);
     if (userId == null) {
       Log.create(Filter.LOGGER)
-              .setEvent("jwt.build.ignore")
+              .setEvent("jwt.build.ignored")
               .setMessage("Miss userId")
               .info();
       completeFuture.complete(apiContext);

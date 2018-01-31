@@ -4,7 +4,7 @@ import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.CacheUtils;
 import com.github.edgar615.direwolves.core.utils.Consts;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.vertx.cache.Cache;
 import com.github.edgar615.util.vertx.cache.CacheLoader;
 import io.vertx.core.Future;
@@ -104,7 +104,7 @@ public class UserLoaderFilter implements Filter {
       if (ar.failed() || ar.result().containsKey(NOT_EXISTS_KEY)) {
         Log.create(LOGGER)
                 .setTraceId(apiContext.id())
-                .setEvent("user.undefined")
+                .setEvent("user.non-existent")
                 .addData("user", userId)
                 .warn();
       } else {

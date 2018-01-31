@@ -6,8 +6,8 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
-import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.log.LogType;
+import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.direwolves.core.utils.LogType;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Vertx;
@@ -45,7 +45,6 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
               public void onRemoval(RemovalNotification<String, CircuitBreaker> notification) {
                 Log.create(LOGGER)
                         .setLogType(LogType.LOG)
-                        .setModule("CircuitBreaker")
                         .setEvent("cache.removed")
                         .addData("key", notification.getKey())
                         .setMessage("cause by: {}")
@@ -88,7 +87,6 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
   private void onHalfOpen(String circuitBreakerName) {
     Log.create(LOGGER)
             .setLogType(LogType.LOG)
-            .setModule("CircuitBreaker")
             .setEvent("breaker.reseted")
             .addData("name", circuitBreakerName)
             .info();
@@ -100,7 +98,6 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
   private void onClose(String circuitBreakerName) {
     Log.create(LOGGER)
             .setLogType(LogType.LOG)
-            .setModule("CircuitBreaker")
             .setEvent("breaker.closed")
             .addData("name", circuitBreakerName)
             .info();
@@ -112,7 +109,6 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
   private void onOpen(String circuitBreakerName) {
     Log.create(LOGGER)
             .setLogType(LogType.LOG)
-            .setModule("CircuitBreaker")
             .setEvent("breaker.tripped")
             .addData("name", circuitBreakerName)
             .warn();

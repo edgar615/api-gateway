@@ -3,8 +3,8 @@ package com.github.edgar615.direwolves.core.cmd;
 import com.google.common.collect.Lists;
 
 import com.github.edgar615.direwolves.core.eventbus.EventbusUtils;
-import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.log.LogType;
+import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.direwolves.core.utils.LogType;
 import com.github.edgar615.util.vertx.spi.Initializable;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

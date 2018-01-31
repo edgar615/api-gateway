@@ -2,7 +2,7 @@ package com.github.edgar615.direwolves.plugin.ratelimit;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.vertx.redis.RedisClientHelper;
@@ -49,13 +49,11 @@ public class RateLimiterFilter implements Filter {
     future.setHandler(ar -> {
       if (ar.succeeded()) {
         Log.create(LOGGER)
-                .setModule("ratelimiter")
                 .setEvent("ratelimiter.init.succeed")
                 .info();
         luaLoaded.set(true);
       } else {
         Log.create(LOGGER)
-                .setModule("ratelimiter")
                 .setEvent("ratelimiter.init.succeed")
                 .error();
       }
@@ -116,7 +114,6 @@ public class RateLimiterFilter implements Filter {
         completeFuture.complete(apiContext);
       } else {
         Log.create(LOGGER)
-                .setModule("ratelimiter")
                 .setEvent("RateLimiterTripped")
                 .addData("details", result.details())
                 .warn();

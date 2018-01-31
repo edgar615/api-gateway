@@ -9,7 +9,7 @@ import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceOptions;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;
 import com.github.edgar615.direwolves.http.loadbalance.ServiceFinder;
-import com.github.edgar615.util.log.Log;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -115,7 +115,6 @@ public class ServiceDiscoveryFilter implements Filter {
     loadBalance.chooseServer(service, ar -> {
       if (ar.failed()) {
         Log.create(LOGGER)
-                .setModule("Filter")
                 .setTraceId(traceId)
                 .setEvent("service.undiscovered")
                 .addData("service", service)
@@ -133,7 +132,6 @@ public class ServiceDiscoveryFilter implements Filter {
         return;
       }
       Log.create(LOGGER)
-              .setModule("Filter")
               .setTraceId(traceId)
               .setEvent("service.discovered")
               .addData("service", service)
@@ -163,7 +161,6 @@ public class ServiceDiscoveryFilter implements Filter {
     if (instances.isEmpty()) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setModule("Filter")
               .setEvent("service.discovery.failed")
               .setMessage("service:{} not found")
               .addArg(endpoint.name())
