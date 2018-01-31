@@ -1,0 +1,42 @@
+{
+  "name": "strict.arg.test",
+  "method": "POST",
+  "path": "/arg/strict",
+  "body.arg": [
+    {
+      "name": "deviceType",
+      "rules": {
+        "required": true
+      }
+    }
+  ],
+  "url.arg": [
+    {
+      "name": "limit",
+      "default_value": 10,
+      "rules": {
+        "integer": true,
+        "max": 100,
+        "min": 1
+      }
+    },
+    {
+      "name": "start",
+      "default_value": 0,
+      "rules": {
+        "integer": true
+      }
+    }
+  ],
+  "strict.arg" : true,
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+        "limit" : "$body.limit",
+        "start" : "$body.start"
+      }
+    }
+  ]
+}

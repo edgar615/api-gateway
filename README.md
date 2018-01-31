@@ -1330,9 +1330,69 @@ header中的元素包括
 
 **前置条件**： 所有请求
 
-### 断路器
+### RPC调用
 
-### 降级
+#### Filter RpcFilter
+
+- type PRE
+- order int的最大值（用于在PRE的最后执行）
+
+#### 断路器
+
+使用vert.x提供的断路器组件实现了简单的断路器
+配置参数
+
+```
+ "circuit.breaker" : {
+   "maxFailures" : 5,
+   "maxRetries" : 0,
+   "resetTimeout" : 60000,
+   "timeout" : 3000,
+   "metricsRollingWindow" : 10000,
+   "notificationPeriod" : 2000,
+   "notificationAddress" : "vertx.circuit-breaker",
+   "registry" : "vertx.circuit.breaker.registry"
+ }
+
+```
+
+- maxFailures  针对一个服务的请求失败多少次之后开启断路器，默认值5
+- maxRetries 请求失败后的重试次数，默认值0
+- resetTimeout 断路器打开之后，等待多长时间重置为半开状态，单位毫秒，默认值30000
+- timeout 一个请求多长时间没有返回任务超时（失败）， 单位毫秒，默认值10000
+- metricsRollingWindow 度量的时间窗口 单位毫秒，默认值10000
+- notificationPeriod  通知周期，单位毫秒，默认值2000
+- notificationAddress  通知地址，默认值vertx.circuit-breaker
+- registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
+
+断路器目前仅支持HTTP类型的RPC请求，如果对扩展的RPC需要实现断路器功能，需要实现CircuitBreakerExecutable接口
+
+#### 降级: FallbackPlugin
+与请求转换类型，将响应的结果按照一定的规则做转换.
+
+配置示例：
+```
+  "request.fallback": {
+    "add_device": {
+      "statusCode" : 200,
+      "result" : {
+        "foo": "bar"
+      }
+    },
+    "device.list" : {
+      "statusCode" : 200,
+      "result" : []
+    }
+  }
+```
+request.fallback通过JSONOBJECT保存RPC请求的降级结果，当RPC请求失败的时候会返回降级插件中配置的结果,JsonObject的键对应着endpoint的名称.它的值是包含两个属性的JSON对象
+
+- statusCode 响应码
+- result 返回结果，可以是JSON对象或者数组
+
+#### Filter RequestFallbackFilter
+- **type** POST
+- **order** 14000
 
 ### 限流
 
@@ -1415,65 +1475,6 @@ java -cp "./*;ext/*;lib/*" io.vertx.core.Launcher run ServiceDiscoveryVerticle -
 
 
 
-- Request降级
-
-## Plugin: FallbackPlugin
-支持远程调用的降级
-
-配置示例：
-
-      "request.fallback": {
-        "add_device": {
-          "statusCode" : 200,
-          "result" : {
-            "foo": "bar"
-          }
-        },
-        "device.list" : {
-          "statusCode" : 200,
-          "result" : []
-        }
-      }
-
-- `add_device`  对应endpoint的名称
-- statusCode 响应码
-- result 响应体，可以是JsonObject或者JsonArray
-
-## Filter: RequestFallbackFilter
-
-- type PRE
-- order 14000
-
-# RPC调用
-## Filter RpcFilter
-
-- type PRE
-- order int的最大值（用于在PRE的最后执行）
-
-根据上下文中的request向下游服务发起远程调用。
-HTTP调用支持断路器模式，eventbus暂不支持
-
-全局参数，对所有的请求都支持的响应转换
-
-     "circuit.breaker" : {
-       "maxFailures" : 5,
-       "maxRetries" : 0,
-       "resetTimeout" : 60000,
-       "timeout" : 3000,
-       "metricsRollingWindow" : 10000,
-       "notificationPeriod" : 2000,
-       "notificationAddress" : "vertx.circuit-breaker",
-       "registry" : "vertx.circuit.breaker.registry"
-     }
-
-- maxFailures  针对一个服务的请求失败多少次之后开启断路器，默认值5
-- maxRetries 请求失败后的重试次数，默认值0
-- resetTimeout 断路器打开之后，等待多长时间重置为半开状态，单位毫秒，默认值30000
-- timeout 一个请求多长时间没有返回任务超时（失败）， 单位毫秒，默认值10000
-- metricsRollingWindow 度量的时间窗口 单位毫秒，默认值10000
-- notificationPeriod  通知周期，单位毫秒，默认值2000
-- notificationAddress  通知地址，默认值vertx.circuit-breaker
-- registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
 
 # 校验调用方的时间
 ## Filter: TimeoutFilter
@@ -1493,22 +1494,6 @@ HTTP调用支持断路器模式，eventbus暂不支持
         "expires": 300 //系统允许客户端或服务端之间的时间误差，单位秒，默认值300
      }
 
-# 断路器
-使用vert.x提供的断路器实现了简单的降级功能
-
-配置
-
-      "circuit.breaker": {
-        "maxFailures": 5, //最大失败次数，一旦超过这个次数，会打开断路器
-        "maxRetries": 0, //失败后重试的次数
-        "resetTimeout": 60000, //断路器从打开恢复到半开的时间，单位毫秒
-        "timeout": 3000, //请求的超时时间，单位毫秒，超过这个时间请求未结束会被认为是超时
-        "metricsRollingWindow": 10000, //度量窗口的滑动间隔，单位毫秒
-        "notificationPeriod": 2000, // 度量的通知间隔，单位毫秒
-        "notificationAddress": "vertx.circuit-breaker", //度量的通知地址
-        "cache.expires": 3600, //每个服务节点断路器的过期时间，单位秒，如果在这个时间内断路器没有被访问，会从缓存中删除断路器（下次使用时重新创建）
-        "state.announce": "direwolves.circuitbreaker.announce"        //断路器状态变化后的会向这个地址发送广播，负载均衡服务可以订阅这个事件更新服务节点的状态
-      }
 
 # 负载均衡
 
