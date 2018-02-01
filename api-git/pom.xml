@@ -9,10 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>direwolves-api-file</artifactId>
+    <artifactId>direwolves-api-git</artifactId>
 
     <properties>
         <main.verticle>com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle</main.verticle>
+        <jgit.version>4.10.0.201712302008-r</jgit.version>
     </properties>
 
     <dependencies>
@@ -38,31 +39,8 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-hazelcast</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-plugin</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-authentication</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -70,21 +48,13 @@
             <artifactId>direwolves-appkey</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-gray</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-scope</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-ratelimit</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+
     </dependencies>
 
     <build>

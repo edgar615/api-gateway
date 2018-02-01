@@ -1,0 +1,14 @@
+{
+  "name": "api.git.1.0.0",
+  "method": "GET",
+  "path": "/api/git",
+  "scope": "api:mgr",
+  "endpoints": [
+    {
+      "policy": "point-point",
+      "name": "git.api",
+      "type": "eventbus",
+      "address" : "api.discovery.git.example"
+    }
+  ]
+}

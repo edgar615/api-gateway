@@ -74,6 +74,9 @@ public class EventbusRequestTransformerFilter extends AbstractTransformerFilter 
     RequestTransformerPlugin plugin =
             (RequestTransformerPlugin) apiContext.apiDefinition()
                     .plugin(RequestTransformerPlugin.class.getSimpleName());
+    if (plugin == null) {
+      return;
+    }
     RequestTransformer transformer = plugin.transformer(name);
     if (transformer != null) {
       doTransformer(request, transformer);

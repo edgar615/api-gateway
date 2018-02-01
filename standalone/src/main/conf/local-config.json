@@ -47,15 +47,29 @@
     "FileApiDiscoveryVerticle": {
       "class": "com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle",
       "instances": 1,
-      "worker": false,
+      "worker": true,
       "config": {
         "api.discovery" : {
           "name" : "example",
           "publishedAddress" : "direwolves.api.published",
           "unpublishedAddress" : "direwolves.api.unpublished"
         },
-        "path" : "H:/dev/workspace/direwolves/standalone/src/test/resources/router",
-        "watch" : true
+        "path" : "H:/api"
+      }
+    },
+    "ApiGitVerticle": {
+      "class": "com.github.edgar615.direwolves.verticle.ApiGitVerticle",
+      "instances": 1,
+      "worker": true,
+      "dependencies": [
+        "FileApiDiscoveryVerticle"
+      ],
+      "config": {
+        "url": "https://github.com/edgar615/api-router.git",
+        "branch" : "master",
+        "remote" : "origin",
+        "path" : "H:/api",
+        "name" : "example"
       }
     },
     "ApiDispatchVerticle": {
@@ -187,7 +201,7 @@
             "key": "$user.userId",
             "limit": 3,
             "interval": 2,
-            "unit": "SECOND"
+            "unit": "SECONDS"
           }
         }
       }

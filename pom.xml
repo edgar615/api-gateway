@@ -25,9 +25,10 @@
         <module>gray</module>
         <module>service-discovery-json</module>
         <module>service-discovery-zookeeper</module>
-        <module>service-discovery-consul</module>
-        <module>api-file</module>
+        <module>service-discovery-consul</module>        
         <module>scope</module>
+		<module>api-file</module>
+        <module>api-git</module>
     </modules>
 
     <properties>

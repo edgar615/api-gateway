@@ -34,6 +34,8 @@ public interface ApiDiscovery extends ApiPublisher {
 
   void close();
 
+  String name();
+
   void getDefinitions(JsonObject filter,
                       Handler<AsyncResult<List<ApiDefinition>>> resultHandler);
 

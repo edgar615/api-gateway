@@ -61,6 +61,11 @@ class ApiDiscoveryImpl implements ApiDiscovery {
   }
 
   @Override
+  public String name() {
+    return this.name;
+  }
+
+  @Override
   public void publish(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
     Log.create(LOGGER)
             .setEvent("api.publish")

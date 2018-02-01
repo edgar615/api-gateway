@@ -1,0 +1,14 @@
+{
+  "name": "api.reload.1.0.0",
+  "method": "GET",
+  "path": "/api/reload",
+  "scope": "api:mgr",
+  "endpoints": [
+    {
+      "policy": "point-point",
+      "name": "reload.api",
+      "type": "eventbus",
+      "address" : "api.discovery.reload.example"
+    }
+  ]
+}

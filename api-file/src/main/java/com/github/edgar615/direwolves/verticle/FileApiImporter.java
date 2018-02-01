@@ -69,7 +69,7 @@ class FileApiImporter implements ApiImporter {
                 .addData("path", path)
                 .setThrowable(ar.cause())
                 .error();
-        complete.fail(ar.cause());
+        complete.complete();
       }
     });
   }
@@ -160,12 +160,12 @@ class FileApiImporter implements ApiImporter {
       for (String p : paths) {
         if (Files.isDirectory(new File(p).toPath())) {
           datas.addAll(readFromFile(p));
-        } else {
+        } else if (p.endsWith(".json")) {
           String defineJson = vertx.fileSystem().readFileBlocking(p).toString();
           datas.add(defineJson);
         }
       }
-    } else {
+    } else if (path.endsWith(".json")) {
       Buffer buffer = vertx.fileSystem().readFileBlocking(path);
       try {
         String defineJson = buffer.toString();
