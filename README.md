@@ -14,6 +14,7 @@ API网关,准备造的一个轮子
 - **FileApiDiscoveryVerticle** 从文件中读取API定义
 - **RedisVerticle** 创建RedisClient
 - **ApiDispatchVerticle** rest服务
+- **ApiGitVerticle** 从GitHub pull路由定义文件到本地文件夹，它应该依赖于FileApiDiscoveryVerticle
 
 其中XXXServiceDiscoveryVerticle、ApiDefinitionVerticle、ApiDispatchVerticle可以使用集群模式分开独立部署。也可以使用MainVerticle作为一个单节点应用部署
 
@@ -210,7 +211,7 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 - **retry.times**: 重试次数
 
 ### FileApiDiscoveryVerticle
-在启动时从文件中读取API定义
+在启动时从文件中读取API定义，因为这个Verticle需要读取很多的文件，建议采用work模式启动
 配置示例
 ```
 {
@@ -223,11 +224,69 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
   "watch" : true
 }
 ```
-### path
+#### path
 API定义存放的路径
-### watch
+#### watch
 是否监控path目录下文件的变化，如果开启，文件的任何变化都会引起对应ApiDiscovery的重新加载
 .**因为API的名称是写在文件中的，所以文件变化的时候，并不知道是变化的是哪个API，除非强制API名称就是文件名**
+
+FileApiDiscoveryVerticle订阅`api.discovery.reload.<网关名>`事件，在接收到这个事件后会重新加载ApiDiscovery
+文件监听功能就是通过发送这个事件来实现的API刷新，我们也可以配置一个API路由来实现手动刷新
+```
+{
+  "name": "api.reload.1.0.0",
+  "method": "GET",
+  "path": "/api/reload",
+  "scope": "api:mgr",
+  "endpoints": [
+    {
+      "policy": "point-point",
+      "name": "reload.api",
+      "type": "eventbus",
+      "address" : "api.discovery.reload.example"
+    }
+  ]
+}
+```
+
+**如果开启了ApiGitVerticle，不需要开启watch功能，因为git的每次pull操作都会发送刷新事件**
+### ApiGitVerticle
+在启动时从GitHub中加载路由定义文件，并通知FileApiDiscoveryVerticle刷新路由。它应该在FileApiDiscoveryVerticle之后启动，这样才能避免FileApiDiscoveryVerticle丢失刷新事件。建议采用work模式启动
+配置示例
+```
+{
+  "url": "https://github.com/edgar615/config-test.git",
+  "branch" : "master",
+  "remote" : "origin",
+  "path" : "H:/api",
+  "name" : "example"
+}
+```
+- url GitHub存放API定义的地址
+- branch 分支 默认master
+- remote 远程地址 默认origin
+- path 本地clone的目录
+- name API网关的名称
+
+ApiGitVerticle订阅`api.discovery.git.<网关名>`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
+```
+{
+  "name": "api.git.1.0.0",
+  "method": "GET",
+  "path": "/api/git",
+  "scope": "api:mgr",
+  "endpoints": [
+    {
+      "policy": "point-point",
+      "name": "git.api",
+      "type": "eventbus",
+      "address" : "api.discovery.git.example"
+    }
+  ]
+}
+```
+通过这个功能，我们可以通过GitHub的钩子，在push之后手动触发刷新功能
+
 ###  api.discovery
 API发现组件的配置属性
 - **publishedAddress**: 发布一个API后的广播地址

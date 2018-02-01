@@ -1,5 +1,8 @@
 package com.github.edgar615.direwolves.verticle;
 
+import com.google.common.base.Strings;
+
+import com.github.edgar615.util.base.EncryptUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonObject;
@@ -30,6 +33,8 @@ public class ApiGitVerticle extends AbstractVerticle {
 
   private static final String GIT_ADDR_PREFIX = "api.discovery.git.";
 
+  private static final String WEBHOOK_ADDR_PREFIX = "api.discovery.webhook.";
+
   private File path;
 
   private String url;
@@ -39,6 +44,8 @@ public class ApiGitVerticle extends AbstractVerticle {
   private String remote;
 
   private String name;
+
+  private String secret;
 
   @Override
   public void start() throws Exception {
@@ -59,9 +66,42 @@ public class ApiGitVerticle extends AbstractVerticle {
     remote = config().getString("remote", "origin");
     pullApi();
 
-    vertx.eventBus().consumer(GIT_ADDR_PREFIX + name, msg -> {
+    vertx.eventBus().<JsonObject>consumer(GIT_ADDR_PREFIX + name, msg -> {
       pullApi();
     });
+
+    String secret = config().getString("secret");
+    vertx.eventBus().<JsonObject>consumer(WEBHOOK_ADDR_PREFIX + name, msg -> {
+      if (Strings.isNullOrEmpty(secret)) {
+        pullApi();
+        return;
+      }
+      //校验
+      String signature = msg.body().getString("signature");
+      String payload = msg.body().getString("payload");
+      if (verifySignature(payload, signature, secret)) {
+        pullApi();
+      }
+    });
+  }
+
+  private static boolean verifySignature(String payload, String signature, String secret) {
+    boolean isValid = false;
+
+    try {
+      String actual = EncryptUtils.encryptHmacSha1(payload, secret);
+      String excepted = signature.substring(5);
+      System.out.println(actual);
+      System.out.println(excepted);
+      isValid = excepted.equalsIgnoreCase(actual);
+
+    } catch (IOException ex) {
+
+      ex.printStackTrace();
+
+    }
+
+    return isValid;
   }
 
   public void pullApi() {
