@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.core.rpc.eventbus;
 
+import com.github.edgar615.util.base.StringUtils;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.definition.EventbusEndpoint;
@@ -96,6 +97,9 @@ public class EventbusRpcHandler implements RpcHandler {
     for (String key : headers.keySet()) {
       for (String value : headers.get(key)) {
         deliveryOptions.addHeader(key, value);
+        if (key.equals("x-delivery-timeout") && StringUtils.isNumeric(value)) {
+          deliveryOptions.setSendTimeout(Long.parseLong(value));
+        }
       }
     }
     return deliveryOptions;

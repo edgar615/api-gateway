@@ -417,6 +417,11 @@ eventbus类型的Endpoint使用vert.x的eventbus转发请求到下游服务。
 ```
 {"message":"Service Unavailable","details":"No handlers","code":1016}
 ```
+对于req-resp类型的事件，因为需要等待订阅方的返回，所以需要有超时设置（默认为30秒）。
+为简单的实现自定义功能，通过请求转换功能，在请求头中添加下面的请求头
+```
+"x-delivery-timeout" : "30"
+```
 ### simple-http
 向下游服务发起REST请求的Endpoint，在每个endpoint里需要配置下游服务的IP和端口。
 配置示例
