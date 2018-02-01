@@ -6,6 +6,7 @@ import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -26,12 +27,24 @@ class FileApiImporter implements ApiImporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileApiImporter.class);
 
+  private final List<String> imported = new ArrayList<>();
+
   private Vertx vertx;
 
+  private ApiPublisher publisher;
+
+  private JsonObject config;
+
   @Override
-  public void start(Vertx vertx, ApiPublisher apiPublisher,
+  public void start(Vertx vertx, ApiPublisher publisher,
                     JsonObject config, Future<Void> complete) {
     this.vertx = vertx;
+    this.publisher = publisher;
+    this.config = config;
+    doImport(complete);
+  }
+
+  public void doImport(Future<Void> complete) {
     String path = config.getString("path");
     vertx.<List<String>>executeBlocking(f -> {
       try {
@@ -42,7 +55,7 @@ class FileApiImporter implements ApiImporter {
       }
     }, ar -> {
       if (ar.succeeded()) {
-        List<Future> futures = addApiList(apiPublisher, ar.result());
+        List<Future> futures = addApiList(publisher, ar.result());
         Log.create(LOGGER)
                 .setEvent("api.succeed")
                 .addData("path", path)
@@ -59,7 +72,47 @@ class FileApiImporter implements ApiImporter {
         complete.fail(ar.cause());
       }
     });
+  }
 
+  @Override
+  public void restart(Future<Void> complete) {
+    close(v -> {
+      doImport(complete);
+    });
+  }
+
+  @Override
+  public void close(Handler<Void> closeHandler) {
+    if (publisher == null) {
+      closeHandler.handle(null);
+      return;
+    }
+    // Remove all the services that has been imported
+    List<Future> list = new ArrayList<>();
+    imported.forEach(name -> {
+      Future<Void> fut = Future.future();
+      fut.setHandler(ar -> {
+        LOGGER.info("Unregistering " + name);
+        if (ar.succeeded()) {
+          list.add(Future.succeededFuture());
+        } else {
+          list.add(Future.failedFuture(ar.cause()));
+        }
+      });
+      publisher.unpublish(name, fut.completer());
+    });
+
+    CompositeFuture.all(list).setHandler(ar -> {
+      imported.clear();
+      if (ar.succeeded()) {
+        LOGGER.info("Successfully closed the file importer " + this);
+      } else {
+        LOGGER.error("A failure has been caught while stopping " + this, ar.cause());
+      }
+      if (closeHandler != null) {
+        closeHandler.handle(null);
+      }
+    });
   }
 
   private void checkResult(List<Future> futures, Future<Void> complete) {
@@ -94,6 +147,7 @@ class FileApiImporter implements ApiImporter {
         future.fail(ar.cause());
         return;
       }
+      imported.add(definition.name());
       future.complete(ar.result());
     });
     return future;

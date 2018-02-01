@@ -219,11 +219,15 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
     "publishedAddress" : "direwolves.api.published",
     "unpublishedAddress" : "direwolves.api.unpublished"
   },
-  "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
+  "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend",
+  "watch" : true
 }
 ```
 ### path
 API定义存放的路径
+### watch
+是否监控path目录下文件的变化，如果开启，文件的任何变化都会引起对应ApiDiscovery的重新加载
+.**因为API的名称是写在文件中的，所以文件变化的时候，并不知道是变化的是哪个API，除非强制API名称就是文件名**
 ###  api.discovery
 API发现组件的配置属性
 - **publishedAddress**: 发布一个API后的广播地址

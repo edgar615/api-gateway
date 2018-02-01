@@ -23,6 +23,8 @@ public interface ApiImporter {
   void start(Vertx vertx, ApiPublisher publisher, JsonObject config,
              Future<Void> future);
 
+  void restart(Future<Void> complete);
+
   /**
    * Closes the importer
    *

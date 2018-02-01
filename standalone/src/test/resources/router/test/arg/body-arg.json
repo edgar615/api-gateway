@@ -1,5 +1,5 @@
 {
-  "name": "body.arg.test",
+  "name": "body.arg.test1",
   "method": "POST",
   "path": "/arg/body",
   "body.arg": [

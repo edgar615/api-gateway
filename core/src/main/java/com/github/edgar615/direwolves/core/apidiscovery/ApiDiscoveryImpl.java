@@ -5,6 +5,7 @@ import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -12,6 +13,7 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -42,7 +44,7 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   private final ApiDiscoveryOptions options;
 
-  public ApiDiscoveryImpl(Vertx vertx, ApiDiscoveryOptions options) {
+  ApiDiscoveryImpl(Vertx vertx, ApiDiscoveryOptions options) {
     Objects.requireNonNull(options.getName());
     Objects.requireNonNull(options.getPublishedAddress());
     Objects.requireNonNull(options.getUnpublishedAddress());
@@ -215,4 +217,29 @@ class ApiDiscoveryImpl implements ApiDiscovery {
             .addData("namespace", this.name)
             .info();
   }
+
+  private void clear(Handler<AsyncResult<Void>> completionHandler) {
+    List<Future> futures = new ArrayList<>();
+    getDefinitions(d -> true, ar -> {
+      if (ar.failed()) {
+        return;
+      }
+      ar.result().forEach(d -> {
+        Future<Void> future = Future.future();
+        futures.add(future);
+        unpublish(d.name(), future.completer());
+      });
+    });
+    CompositeFuture.all(futures)
+            .setHandler(ar -> {
+              completionHandler.handle(Future.succeededFuture());
+            });
+  }
+
+  public void reload() {
+    clear(ar -> {
+
+    });
+  }
+
 }
