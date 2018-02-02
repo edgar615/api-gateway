@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
 import io.vertx.core.Future;
@@ -45,7 +46,15 @@ public class UrlArgFilter implements Filter {
     ApiContext newContext = checkDefaultValue(apiContext, plugin);
     final Multimap<String, Rule> rules = ArrayListMultimap.create();
     plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));
-    Validations.validate(newContext.params(), rules);
+    try {
+      Validations.validate(newContext.params(), rules);
+    } catch (Exception e) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("QueryStringInvalid")
+              .warn();
+      throw e;
+    }
     completeFuture.complete(newContext);
   }
 

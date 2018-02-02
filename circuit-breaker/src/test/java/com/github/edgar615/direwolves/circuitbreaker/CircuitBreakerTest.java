@@ -1,6 +1,7 @@
 package com.github.edgar615.direwolves.circuitbreaker;
 
 import io.vertx.circuitbreaker.CircuitBreaker;
+import io.vertx.circuitbreaker.CircuitBreakerState;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -35,31 +36,24 @@ public class CircuitBreakerTest {
     JsonObject config = new JsonObject()
             .put("maxFailures", 1)
             .put("timeout", 1000);
-
-    CircuitBreakerRegistry registry = CircuitBreakerRegistry.create(vertx, config);
+    CircuitBreakerRegistry registry =
+            CircuitBreakerRegistry.create(vertx, new CircuitBreakerRegistryOptions(config));
     String name = UUID.randomUUID().toString();
-    AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>consumer("direwolves.circuitbreaker.announce", msg -> {
-      JsonObject jsonObject = msg.body();
-      System.out.println(jsonObject);
-      if ("open".equalsIgnoreCase(jsonObject.getString("state"))) {
-        check1.set(true);
-      }
-    });
     CircuitBreaker circuitBreaker = registry.get(name);
-    Future<Void> future =   circuitBreaker.execute(f -> {
+
+    Future<Void> future = circuitBreaker.execute(f -> {
 
     });
 
     future.setHandler(ar -> {
       if (future.succeeded()) {
-          testContext.fail();
+        testContext.fail();
       } else {
         ar.cause().printStackTrace();
       }
     });
 
-    Awaitility.await().until(() -> check1.get());
+    Awaitility.await().until(() -> circuitBreaker.state() == CircuitBreakerState.OPEN);
 
   }
 
@@ -70,18 +64,11 @@ public class CircuitBreakerTest {
             .put("timeout", 1000)
             .put("resetTimeout", 1000);
 
-    CircuitBreakerRegistry registry = CircuitBreakerRegistry.create(vertx, config);
+    CircuitBreakerRegistry registry =
+            CircuitBreakerRegistry.create(vertx, new CircuitBreakerRegistryOptions(config));
     String name = UUID.randomUUID().toString();
-    AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>consumer("direwolves.circuitbreaker.announce", msg -> {
-      JsonObject jsonObject = msg.body();
-      System.out.println(jsonObject);
-      if ("open".equalsIgnoreCase(jsonObject.getString("state"))) {
-        check1.set(true);
-      }
-    });
     CircuitBreaker circuitBreaker = registry.get(name);
-    Future<Void> future =   circuitBreaker.execute(f -> {
+    Future<Void> future = circuitBreaker.execute(f -> {
 
     });
 
@@ -93,9 +80,9 @@ public class CircuitBreakerTest {
       }
     });
 
-    Awaitility.await().until(() -> check1.get());
+    Awaitility.await().until(() -> circuitBreaker.state() == CircuitBreakerState.OPEN);
 
-    future =   circuitBreaker.execute(f -> {
+    future = circuitBreaker.execute(f -> {
 
     });
 
@@ -105,7 +92,6 @@ public class CircuitBreakerTest {
         testContext.fail();
       } else {
         check2.set(true);
-        ar.cause().printStackTrace();
       }
     });
 
@@ -117,7 +103,7 @@ public class CircuitBreakerTest {
       e.printStackTrace();
     }
 
-    future =   circuitBreaker.execute(f -> {
+    future = circuitBreaker.execute(f -> {
       f.complete();
     });
 

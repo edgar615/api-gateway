@@ -11,27 +11,42 @@ import io.vertx.core.json.JsonObject;
 public class CircuitBreakerRegistryOptions extends CircuitBreakerOptions {
   private static final long DEFAULT_CACHE_EXPIRES = 24 * 3600;
 
-  private static final String DEFAULT_ANNOUNCE = "direwolves.circuitbreaker.announce";
+  private static final String DEFAULT_ANNOUNCE = "circuitbreaker.announce";
 
   private String announce = DEFAULT_ANNOUNCE;
 
   private long cacheExpires = DEFAULT_CACHE_EXPIRES;
 
+  /**
+   * 创建断路器注册表
+   * <p>
+   * 断路器的配置：
+   * fallbackOnFailure : 失败后是否开启fallbackOnFailure,默认false
+   * maxFailures ：最大失败次数，默认5
+   * maxRetries ： 最大重试次数，默认0
+   * metricsRollingWindow：度量的窗口，单位毫秒，默认值10秒
+   * notificationAddress ： 度量报告的消息地址，默认vertx.circuit-breaker
+   * notificationPeriod：度量的报告周期，单位毫秒，默认2秒
+   * timeout ： 操作的超时时间，单位毫秒，默认10秒
+   * resetTimeout：断路器打开之后等待resetTimeout毫秒之后切换到半开状态，默认30秒
+   * <p>
+   * cacheExpires：断路器缓存时间，单位秒，默认24小时
+   * stateAnnounce：广播地址，断路器状态变化后的会向这个地址发送广播.，默认：circuitbreaker.announce
+   *
+   * @param json 断路器的配置
+   * @return
+   */
   public CircuitBreakerRegistryOptions(JsonObject json) {
     super(json);
-    if (json.getValue("cache.expires") instanceof Number) {
-      cacheExpires = ((Number) json.getValue("cache.expires")).longValue();
-    }
-    if (json.getValue("state.announce") instanceof String) {
-      announce = (String) json.getValue("state.announce");
+    if (json.getValue("cacheExpires") instanceof Number) {
+      cacheExpires = ((Number) json.getValue("cacheExpires")).longValue();
     }
   }
 
   @Override
   public JsonObject toJson() {
     JsonObject jsonObject = super.toJson();
-    jsonObject.put("cache.expires", cacheExpires);
-    jsonObject.put("state.announce", announce);
+    jsonObject.put("cacheExpires", cacheExpires);
     return jsonObject;
   }
 

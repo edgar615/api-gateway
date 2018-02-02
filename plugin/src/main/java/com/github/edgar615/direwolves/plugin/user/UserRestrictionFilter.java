@@ -93,7 +93,7 @@ public class UserRestrictionFilter implements Filter {
     if (satisfyList(userId, blacklist)) {
       SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "The user is forbidden");
-      failed(completeFuture, apiContext.id(), "user.tripped", e);
+      failed(completeFuture, apiContext.id(), "UserForbidden", e);
       return;
     }
     completeFuture.complete(apiContext);

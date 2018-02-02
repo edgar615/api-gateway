@@ -90,7 +90,7 @@ public class IpRestrictionFilter implements Filter {
     if (satisfyList(clientIp, blacklist)) {
       SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "The ip is forbidden");
-      failed(completeFuture, apiContext.id(), "ip.tripped", e);
+      failed(completeFuture, apiContext.id(), "IpForbidden", e);
       return;
     }
     completeFuture.complete(apiContext);

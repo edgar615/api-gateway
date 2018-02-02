@@ -84,7 +84,7 @@ public interface Filter {
     Log.create(LOGGER)
             .setTraceId(traceId)
             .setEvent(event)
-            .error();
+            .warn();
     completeFuture.fail(throwable);
   }
 

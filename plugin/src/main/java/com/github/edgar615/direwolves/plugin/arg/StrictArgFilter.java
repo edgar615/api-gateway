@@ -85,7 +85,7 @@ public class StrictArgFilter implements Filter {
     if (!error.isEmpty()) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("arg.validation.tripped")
+              .setEvent("ArgProhibited")
               .warn();
       throw new ValidationException(error);
     }

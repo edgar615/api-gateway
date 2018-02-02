@@ -53,7 +53,7 @@ public class AppKeyScopeFilter implements Filter {
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     ScopePlugin plugin = (ScopePlugin) apiContext.apiDefinition()
             .plugin(ScopePlugin.class.getSimpleName());
-    String appScope = plugin.scope();
+    String apiScope = plugin.scope();
 
     Set<String> permissions = new HashSet<>();
     Object clientPermissions = apiContext.variables().get("client.permissions");
@@ -62,26 +62,18 @@ public class AppKeyScopeFilter implements Filter {
                                  .omitEmptyStrings().trimResults()
                                  .splitToList((String) clientPermissions));
     }
-    if (clientPermissions instanceof JsonArray) {
-      JsonArray jsonArray = (JsonArray) clientPermissions;
-      jsonArray.forEach(o -> {
-        if (o instanceof String ) {
-          permissions.add((String) o);
-        }
-      });
-    }
-
-    if (permissions.contains("all") || permissions.contains(appScope)) {
-      completeFuture.complete(apiContext);
-    } else {
+    if (permissions.contains("all") || permissions.contains(apiScope)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("scope.tripped")
-              .setMessage("AppKey does not have permission")
-              .warn();
+              .setEvent("ClientPermissionAdmitted")
+              .info();
+      completeFuture.complete(apiContext);
+    } else {
       SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "AppKey does not have permission");
-      completeFuture.fail(ex);
+              .setDetails( "The appKey does not have permission")
+              .set("ClientPermissions", permissions)
+              .set("apiScope", apiScope);
+      failed(completeFuture, apiContext.id(), "AclForbidden", ex);
     }
 
   }

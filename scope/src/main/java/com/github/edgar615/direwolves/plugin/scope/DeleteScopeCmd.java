@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * 删除鉴权的命令
- *命令字:scope.delete
+ *命令字:plugin.scope.delete
  * @author Edgar  Date 2017/1/20
  */
 public class DeleteScopeCmd implements ApiSubCmd {
@@ -16,7 +16,7 @@ public class DeleteScopeCmd implements ApiSubCmd {
 
   @Override
   public String cmd() {
-    return "scope.delete";
+    return "plugin.scope.delete";
   }
 
   @Override

@@ -7,7 +7,7 @@
     "metricsRollingWindow": 10000,
     "notificationPeriod": 2000,
     "notificationAddress": "vertx.circuit-breaker",
-    "cache.expires": 3600,
-    "state.announce": "direwolves.circuitbreaker.announce"
+    "cacheExpires": 3600,
+    "stateAnnounce": "circuitbreaker.announce"
   }
 }

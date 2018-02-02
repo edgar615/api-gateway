@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.validation.Rule;
@@ -54,7 +55,15 @@ public class BodyArgFilter implements Filter {
     //校验
     final Multimap<String, Rule> rules = ArrayListMultimap.create();
     plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));
-    Validations.validate(newContext.body().getMap(), rules);
+    try {
+      Validations.validate(newContext.body().getMap(), rules);
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("BodyInvalid")
+              .warn();
+    } catch (Exception e) {
+      throw e;
+    }
     completeFuture.complete(newContext);
   }
 

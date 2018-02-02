@@ -62,22 +62,17 @@ public class UserScopeFilter implements Filter {
                                  .omitEmptyStrings().trimResults()
                                  .splitToList((String) userPermissions));
     }
-    if (userPermissions instanceof JsonArray) {
-      JsonArray jsonArray = (JsonArray) userPermissions;
-      jsonArray.forEach(o -> {
-        if (o instanceof String) {
-          permissions.add((String) o);
-        }
-      });
-    }
 
     if (permissions.contains("all") || permissions.contains(appScope)) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("UserPermissionAdmitted")
+              .info();
       completeFuture.complete(apiContext);
     } else {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("scope.tripped")
-              .setMessage("User does not have permission")
+              .setEvent("UserPermissionDenied")
               .warn();
       SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "User does not have permission");

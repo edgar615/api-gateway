@@ -721,6 +721,11 @@ cache
 
 **url的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**
 
+一个用户信息有下列个属性
+
+- **userId** 必选，字符串或整数
+- **permissions** 可选  字符串 权限范围，多个权限范围用逗号","分隔，如`device:read,device:write`
+
 #### Plugin: UserRestriction
 表明API对调用方的userId做了限制。
 配置
@@ -807,7 +812,7 @@ device:write表示API的权限字符串
 为了减少API网关与下游服务直接的交互，调用方或用户拥有的权限在做身份认证的时候就从下游服务获取。
 #### Filter: AppKeyScopeFilter
 
-如果调用方通过了AppKey的校验，会在上下文中保存`client.permissions`的变量(JSON数组)，如果`app.permissions`中不包括接口的scope，拒绝访问.
+如果调用方通过了AppKey的校验，会在上下文中保存`client.permissions`的变量(字符串)，如果`app.permissions`中不包括接口的scope，拒绝访问.
 
 - type PRE
 - order 11000
@@ -816,7 +821,7 @@ device:write表示API的权限字符串
 **前置条件**：ScopePlugin开启，且上下文中存在`client.permissions`变量
 
 #### Filter: UserScopeFilter
-如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量(JSON数组)，如果`permissions`中不包括接口的scope，拒绝访问.
+如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量(字符串)，如果`permissions`中不包括接口的scope，拒绝访问.
 
 - type PRE
 - order 11000
@@ -885,7 +890,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
       "appKey": "RmOI7jCvDtfZ1RcAkea1",
       "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
       "appId": 0,
-      "permissions": ["all"]
+      "permissions": "all"
     }]
   }
 ```
@@ -897,7 +902,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 - **appKey** 必选，字符串
 - **appSecret** 必选 字符串
 - **appId** 可选 字符串或整数
-- **permissions** 可选 JSON数组 权限范围
+- **permissions** 可选  字符串 权限范围，多个权限范围用逗号","分隔，如`device:read,device:write`
 
 **url的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**
 
@@ -1421,7 +1426,8 @@ header中的元素包括
    "metricsRollingWindow" : 10000,
    "notificationPeriod" : 2000,
    "notificationAddress" : "vertx.circuit-breaker",
-   "registry" : "vertx.circuit.breaker.registry"
+   "registry" : "vertx.circuit.breaker.registry",
+    "cacheExpires": 3600
  }
 
 ```
@@ -1434,6 +1440,7 @@ header中的元素包括
 - notificationPeriod  通知周期，单位毫秒，默认值2000
 - notificationAddress  通知地址，默认值vertx.circuit-breaker
 - registry localmap中保存断路器的键值，默认值vertx.circuit.breaker.registry
+- cacheExpires 每个服务节点的断路器状态的缓存失效时间，默认3600秒
 
 断路器目前仅支持HTTP类型的RPC请求，如果对扩展的RPC需要实现断路器功能，需要实现CircuitBreakerExecutable接口
 
@@ -1472,6 +1479,11 @@ request.fallback通过JSONOBJECT保存RPC请求的降级结果，当RPC请求失
 后续更新
 ## CMD
 后续更新
+
+plugin.scope.add 设置ScopePlugin
+参数 scope：权限值
+plugin.scope.delete 删除ScopePlugin
+
 ## Metric
 ```
 -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=my-registry
@@ -1479,6 +1491,23 @@ request.fallback通过JSONOBJECT保存RPC请求的降级结果，当RPC请求失
 后续更新
 ## 日志
 后续更新
+
+ServiceNonExistent:服务不存在
+QueryStringInvalid: 查询字符串非法
+BodyInvalid:body非法
+ArgProhibited: 禁止的参数
+FallbackExecuted:降级执行
+UserForbidden: 用户被拒绝访问
+IpForbidden: 用户的IP被拒绝访问
+AclForbidden: 用户的组被拒绝访问
+UserPermissionAdmitted：用户鉴权通过
+UserPermissionDenied：用户鉴权未通过
+ClientPermissionAdmitted：客户端鉴权通过
+ClientPermissionDenied：客户端鉴权未通过
+
+BreakerHalfOpen 断路器半开
+BreakerClose 断路器关闭
+BreakerOpen 断路器打开
 
 ## 灰度发布
 

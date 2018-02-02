@@ -2,6 +2,7 @@ package com.github.edgar615.direwolves.plugin.acl;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -90,7 +91,7 @@ public class AclRestrictionFilter implements Filter {
     if (satisfyList(group, blacklist)) {
       SystemException systemException = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "The group is forbidden");
-      failed(completeFuture, apiContext.id(), "acl.tripped", systemException);
+      failed(completeFuture, apiContext.id(), "AclForbidden", systemException);
       return;
     }
     completeFuture.complete(apiContext);

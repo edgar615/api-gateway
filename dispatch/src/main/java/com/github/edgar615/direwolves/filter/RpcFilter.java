@@ -3,6 +3,7 @@ package com.github.edgar615.direwolves.filter;
 import com.google.common.collect.Lists;
 
 import com.github.edgar615.direwolves.circuitbreaker.CircuitBreakerRegistry;
+import com.github.edgar615.direwolves.circuitbreaker.CircuitBreakerRegistryOptions;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.rpc.CircuitBreakerExecutable;
@@ -79,7 +80,8 @@ public class RpcFilter implements Filter {
 
     this.vertx = vertx;
     this.config = config.getJsonObject("circuit.breaker", new JsonObject());
-    circuitBreakerRegistry = CircuitBreakerRegistry.create(vertx, this.config);
+    CircuitBreakerRegistryOptions options = new CircuitBreakerRegistryOptions(this.config);
+    circuitBreakerRegistry = CircuitBreakerRegistry.create(vertx, options);
 
     Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
             .stream().map(f -> f.create(vertx, config))
@@ -230,6 +232,10 @@ public class RpcFilter implements Filter {
       response = RpcResponse.create(request.id(), copyResp.statusCode(),
                                     copyResp.responseObject().encode(), duration);
     }
+    Log.create(LOGGER)
+            .setTraceId(request.id())
+            .setEvent("FallbackExecuted")
+            .info();
     return response;
   }
 

@@ -3,13 +3,13 @@ package com.github.edgar615.direwolves.http.filter;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceOptions;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;
 import com.github.edgar615.direwolves.http.loadbalance.ServiceFinder;
-import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -49,7 +49,7 @@ public class ServiceDiscoveryFilter implements Filter {
     loadBalance = LoadBalance.create(serviceFinder, loadBalanceOptions);
     JsonObject circuitConfig = config.getJsonObject("circuit.breaker", new JsonObject());
     String stateAnnounce =
-            circuitConfig.getString("state.announce", "direwolves.circuitbreaker.announce");
+            circuitConfig.getString("stateAnnounce", "circuitbreaker.announce");
     vertx.eventBus().<JsonObject>consumer(stateAnnounce, msg -> {
       JsonObject jsonObject = msg.body();
       String serverId = jsonObject.getString("name");
@@ -113,32 +113,16 @@ public class ServiceDiscoveryFilter implements Filter {
   private Future<Record> serviceFuture(String traceId, String service) {
     Future<Record> future = Future.future();
     loadBalance.chooseServer(service, ar -> {
-      if (ar.failed()) {
+      if (ar.failed() || ar.result() == null) {
         Log.create(LOGGER)
                 .setTraceId(traceId)
-                .setEvent("service.undiscovered")
+                .setEvent("ServiceNonExistent")
                 .addData("service", service)
                 .warn();
-//        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-//                            .set("details", "Service not found: " + service));
         future.complete(null);
         return;
       }
-      Record record = ar.result();
-      if (record == null) {
-//        future.fail(SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-//                            .set("details", "Service not found: " + service));
-        future.complete(null);
-        return;
-      }
-      Log.create(LOGGER)
-              .setTraceId(traceId)
-              .setEvent("service.discovered")
-              .addData("service", service)
-              .setMessage("{}")
-              .addArg(ar.result().toJson())
-              .info();
-      future.complete(record);
+      future.complete(ar.result());
     });
     return future;
 
@@ -159,15 +143,7 @@ public class ServiceDiscoveryFilter implements Filter {
             .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
             .collect(Collectors.toList());
     if (instances.isEmpty()) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("service.discovery.failed")
-              .setMessage("service:{} not found")
-              .addArg(endpoint.name())
-              .error();
       return httpRpcRequest;
-//      throw SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-//              .set("details", "Service not found, endpoint:" + endpoint.name());
     }
     Record instance = instances.get(0);
     httpRpcRequest.setRecord(new Record(instance));

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 /**
  * API定义的接口.
  *
+ * API名称约定的规范：[业务线].[应用名].[动作].[版本]
  * @author Edgar  Date 2016/9/13
  */
 public interface ApiDefinition {

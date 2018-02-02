@@ -12,7 +12,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * 设置鉴权的命令
  *
- * 命令字:scope.add
+ * 命令字:plugin.scope.add
  * 参数 scope:权限值
  *
  * @author Edgar  Date 2017/1/20
@@ -27,7 +27,7 @@ public class AddScopeCmd implements ApiSubCmd {
 
   @Override
   public String cmd() {
-    return "scope.add";
+    return "plugin.scope.add";
   }
 
   @Override

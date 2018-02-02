@@ -40,18 +40,6 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
     this.options = options;
     this.cache = CacheBuilder.newBuilder()
             .expireAfterAccess(options.getCacheExpires(), TimeUnit.SECONDS)
-            .removalListener(new RemovalListener<String, CircuitBreaker>() {
-              @Override
-              public void onRemoval(RemovalNotification<String, CircuitBreaker> notification) {
-                Log.create(LOGGER)
-                        .setLogType(LogType.LOG)
-                        .setEvent("cache.removed")
-                        .addData("key", notification.getKey())
-                        .setMessage("cause by: {}")
-                        .addArg(notification.getCause())
-                        .info();
-              }
-            })
             .build(new CacheLoader<String, CircuitBreaker>() {
               @Override
               public CircuitBreaker load(String circuitBreakerName) throws Exception {
@@ -86,8 +74,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
   private void onHalfOpen(String circuitBreakerName) {
     Log.create(LOGGER)
-            .setLogType(LogType.LOG)
-            .setEvent("breaker.reseted")
+            .setEvent("BreakerHalfOpen")
             .addData("name", circuitBreakerName)
             .info();
     vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
@@ -97,8 +84,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
   private void onClose(String circuitBreakerName) {
     Log.create(LOGGER)
-            .setLogType(LogType.LOG)
-            .setEvent("breaker.closed")
+            .setEvent("BreakerClose")
             .addData("name", circuitBreakerName)
             .info();
     vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
@@ -108,8 +94,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
   private void onOpen(String circuitBreakerName) {
     Log.create(LOGGER)
-            .setLogType(LogType.LOG)
-            .setEvent("breaker.tripped")
+            .setEvent("BreakerOpen")
             .addData("name", circuitBreakerName)
             .warn();
     vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
