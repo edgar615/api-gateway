@@ -80,7 +80,7 @@ public class BodyArgFilterTest {
     Filters.doFilter(task, filters)
             .andThen(context -> {
               testContext.assertTrue(context.body().containsKey("type"));
-              testContext.assertEquals("1", context.body().getString("type"));
+              testContext.assertEquals(1, context.body().getValue("type"));
               async.complete();
             }).onFailure(t -> testContext.fail());
   }

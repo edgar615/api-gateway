@@ -83,7 +83,7 @@ public class ApiCheckFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, new JsonObject());
+    Filter filter = Filter.create(ApiCheckFilter.class.getSimpleName(), vertx, new JsonObject());
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {

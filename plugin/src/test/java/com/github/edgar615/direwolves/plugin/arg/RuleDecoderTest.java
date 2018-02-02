@@ -34,6 +34,7 @@ public class RuleDecoderTest {
             .put("regex", "/devices")
             .put("optional", new JsonArray().add(1).add(2).add(3));
     List<Rule> rules = RulesDecoder.instance().apply(jsonObject);
+    System.out.println(rules);
     Assert.assertEquals(13, rules.size());
   }
 
