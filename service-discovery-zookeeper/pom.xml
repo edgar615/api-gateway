@@ -11,12 +11,6 @@
 
     <artifactId>service-discovery-zookeeper</artifactId>
 
-    <properties>
-        <main.verticle>
-            com.github.edgar615.servicediscovery.verticle.ZookeeperServiceDiscoveryVerticle
-        </main.verticle>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -58,12 +52,4 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

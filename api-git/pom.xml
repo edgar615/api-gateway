@@ -12,7 +12,6 @@
     <artifactId>direwolves-api-git</artifactId>
 
     <properties>
-        <main.verticle>com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle</main.verticle>
         <jgit.version>4.10.0.201712302008-r</jgit.version>
     </properties>
 
@@ -57,45 +56,4 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <!--校验开发环境-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>io.vertx.core.Launcher</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <Main-Verticle>${main.verticle}</Main-Verticle>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </build>
 </project>

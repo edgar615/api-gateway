@@ -10,9 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>direwolves-dispatch</artifactId>
-    <properties>
-        <main.verticle>com.github.edgar615.direwolves.verticle.ApiDispatchVerticle</main.verticle>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -86,47 +83,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!--校验开发环境-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addExtensions>true</addExtensions>
-                            <!--<addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>-->
-                            <mainClass>io.vertx.core.Launcher</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <Class-Path>lib/</Class-Path>
-                            <Main-Verticle>${main.verticle}</Main-Verticle>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </build>
 </project>

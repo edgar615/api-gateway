@@ -11,6 +11,9 @@
 
     <artifactId>direwolves-standalone</artifactId>
 
+    <properties>
+        <jar.skipIfEmpty>true</jar.skipIfEmpty>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -138,6 +141,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>never</phase>
+                        <configuration>
+                            <finalName>unwanted</finalName>
+                            <classifier>unwanted</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
                 <configuration>
                     <archive>
                         <manifest>
