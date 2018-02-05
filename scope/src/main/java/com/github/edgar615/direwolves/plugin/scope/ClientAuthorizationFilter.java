@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.plugin.scope;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
@@ -27,10 +26,10 @@ import java.util.Set;
  * <p>
  * 该filter的order=1100
  */
-public class AppKeyScopeFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppKeyScopeFilter.class);
+public class ClientAuthorizationFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClientAuthorizationFilter.class);
 
-  AppKeyScopeFilter(Vertx vertx, JsonObject config) {
+  ClientAuthorizationFilter(Vertx vertx, JsonObject config) {
   }
 
   @Override
@@ -46,7 +45,7 @@ public class AppKeyScopeFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null
-           && apiContext.variables().containsKey("client.permissions");
+           && apiContext.variables().containsKey("client.appKey");
   }
 
   @Override
@@ -62,6 +61,14 @@ public class AppKeyScopeFilter implements Filter {
                                  .omitEmptyStrings().trimResults()
                                  .splitToList((String) clientPermissions));
     }
+    if (clientPermissions instanceof JsonArray) {
+      JsonArray jsonArray = (JsonArray) clientPermissions;
+      jsonArray.forEach(o -> {
+        if (o instanceof String) {
+          permissions.add((String) o);
+        }
+      });
+    }
     if (permissions.contains("all") || permissions.contains(apiScope)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
@@ -73,7 +80,7 @@ public class AppKeyScopeFilter implements Filter {
               .setDetails( "The appKey does not have permission")
               .set("ClientPermissions", permissions)
               .set("apiScope", apiScope);
-      failed(completeFuture, apiContext.id(), "AclForbidden", ex);
+      failed(completeFuture, apiContext.id(), "AppKeyPermissionDenied", ex);
     }
 
   }

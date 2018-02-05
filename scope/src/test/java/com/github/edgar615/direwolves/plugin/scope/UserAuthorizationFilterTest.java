@@ -30,7 +30,7 @@ import java.util.List;
  * Created by edgar on 16-12-25.
  */
 @RunWith(VertxUnitRunner.class)
-public class UserScopeFilterTest {
+public class UserAuthorizationFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public class UserScopeFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = Filter.create(UserScopeFilter.class.getSimpleName(), vertx, new JsonObject());
+    filter = Filter.create(UserAuthorizationFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.clear();
     filters.add(filter);
 

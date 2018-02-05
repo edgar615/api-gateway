@@ -26,10 +26,10 @@ import java.util.Set;
  * <p>
  * 该filter的order=1100
  */
-public class UserScopeFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserScopeFilter.class);
+public class UserAuthorizationFilter implements Filter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserAuthorizationFilter.class);
 
-  UserScopeFilter(Vertx vertx, JsonObject config) {
+  UserAuthorizationFilter(Vertx vertx, JsonObject config) {
   }
 
   @Override
@@ -62,7 +62,14 @@ public class UserScopeFilter implements Filter {
                                  .omitEmptyStrings().trimResults()
                                  .splitToList((String) userPermissions));
     }
-
+    if (userPermissions instanceof JsonArray) {
+      JsonArray jsonArray = (JsonArray) userPermissions;
+      jsonArray.forEach(o -> {
+        if (o instanceof String) {
+          permissions.add((String) o);
+        }
+      });
+    }
     if (permissions.contains("all") || permissions.contains(appScope)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())

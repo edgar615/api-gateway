@@ -25,12 +25,13 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by edgar on 16-12-25.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyScopeFilterTest {
+public class ClientAuthorizationFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -42,7 +43,7 @@ public class AppKeyScopeFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = Filter.create(AppKeyScopeFilter.class.getSimpleName(), vertx, new JsonObject());
+    filter = Filter.create(ClientAuthorizationFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.clear();
     filters.add(filter);
 
@@ -64,6 +65,7 @@ public class AppKeyScopeFilterTest {
   @Test
   public void invalidAppShouldThrowNoAuthority(TestContext testContext) {
     ApiContext apiContext = createContext();
+    apiContext.addVariable("client.appKey", UUID.randomUUID().toString());
     apiContext.addVariable("client.permissions", "user.write, device.wirte");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -81,6 +83,7 @@ public class AppKeyScopeFilterTest {
   @Test
   public void validAppShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
+    apiContext.addVariable("client.appKey", UUID.randomUUID().toString());
     apiContext.addVariable("client.permissions", "user.read, device.wirte");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -95,6 +98,7 @@ public class AppKeyScopeFilterTest {
   @Test
   public void allPermissionShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
+    apiContext.addVariable("client.appKey", UUID.randomUUID().toString());
     apiContext.addVariable("client.permissions", "all");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);

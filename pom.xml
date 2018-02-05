@@ -29,6 +29,7 @@
         <module>scope</module>
 		<module>api-file</module>
         <module>api-git</module>
+        <module>auth</module>
     </modules>
 
     <properties>

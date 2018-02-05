@@ -1,2 +1,2 @@
-com.github.edgar615.direwolves.plugin.scope.AppKeyScopeFilterFactory
-com.github.edgar615.direwolves.plugin.scope.UserScopeFilterFactory
+com.github.edgar615.direwolves.plugin.scope.ClientAuthorizationFilterFactory
+com.github.edgar615.direwolves.plugin.scope.UserAuthorizationFilterFactory

@@ -1,0 +1,3 @@
+com.github.edgar615.direvolves.plugin.auth.TokenFilterFactory
+com.github.edgar615.direvolves.plugin.auth.AppKeyPermissionFilterFactory
+com.github.edgar615.direvolves.plugin.auth.UserPermissionFilterFactory
