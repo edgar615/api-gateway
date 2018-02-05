@@ -78,7 +78,7 @@ public class CachedAppKeyFilterTest {
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
     JsonObject config = new JsonObject();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
     filters.add(filter);
@@ -110,7 +110,7 @@ public class CachedAppKeyFilterTest {
 //            .put("data", new JsonArray().add(origin))
             .put("url",url);
     filters.clear();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("port", port)
             .put("namespace", namespace));
@@ -149,7 +149,7 @@ public class CachedAppKeyFilterTest {
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
     filters.add(filter);
@@ -178,7 +178,7 @@ public class CachedAppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
 
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
     filters.add(filter);
@@ -225,7 +225,7 @@ public class CachedAppKeyFilterTest {
             .put("data", new JsonArray().add(origin));
 
     filters.clear();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("namespace", namespace));
     filters.add(filter);
@@ -277,7 +277,7 @@ public class CachedAppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("url",url);
 
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
             .put("port",port)
             .put("namespace", namespace));

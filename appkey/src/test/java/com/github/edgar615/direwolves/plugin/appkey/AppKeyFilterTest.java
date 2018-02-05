@@ -52,11 +52,9 @@ public class AppKeyFilterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  int appCode = Integer.parseInt(Randoms.randomNumber(3));
+  int appId = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
-
-  private String namespace = UUID.randomUUID().toString();
 
   private Filter filter;
 
@@ -80,8 +78,7 @@ public class AppKeyFilterTest {
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
     JsonObject config = new JsonObject();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
     createContext();
 
@@ -102,19 +99,18 @@ public class AppKeyFilterTest {
   public void undefinedAppKeyShouldThrowInvalidReq2(TestContext testContext) {
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("appId", appId)
             .put("appKey", UUID.randomUUID().toString());
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String url = Randoms.randomAlphabet(10);
     mockExistHttp(port, Randoms.randomAlphabet(5));
     JsonObject config = new JsonObject()
-//            .put("data", new JsonArray().add(origin))
+            .put("data", new JsonArray().add(origin))
             .put("url",url);
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
-            .put("port", port)
-            .put("namespace", namespace));
+            .put("port", port));
     filters.add(filter);
     createContext();
 
@@ -146,13 +142,12 @@ public class AppKeyFilterTest {
 
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("appId", appId)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -169,19 +164,18 @@ public class AppKeyFilterTest {
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
 //    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
 //            .put("appSecret", appSecret)
-//            .put("appCode", appCode), ar -> {
+//            .put("appId", appId), ar -> {
 //
 //    });
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("appId", appId)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -220,15 +214,14 @@ public class AppKeyFilterTest {
 
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("appId", appId)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
 
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -280,8 +273,7 @@ public class AppKeyFilterTest {
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
-            .put("port",port)
-            .put("namespace", namespace));
+            .put("port",port));
     filters.add(filter);
 
     try {
@@ -340,7 +332,7 @@ public class AppKeyFilterTest {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
                 .put("appSecret", appSecret)
-                .put("appCode", appCode)
+                .put("appId", appId)
                 .put("permissions", "all");
         req.response().end(jsonObject.encode());
       } else {

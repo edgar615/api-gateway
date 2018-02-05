@@ -127,8 +127,6 @@ public class AppKeyFilter implements Filter {
 
   private final boolean httpLoaderEnabled;
 
-  private final String NOT_EXISTS_KEY = UUID.randomUUID().toString();
-
   private final Map<String, JsonObject> localAppKeys = new HashMap<>();
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
@@ -153,9 +151,9 @@ public class AppKeyFilter implements Filter {
       this.path = null;
     }
 
-    JsonArray jsonArray = config.getJsonArray("data", new JsonArray());
+    JsonArray jsonArray = appKeyConfig.getJsonArray("data", new JsonArray());
     for (int i = 0; i < jsonArray.size(); i++) {
-      JsonObject jsonObject = config.getJsonArray("data").getJsonObject(i);
+      JsonObject jsonObject = appKeyConfig.getJsonArray("data").getJsonObject(i);
       String appKey = jsonObject.getString("appKey");
       String appSecret = jsonObject.getString("appSecret");
       if (appKey != null && appSecret != null) {
