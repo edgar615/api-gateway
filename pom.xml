@@ -30,6 +30,7 @@
 		<module>api-file</module>
         <module>api-git</module>
         <module>auth</module>
+        <module>localcache</module>
     </modules>
 
     <properties>

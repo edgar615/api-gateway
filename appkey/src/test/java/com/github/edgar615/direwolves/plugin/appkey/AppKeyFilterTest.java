@@ -78,10 +78,14 @@ public class AppKeyFilterTest {
 
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
-    JsonObject config = new JsonObject();
+    JsonObject origin = new JsonObject()
+            .put("appSecret", appSecret)
+            .put("appCode", appCode)
+            .put("appKey", UUID.randomUUID().toString());
+    JsonObject config = new JsonObject()
+            .put("data", new JsonArray().add(origin));
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
     createContext();
 
@@ -100,21 +104,15 @@ public class AppKeyFilterTest {
 
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq2(TestContext testContext) {
-    JsonObject origin = new JsonObject()
-            .put("appSecret", appSecret)
-            .put("appCode", appCode)
-            .put("appKey", UUID.randomUUID().toString());
     int port = Integer.parseInt(Randoms.randomNumber(4));
-    String url = Randoms.randomAlphabet(10);
+    String path = Randoms.randomAlphabet(10);
     mockExistHttp(port, Randoms.randomAlphabet(5));
     JsonObject config = new JsonObject()
-//            .put("data", new JsonArray().add(origin))
-            .put("url",url);
+            .put("path",path);
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
-            .put("port", port)
-            .put("namespace", namespace));
+            .put("port", port));
     filters.add(filter);
     createContext();
 
@@ -151,8 +149,7 @@ public class AppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -167,11 +164,6 @@ public class AppKeyFilterTest {
 
   @Test
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
-//    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
-//            .put("appSecret", appSecret)
-//            .put("appCode", appCode), ar -> {
-//
-//    });
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
             .put("appCode", appCode)
@@ -180,8 +172,7 @@ public class AppKeyFilterTest {
             .put("data", new JsonArray().add(origin));
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -227,8 +218,7 @@ public class AppKeyFilterTest {
 
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
+            .put("appkey", config));
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -273,15 +263,14 @@ public class AppKeyFilterTest {
   @Test
   public void testSignWithBody(TestContext testContext) {
     int port = Integer.parseInt(Randoms.randomNumber(4));
-    String url = Randoms.randomAlphabet(10);
-    mockExistHttp(port, url);
+    String path = Randoms.randomAlphabet(10);
+    mockExistHttp(port, path);
     JsonObject config = new JsonObject()
-            .put("url",url);
+            .put("path",path);
 
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
-            .put("port",port)
-            .put("namespace", namespace));
+            .put("port",port));
     filters.add(filter);
 
     try {
@@ -333,10 +322,10 @@ public class AppKeyFilterTest {
 
   }
 
-  private void mockExistHttp(int port, String url) {
+  private void mockExistHttp(int port, String path) {
     AtomicBoolean complete = new AtomicBoolean();
     vertx.createHttpServer().requestHandler(req -> {
-      if (req.path().equals(url)) {
+      if (req.path().equals(path)) {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
                 .put("appSecret", appSecret)
