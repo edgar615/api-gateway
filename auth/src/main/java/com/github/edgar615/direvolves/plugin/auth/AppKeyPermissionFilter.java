@@ -57,7 +57,7 @@ public class AppKeyPermissionFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition().plugin(PermissionPlugin.class.getSimpleName()) != null
-           && apiContext.variables().containsKey("client.appKey");
+           && apiContext.variables().containsKey("client_appKey");
   }
 
   @Override
@@ -66,7 +66,7 @@ public class AppKeyPermissionFilter implements Filter {
             .plugin(PermissionPlugin.class.getSimpleName());
     String permission = plugin.permission();
 
-    String appKey = (String) apiContext.variables().get("client.appKey");
+    String appKey = (String) apiContext.variables().get("client_appKey");
     permissionCheck(appKey, permission, ar -> {
       if (ar.succeeded()) {
         Log.create(LOGGER)

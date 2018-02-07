@@ -1,3 +1,8 @@
-com.github.edgar615.direvolves.plugin.auth.TokenFilterFactory
 com.github.edgar615.direvolves.plugin.auth.AppKeyPermissionFilterFactory
 com.github.edgar615.direvolves.plugin.auth.UserPermissionFilterFactory
+com.github.edgar615.direvolves.plugin.auth.TokenFilterFactory
+com.github.edgar615.direvolves.plugin.auth.JwtFilterFactory
+com.github.edgar615.direvolves.plugin.auth.JwtBuildFilterFactory
+com.github.edgar615.direvolves.plugin.auth.UserLoaderFilterFactory
+com.github.edgar615.direvolves.plugin.auth.ClientAuthorizationFilterFactory
+com.github.edgar615.direvolves.plugin.auth.UserAuthorizationFilterFactory

@@ -25,13 +25,12 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by edgar on 16-12-25.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyPermissionFilterTest {
+public class UserAuthorizationFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -43,15 +42,17 @@ public class AppKeyPermissionFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = Filter.create(AppKeyPermissionFilter.class.getSimpleName(), vertx, new JsonObject());
+    filter = Filter.create(UserAuthorizationFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.clear();
     filters.add(filter);
 
   }
 
   @Test
-  public void missAppShouldPass(TestContext testContext) {
+  public void missUserShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
+    apiContext.addVariable("app.permissions", "user.read, device.wirte");
+    apiContext.setPrincipal(new JsonObject());
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -63,10 +64,10 @@ public class AppKeyPermissionFilterTest {
   }
 
   @Test
-  public void invalidAppShouldThrowNoAuthority(TestContext testContext) {
+  public void invalidUserShouldThrowNoAuthority(TestContext testContext) {
     ApiContext apiContext = createContext();
-    apiContext.addVariable("client_appKey", UUID.randomUUID().toString());
-    apiContext.addVariable("client_permissions", "user.write, device.wirte");
+    apiContext.addVariable("app.permissions", "user.read, device.wirte");
+    apiContext.setPrincipal(new JsonObject().put("permissions", "user.write, device.read"));
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -81,10 +82,11 @@ public class AppKeyPermissionFilterTest {
   }
 
   @Test
-  public void validAppShouldPass(TestContext testContext) {
+  public void validUserShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
-    apiContext.addVariable("client_appKey", UUID.randomUUID().toString());
-    apiContext.addVariable("client_permissions", "user.read, device.wirte");
+    apiContext.addVariable("app.permissions", "user.read, device.wirte");
+    apiContext.setPrincipal(new JsonObject().put("permissions", "user.read, device.read"));
+    apiContext.setPrincipal(new JsonObject());
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -98,8 +100,9 @@ public class AppKeyPermissionFilterTest {
   @Test
   public void allPermissionShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
-    apiContext.addVariable("client_appKey", UUID.randomUUID().toString());
-    apiContext.addVariable("client_permissions", "all");
+    apiContext.addVariable("app.permissions", "user.read, device.wirte");
+    apiContext.setPrincipal(new JsonObject().put("permissions", "all"));
+    apiContext.setPrincipal(new JsonObject());
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -109,6 +112,7 @@ public class AppKeyPermissionFilterTest {
               testContext.fail();
             });
   }
+
 
   private ApiContext createContext() {
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -121,9 +125,9 @@ public class AppKeyPermissionFilterTest {
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    PermissionPluginImpl plugin =
-            (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin.class.getSimpleName());
-    plugin.setPermission("user.read");
+    ScopePluginImpl plugin =
+            (ScopePluginImpl) ApiPlugin.create(ScopePlugin.class.getSimpleName());
+    plugin.setScope("user.read");
     definition.addPlugin(plugin);
     return apiContext;
   }

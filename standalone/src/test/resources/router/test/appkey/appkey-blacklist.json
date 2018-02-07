@@ -8,9 +8,9 @@
       "name": "ping",
       "type": "dummy",
       "result" : {
-        "appKey" : "$var.client.appKey",
-        "appId" : "$var.client.appId",
-        "permissions" : "$var.client.permissions"
+        "appKey" : "$var.client_appKey",
+        "appId" : "$var.client_appId",
+        "permissions" : "$var.client_permissions"
       }
     }
   ],

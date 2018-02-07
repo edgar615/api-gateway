@@ -28,9 +28,9 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 通过appKey需要验证调用方合法性。如果签名校验未通过，会返回`1022`非法请求的错误。
 校验通过后，会在上下文中存入三个变量，其他Filter可以根据这三个变量实现额外的功能：
 
-- client.appKey 必填
-- client.appId 可选
-- client.permissions 可选
+- client_appKey 必填
+- client_appId 可选
+- client_permissions 可选
 
 
 这个Filter求调用方在queryString中加上下列参数：
@@ -64,7 +64,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 ```
 - **cacheEnable** 是否开启缓存，如果配置了这个参数，会从缓存中查找appKey，依赖于缓存的实现
 - **expireAfterWrite** 缓存的过期时间
-- **api** API地址，如果配置了这个参数，当缓存中没有找到对应的appKey时，会向通过这个地址发送GET请求，向下游服务请求AppKey，最终发送的请求为http://127.0.0.1:${port}/{url}?appKey=${appKey}
+- **api** API地址，如果配置了这个参数，当缓存中没有找到对应的appKey时，会向通过这个地址发送GET请求，向下游服务请求AppKey，最终发送的请求为http://127.0.0.1:${port}/{api}?appKey=${appKey}
 - **data** JSON数组，存放一些固定的AppKey。
 
 一个AppKey有下列四个属性

@@ -277,7 +277,7 @@ public class CacheAppKeyFilterTest extends AbstractAppKeyFilterTest {
             .put("appSecret", appSecret)
             .put("appCode", appCode)
             .put("permissions", "all");
-    cache.put(appKey, jsonObject, ar -> {
+    cache.put("appKey:" + appKey, jsonObject, ar -> {
       complete.set(true);
     });
     Awaitility.await().until(() -> complete.get());

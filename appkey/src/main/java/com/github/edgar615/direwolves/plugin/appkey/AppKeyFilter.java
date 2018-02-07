@@ -14,20 +14,14 @@ import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
-import com.github.edgar615.util.vertx.cache.Cache;
-import com.github.edgar615.util.vertx.cache.CacheLoader;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * AppKey的校验.
@@ -170,7 +164,7 @@ public class AppKeyFilter implements Filter {
       params.removeAll("body");
       params.put("body", apiContext.body().encode());
     }
-    appKeyFinder.load(appKey, ar -> {
+    appKeyFinder.find(appKey, ar -> {
       if (ar.failed()) {
         SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
                 .set("details", "Non-existent AppKey:" + appKey);
@@ -191,14 +185,14 @@ public class AppKeyFilter implements Filter {
     if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
       SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
               .set("details", "Incorrect sign");
-      failed(completeFuture, apiContext.id(), "appKey.tripped", e);
+      failed(completeFuture, apiContext.id(), "SignIncorrect", e);
     } else {
-      apiContext.addVariable("client.appKey", app.getString("appKey", "anonymous"));
+      apiContext.addVariable("client_appKey", app.getString("appKey", "anonymous"));
       if (app.containsKey("appId")) {
-        apiContext.addVariable("client.appId", app.getValue("appId"));
+        apiContext.addVariable("client_appId", app.getValue("appId"));
       }
       if (app.containsKey("permissions")) {
-        apiContext.addVariable("client.permissions", app.getValue("permissions"));
+        apiContext.addVariable("client_permissions", app.getValue("permissions"));
       }
       completeFuture.complete(apiContext);
     }

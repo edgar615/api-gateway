@@ -31,7 +31,7 @@ import java.util.UUID;
  * Created by edgar on 16-12-25.
  */
 @RunWith(VertxUnitRunner.class)
-public class AppKeyPermissionFilterTest {
+public class ClientAuthorizationFilterTest {
 
   private final List<Filter> filters = new ArrayList<>();
 
@@ -43,7 +43,7 @@ public class AppKeyPermissionFilterTest {
   public void setUp() {
     vertx = Vertx.vertx();
 
-    filter = Filter.create(AppKeyPermissionFilter.class.getSimpleName(), vertx, new JsonObject());
+    filter = Filter.create(ClientAuthorizationFilter.class.getSimpleName(), vertx, new JsonObject());
     filters.clear();
     filters.add(filter);
 
@@ -121,9 +121,9 @@ public class AppKeyPermissionFilterTest {
     ApiDefinition definition = ApiDefinition
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    PermissionPluginImpl plugin =
-            (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin.class.getSimpleName());
-    plugin.setPermission("user.read");
+    ScopePluginImpl plugin =
+            (ScopePluginImpl) ApiPlugin.create(ScopePlugin.class.getSimpleName());
+    plugin.setScope("user.read");
     definition.addPlugin(plugin);
     return apiContext;
   }

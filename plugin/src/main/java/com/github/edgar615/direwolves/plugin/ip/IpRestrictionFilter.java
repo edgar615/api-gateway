@@ -79,7 +79,7 @@ public class IpRestrictionFilter implements Filter {
       blacklist.addAll(plugin.blacklist());
       whitelist.addAll(plugin.whitelist());
     }
-    String clientIp = (String) apiContext.variables().get("request.client_ip");
+    String clientIp = (String) apiContext.variables().get("request_clientIp");
 
     //匹配到白名单则允许通过
     if (satisfyList(clientIp, whitelist)) {

@@ -11,31 +11,31 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class ScopePluginTest {
+public class PermissionPluginTest {
   @Test
   public void testDecode() {
     JsonObject config = new JsonObject()
-            .put("scope", "user.read");
-    ApiPluginFactory factory = new ScopePluginFactory();
-    ScopePlugin plugin = (ScopePlugin) factory.decode(config);
+            .put("permission", "user.read");
+    ApiPluginFactory factory = new PermissionPluginFactory();
+    PermissionPlugin plugin = (PermissionPlugin) factory.decode(config);
     Assert.assertNotNull(plugin);
-    Assert.assertEquals("user.read", plugin.scope());
+    Assert.assertEquals("user.read", plugin.permission());
   }
 
   @Test
   public void testEncode() {
-    ScopePluginImpl plugin = (ScopePluginImpl) ApiPlugin.create(ScopePlugin
+    PermissionPluginImpl plugin = (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin
                                                                                 .class
                                                                                 .getSimpleName());
-    plugin.setScope("user.read");
+    plugin.setPermission("user.read");
     JsonObject jsonObject = plugin.encode();
     System.out.println(jsonObject);
-    Assert.assertEquals("user.read", jsonObject.getString("scope"));
+    Assert.assertEquals("user.read", jsonObject.getString("permission"));
   }
 
   @Test
   public void testNullShoudReturnEmptyJson() {
-    ApiPluginFactory factory = new ScopePluginFactory();
+    ApiPluginFactory factory = new PermissionPluginFactory();
     JsonObject jsonObject = factory.encode(null);
     Assert.assertTrue(jsonObject.isEmpty());
   }
