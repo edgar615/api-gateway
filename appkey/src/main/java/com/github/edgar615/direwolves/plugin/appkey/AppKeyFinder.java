@@ -28,7 +28,7 @@ class AppKeyFinder {
 
   private static final String NON_EXISTENT = UUID.randomUUID().toString();
 
-  private static final String KEY_PREFIX = "ak:";
+  private static final String KEY_PREFIX = "appKey:";
 
   private final Map<String, JsonObject> localAppKeys = new HashMap<>();
 
@@ -47,19 +47,19 @@ class AppKeyFinder {
       }
     }
     int port = config.getInteger("port", Consts.DEFAULT_PORT);
-    if (config.getValue("path") instanceof String) {
-      String path = config.getString("path", "/");
+    if (config.getValue("api") instanceof String) {
+      String path = config.getString("api", "/");
       this.appKeyLoader = new AppKeyLoader(vertx, port, path);
     } else {
       appKeyLoader = null;
     }
 
-    boolean cacheable = config.getBoolean("cacheable", false);
-    if (cacheable) {
+    boolean cacheEnable = config.getBoolean("cacheEnable", false);
+    if (cacheEnable) {
       long expireAfterWrite = config.getLong("expireAfterWrite", CACHE_EXPIRE);
       CacheOptions options = new CacheOptions()
               .setExpireAfterWrite(expireAfterWrite);
-      this.cache = CacheUtils.createCache(vertx, "appkey", options);
+      this.cache = CacheUtils.createCache(vertx, "appKey", options);
     } else {
       this.cache = null;
     }
@@ -76,6 +76,7 @@ class AppKeyFinder {
     }
     if (cache == null && appKeyLoader != null) {
       appKeyLoader.load(key, resultHandler);
+      return;
     }
     if (cache != null && appKeyLoader == null) {
       cache.get(key, ar -> {
@@ -85,6 +86,7 @@ class AppKeyFinder {
         }
         resultHandler.handle(Future.succeededFuture(ar.result()));
       });
+      return;
     }
     if (cache != null && appKeyLoader != null) {
       cache.get(cacheKey(key), new CacheSecondaryLoader(), ar -> {

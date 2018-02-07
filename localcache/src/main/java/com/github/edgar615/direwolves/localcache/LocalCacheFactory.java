@@ -16,6 +16,15 @@ public class LocalCacheFactory implements CacheFactory {
 
   @Override
   public Cache<String, JsonObject> create(Vertx vertx, String cacheName, CacheOptions options) {
-    return new GuavaCache<>(vertx, cacheName, options);
+    CacheManager cacheManager = CacheManager.instance();
+    synchronized (LocalCacheFactory.class) {
+      Cache<String, JsonObject> cache = cacheManager.getCache(cacheName);
+      if (cache == null) {
+        cache = new GuavaCache<>(vertx, cacheName, options);
+        cacheManager.addCache(cache);
+        return cache;
+      }
+      return cache;
+    }
   }
 }

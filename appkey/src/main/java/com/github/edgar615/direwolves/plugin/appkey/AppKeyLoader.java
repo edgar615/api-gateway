@@ -31,6 +31,9 @@ class AppKeyLoader implements CacheLoader<String, JsonObject> {
   @Override
   public void load(String key, Handler<AsyncResult<JsonObject>> handler) {
     String requestURI = this.path;
+    if (!requestURI.startsWith("/")) {
+      requestURI = "/" + requestURI;
+    }
     if (requestURI.contains("?")) {
       requestURI = requestURI + "&appKey=" + key;
     } else {
