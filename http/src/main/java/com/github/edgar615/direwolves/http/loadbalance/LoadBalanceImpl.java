@@ -50,7 +50,7 @@ class LoadBalanceImpl implements LoadBalance {
   }
 
   private ServiceProvider createProvider(String service) {
-    ChooseStrategy strategy = options.getStrategy(service);
+    ChooseStrategy strategy = options.getStrategies().getOrDefault(service, ChooseStrategy.roundRobin());
     return new ServiceProviderImpl(serviceFinder, service)
             .withStrategy(strategy)
             .addFilter(r -> !stats.get(r.getRegistration()).isCircuitBreakerTripped());

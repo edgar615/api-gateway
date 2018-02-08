@@ -6,6 +6,7 @@ import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
+import com.github.edgar615.direwolves.http.loadbalance.ChooseStrategy;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceOptions;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;
@@ -47,6 +48,7 @@ public class ServiceDiscoveryFilter implements Filter {
     JsonObject loadBalanceConfig = config.getJsonObject("load.balance", new JsonObject());
     LoadBalanceOptions loadBalanceOptions = new LoadBalanceOptions(loadBalanceConfig);
     loadBalance = LoadBalance.create(serviceFinder, loadBalanceOptions);
+    //监听断路器变化，更新服务节点的断路器状态
     JsonObject circuitConfig = config.getJsonObject("circuit.breaker", new JsonObject());
     String stateAnnounce =
             circuitConfig.getString("stateAnnounce", "circuitbreaker.announce");
