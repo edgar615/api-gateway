@@ -7,8 +7,6 @@ import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +29,6 @@ import java.util.List;
  */
 public class UserRestrictionFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserRestrictionFilter.class);
-
   private final List<String> globalBlacklist = new ArrayList<>();
 
   private final List<String> globalWhitelist = new ArrayList<>();
@@ -40,15 +36,7 @@ public class UserRestrictionFilter implements Filter {
   private final String userKey = "userId";
 
   public UserRestrictionFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("user.restriction", new JsonObject());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    for (int i = 0; i < blackArray.size(); i++) {
-      globalBlacklist.add(blackArray.getValue(i).toString());
-    }
-    for (int i = 0; i < whiteArray.size(); i++) {
-      globalWhitelist.add(whiteArray.getValue(i).toString());
-    }
+    updateConfig(config);
   }
 
   @Override
@@ -97,6 +85,24 @@ public class UserRestrictionFilter implements Filter {
       return;
     }
     completeFuture.complete(apiContext);
+
+  }
+
+  @Override
+  public void updateConfig(JsonObject newConfig) {
+    if (newConfig.getValue("user.restriction") instanceof JsonObject) {
+      JsonObject jsonObject = newConfig.getJsonObject("user.restriction", new JsonObject());
+      JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+      JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+      globalBlacklist.clear();
+      globalWhitelist.clear();
+      for (int i = 0; i < blackArray.size(); i++) {
+        globalBlacklist.add(blackArray.getValue(i).toString());
+      }
+      for (int i = 0; i < whiteArray.size(); i++) {
+        globalWhitelist.add(whiteArray.getValue(i).toString());
+      }
+    }
 
   }
 

@@ -10,8 +10,6 @@ import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,15 +39,7 @@ public class IpRestrictionFilter implements Filter {
 
 
   public IpRestrictionFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("ip.restriction", new JsonObject());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    for (int i = 0; i < blackArray.size(); i++) {
-      globalBlacklist.add(blackArray.getString(i));
-    }
-    for (int i = 0; i < whiteArray.size(); i++) {
-      globalWhitelist.add(whiteArray.getString(i));
-    }
+    updateConfig(config);
   }
 
   @Override
@@ -96,12 +86,28 @@ public class IpRestrictionFilter implements Filter {
     completeFuture.complete(apiContext);
   }
 
+  @Override
+  public void updateConfig(JsonObject config) {
+    if (config.getValue("ip.restriction") instanceof JsonObject) {
+      JsonObject jsonObject = config.getJsonObject("ip.restriction", new JsonObject());
+      JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+      JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+      globalBlacklist.clear();
+      globalWhitelist.clear();
+      for (int i = 0; i < blackArray.size(); i++) {
+        globalBlacklist.add(blackArray.getString(i));
+      }
+      for (int i = 0; i < whiteArray.size(); i++) {
+        globalWhitelist.add(whiteArray.getString(i));
+      }
+    }
+  }
+
   private boolean satisfyList(String ip, List<String> list) {
     return list.stream()
                    .filter(r -> checkIp(r, ip))
                    .count() > 0;
   }
-
 
   private boolean checkIp(String rule, String clientIp) {
     List<String> rules = Lists.newArrayList(Splitter.on(".").trimResults().split(rule));

@@ -8,6 +8,8 @@ import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * 将RpcRequest中的请求头，请求参数，请求体按照RequestTransformerPlugin中的配置处理.
  * <p>
@@ -18,17 +20,11 @@ import io.vertx.core.json.JsonObject;
  */
 public class EventbusRequestTransformerFilter extends AbstractTransformerFilter {
 
-  private final RequestTransformer globalTransfomer;
 
+  private final AtomicReference<RequestTransformer> reference = new AtomicReference<>();
 
   EventbusRequestTransformerFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
-    if (jsonObject.isEmpty()) {
-      globalTransfomer = null;
-    } else {
-      globalTransfomer = RequestTransformer.create("global");
-      RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
-    }
+    updateConfig(config);
   }
 
   @Override
@@ -39,7 +35,7 @@ public class EventbusRequestTransformerFilter extends AbstractTransformerFilter 
     if (apiContext.requests().size() > 0
         && apiContext.requests().stream()
                 .anyMatch(e -> e instanceof EventbusRpcRequest)) {
-      return globalTransfomer != null
+      return reference.get() != null
              || apiContext.apiDefinition()
                         .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
     }
@@ -51,8 +47,8 @@ public class EventbusRequestTransformerFilter extends AbstractTransformerFilter 
     for (int i = 0; i < apiContext.requests().size(); i++) {
       RpcRequest request = apiContext.requests().get(i);
       if (request instanceof EventbusRpcRequest) {
-        if (globalTransfomer != null) {
-          doTransformer((EventbusRpcRequest) request, globalTransfomer);
+        if (reference.get() != null) {
+          doTransformer((EventbusRpcRequest) request, reference.get());
         }
         transformer(apiContext, (EventbusRpcRequest) request);
       }
@@ -81,6 +77,11 @@ public class EventbusRequestTransformerFilter extends AbstractTransformerFilter 
     if (transformer != null) {
       doTransformer(request, transformer);
     }
+  }
+
+  @Override
+  public void updateConfig(JsonObject config) {
+    super.setGlobalTransformer(config, reference);
   }
 
 }

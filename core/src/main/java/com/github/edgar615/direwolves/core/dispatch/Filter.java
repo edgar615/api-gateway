@@ -60,6 +60,13 @@ public interface Filter {
   void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture);
 
   /**
+   * 运行时更新配置
+   * @param config
+   */
+  default void updateConfig(JsonObject config) {
+    //do nothing
+  }
+  /**
    * 创建一个过滤器.
    *
    * @param name   过滤器的名称

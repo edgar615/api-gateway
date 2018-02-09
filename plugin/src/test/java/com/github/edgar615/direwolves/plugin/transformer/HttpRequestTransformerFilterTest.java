@@ -18,6 +18,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Edgar on 2016/9/20.
@@ -95,7 +97,7 @@ public class HttpRequestTransformerFilterTest {
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
-    Async async = testContext.async();
+    AtomicBoolean check1 = new AtomicBoolean();
     Filters.doFilter(task, filters)
             .andThen(context -> {
               System.out.println(context.requests());
@@ -107,6 +109,7 @@ public class HttpRequestTransformerFilterTest {
               testContext.assertEquals(4, request.headers().size());
               testContext.assertTrue(request.headers().containsKey("h1"));
               testContext.assertTrue(request.headers().containsKey("h2"));
+              testContext.assertEquals("h1.1", request.headers().get("h1").iterator().next());
               testContext.assertEquals(3, request.headers().get("h1").size());
               testContext.assertEquals(1, request.headers().get("h2").size());
               testContext.assertNull(request.body());
@@ -118,11 +121,48 @@ public class HttpRequestTransformerFilterTest {
               testContext.assertTrue(request.headers().containsKey("h1"));
               testContext.assertEquals(2, request.headers().get("h1").size());
               testContext.assertNotNull(request.body());
-              async.complete();
+              check1.set(true);
             }).onFailure(t -> {
       t.printStackTrace();
       testContext.fail();
     });
+    Awaitility.await().until(() -> check1.get());
+
+    JsonObject newConfig = new JsonObject()
+            .put("header.add", new JsonArray().add("h1:h1.3").add("h1:h1.4"));
+    filter.updateConfig(new JsonObject().put("request.transformer", newConfig));
+    AtomicBoolean check2 = new AtomicBoolean();
+     task = Task.create();
+    task.complete(apiContext);
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              System.out.println(context.requests());
+              testContext.assertEquals(2, context.requests().size());
+              SimpleHttpRequest request = (SimpleHttpRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(0, request.params().size());
+              testContext.assertEquals(4, request.headers().size());
+              testContext.assertTrue(request.headers().containsKey("h1"));
+              testContext.assertTrue(request.headers().containsKey("h2"));
+              testContext.assertEquals("h1.3", request.headers().get("h1").iterator().next());
+              testContext.assertEquals(3, request.headers().get("h1").size());
+              testContext.assertEquals(1, request.headers().get("h2").size());
+              testContext.assertNull(request.body());
+
+              request = (SimpleHttpRequest) context.requests().get(1);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8080, request.port());
+              testContext.assertEquals(0, request.params().size());
+              testContext.assertTrue(request.headers().containsKey("h1"));
+              testContext.assertEquals(2, request.headers().get("h1").size());
+              testContext.assertNotNull(request.body());
+              check2.set(true);
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+    Awaitility.await().until(() -> check2.get());
   }
 
   @Test

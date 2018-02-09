@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.plugin.transformer;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
@@ -11,6 +10,7 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 将Result中的请求头，请求参数，请求体按照ResponseTransformerPlugin中的配置处理.
@@ -48,16 +48,10 @@ import java.util.Collection;
  */
 public class ResponseTransformerFilter implements Filter {
 
-  private final ResponseTransformerPlugin globalPlugin;// = new ResponseTransformerPluginImpl();
+  private final AtomicReference<ResponseTransformerPlugin> reference = new AtomicReference<>();
 
   ResponseTransformerFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("response.transformer", new JsonObject());
-    if (jsonObject.isEmpty()) {
-      globalPlugin = null;
-    } else {
-      globalPlugin = new ResponseTransformerPluginImpl();
-      ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
-    }
+    updateConfig(config);
   }
 
   @Override
@@ -75,7 +69,7 @@ public class ResponseTransformerFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       return false;
     }
-    return globalPlugin != null
+    return reference.get() != null
            || apiContext.apiDefinition()
                       .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
   }
@@ -83,8 +77,8 @@ public class ResponseTransformerFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
 
-    if (globalPlugin != null) {
-      doTransfomer(apiContext, globalPlugin);
+    if (reference.get() != null) {
+      doTransfomer(apiContext, reference.get());
     }
     ResponseTransformerPlugin plugin =
             (ResponseTransformerPlugin) apiContext.apiDefinition()
@@ -94,6 +88,16 @@ public class ResponseTransformerFilter implements Filter {
       doTransfomer(apiContext, plugin);
     }
     completeFuture.complete(apiContext);
+  }
+
+  @Override
+  public void updateConfig(JsonObject config) {
+    JsonObject jsonObject = config.getJsonObject("response.transformer", new JsonObject());
+    if (!jsonObject.isEmpty()) {
+      ResponseTransformerPlugin globalPlugin = new ResponseTransformerPluginImpl();
+      ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
+      reference.set(globalPlugin);
+    }
   }
 
   private void doTransfomer(ApiContext apiContext, ResponseTransformerPlugin plugin) {
