@@ -13,4 +13,6 @@ public class Consts {
   public static final String DEFAULT_NAMESPACE = "api-gateway";
 
   public static final int DEFAULT_PORT = 9000;
+
+  public static final String RESPONSE_HEADER = "resp.header:";
 }

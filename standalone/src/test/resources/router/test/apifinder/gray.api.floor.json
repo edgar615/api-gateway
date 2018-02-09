@@ -2,7 +2,7 @@
   "name": "gray.api.floor",
   "method": "GET",
   "path": "/gray",
-  "ca.version" : "floor",
+  "version.match" : "floor",
   "endpoints": [
     {
       "name": "gray",

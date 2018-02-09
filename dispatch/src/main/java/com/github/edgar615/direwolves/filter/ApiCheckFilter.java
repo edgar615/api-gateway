@@ -2,6 +2,7 @@ package com.github.edgar615.direwolves.filter;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -47,12 +48,13 @@ public class ApiCheckFilter implements Filter {
     if (apiContext.apiDefinition() == null) {
       SystemException systemException =
               SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND);
-      ;
       systemException.set("details", String.format("Undefined Api %s:%s",
                                                    apiContext.method().name(),
                                                    apiContext.path()));
-      failed(completeFuture, apiContext.id(), "api.tripped", systemException);
+      failed(completeFuture, apiContext.id(), "ApiNonExistent", systemException);
     } else {
+      apiContext.addVariable(Consts.RESPONSE_HEADER + "X-Api-Key",
+                             apiContext.apiDefinition().name());
       completeFuture.complete(apiContext);
     }
   }

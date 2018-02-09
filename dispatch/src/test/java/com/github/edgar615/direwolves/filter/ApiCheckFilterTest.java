@@ -33,10 +33,6 @@ import java.util.concurrent.TimeUnit;
 @RunWith(VertxUnitRunner.class)
 public class ApiCheckFilterTest {
 
-  ApiDiscovery apiDiscovery;
-
-  int devicePort = Integer.parseInt(Randoms.randomNumber(4));
-
   private Vertx vertx;
 
   @Before

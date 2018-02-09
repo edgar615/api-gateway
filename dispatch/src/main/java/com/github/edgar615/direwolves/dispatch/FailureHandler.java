@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.dispatch;
 
+import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -42,8 +43,8 @@ public class FailureHandler implements Handler<RoutingContext> {
       statusCode = ex.getErrorCode().getStatusCode();
       //resp.header:开头的错误信息表示需要在响应头上显示，而不是在响应体中显示
       for (Map.Entry<String, Object> entry : ex.asMap().entrySet()) {
-        if (entry.getKey().startsWith("resp.header:")) {
-          response.putHeader(entry.getKey().substring("resp.header:".length()),
+        if (entry.getKey().startsWith(Consts.RESPONSE_HEADER)) {
+          response.putHeader(entry.getKey().substring(Consts.RESPONSE_HEADER.length()),
                              entry.getValue().toString());
         } else {
           failureMsg.put(entry.getKey(), entry.getValue());

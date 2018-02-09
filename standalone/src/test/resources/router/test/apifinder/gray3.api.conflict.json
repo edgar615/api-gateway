@@ -2,7 +2,7 @@
   "name": "gray3.api.conflict",
   "method": "GET",
   "path": "/gray3",
-  "ca.version" : "ceil",
+  "version.match" : "ceil",
   "endpoints": [
     {
       "name": "gray",

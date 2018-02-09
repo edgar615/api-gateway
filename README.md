@@ -487,8 +487,8 @@ Filter分为两种PRE和POST
 
 ### API路由匹配
 当API网关收到调用方的请求后，首先需要通过api-discovery模块根据请求方法和请求地址匹配到对应的API定义才能继续处理请求。如果没有找到对应的API定义，会直接返回404。
-我定义了两种API匹配方式：ApiFindFilter和GrayFilter
-#### Filter: ApiFindFilter
+我定义了两种API匹配方式：ApiMatchFilter和GrayFilter
+#### Filter: ApiMatchFilter
 默认使用的API查找。如果未找到对应的API，返回404（资源不存在），如果根据正则匹配到多个API，返回500（数据冲突）。
 
 - **type** PRE
@@ -518,9 +518,9 @@ x-api-verson : 20171108
 用来声明基于请求头的灰度发布规则
 配置
 ```
-"ca.version": "floor"
+"version.match": "floor"
 ```
-**ca.version**用来指明在未匹配到`x-api-version`声明的版本时时，采用哪种方式匹配API。
+**version.match**用来指明在未匹配到`x-api-version`声明的版本时时，采用哪种方式匹配API。
 - **floor** 匹配最低的版本
 - **ceil** 匹配最高的版本
 #### Filter: ClientApiVersionFilter
@@ -532,7 +532,7 @@ x-api-verson : 20171108
 
 **前置条件**：上下文中不存在API
 
-在引入了plugin-gray包之后ClientApiVersionFilter会在ApiFindFilter之前执行，如果通过ClientApiVersionFilter找到了合适的API，那么ApiFindFilter不会再执行。
+在引入了plugin-gray包之后ClientApiVersionFilter会在ApiMatchFilter之前执行，如果通过ClientApiVersionFilter找到了合适的API，那么ApiMatchFilter不会再执行。
 
 根据x-api-version我们可以实现一些简易的灰度发布规则，后面灰度发布部分会详细描述
 
