@@ -135,10 +135,6 @@ public class JwtBuildFilter implements Filter {
     String jti = UUID.randomUUID().toString();
     Object userId = body.getValue(userKey);
     if (userId == null) {
-      Log.create(Filter.LOGGER)
-              .setEvent("jwt.build.ignored")
-              .setMessage("Miss userId")
-              .info();
       completeFuture.complete(apiContext);
       return;
     }
