@@ -152,6 +152,9 @@ public class JwtBuildFilter implements Filter {
     } else {
       body.put("token", token);
     }
+    if (jwtOptions.getExpiresInSeconds() != null) {
+      body.put("expiresInSeconds", jwtOptions.getExpiresInSeconds());
+    }
     //保存JTI，后面使用
     apiContext.addVariable("jti", jti);
     apiContext.setResult(Result.createJsonObject(result.statusCode(), body,

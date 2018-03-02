@@ -5,9 +5,10 @@ package com.github.edgar615.direvolves.plugin.gray;
  *
  * @author Edgar  Date 2018/2/10
  */
-public class RateStrategy implements SplitStrategy {
+public interface IpSplitPolicy {
 
-  private final int rate;
 
-  public RateStrategy(int rate) {this.rate = rate;}
+  String service();
+
+  boolean satisfy(String ip);
 }

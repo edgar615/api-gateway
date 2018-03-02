@@ -127,7 +127,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
                                 entry.getValue().toString());
       }
     }
-
+//todo 格式化输出的判断 - **pretty**:  bool 是否开启格式化 ， 默认为false
     if (isArray) {
       rc.response()
               .setStatusCode(statusCode)
