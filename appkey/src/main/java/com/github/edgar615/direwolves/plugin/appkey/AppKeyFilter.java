@@ -115,17 +115,7 @@ public class AppKeyFilter implements Filter {
 
   private final Vertx vertx;
 
-<<<<<<< HEAD
-  private final int port;
-
-  private final String path;
-
-  private final boolean httpLoaderEnabled;
-
-  private final Map<String, JsonObject> localAppKeys = new HashMap<>();
-=======
   private final AppKeyFinder appKeyFinder;
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -140,22 +130,10 @@ public class AppKeyFilter implements Filter {
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
 
-<<<<<<< HEAD
-    JsonArray jsonArray = appKeyConfig.getJsonArray("data", new JsonArray());
-    for (int i = 0; i < jsonArray.size(); i++) {
-      JsonObject jsonObject = appKeyConfig.getJsonArray("data").getJsonObject(i);
-      String appKey = jsonObject.getString("appKey");
-      String appSecret = jsonObject.getString("appSecret");
-      if (appKey != null && appSecret != null) {
-        localAppKeys.put(appKey, jsonObject);
-      }
-    }
-=======
     int port = config.getInteger("port", Consts.DEFAULT_PORT);
     JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
     appKeyConfig.put("port", port);
     this.appKeyFinder = new AppKeyFinder(vertx, appKeyConfig);
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553
   }
 
   @Override

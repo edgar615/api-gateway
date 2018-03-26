@@ -46,7 +46,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  int appId = Integer.parseInt(Randoms.randomNumber(3));
+  int appCode = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
 
@@ -70,44 +70,11 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-    JsonObject config = new JsonObject();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config));
-    filters.add(filter);
-    createContext();
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
-              async.complete();
-            });
-  }
-
-  @Test
-  public void undefinedAppKeyShouldThrowInvalidReq2(TestContext testContext) {
-    JsonObject origin = new JsonObject()
-            .put("appSecret", appSecret)
-            .put("appId", appId)
-            .put("appKey", UUID.randomUUID().toString());
-=======
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String path = Randoms.randomAlphabet(10);
     mockExistHttp(port, path);
     JsonObject config = new JsonObject()
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-            .put("data", new JsonArray().add(origin))
-            .put("url",url);
-=======
             .put("api",path);
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
@@ -141,26 +108,15 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
 
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-    JsonObject origin = new JsonObject()
-            .put("appSecret", appSecret)
-            .put("appId", appId)
-            .put("appKey", appKey);
-=======
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String path = Randoms.randomAlphabet(10);
     mockExistHttp(port, Randoms.randomAlphabet(5));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     JsonObject config = new JsonObject()
             .put("api",path);
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-            .put("appkey", config));
-=======
             .put("appkey", config)
             .put("port", port));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -175,31 +131,15 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   @Test
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-//    redisProvider.set(namespace + ":appKey:" + appKey, new JsonObject()
-//            .put("appSecret", appSecret)
-//            .put("appId", appId), ar -> {
-//
-//    });
-    JsonObject origin = new JsonObject()
-            .put("appSecret", appSecret)
-            .put("appId", appId)
-            .put("appKey", appKey);
-=======
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String path = Randoms.randomAlphabet(10);
     mockExistHttp(port, path);
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     JsonObject config = new JsonObject()
             .put("api",path);
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-            .put("appkey", config));
-=======
             .put("appkey", config)
             .put("port", port));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -236,26 +176,15 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
   @Test
   public void testSignWithoutBody(TestContext testContext) {
 
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-    JsonObject origin = new JsonObject()
-            .put("appSecret", appSecret)
-            .put("appId", appId)
-            .put("appKey", appKey);
-=======
     int port = Integer.parseInt(Randoms.randomNumber(4));
     String path = Randoms.randomAlphabet(10);
     mockExistHttp(port, path);
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     JsonObject config = new JsonObject()
             .put("api",path);
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-            .put("appkey", config));
-=======
             .put("appkey", config)
             .put("port", port));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -307,11 +236,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config)
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/AppKeyFilterTest.java
-            .put("port",port));
-=======
             .put("port", port));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/HttpAppKeyFilterTest.java
     filters.add(filter);
 
     try {
@@ -374,7 +299,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
                 .put("appSecret", appSecret)
-                .put("appId", appId)
+                .put("appCode", appCode)
                 .put("permissions", "all");
         req.response().end(jsonObject.encode());
       } else {

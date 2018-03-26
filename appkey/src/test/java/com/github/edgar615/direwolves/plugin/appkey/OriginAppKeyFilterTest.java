@@ -75,49 +75,14 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   @Test
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/CachedAppKeyFilterTest.java
-    JsonObject config = new JsonObject();
-    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
-    filters.add(filter);
-    createContext();
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
-              async.complete();
-            });
-  }
-
-  @Test
-  public void undefinedAppKeyShouldThrowInvalidReq2(TestContext testContext) {
-=======
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/OriginAppKeyFilterTest.java
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
             .put("appCode", appCode)
             .put("appKey", UUID.randomUUID().toString());
     JsonObject config = new JsonObject()
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/CachedAppKeyFilterTest.java
-//            .put("data", new JsonArray().add(origin))
-            .put("url",url);
-    filters.clear();
-    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("port", port)
-            .put("namespace", namespace));
-=======
             .put("data", new JsonArray().add(origin));
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/OriginAppKeyFilterTest.java
     filters.add(filter);
     apiContext = createContext(appKey, signMethod);
 
@@ -153,14 +118,8 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/CachedAppKeyFilterTest.java
-    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
-=======
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/OriginAppKeyFilterTest.java
     filters.add(filter);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -182,14 +141,8 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
 
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/CachedAppKeyFilterTest.java
-    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
-=======
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/OriginAppKeyFilterTest.java
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -234,14 +187,8 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
             .put("data", new JsonArray().add(origin));
 
     filters.clear();
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/CachedAppKeyFilterTest.java
-    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("namespace", namespace));
-=======
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/OriginAppKeyFilterTest.java
     filters.add(filter);
 
     Multimap<String, String> params = ArrayListMultimap.create();
@@ -292,16 +239,9 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
 
-<<<<<<< HEAD:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/CachedAppKeyFilterTest.java
-    filter = Filter.create(CachedAppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("port",port)
-            .put("namespace", namespace));
-=======
     filters.clear();
     filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
             .put("appkey", config));
->>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553:appkey/src/test/java/com/github/edgar615/direwolves/plugin/appkey/OriginAppKeyFilterTest.java
     filters.add(filter);
 
     try {
