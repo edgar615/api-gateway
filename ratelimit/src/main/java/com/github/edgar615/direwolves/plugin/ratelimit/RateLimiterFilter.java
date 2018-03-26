@@ -2,6 +2,7 @@ package com.github.edgar615.direwolves.plugin.ratelimit;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -135,9 +136,9 @@ public class RateLimiterFilter implements Filter {
       ResultDetail detail = details.get(i);
       TokenBucketRule limiter = rules.get(i);
 //      String name = limiter.getSubject();
-      props.put("resp.header:X-Rate-Limit-" + i + "-Limit", detail.limit());
-      props.put("resp.header:X-Rate-Limit-" + i + "-Remaining", detail.remaining());
-      props.put("resp.header:X-Rate-Limit-" + i + "-Reset",
+      props.put(Consts.RESPONSE_HEADER + "X-Rate-Limit-" + i + "-Limit", detail.limit());
+      props.put(Consts.RESPONSE_HEADER + "X-Rate-Limit-"  + i + "-Remaining", detail.remaining());
+      props.put(Consts.RESPONSE_HEADER + "X-Rate-Limit-"  + i + "-Reset",
                 Math.round(detail.reset() / 1000));
     }
 

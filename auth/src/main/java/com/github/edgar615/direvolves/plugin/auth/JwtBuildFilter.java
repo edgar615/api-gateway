@@ -135,10 +135,6 @@ public class JwtBuildFilter implements Filter {
     String jti = UUID.randomUUID().toString();
     Object userId = body.getValue(userKey);
     if (userId == null) {
-      Log.create(Filter.LOGGER)
-              .setEvent("jwt.build.ignored")
-              .setMessage("Miss userId")
-              .info();
       completeFuture.complete(apiContext);
       return;
     }
@@ -155,6 +151,9 @@ public class JwtBuildFilter implements Filter {
       body.clear().put("token", token);
     } else {
       body.put("token", token);
+    }
+    if (jwtOptions.getExpiresInSeconds() != null) {
+      body.put("expiresInSeconds", jwtOptions.getExpiresInSeconds());
     }
     //保存JTI，后面使用
     apiContext.addVariable("jti", jti);

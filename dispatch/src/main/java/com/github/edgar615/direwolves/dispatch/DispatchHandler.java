@@ -18,8 +18,8 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -120,6 +120,14 @@ public class DispatchHandler implements Handler<RoutingContext> {
     Result result = apiContext.result();
     int statusCode = result.statusCode();
     boolean isArray = result.isArray();
+    //设置请求头
+    for (Map.Entry<String, Object> entry : apiContext.variables().entrySet()) {
+      if (entry.getKey().startsWith(Consts.RESPONSE_HEADER)) {
+        rc.response().putHeader(entry.getKey().substring(Consts.RESPONSE_HEADER.length()),
+                                entry.getValue().toString());
+      }
+    }
+//todo 格式化输出的判断 - **pretty**:  bool 是否开启格式化 ， 默认为false
     if (isArray) {
       rc.response()
               .setStatusCode(statusCode)

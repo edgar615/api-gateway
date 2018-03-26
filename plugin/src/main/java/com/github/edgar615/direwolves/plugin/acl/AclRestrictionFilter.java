@@ -40,15 +40,7 @@ public class AclRestrictionFilter implements Filter {
   private final String groupKey = "group";
 
   public AclRestrictionFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("acl.restriction", new JsonObject());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    for (int i = 0; i < blackArray.size(); i++) {
-      globalBlacklist.add(blackArray.getString(i));
-    }
-    for (int i = 0; i < whiteArray.size(); i++) {
-      globalWhitelist.add(whiteArray.getString(i));
-    }
+    updateConfig(config);
   }
 
   @Override
@@ -95,6 +87,23 @@ public class AclRestrictionFilter implements Filter {
       return;
     }
     completeFuture.complete(apiContext);
+  }
+
+  @Override
+  public void updateConfig(JsonObject config) {
+    if (config.getValue("acl.restriction") instanceof JsonObject) {
+      JsonObject jsonObject = config.getJsonObject("acl.restriction", new JsonObject());
+      JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+      JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+      globalBlacklist.clear();
+      globalWhitelist.clear();
+      for (int i = 0; i < blackArray.size(); i++) {
+        globalBlacklist.add(blackArray.getString(i));
+      }
+      for (int i = 0; i < whiteArray.size(); i++) {
+        globalWhitelist.add(whiteArray.getString(i));
+      }
+    }
   }
 
   private boolean satisfyList(String group, List<String> list) {

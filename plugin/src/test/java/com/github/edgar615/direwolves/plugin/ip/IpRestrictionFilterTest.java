@@ -20,12 +20,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by edgar on 16-10-28.
@@ -72,14 +74,14 @@ public class IpRestrictionFilterTest {
 //    plugin.addBlacklist("10.4.7.15");
 //    plugin.addBlacklist("192.168.1.100");
 //    apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.clientIp", "86.10.1.1");
+    apiContext.addVariable("request_clientIp", "86.10.1.1");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          testContext.fail();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
       SystemException ex = (SystemException) t;
       testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
       async.complete();
@@ -92,14 +94,14 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addWhitelist("10.4.7.15");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.clientIp", "86.10.2.100");
+    apiContext.addVariable("request_clientIp", "86.10.2.100");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
     Filters.doFilter(task, filters)
-        .andThen(context -> {
-          async.complete();
-        }).onFailure(t -> {
+            .andThen(context -> {
+              async.complete();
+            }).onFailure(t -> {
       testContext.fail();
     });
   }
@@ -110,7 +112,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addBlacklist("192.168.1.100");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.clientIp", "10.4.7.15");
+    apiContext.addVariable("request_clientIp", "10.4.7.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -129,7 +131,7 @@ public class IpRestrictionFilterTest {
     IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
     plugin.addBlacklist("10.4.*.15");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.clientIp", "10.4.87.15");
+    apiContext.addVariable("request_clientIp", "10.4.87.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -149,7 +151,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addWhitelist("10.4.7.15");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.clientIp", "10.4.7.15");
+    apiContext.addVariable("request_clientIp", "10.4.7.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -167,7 +169,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addWhitelist("10.*.7.*");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.clientIp", "10.4.7.15");
+    apiContext.addVariable("request_clientIp", "10.4.7.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -177,6 +179,41 @@ public class IpRestrictionFilterTest {
             }).onFailure(t -> {
       testContext.fail();
     });
+  }
+
+  @Test
+  public void testUpdateGlobalConfig(TestContext testContext) {
+    apiContext.addVariable("request_clientIp", "86.10.1.1");
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    AtomicBoolean check1 = new AtomicBoolean();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      SystemException ex = (SystemException) t;
+      testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
+      check1.set(true);
+    });
+    Awaitility.await().until(() -> check1.get());
+
+    JsonObject restriction = new JsonObject().put("blacklist", new JsonArray().add("86.10.3.*"))
+            .put("whitelist", new JsonArray().add("86.10.2.*"));
+
+    filter.updateConfig(new JsonObject().put("ip.restriction", restriction));
+    task = Task.create();
+    task.complete(apiContext);
+    AtomicBoolean check2 = new AtomicBoolean();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+             check2.set(true);
+            }).onFailure(t -> {
+      t.printStackTrace();
+      testContext.fail();
+    });
+    Awaitility.await().until(() -> check2.get());
+
   }
 
 }

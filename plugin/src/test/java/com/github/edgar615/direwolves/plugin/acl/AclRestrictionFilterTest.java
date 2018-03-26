@@ -20,12 +20,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by edgar on 16-10-28.
@@ -201,6 +203,39 @@ public class AclRestrictionFilterTest {
             }).onFailure(t -> {
       testContext.fail();
     });
+  }
+
+  @Test
+  public void testUpdateGlobalConfig(TestContext testContext) {
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    AtomicBoolean check1 = new AtomicBoolean();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              check1.set(true);
+
+            }).onFailure(t -> {
+      testContext.fail();
+    });
+    Awaitility.await().until(() -> check1.get());
+
+    JsonObject restriction = new JsonObject().put("blacklist", new JsonArray().add("testGroup"));
+
+    filter.updateConfig(new JsonObject().put("acl.restriction", restriction));
+    task = Task.create();
+    task.complete(apiContext);
+    AtomicBoolean check2 = new AtomicBoolean();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.fail();
+            }).onFailure(t -> {
+      t.printStackTrace();
+      SystemException ex = (SystemException) t;
+      testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
+      check2.set(true);
+    });
+    Awaitility.await().until(() -> check2.get());
+
   }
 
 }

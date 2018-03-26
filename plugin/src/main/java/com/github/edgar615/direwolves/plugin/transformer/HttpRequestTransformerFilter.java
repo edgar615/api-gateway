@@ -8,6 +8,8 @@ import com.github.edgar615.direwolves.core.rpc.http.HttpRpcRequest;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * 将RpcRequest中的请求头，请求参数，请求体按照RequestTransformerPlugin中的配置处理.
  * <p>
@@ -54,16 +56,10 @@ import io.vertx.core.json.JsonObject;
  */
 public class HttpRequestTransformerFilter extends AbstractTransformerFilter {
 
-  private final RequestTransformer globalTransfomer; //= RequestTransformer.create("global");
+  private final AtomicReference<RequestTransformer> reference = new AtomicReference<>();
 
   HttpRequestTransformerFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
-    if (jsonObject.isEmpty()) {
-      globalTransfomer = null;
-    } else {
-      globalTransfomer = RequestTransformer.create("global");
-      RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
-    }
+    updateConfig(config);
   }
 
   @Override
@@ -74,16 +70,11 @@ public class HttpRequestTransformerFilter extends AbstractTransformerFilter {
     if (apiContext.requests().size() > 0
         && apiContext.requests().stream()
                 .anyMatch(e -> e instanceof HttpRpcRequest)) {
-      return globalTransfomer != null
+      return reference.get() != null
              || apiContext.apiDefinition()
                         .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
     }
     return false;
-//    return apiContext.apiDefinition()
-//                   .plugin(RequestTransformerPlugin.class.getSimpleName()) != null
-//           && apiContext.requests().size() > 0;
-//           && apiContext.requests().stream()
-//                   .anyMatch(e -> e instanceof HttpRpcRequest);
   }
 
   @Override
@@ -91,8 +82,8 @@ public class HttpRequestTransformerFilter extends AbstractTransformerFilter {
     for (int i = 0; i < apiContext.requests().size(); i++) {
       RpcRequest request = apiContext.requests().get(i);
       if (request instanceof HttpRpcRequest) {
-        if (globalTransfomer != null) {
-          doTransformer((HttpRpcRequest) request, globalTransfomer);
+        if (reference.get() != null) {
+          doTransformer((HttpRpcRequest) request, reference.get());
         }
         transformer(apiContext, (HttpRpcRequest) request);
       }
@@ -125,5 +116,8 @@ public class HttpRequestTransformerFilter extends AbstractTransformerFilter {
     }
   }
 
-
+  @Override
+  public void updateConfig(JsonObject config) {
+    super.setGlobalTransformer(config, reference);
+  }
 }

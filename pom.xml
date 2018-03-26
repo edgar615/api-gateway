@@ -29,6 +29,7 @@
         <module>api-git</module>
         <module>auth</module>
         <module>localcache</module>
+        <module>version</module>
     </modules>
 
     <properties>

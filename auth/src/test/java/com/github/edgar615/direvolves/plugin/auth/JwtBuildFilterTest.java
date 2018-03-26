@@ -230,7 +230,7 @@ public class JwtBuildFilterTest {
             .andThen(context -> {
               Result result = context.result();
               System.out.println(result.responseObject());
-              testContext.assertEquals(1, result.responseObject().size());
+              testContext.assertEquals(2, result.responseObject().size());
               testContext.assertTrue(result.responseObject().containsKey("token"));
               String token = result.responseObject().getString("token");
               String token2 = Iterables.get(Splitter.on(".").split(token), 1);
@@ -277,7 +277,7 @@ public class JwtBuildFilterTest {
             .andThen(context -> {
               Result result = context.result();
               System.out.println(result.responseObject());
-              testContext.assertEquals(1, result.responseObject().size());
+              testContext.assertEquals(2, result.responseObject().size());
               testContext.assertTrue(result.responseObject().containsKey("token"));
               String token = result.responseObject().getString("token");
               String token2 = Iterables.get(Splitter.on(".").split(token), 1);

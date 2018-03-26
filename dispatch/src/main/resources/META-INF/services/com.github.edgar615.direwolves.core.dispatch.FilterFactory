@@ -1,4 +1,4 @@
-com.github.edgar615.direwolves.filter.ApiFindFilterFactory
+com.github.edgar615.direwolves.filter.ApiMatchFilterFactory
 com.github.edgar615.direwolves.filter.PathParamFilterFactory
 com.github.edgar615.direwolves.filter.AntPathParamFilterFactory
 com.github.edgar615.direwolves.filter.ApiCheckFilterFactory

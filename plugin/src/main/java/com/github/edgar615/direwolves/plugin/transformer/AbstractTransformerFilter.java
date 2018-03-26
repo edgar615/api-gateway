@@ -7,6 +7,7 @@ import com.github.edgar615.direwolves.core.dispatch.Filter;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by Edgar on 2017/12/4.
@@ -25,7 +26,17 @@ public abstract class AbstractTransformerFilter implements Filter {
     return 15000;
   }
 
+  protected void setGlobalTransformer(JsonObject config, AtomicReference<RequestTransformer> reference) {
+    if (config.getValue("request.transformer") instanceof JsonObject) {
+      JsonObject jsonObject = config.getJsonObject("request.transformer", new JsonObject());
+      if (!jsonObject.isEmpty()) {
+        RequestTransformer  globalTransfomer = RequestTransformer.create("global");
+        RequestTransfomerConverter.fromJson(jsonObject, globalTransfomer);
+        reference.set(globalTransfomer);
+      }
+    }
 
+  }
 
   protected Multimap<String, String> tranformerParams(Multimap<String, String> params,
                                                       RequestTransformer transformer) {

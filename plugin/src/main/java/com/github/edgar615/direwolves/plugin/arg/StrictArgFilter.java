@@ -34,19 +34,10 @@ public class StrictArgFilter implements Filter {
 
   private final Set<String> excludeBody = new HashSet<>();
 
-  private final boolean enabled;
+  private volatile boolean enabled = false;
 
   StrictArgFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("strict.arg", new JsonObject());
-    JsonArray queryArray = jsonObject.getJsonArray("query.excludes", new JsonArray());
-    for (int i = 0; i < queryArray.size(); i++) {
-      excludeQuery.add(queryArray.getString(i));
-    }
-    JsonArray bodyArray = jsonObject.getJsonArray("body.excludes", new JsonArray());
-    for (int i = 0; i < bodyArray.size(); i++) {
-      excludeBody.add(bodyArray.getString(i));
-    }
-    this.enabled = jsonObject.getBoolean("enable", false);
+   updateConfig(config);
   }
 
   @Override
@@ -121,4 +112,22 @@ public class StrictArgFilter implements Filter {
     return plugin == null || plugin.parameter(argName) == null;
   }
 
+  @Override
+  public void updateConfig(JsonObject config) {
+    if (config.getValue("strict.arg") instanceof JsonObject) {
+      JsonObject jsonObject = config.getJsonObject("strict.arg", new JsonObject());
+      JsonArray queryArray = jsonObject.getJsonArray("query.excludes", new JsonArray());
+      excludeQuery.clear();
+      excludeBody.clear();
+      for (int i = 0; i < queryArray.size(); i++) {
+        excludeQuery.add(queryArray.getString(i));
+      }
+      JsonArray bodyArray = jsonObject.getJsonArray("body.excludes", new JsonArray());
+      for (int i = 0; i < bodyArray.size(); i++) {
+        excludeBody.add(bodyArray.getString(i));
+      }
+      this.enabled = jsonObject.getBoolean("enable", false);
+    }
+
+  }
 }
