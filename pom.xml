@@ -14,7 +14,6 @@
         <module>core</module>
         <module>plugin</module>
         <module>redis</module>
-        <module>authentication</module>
         <module>appkey</module>
         <module>ratelimit</module>
         <module>standalone</module>
@@ -26,10 +25,10 @@
         <module>service-discovery-json</module>
         <module>service-discovery-zookeeper</module>
         <module>service-discovery-consul</module>        
-        <module>scope</module>
 		<module>api-file</module>
         <module>api-git</module>
         <module>auth</module>
+        <module>localcache</module>
     </modules>
 
     <properties>

@@ -63,7 +63,7 @@ public class AppKeyRestrictionFilter implements Filter {
 
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
-    if (!apiContext.variables().containsKey("client.appKey")) {
+    if (!apiContext.variables().containsKey("client_appKey")) {
       return false;
     }
     return !globalBlacklist.isEmpty()
@@ -81,7 +81,7 @@ public class AppKeyRestrictionFilter implements Filter {
       blacklist.addAll(plugin.blacklist());
       whitelist.addAll(plugin.whitelist());
     }
-    String appKey = (String) apiContext.variables().getOrDefault("client.appKey", "anonymous");
+    String appKey = (String) apiContext.variables().getOrDefault("client_appKey", "anonymous");
     //匹配到白名单则允许通过
     if (satisfyList(appKey, whitelist)) {
       completeFuture.complete(apiContext);

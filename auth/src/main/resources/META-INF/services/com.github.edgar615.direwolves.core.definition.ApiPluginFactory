@@ -1,2 +1,5 @@
-com.github.edgar615.direvolves.plugin.auth.TokenPluginFactory
 com.github.edgar615.direvolves.plugin.auth.PermissionPluginFactory
+com.github.edgar615.direvolves.plugin.auth.TokenPluginFactory
+com.github.edgar615.direvolves.plugin.auth.JwtPluginFactory
+com.github.edgar615.direvolves.plugin.auth.JwtBuildPluginFactory
+com.github.edgar615.direvolves.plugin.auth.UserLoaderPluginFactory

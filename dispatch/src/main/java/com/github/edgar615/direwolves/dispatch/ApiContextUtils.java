@@ -68,13 +68,13 @@ public class ApiContextUtils {
   private static Map<String, Object> getVariables(RoutingContext rc) {
     Map<String, Object> variables = new HashMap<>();
     HttpServerRequest req = rc.request();
-    variables.put("request.time", System.currentTimeMillis());
+    variables.put("request_time", System.currentTimeMillis());
 //    variables.put("request.scheme", req.scheme());
 //    variables.put("request.method", req.method().name());
 //    variables.put("request.query_string", req.query());
 //    variables.put("request.uri", req.uri());
-    variables.put("request.path", req.path());
-    variables.put("request.client_ip", getClientIp(req));
+    variables.put("request_path", req.path());
+    variables.put("request_clientIp", getClientIp(req));
     return variables;
   }
 

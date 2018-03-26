@@ -14,20 +14,14 @@ import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * AppKey的校验.
@@ -121,6 +115,7 @@ public class AppKeyFilter implements Filter {
 
   private final Vertx vertx;
 
+<<<<<<< HEAD
   private final int port;
 
   private final String path;
@@ -128,6 +123,9 @@ public class AppKeyFilter implements Filter {
   private final boolean httpLoaderEnabled;
 
   private final Map<String, JsonObject> localAppKeys = new HashMap<>();
+=======
+  private final AppKeyFinder appKeyFinder;
+>>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553
 
   AppKeyFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -141,16 +139,8 @@ public class AppKeyFilter implements Filter {
     optionalRule.add("MD5");
     commonParamRule.put("signMethod", Rule.optional(optionalRule));
     commonParamRule.put("sign", Rule.required());
-    JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
-    this.port = config.getInteger("port", Consts.DEFAULT_PORT);
-    if (appKeyConfig.getValue("path") instanceof String) {
-      this.httpLoaderEnabled = true;
-      this.path = appKeyConfig.getString("path", "/");
-    } else {
-      this.httpLoaderEnabled = false;
-      this.path = null;
-    }
 
+<<<<<<< HEAD
     JsonArray jsonArray = appKeyConfig.getJsonArray("data", new JsonArray());
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject jsonObject = appKeyConfig.getJsonArray("data").getJsonObject(i);
@@ -160,6 +150,12 @@ public class AppKeyFilter implements Filter {
         localAppKeys.put(appKey, jsonObject);
       }
     }
+=======
+    int port = config.getInteger("port", Consts.DEFAULT_PORT);
+    JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
+    appKeyConfig.put("port", port);
+    this.appKeyFinder = new AppKeyFinder(vertx, appKeyConfig);
+>>>>>>> 9c96061749ebb1a73c93001e5a82fef183477553
   }
 
   @Override
@@ -190,14 +186,17 @@ public class AppKeyFilter implements Filter {
       params.removeAll("body");
       params.put("body", apiContext.body().encode());
     }
-    load(appKey, ar -> {
+    appKeyFinder.find(appKey, ar -> {
       if (ar.failed()) {
-        failed(completeFuture, apiContext.id(), "AppKeyDenied", ar.cause());
+        SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
+                .set("details", "Non-existent AppKey:" + appKey);
+        failed(completeFuture, apiContext.id(), "AppKeyNonExistent", e);
         return;
       }
       JsonObject jsonObject = ar.result();
       checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, jsonObject);
     });
+
   }
 
   private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
@@ -208,14 +207,14 @@ public class AppKeyFilter implements Filter {
     if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
       SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
               .set("details", "Incorrect sign");
-      failed(completeFuture, apiContext.id(), "SignFailure", e);
+      failed(completeFuture, apiContext.id(), "SignIncorrect", e);
     } else {
-      apiContext.addVariable("client.appKey", app.getString("appKey", "anonymous"));
+      apiContext.addVariable("client_appKey", app.getString("appKey", "anonymous"));
       if (app.containsKey("appId")) {
-        apiContext.addVariable("client.appId", app.getValue("appId"));
+        apiContext.addVariable("client_appId", app.getValue("appId"));
       }
       if (app.containsKey("permissions")) {
-        apiContext.addVariable("client.permissions", app.getValue("permissions"));
+        apiContext.addVariable("client_permissions", app.getValue("permissions"));
       }
       completeFuture.complete(apiContext);
     }
@@ -256,40 +255,5 @@ public class AppKeyFilter implements Filter {
       }
     }
     return Joiner.on("&").join(query);
-  }
-
-  private void load(String appKey, Handler<AsyncResult<JsonObject>> handler) {
-    if (localAppKeys.containsKey(appKey)) {
-      handler.handle(Future.succeededFuture(localAppKeys.get(appKey)));
-      return;
-    }
-    if (httpLoaderEnabled) {
-      httpLoad(appKey, handler);
-      return;
-    }
-    SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
-            .set("details", "Undefined AppKey:" + appKey);
-    handler.handle(Future.failedFuture(e));
-  }
-
-  /**
-   * 调用认证服务验证token
-   *
-   * @param appKey
-   * @return
-   */
-  private void httpLoad(String appKey, Handler<AsyncResult<JsonObject>> completeHandler) {
-    vertx.createHttpClient().get(port, "127.0.0.1", path, response -> {
-      if (response.statusCode() >= 400) {
-        SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
-                .set("details", "Undefined AppKey:" + appKey);
-        completeHandler.handle(Future.failedFuture(e));
-      } else {
-        response.bodyHandler(body -> {
-          completeHandler.handle(Future.succeededFuture(body.toJsonObject()));
-        });
-      }
-    }).exceptionHandler(e -> completeHandler.handle(Future.failedFuture(e)))
-            .end(new JsonObject().put("appKey", appKey).encode());
   }
 }

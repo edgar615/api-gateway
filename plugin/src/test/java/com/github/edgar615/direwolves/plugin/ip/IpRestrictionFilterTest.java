@@ -72,7 +72,7 @@ public class IpRestrictionFilterTest {
 //    plugin.addBlacklist("10.4.7.15");
 //    plugin.addBlacklist("192.168.1.100");
 //    apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.client_ip", "86.10.1.1");
+    apiContext.addVariable("request.clientIp", "86.10.1.1");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -92,7 +92,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addWhitelist("10.4.7.15");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.client_ip", "86.10.2.100");
+    apiContext.addVariable("request.clientIp", "86.10.2.100");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -110,7 +110,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addBlacklist("192.168.1.100");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.client_ip", "10.4.7.15");
+    apiContext.addVariable("request.clientIp", "10.4.7.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -129,7 +129,7 @@ public class IpRestrictionFilterTest {
     IpRestriction plugin = (IpRestriction) ApiPlugin.create(IpRestriction.class.getSimpleName());
     plugin.addBlacklist("10.4.*.15");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.client_ip", "10.4.87.15");
+    apiContext.addVariable("request.clientIp", "10.4.87.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -149,7 +149,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addWhitelist("10.4.7.15");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.client_ip", "10.4.7.15");
+    apiContext.addVariable("request.clientIp", "10.4.7.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -167,7 +167,7 @@ public class IpRestrictionFilterTest {
     plugin.addBlacklist("10.4.7.15");
     plugin.addWhitelist("10.*.7.*");
     apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("request.client_ip", "10.4.7.15");
+    apiContext.addVariable("request.clientIp", "10.4.7.15");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();

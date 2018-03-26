@@ -60,7 +60,7 @@ public class AppKeyRestrictionFilterTest {
     ApiDefinition definition = ApiDefinition
             .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
-    apiContext.addVariable("client.appKey", "testGroup");
+    apiContext.addVariable("client_appKey", "testGroup");
 
     JsonObject config =  new JsonObject().put("blacklist", new JsonArray().add("guest"))
             .put("whitelist", new JsonArray().add("group1"));
@@ -77,7 +77,7 @@ public class AppKeyRestrictionFilterTest {
     AppKeyRestriction plugin =
             (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("testGroup");
-    apiContext.variables().remove("client.appKey");
+    apiContext.variables().remove("client_appKey");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -96,7 +96,7 @@ public class AppKeyRestrictionFilterTest {
 //            (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
 //    plugin.addBlacklist("testGroup");
 //    apiContext.apiDefinition().addPlugin(plugin);
-    apiContext.addVariable("client.appKey", "guest");
+    apiContext.addVariable("client_appKey", "guest");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -115,7 +115,7 @@ public class AppKeyRestrictionFilterTest {
     AppKeyRestriction plugin =
             (AppKeyRestriction) ApiPlugin.create(AppKeyRestriction.class.getSimpleName());
     plugin.addBlacklist("group1");
-    apiContext.addVariable("client.appKey", "group1");
+    apiContext.addVariable("client_appKey", "group1");
     apiContext.apiDefinition().addPlugin(plugin);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);

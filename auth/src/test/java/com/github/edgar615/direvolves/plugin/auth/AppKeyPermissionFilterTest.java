@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by edgar on 16-12-25.
@@ -64,7 +65,8 @@ public class AppKeyPermissionFilterTest {
   @Test
   public void invalidAppShouldThrowNoAuthority(TestContext testContext) {
     ApiContext apiContext = createContext();
-    apiContext.addVariable("client.permissions", "user.write, device.wirte");
+    apiContext.addVariable("client_appKey", UUID.randomUUID().toString());
+    apiContext.addVariable("client_permissions", "user.write, device.wirte");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -81,7 +83,8 @@ public class AppKeyPermissionFilterTest {
   @Test
   public void validAppShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
-    apiContext.addVariable("client.permissions", "user.read, device.wirte");
+    apiContext.addVariable("client_appKey", UUID.randomUUID().toString());
+    apiContext.addVariable("client_permissions", "user.read, device.wirte");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -95,7 +98,8 @@ public class AppKeyPermissionFilterTest {
   @Test
   public void allPermissionShouldPass(TestContext testContext) {
     ApiContext apiContext = createContext();
-    apiContext.addVariable("client.permissions", "all");
+    apiContext.addVariable("client_appKey", UUID.randomUUID().toString());
+    apiContext.addVariable("client_permissions", "all");
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();

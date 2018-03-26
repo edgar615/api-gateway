@@ -26,7 +26,7 @@ import java.util.List;
 public class TokenFilter implements Filter {
   private static final String AUTH_HEADER = "Authorization";
 
-  private static final String AUTH_PREFIX = "Bearer ";
+  private static final String HEADER_PREFIX = "Bearer ";
 
   private final Vertx vertx;
 
@@ -43,7 +43,7 @@ public class TokenFilter implements Filter {
     JsonObject tokenConfig = config.getJsonObject("token", new JsonObject());
     this.port = config.getInteger("port", Consts.DEFAULT_PORT);
     this.path = tokenConfig.getString("path", "/");
-    this.prefix = tokenConfig.getString("prefix", AUTH_PREFIX);
+    this.prefix = tokenConfig.getString("prefix", HEADER_PREFIX);
     this.headerName = tokenConfig.getString("headerName", AUTH_HEADER);
   }
 
@@ -60,7 +60,8 @@ public class TokenFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition()
-                   .plugin(TokenPlugin.class.getSimpleName()) != null;
+                   .plugin(TokenPlugin.class.getSimpleName()) != null
+            && apiContext.principal() == null;
   }
 
   @Override
@@ -94,12 +95,14 @@ public class TokenFilter implements Filter {
         return authorization.substring(prefix.length()).trim();
       } else {
         throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
-                .set("details", "The format of the token: Authorization:Bearer <token>");
+                .set("details", String.format("The format of the token: %s:%s<token>",
+                                              headerName, prefix));
       }
     }
     throw SystemException.create(DefaultErrorCode.INVALID_REQ)
-            .set("details", "Miss rquest header: Authorization");
+            .set("details", "Miss rquest header: " + headerName);
   }
+
 
 
   /**

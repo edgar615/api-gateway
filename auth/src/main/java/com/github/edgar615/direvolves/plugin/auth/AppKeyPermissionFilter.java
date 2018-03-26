@@ -12,6 +12,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class AppKeyPermissionFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition().plugin(PermissionPlugin.class.getSimpleName()) != null
-           && apiContext.variables().containsKey("client.appKey");
+           && apiContext.variables().containsKey("client_appKey");
   }
 
   @Override
@@ -66,39 +67,35 @@ public class AppKeyPermissionFilter implements Filter {
             .plugin(PermissionPlugin.class.getSimpleName());
     String permission = plugin.permission();
 
-    String appKey = (String) apiContext.variables().get("client.appKey");
-    permissionCheck(appKey, permission, ar -> {
-      if (ar.succeeded()) {
-        Log.create(LOGGER)
-                .setTraceId(apiContext.id())
-                .setEvent("ClientPermissionAdmitted")
-                .info();
-        completeFuture.complete(apiContext);
-      } else {
-        SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-                .setDetails( "The appKey does not have permission");
-        failed(completeFuture, apiContext.id(), "AppKeyPermissionDenied", ex);
-      }
-    });
+    Set<String> permissions = new HashSet<>();
+    Object clientPermissions = apiContext.variables().get("client_permissions");
+    if (clientPermissions instanceof String) {
+      permissions.addAll(Splitter.on(",")
+                                 .omitEmptyStrings().trimResults()
+                                 .splitToList((String) clientPermissions));
+    }
+    if (clientPermissions instanceof JsonArray) {
+      JsonArray jsonArray = (JsonArray) clientPermissions;
+      jsonArray.forEach(o -> {
+        if (o instanceof String) {
+          permissions.add((String) o);
+        }
+      });
+    }
+    if (permissions.contains("all") || permissions.contains(permission)) {
+      Log.create(LOGGER)
+              .setTraceId(apiContext.id())
+              .setEvent("ClientPermissionAdmitted")
+              .info();
+      completeFuture.complete(apiContext);
+    } else {
+      SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+              .setDetails( "The appKey does not have permission")
+              .set("ClientPermissions", permissions)
+              .set("permission", permission);
+      failed(completeFuture, apiContext.id(), "AppKeyPermissionDenied", ex);
+    }
 
   }
 
-  /**
-   * 调用认证服务验证调用方权限
-   *
-   * @param appKey
-   * @param permission
-   * @return
-   */
-  private void permissionCheck(String appKey, String permission,
-                               Handler<AsyncResult<Boolean>> completeHandler) {
-    vertx.createHttpClient().get(port, "127.0.0.1", path, response -> {
-      if (response.statusCode() >= 400) {
-        completeHandler.handle(Future.succeededFuture(false));
-      } else {
-        completeHandler.handle(Future.succeededFuture(true));
-      }
-    }).exceptionHandler(e ->  completeHandler.handle(Future.succeededFuture(false)))
-            .end(new JsonObject().put("appKey", appKey).put("permission", permission).encode());
-  }
 }
