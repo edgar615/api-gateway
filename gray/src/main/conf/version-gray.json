@@ -1,82 +1,107 @@
-{
-  "gray" : {
-    "/user/get" : {
-      "policy" : "ip-range",
-      "traffic" : [
+[
+  {
+    "name": "用来理解切流的逻辑",
+    "api": {
+      "method": "GET",
+      "path": "/ping"
+    },
+    "splitter": {
+      "policy": "ip-range",
+      "traffic": [
         {
-          "start" : 0,
-          "end" : 10,
+          "start": 0,
+          "end": 10,
           "version": "20171108"
         },
         {
-          "start" : 11,
-          "end" : 20,
+          "start": 11,
+          "end": 20,
           "version": "20171108"
         }
       ]
+    }
+  },
+  {
+    "name": "用来理解切流的逻辑",
+    "api": {
+      "method": "GET",
+      "path": "/ping"
     },
-    "user2" : {
-      "policy" : "ip-hash",
-      "traffic" : [
+    "splitter": {
+      "policy": "ip-hash",
+      "traffic": [
         {
-          "start" : 0,
-          "end" : 10,
+          "start": 0,
+          "end": 10,
           "version": "20171108"
         },
         {
-          "start" : 11,
-          "end" : 20,
+          "start": 11,
+          "end": 20,
           "version": "20171108"
         }
       ]
+    }
+  },
+  {
+    "name": "用来理解切流的逻辑",
+    "api" : {
+      "method": "GET",
+      "path": "/ping"
     },
-    "user3" : {
+    "splitter": {
       "policy" : "ip-appoint",
       "traffic" : [
         {
           "appoint" : [],
           "version": "20171108"
-        }
-      ]
-    },
-    "device1" : {
-      "policy" : "user-range",
-      "traffic" : [
-        {
-          "start" : 0,
-          "end" : 10,
-          "version": "20171108"
         },
-        {
-          "start" : 11,
-          "end" : 20,
-          "version": "20171108"
-        }
-      ]
-    },
-    "device2" : {
-      "policy" : "user-hash",
-      "traffic" : [
-        {
-          "start" : 0,
-          "end" : 10,
-          "version": "20171108"
-        },
-        {
-          "start" : 11,
-          "end" : 20,
-          "version": "20171108"
-        }
-      ]
-    },
-    "device3" : {
-      "policy" : "user-appoint",
-      "traffic" : [
         {
           "appoint" : [],
           "version": "20171108"
         }
       ]
+    },
+    "gray" : {
+      "device1" : {
+        "policy" : "user-range",
+        "traffic" : [
+          {
+            "start" : 0,
+            "end" : 10,
+            "version": "20171108"
+          },
+          {
+            "start" : 11,
+            "end" : 20,
+            "version": "20171108"
+          }
+        ]
+      },
+      "device2" : {
+        "policy" : "user-hash",
+        "traffic" : [
+          {
+            "start" : 0,
+            "end" : 10,
+            "version": "20171108"
+          },
+          {
+            "start" : 11,
+            "end" : 20,
+            "version": "20171108"
+          }
+        ]
+      },
+      "device3" : {
+        "policy" : "user-appoint",
+        "traffic" : [
+          {
+            "appoint" : [],
+            "version": "20171108"
+          }
+        ]
+      }
     }
   }
-}
+]
