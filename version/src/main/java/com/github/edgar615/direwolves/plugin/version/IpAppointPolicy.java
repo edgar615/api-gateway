@@ -1,4 +1,4 @@
-package com.github.edgar615.direvolves.plugin.gray;
+package com.github.edgar615.direwolves.plugin.version;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -19,11 +19,11 @@ public class IpAppointPolicy implements IpSplitPolicy {
   private final List<String> ipList = new ArrayList<>();
 
   /**
-   * 新服务名
+   * 版本号
    */
-  private final String service;
+  private final String version;
 
-  public IpAppointPolicy(String service) {this.service = service;}
+  public IpAppointPolicy(String version) {this.version = version;}
 
   public IpAppointPolicy addIp(String ip) {
     this.ipList.add(ip);
@@ -35,13 +35,8 @@ public class IpAppointPolicy implements IpSplitPolicy {
   }
 
   @Override
-  public int order() {
-    return 0;
-  }
-
-  @Override
-  public String service() {
-    return service;
+  public String version() {
+    return version;
   }
 
   @Override

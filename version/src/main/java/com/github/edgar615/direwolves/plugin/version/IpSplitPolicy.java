@@ -1,4 +1,4 @@
-package com.github.edgar615.direvolves.plugin.gray;
+package com.github.edgar615.direwolves.plugin.version;
 
 /**
  * Created by Edgar on 2018/2/10.
@@ -7,9 +7,7 @@ package com.github.edgar615.direvolves.plugin.gray;
  */
 public interface IpSplitPolicy {
 
-  int order();
-
-  String service();
+  String version();
 
   boolean satisfy(String ip);
 }

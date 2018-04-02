@@ -7,6 +7,7 @@
     },
     "splitter": {
       "policy": "ip-range",
+      "priority": 1,
       "traffic": [
         {
           "start": 0,
