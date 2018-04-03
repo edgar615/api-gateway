@@ -15,6 +15,7 @@ import java.util.function.Function;
  *
  * @author Edgar  Date 2017/7/28
  */
+@Deprecated
 class ServiceProviderImpl implements ServiceProvider {
 
   private final List<ServiceFilter> filters = new ArrayList<>();
