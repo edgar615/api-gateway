@@ -8,9 +8,9 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/7/13
  */
 public class ApiDiscoveryOptions {
-  public static final String DEFAULT_PUBLISHED_ADDRESS = "direwolves.api.published";
+  public static final String DEFAULT_PUBLISHED_ADDRESS = "__com.github.edgar615.direwolves.api.published";
 
-  public static final String DEFAULT_UNPUBLISHED_ADDRESS = "direwolves.api.unpublished";
+  public static final String DEFAULT_UNPUBLISHED_ADDRESS = "__com.github.edgar615.direwolves.api.unpublished";
 
   private String name;
 

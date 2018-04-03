@@ -29,9 +29,9 @@ public class ApiGitVerticle extends AbstractVerticle {
   private final static Logger LOGGER
           = LoggerFactory.getLogger(ApiGitVerticle.class);
 
-  private static final String RELOAD_ADDR_PREFIX = "api.discovery.reload.";
+  private static final String RELOAD_ADDR_PREFIX = "__com.github.edgar615.direwolves.api.discovery.reload.";
 
-  private static final String GIT_ADDR_PREFIX = "api.discovery.git.";
+  private static final String GIT_ADDR_PREFIX = "__com.github.edgar615.direwolves.api.discovery.git.";
 
   private static final String WEBHOOK_ADDR_PREFIX = "api.discovery.webhook.";
 

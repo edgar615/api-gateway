@@ -11,8 +11,8 @@
   },
   "api.discovery" : {
     "name" : "example",
-    "publishedAddress" : "direwolves.api.published",
-    "unpublishedAddress" : "direwolves.api.unpublished"
+    "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
+    "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
   },
   "service.discovery" : {
     "announceAddress": "vertx.discovery.announce",

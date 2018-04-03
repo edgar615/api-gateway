@@ -11,7 +11,7 @@ import io.vertx.core.json.JsonObject;
 public class CircuitBreakerRegistryOptions extends CircuitBreakerOptions {
   private static final long DEFAULT_CACHE_EXPIRES = 24 * 3600;
 
-  private static final String DEFAULT_ANNOUNCE = "circuitbreaker.announce";
+  private static final String DEFAULT_ANNOUNCE = "__com.github.edgar615.direwolves.circuitbreaker.announce";
 
   private String announce = DEFAULT_ANNOUNCE;
 
@@ -31,7 +31,7 @@ public class CircuitBreakerRegistryOptions extends CircuitBreakerOptions {
    * resetTimeout：断路器打开之后等待resetTimeout毫秒之后切换到半开状态，默认30秒
    * <p>
    * cacheExpires：断路器缓存时间，单位秒，默认24小时
-   * stateAnnounce：广播地址，断路器状态变化后的会向这个地址发送广播.，默认：circuitbreaker.announce
+   * stateAnnounce：广播地址，断路器状态变化后的会向这个地址发送广播.，默认：__com.github.edgar615.direwolves.circuitbreaker.announce
    *
    * @param json 断路器的配置
    * @return

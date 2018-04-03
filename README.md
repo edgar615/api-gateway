@@ -217,8 +217,8 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 {
   "api.discovery" : {
     "name" : "iotp-app",
-    "publishedAddress" : "direwolves.api.published",
-    "unpublishedAddress" : "direwolves.api.unpublished"
+    "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
+    "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
   },
   "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend",
   "watch" : true
@@ -230,7 +230,7 @@ API定义存放的路径
 是否监控path目录下文件的变化，如果开启，文件的任何变化都会引起对应ApiDiscovery的重新加载
 .**因为API的名称是写在文件中的，所以文件变化的时候，并不知道是变化的是哪个API，除非强制API名称就是文件名**
 
-FileApiDiscoveryVerticle订阅`api.discovery.reload.<网关名>`事件，在接收到这个事件后会重新加载ApiDiscovery
+FileApiDiscoveryVerticle订阅`__com.github.edgar615.direwolves.api.discovery.reload.<网关名>`事件，在接收到这个事件后会重新加载ApiDiscovery
 文件监听功能就是通过发送这个事件来实现的API刷新，我们也可以配置一个API路由来实现手动刷新
 ```
 {
@@ -243,7 +243,7 @@ FileApiDiscoveryVerticle订阅`api.discovery.reload.<网关名>`事件，在接�
       "policy": "point-point",
       "name": "reload.api",
       "type": "eventbus",
-      "address" : "api.discovery.reload.example"
+      "address" : "__com.github.edgar615.direwolves.api.discovery.reload.example"
     }
   ]
 }
@@ -268,7 +268,7 @@ FileApiDiscoveryVerticle订阅`api.discovery.reload.<网关名>`事件，在接�
 - path 本地clone的目录
 - name API网关的名称
 
-ApiGitVerticle订阅`api.discovery.git.<网关名>`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
+ApiGitVerticle订阅`__com.github.edgar615.direwolves.api.discovery.git.<网关名>`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
 ```
 {
   "name": "api.git.1.0.0",
@@ -280,7 +280,7 @@ ApiGitVerticle订阅`api.discovery.git.<网关名>`事件，在接收到这个�
       "policy": "point-point",
       "name": "git.api",
       "type": "eventbus",
-      "address" : "api.discovery.git.example"
+      "address" : "__com.github.edgar615.direwolves.api.discovery.git.example"
     }
   ]
 }

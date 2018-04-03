@@ -8,6 +8,6 @@
     "notificationPeriod": 2000,
     "notificationAddress": "vertx.circuit-breaker",
     "cacheExpires": 3600,
-    "stateAnnounce": "circuitbreaker.announce"
+    "stateAnnounce": "__com.github.edgar615.direwolves.circuitbreaker.announce"
   }
 }

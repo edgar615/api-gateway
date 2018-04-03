@@ -51,7 +51,7 @@ public class ServiceDiscoveryFilter implements Filter {
     //监听断路器变化，更新服务节点的断路器状态
     JsonObject circuitConfig = config.getJsonObject("circuit.breaker", new JsonObject());
     String stateAnnounce =
-            circuitConfig.getString("stateAnnounce", "circuitbreaker.announce");
+            circuitConfig.getString("stateAnnounce", "__com.github.edgar615.direwolves.circuitbreaker.announce");
     vertx.eventBus().<JsonObject>consumer(stateAnnounce, msg -> {
       JsonObject jsonObject = msg.body();
       String serverId = jsonObject.getString("name");

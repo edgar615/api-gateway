@@ -21,7 +21,7 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileApiDiscoveryVerticle.class);
 
-  private static final String RELOAD_ADDR_PREFIX = "api.discovery.reload.";
+  private static final String RELOAD_ADDR_PREFIX = "__com.github.edgar615.direwolves.api.discovery.reload.";
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
