@@ -13,13 +13,6 @@ import io.vertx.redis.RedisClient;
  */
 public class RedisCacheFactory implements CacheFactory {
 
-  private static final String TYPE = "redis";
-
-  @Override
-  public String type() {
-    return TYPE;
-  }
-
   @Override
   public Cache<String, JsonObject> create(Vertx vertx, String cacheName, CacheOptions options) {
     //RedisVerticle 要先部署

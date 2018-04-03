@@ -110,6 +110,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
             .doFilter(task, postFilters, apiContext -> {
               if (apiContext.apiDefinition() != null) {
                 rc.data().put("apiName", apiContext.apiDefinition().name());
+              } else {
+                System.out.println(postFilters);
               }
             });
   }

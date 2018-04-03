@@ -65,6 +65,7 @@ public class ApiMatchFilter implements Filter {
       try {
         List<ApiDefinition> apiDefinitions = ar.result();
         ApiDefinition apiDefinition = matchApi(apiDefinitions);
+        System.out.println(apiContext.setApiDefinition(apiDefinition));
         completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
         return;
       } catch (SystemException e) {

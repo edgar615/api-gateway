@@ -82,7 +82,7 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-authentication</artifactId>
+            <artifactId>direwolves-auth</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -94,7 +94,7 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-gray</artifactId>
+            <artifactId>direwolves-service-splitter</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

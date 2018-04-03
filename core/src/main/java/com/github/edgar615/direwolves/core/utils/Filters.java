@@ -73,10 +73,9 @@ public class Filters {
                                           Consumer<ApiContext> consumer) {
     Map<String, Boolean> invoked = new ConcurrentHashMap<>();
     //andThen中使用shouldFilter判断是否输出invoked日志会出现判断错误，所有使用一个bool来判断，需要在flatMap中动态修改
-    Task<ApiContext> resultTask = null;
     for (Filter filter : filters) {
       String filterName = filter.getClass().getSimpleName();
-      resultTask = task.flatMap(filterName, apiContext -> {
+      task = task.flatMap(filterName, apiContext -> {
         if (filter.shouldFilter(apiContext)) {
           invoked.put(filterName, true);
           Log.create(Filter.LOGGER)
@@ -113,6 +112,6 @@ public class Filters {
         }
       });
     }
-    return resultTask ==null ? task : resultTask;
+    return task;
   }
 }
