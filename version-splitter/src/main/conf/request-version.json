@@ -1,0 +1,13 @@
+[
+  {
+    "name": "直接由调用方指定x-api-version",
+    "api": {
+      "method": "GET",
+      "path": "/ping"
+    },
+    "version.splitter": {
+      "policy": "request-version",
+      "unSatisfyStrategy": "floor"
+    }
+  }
+]

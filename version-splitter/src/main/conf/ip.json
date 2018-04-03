@@ -1,0 +1,32 @@
+[
+  {
+    "name": "指定特定的IP",
+    "api": {
+      "method": "GET",
+      "path": "/ping"
+    },
+    "version.splitter": {
+      "policy": "ip-appoint",
+      "unSatisfyStrategy": "floor",
+      "traffic": [
+        {
+          "type": "ip-appoint",
+          "appoint" : [],
+          "version": "20171108"
+        },
+        {
+          "type": "ip-hash",
+          "start": 0,
+          "end": 10,
+          "version": "20171108"
+        },
+        {
+          "type": "ip-range",
+          "start": 0,
+          "end": 10,
+          "version": "20171108"
+        }
+      ]
+    }
+  }
+]
