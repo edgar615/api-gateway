@@ -15,8 +15,6 @@ import java.util.Map;
  */
 public class GrayFilter implements Filter {
 
-  private List<ServiceSplitter> serviceSplitters = new ArrayList<>();
-
   @Override
   public String type() {
     return PRE;

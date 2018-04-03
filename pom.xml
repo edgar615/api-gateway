@@ -21,7 +21,7 @@
         <module>benchmark</module>
         <module>http</module>
         <module>circuit-breaker</module>
-        <module>gray</module>
+        <module>service-splitter</module>
         <module>service-discovery-json</module>
         <module>service-discovery-zookeeper</module>
         <module>service-discovery-consul</module>        
