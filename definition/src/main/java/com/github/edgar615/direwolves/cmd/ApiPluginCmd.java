@@ -4,11 +4,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.cmd.ApiCmd;
 import com.github.edgar615.direwolves.core.cmd.ApiSubCmd;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.validation.Rule;

@@ -5,13 +5,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.definition.DummyEndpoint;
 import com.github.edgar615.direwolves.core.definition.Endpoint;
-import com.github.edgar615.direwolves.core.definition.EventbusEndpoint;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.direwolves.core.rpc.dummy.DummyRequest;
 import com.github.edgar615.direwolves.core.utils.Filters;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Vertx;

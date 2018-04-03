@@ -1,6 +1,5 @@
 package com.github.edgar615.direwolves.mgr;
 
-import com.github.edgar615.direwolves.standalone.Api;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;

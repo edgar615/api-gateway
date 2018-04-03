@@ -1,8 +1,8 @@
 package com.github.edgar615.dirwolves.benchmark.apidiscovery;
 
+import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;

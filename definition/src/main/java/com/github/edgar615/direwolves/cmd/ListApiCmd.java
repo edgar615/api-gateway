@@ -3,10 +3,10 @@ package com.github.edgar615.direwolves.cmd;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.cmd.ApiCmd;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.util.validation.Rule;
 import com.github.edgar615.util.validation.Validations;
 import com.github.edgar615.util.vertx.JsonUtils;

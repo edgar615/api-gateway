@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.circuitbreaker;
 
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 
 /**
  * 断路器的注册表.

@@ -9,7 +9,6 @@ import com.github.edgar615.direwolves.core.definition.HttpEndpoint;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.util.base.Randoms;
-import com.github.edgar615.util.validation.Rule;
 import io.vertx.core.http.HttpMethod;
 import org.openjdk.jmh.annotations.*;
 

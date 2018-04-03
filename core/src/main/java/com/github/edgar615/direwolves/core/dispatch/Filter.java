@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.core.dispatch;
 
 import com.google.common.collect.ImmutableList;
 
-import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.test.apifinder;
 
 import com.github.edgar615.util.base.Randoms;
-import com.github.edgar615.util.exception.DefaultErrorCode;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;

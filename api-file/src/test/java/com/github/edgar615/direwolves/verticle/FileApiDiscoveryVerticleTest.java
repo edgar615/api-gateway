@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.verticle;
 
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
-import com.github.edgar615.direwolves.core.apidiscovery.ApiImporter;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -13,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 

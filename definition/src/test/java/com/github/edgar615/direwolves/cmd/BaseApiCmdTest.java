@@ -1,8 +1,8 @@
 package com.github.edgar615.direwolves.cmd;
 
+import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.cmd.CmdRegister;
-import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;

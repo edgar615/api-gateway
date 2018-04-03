@@ -6,7 +6,6 @@ import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
-import com.github.edgar615.direwolves.http.loadbalance.ChooseStrategy;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceOptions;
 import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;

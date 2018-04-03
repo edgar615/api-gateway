@@ -8,7 +8,6 @@ import com.github.edgar615.direwolves.core.utils.LogType;
 import com.github.edgar615.util.vertx.spi.Initializable;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;

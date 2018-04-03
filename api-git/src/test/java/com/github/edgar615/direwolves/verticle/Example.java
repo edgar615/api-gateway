@@ -1,6 +1,5 @@
 package com.github.edgar615.direwolves.verticle;
 
-import com.github.edgar615.util.vertx.deployment.MainVerticle;
 import io.vertx.core.Launcher;
 
 /**

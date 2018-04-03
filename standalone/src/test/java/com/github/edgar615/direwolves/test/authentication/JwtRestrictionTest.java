@@ -1,6 +1,5 @@
 package com.github.edgar615.direwolves.test.authentication;
 
-import com.github.edgar615.util.base.Randoms;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

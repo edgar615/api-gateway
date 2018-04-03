@@ -1,7 +1,5 @@
 package com.github.edgar615.direwolves.plugin.appkey;
 
-import com.google.common.base.Strings;
-
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.vertx.cache.CacheLoader;

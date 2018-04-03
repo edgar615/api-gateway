@@ -6,8 +6,6 @@ import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.UUID;
-
 /**
  * Created by Edgar on 2016/9/13.
  *

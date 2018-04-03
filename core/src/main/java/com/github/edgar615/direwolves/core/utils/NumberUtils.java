@@ -1,9 +1,5 @@
 package com.github.edgar615.direwolves.core.utils;
 
-import com.google.common.base.Strings;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
-
 /**
  * Created by Edgar on 2018/1/31.
  *

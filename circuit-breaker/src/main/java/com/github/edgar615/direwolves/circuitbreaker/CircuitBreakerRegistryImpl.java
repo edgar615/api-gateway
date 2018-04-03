@@ -3,11 +3,8 @@ package com.github.edgar615.direwolves.circuitbreaker;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 
 import com.github.edgar615.direwolves.core.utils.Log;
-import com.github.edgar615.direwolves.core.utils.LogType;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Vertx;

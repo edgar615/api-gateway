@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.core.utils;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 
@@ -10,8 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**

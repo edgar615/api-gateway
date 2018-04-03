@@ -3,7 +3,6 @@ package com.github.edgar615.direvolves.plugin.auth;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.dispatch.Result;
-import com.github.edgar615.direwolves.core.utils.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;

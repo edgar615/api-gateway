@@ -2,7 +2,6 @@ package com.github.edgar615.direwolves.http.loadbalance;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonObject;
 import io.vertx.servicediscovery.Record;
 
 /**

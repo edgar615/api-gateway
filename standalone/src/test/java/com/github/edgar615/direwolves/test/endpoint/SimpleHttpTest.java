@@ -1,7 +1,6 @@
 package com.github.edgar615.direwolves.test.endpoint;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.awaitility.Awaitility;

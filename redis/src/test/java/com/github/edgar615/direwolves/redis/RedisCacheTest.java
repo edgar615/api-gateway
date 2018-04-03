@@ -1,22 +1,21 @@
 package com.github.edgar615.direwolves.redis;
 
 import com.github.edgar615.util.vertx.cache.Cache;
-import com.github.edgar615.util.vertx.cache.CacheLoader;
 import com.github.edgar615.util.vertx.cache.CacheOptions;
 import com.github.edgar615.util.vertx.redis.RedisClientHelper;
-import io.vertx.core.*;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.redis.RedisClient;
 import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**

@@ -2,9 +2,9 @@ package com.github.edgar615.direwolves.verticle;
 
 import com.google.common.collect.Lists;
 
+import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.util.base.Randoms;
 import com.github.edgar615.util.exception.DefaultErrorCode;

@@ -1,6 +1,5 @@
 package com.github.edgar615.direwolves.core.definition;
 
-import com.github.edgar615.direwolves.core.utils.Log;
 import org.junit.Assert;
 import org.junit.Test;
 

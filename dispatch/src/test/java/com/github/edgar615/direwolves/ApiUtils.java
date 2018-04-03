@@ -2,8 +2,8 @@ package com.github.edgar615.direwolves;
 
 import com.google.common.collect.Lists;
 
-import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
+import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.direwolves.core.definition.Endpoint;
 import com.github.edgar615.direwolves.core.definition.SimpleHttpEndpoint;
 import io.vertx.core.http.HttpMethod;
