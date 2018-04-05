@@ -6,10 +6,7 @@ import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
-import com.github.edgar615.direwolves.http.loadbalance.LoadBalance;
-import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceOptions;
-import com.github.edgar615.direwolves.http.loadbalance.LoadBalanceStats;
-import com.github.edgar615.direwolves.http.loadbalance.ServiceFinder;
+import com.github.edgar615.direwolves.http.loadbalance.*;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -20,6 +17,7 @@ import io.vertx.servicediscovery.ServiceDiscoveryOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +35,9 @@ public class ServiceDiscoveryFilter implements Filter {
   private final Vertx vertx;
 
   private final LoadBalance loadBalance;
+
+  private final ServiceFilter circuitBreakerFilter = r ->
+          !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped();
 
   ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
@@ -113,7 +114,9 @@ public class ServiceDiscoveryFilter implements Filter {
 
   private Future<Record> serviceFuture(String traceId, String service) {
     Future<Record> future = Future.future();
-    loadBalance.chooseServer(service, ar -> {
+    List<ServiceFilter> serviceFilters = new ArrayList<>();
+    serviceFilters.add(circuitBreakerFilter);
+    loadBalance.chooseServer(service, serviceFilters, ar -> {
       if (ar.failed() || ar.result() == null) {
         Log.create(LOGGER)
                 .setTraceId(traceId)

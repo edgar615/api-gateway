@@ -9,6 +9,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.servicediscovery.Record;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
@@ -31,21 +33,12 @@ class LoadBalanceImpl implements LoadBalance {
    */
   private ServiceFinder serviceFinder;
 
-  private LoadingCache<String, ServiceProvider> providerCache;
-
   private LoadingCache<String,ChooseStrategy> strategyCache;
 
   LoadBalanceImpl(ServiceFinder serviceFinder, LoadBalanceOptions options) {
     this.serviceFinder = serviceFinder;
     this.stats = LoadBalanceStats.instance();
     this.options = options;
-    this.providerCache = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, ServiceProvider>() {
-              @Override
-              public ServiceProvider load(String service) throws Exception {
-                return createProvider(service);
-              }
-            });
 
     this.strategyCache = CacheBuilder.newBuilder()
             .build(new CacheLoader<String, ChooseStrategy>() {
@@ -58,11 +51,15 @@ class LoadBalanceImpl implements LoadBalance {
 
   @Override
   public void chooseServer(String service, Handler<AsyncResult<Record>> resultHandler) {
-//    getProvider(service).choose(resultHandler);
-//    Function<Record, Boolean> accept = r -> r.getName().equals(service)
-//            && filters.stream().allMatch(f -> f.apply(r));
+      chooseServer(service, new ArrayList<>(), resultHandler);
+  }
+
+  @Override
+  public void chooseServer(String service, List<ServiceFilter> filters, Handler<AsyncResult<Record>> resultHandler) {
+        Function<Record, Boolean> accept = r -> r.getName().equals(service)
+            && filters.stream().allMatch(f -> f.apply(r));
     ChooseStrategy strategy = getStrategy(service);
-    serviceFinder.getRecords(r -> true, ar -> {
+    serviceFinder.getRecords(accept, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
         return;
@@ -80,13 +77,6 @@ class LoadBalanceImpl implements LoadBalance {
     });
   }
 
-  private ServiceProvider createProvider(String service) {
-    ChooseStrategy strategy = options.getStrategies().getOrDefault(service, ChooseStrategy.roundRobin());
-    return new ServiceProviderImpl(serviceFinder, service)
-            .withStrategy(strategy)
-            .addFilter(r -> !stats.get(r.getRegistration()).isCircuitBreakerTripped());
-  }
-
 
   private ChooseStrategy createStrategy(String service) {
     return options.getStrategies().getOrDefault(service, ChooseStrategy.roundRobin());
@@ -99,16 +89,6 @@ class LoadBalanceImpl implements LoadBalance {
       ChooseStrategy strategy = createStrategy(service);
       strategyCache.asMap().putIfAbsent(service, strategy);
       return strategyCache.asMap().get(service);
-    }
-  }
-
-  private ServiceProvider getProvider(String service) {
-    try {
-      return providerCache.get(service);
-    } catch (ExecutionException e) {
-      ServiceProvider provider = createProvider(service);
-      providerCache.asMap().putIfAbsent(service, provider);
-      return providerCache.asMap().get(service);
     }
   }
 }

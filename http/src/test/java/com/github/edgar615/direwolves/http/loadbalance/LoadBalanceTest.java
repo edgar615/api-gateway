@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Edgar  Date 2017/7/31
  */
-public class ServiceProviderTest {
+public class LoadBalanceTest {
 
   private Vertx vertx;
 
@@ -30,9 +31,11 @@ public class ServiceProviderTest {
 
   private ServiceDiscovery discovery;
 
-  private ServiceProvider provider;
+  private LoadBalance loadBalance;
 
   private String service;
+
+  private  List<ServiceFilter> serviceFilters;
 
   @Before
   public void setUp() {
@@ -45,11 +48,14 @@ public class ServiceProviderTest {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+
+    serviceFilters = new ArrayList<>();
+    serviceFilters.add(r -> !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped());
   }
 
   @Test
   public void testDefault() {
-    provider = ServiceProvider.create(serviceFinder, service);
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions());
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
 
@@ -79,8 +85,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testRandom() {
-    provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.random());
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions().addStrategy(service, ChooseStrategy.random()));
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
@@ -110,9 +115,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testRoundRobin() {
-    provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.roundRobin());
-
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions().addStrategy(service, ChooseStrategy.roundRobin()));
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
 
@@ -142,8 +145,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testSticky() {
-    provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.sticky(ChooseStrategy.random()));
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions().addStrategy(service, ChooseStrategy.sticky(ChooseStrategy.random())));
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
@@ -170,8 +172,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testWeightEquilibrium() {
-    provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.weightRoundRobin());
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions().addStrategy(service, ChooseStrategy.weightRoundRobin()));
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
@@ -203,8 +204,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testWeightDisequilibrium() {
-    provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.weightRoundRobin());
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions().addStrategy(service, ChooseStrategy.weightRoundRobin()));
 
     AtomicInteger seq = new AtomicInteger();
     addWeightService(seq);
@@ -243,10 +243,7 @@ public class ServiceProviderTest {
 
   @Test
   public void testCircuitBreakerTripped() {
-    provider = ServiceProvider.create(serviceFinder, service)
-            .withStrategy(ChooseStrategy.roundRobin())
-            .addFilter(r -> !LoadBalanceStats.instance().get(r.getRegistration())
-                    .isCircuitBreakerTripped());
+    loadBalance = LoadBalance.create(serviceFinder, new LoadBalanceOptions().addStrategy(service, ChooseStrategy.roundRobin()));
 
     AtomicInteger seq = new AtomicInteger();
     addService(seq);
@@ -291,7 +288,7 @@ public class ServiceProviderTest {
   private void select(int count, AtomicInteger seq, List<Integer> selected, List<String>
           selectedIds) {
     for (int i = 0; i < count; i++) {
-      provider.choose(ar -> {
+      loadBalance.chooseServer(service,serviceFilters, ar -> {
         if (ar.succeeded()) {
           int port = ar.result().getLocation().getInteger("port");
           selected.add(port);
@@ -308,7 +305,7 @@ public class ServiceProviderTest {
   private void selectSticky3000(AtomicInteger seq, List<Integer> selected, List<String>
           selectedIds) {
     for (int i = 0; i < 500; i++) {
-      provider.choose(ar -> {
+      loadBalance.chooseServer(service, serviceFilters, ar -> {
         if (ar.succeeded()) {
           selected.add(ar.result().getLocation().getInteger("port"));
           selectedIds.add(ar.result().getRegistration());
@@ -336,7 +333,7 @@ public class ServiceProviderTest {
     Awaitility.await().until(() -> unpublished.get());
 
     for (int i = 0; i < 1000; i++) {
-      provider.choose(ar -> {
+      loadBalance.chooseServer(service, ar -> {
         if (ar.succeeded()) {
           selected.add(ar.result().getLocation().getInteger("port"));
           selectedIds.add(ar.result().getRegistration());
@@ -355,7 +352,7 @@ public class ServiceProviderTest {
     Awaitility.await().until(() -> published.get());
 
     for (int i = 0; i < 1500; i++) {
-      provider.choose(ar -> {
+      loadBalance.chooseServer(service, ar -> {
         if (ar.succeeded()) {
           selected.add(ar.result().getLocation().getInteger("port"));
           selectedIds.add(ar.result().getRegistration());
@@ -370,28 +367,28 @@ public class ServiceProviderTest {
 
   private void addService(AtomicInteger seq) {
     discovery.publish(HttpEndpoint.createRecord(service, "localhost", 8081, "/"),
-                      ar -> seq.incrementAndGet());
+            ar -> seq.incrementAndGet());
     discovery.publish(HttpEndpoint.createRecord(service, "localhost", 8082, "/"),
-                      ar -> seq.incrementAndGet());
+            ar -> seq.incrementAndGet());
     discovery.publish(HttpEndpoint.createRecord(service, "localhost", 8083, "/"),
-                      ar -> seq.incrementAndGet());
+            ar -> seq.incrementAndGet());
   }
 
   private void addWeightService(AtomicInteger seq) {
     discovery.publish(HttpEndpoint.createRecord(service, "localhost", 8081, "/"),
-                      ar -> {
-                        LoadBalanceStats.instance().get(ar.result().getRegistration()).setWeight(5);
-                        seq.incrementAndGet();
-                      });
+            ar -> {
+              LoadBalanceStats.instance().get(ar.result().getRegistration()).setWeight(5);
+              seq.incrementAndGet();
+            });
     discovery.publish(HttpEndpoint.createRecord(service, "localhost", 8082, "/"),
-                      ar -> {
-                        LoadBalanceStats.instance().get(ar.result().getRegistration()).setWeight(1);
-                        seq.incrementAndGet();
-                      });
+            ar -> {
+              LoadBalanceStats.instance().get(ar.result().getRegistration()).setWeight(1);
+              seq.incrementAndGet();
+            });
     discovery.publish(HttpEndpoint.createRecord(service, "localhost", 8083, "/"),
-                      ar -> {
-                        LoadBalanceStats.instance().get(ar.result().getRegistration()).setWeight(1);
-                        seq.incrementAndGet();
-                      });
+            ar -> {
+              LoadBalanceStats.instance().get(ar.result().getRegistration()).setWeight(1);
+              seq.incrementAndGet();
+            });
   }
 }
