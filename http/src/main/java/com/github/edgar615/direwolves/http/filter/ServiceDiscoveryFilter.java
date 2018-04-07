@@ -7,6 +7,8 @@ import com.github.edgar615.direwolves.core.utils.Log;
 import com.github.edgar615.direwolves.http.SdHttpEndpoint;
 import com.github.edgar615.direwolves.http.SdHttpRequest;
 import com.github.edgar615.direwolves.http.loadbalance.*;
+import com.github.edgar615.direwolves.http.splitter.ServiceSplitterPlugin;
+import com.github.edgar615.direwolves.http.splitter.ServiceTraffic;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -91,7 +93,7 @@ public class ServiceDiscoveryFilter implements Filter {
                     .filter(e -> e instanceof SdHttpEndpoint)
                     .map(e -> ((SdHttpEndpoint) e).service())
                     .distinct()
-                    .map(r -> serviceFuture(apiContext.id(), r))
+                    .map(r -> serviceFuture(apiContext, r))
                     .filter(r -> r != null)
                     .collect(Collectors.toList());
 
@@ -112,14 +114,21 @@ public class ServiceDiscoveryFilter implements Filter {
   }
 
 
-  private Future<Record> serviceFuture(String traceId, String service) {
+  private Future<Record> serviceFuture(ApiContext apiContext, String service) {
     Future<Record> future = Future.future();
     List<ServiceFilter> serviceFilters = new ArrayList<>();
     serviceFilters.add(circuitBreakerFilter);
+    ServiceSplitterPlugin serviceSplitterPlugin = (ServiceSplitterPlugin) apiContext.apiDefinition().plugin(ServiceSplitterPlugin.class.getName());
+    if (serviceSplitterPlugin != null && serviceSplitterPlugin.traffic(service) != null) {
+      ServiceTraffic traffic = serviceSplitterPlugin.traffic(service);
+      String tag = traffic.decision(apiContext);
+      serviceFilters.add(r -> r.getMetadata().getJsonArray("ServiceTags").contains(tag));
+    }
+    //todo 处理tag未找到时，向默认服务转发的逻辑
     loadBalance.chooseServer(service, serviceFilters, ar -> {
       if (ar.failed() || ar.result() == null) {
         Log.create(LOGGER)
-                .setTraceId(traceId)
+                .setTraceId(apiContext.id())
                 .setEvent("ServiceNonExistent")
                 .addData("service", service)
                 .warn();
