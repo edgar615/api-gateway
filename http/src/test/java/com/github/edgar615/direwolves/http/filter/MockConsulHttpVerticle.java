@@ -24,7 +24,7 @@ public class MockConsulHttpVerticle extends AbstractVerticle {
                 JsonObject result = new JsonObject();
                 services.forEach(object ->
                                          result.put(object.getString("ServiceName"),
-                                                    object.getJsonArray("tags", new JsonArray())));
+                                                    object.getJsonArray("ServiceTags", object.getJsonArray("ServiceTags"))));
                 request.response().end(result.encodePrettily());
               } else if (request.path().startsWith("/v1/catalog/service/")) {
                 String service = request.path().substring("/v1/catalog/service/".length());

@@ -16,8 +16,9 @@ public class ServiceSplitterPlugin implements ApiPlugin {
     return traffics.get(service);
   }
 
-  public ServiceTraffic addTraffic(String service, ServiceTraffic traffic) {
-    return traffics.put(service, traffic);
+  public ServiceSplitterPlugin addTraffic(String service, ServiceTraffic traffic) {
+     traffics.put(service, traffic);
+     return this;
   }
 
   public Map<String, ServiceTraffic> traffics() {

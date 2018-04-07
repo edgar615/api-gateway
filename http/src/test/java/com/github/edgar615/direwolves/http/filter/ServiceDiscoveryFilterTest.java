@@ -1,5 +1,7 @@
 package com.github.edgar615.direwolves.http.filter;
 
+import com.github.edgar615.direwolves.http.splitter.*;
+import com.github.edgar615.util.net.IPUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -205,6 +207,54 @@ public class ServiceDiscoveryFilterTest {
     });
   }
 
+  @Test
+  public void testTagService(TestContext testContext) {
+    add3Servers();
+    SdHttpEndpoint httpEndpoint =
+            SdHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", "device");
+
+    SdHttpEndpoint httpEndpoint2 =
+            SdHttpEndpoint.http("get_user", HttpMethod.GET, "users/", "user");
+
+    ApiDefinition definition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/",
+            Lists.newArrayList(httpEndpoint,
+                    httpEndpoint2));
+    ServiceSplitterPlugin plugin = new ServiceSplitterPlugin();
+    List<IpPolicy> policies = new ArrayList<>();
+    IpRangePolicy ipRangePolicy = new IpRangePolicy(IPUtils.ipToLong("192.168.1.2"),  IPUtils
+            .ipToLong("192.168.1.88"), "green");
+    policies.add(ipRangePolicy);
+    ServiceTraffic serviceTraffic =new ClientIpTraffic(policies);
+    definition.addPlugin(plugin.addTraffic("device", serviceTraffic));
+    apiContext.setApiDefinition(definition);
+    apiContext.addVariable("request_clientIp", "192.168.1.3");
+    Task<ApiContext> task = Task.create();
+    task.complete(apiContext);
+    Async async = testContext.async();
+    Filters.doFilter(task, filters)
+            .andThen(context -> {
+              testContext.assertEquals(2, context.requests().size());
+              HttpRpcRequest request = (HttpRpcRequest) context.requests().get(0);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8081, request.port());
+              testContext.assertEquals(1, request.params().keySet().size());
+              testContext.assertEquals(1, request.headers().keySet().size());
+              testContext.assertTrue(request.headers().containsKey("x-request-id"));
+              testContext.assertNull(request.body());
+
+              request = (HttpRpcRequest) context.requests().get(1);
+              testContext.assertEquals("localhost", request.host());
+              testContext.assertEquals(8081, request.port());
+              testContext.assertEquals(1, request.params().keySet().size());
+              testContext.assertEquals(1, request.headers().keySet().size());
+              testContext.assertTrue(request.headers().containsKey("x-request-id"));
+              testContext.assertNull(request.body());
+
+              async.complete();
+            }).onFailure(t -> testContext.fail());
+  }
+
+
   private void add2Servers() {
     mockConsulHttpVerticle.addService(new JsonObject()
                                               .put("ID", UUID.randomUUID().toString())
@@ -220,7 +270,39 @@ public class ServiceDiscoveryFilterTest {
             .put("Address", "localhost")
             .put("ServiceID", "u222:device:8080")
             .put("ServiceName", "user")
-            .put("ServiceTags", new JsonArray())
+            .put("ServiceTags",new JsonArray())
+            .put("ServicePort", 8081)));
+    try {
+      TimeUnit.SECONDS.sleep(3);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void add3Servers() {
+    mockConsulHttpVerticle.addService(new JsonObject()
+            .put("ID", UUID.randomUUID().toString())
+            .put("Node", "u221")
+            .put("Address", "localhost")
+            .put("ServiceID", "u221:device:8080")
+            .put("ServiceName", "device")
+            .put("ServiceTags", new JsonArray().add("blue").add("blue2"))
+            .put("ServicePort", 8080));
+    mockConsulHttpVerticle.addService(new JsonObject()
+            .put("ID", UUID.randomUUID().toString())
+            .put("Node", "u221")
+            .put("Address", "localhost")
+            .put("ServiceID", "u221:device:8080")
+            .put("ServiceName", "device")
+            .put("ServiceTags", new JsonArray().add("green"))
+            .put("ServicePort", 8081));
+    mockConsulHttpVerticle.addService((new JsonObject()
+            .put("ID", UUID.randomUUID().toString())
+            .put("Node", "u222")
+            .put("Address", "localhost")
+            .put("ServiceID", "u222:device:8080")
+            .put("ServiceName", "user")
+            .put("ServiceTags",new JsonArray())
             .put("ServicePort", 8081)));
     try {
       TimeUnit.SECONDS.sleep(3);

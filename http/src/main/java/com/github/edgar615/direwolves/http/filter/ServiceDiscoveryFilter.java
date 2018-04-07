@@ -118,7 +118,7 @@ public class ServiceDiscoveryFilter implements Filter {
     Future<Record> future = Future.future();
     List<ServiceFilter> serviceFilters = new ArrayList<>();
     serviceFilters.add(circuitBreakerFilter);
-    ServiceSplitterPlugin serviceSplitterPlugin = (ServiceSplitterPlugin) apiContext.apiDefinition().plugin(ServiceSplitterPlugin.class.getName());
+    ServiceSplitterPlugin serviceSplitterPlugin = (ServiceSplitterPlugin) apiContext.apiDefinition().plugin(ServiceSplitterPlugin.class.getSimpleName());
     if (serviceSplitterPlugin != null && serviceSplitterPlugin.traffic(service) != null) {
       ServiceTraffic traffic = serviceSplitterPlugin.traffic(service);
       String tag = traffic.decision(apiContext);
