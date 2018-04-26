@@ -158,7 +158,7 @@ public class ApiDefinitionTest {
     httpEndpoint =
             SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
                                     80, "localhost");
-    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\d+]+)",
+    apiDefinition = ApiDefinition.createRegex("get_device", HttpMethod.GET, "devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
 
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
@@ -169,7 +169,7 @@ public class ApiDefinitionTest {
     httpEndpoint =
             SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
                                     80, "localhost");
-    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "devices/([\\w+]+)",
+    apiDefinition = ApiDefinition.createRegex("get_device", HttpMethod.GET, "devices/([\\w+]+)",
                                          Lists.newArrayList(httpEndpoint));
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/")));
@@ -194,9 +194,9 @@ public class ApiDefinitionTest {
                                                    .put("name", "*")));
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/")
                                                    .put("method", "*")));
-    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")
+    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/([\\d+]+)")
                                                   .put("name", "*").put("method", "*")));
-    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")
+    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")
                                                   .put("name", "get*").put("method", "GET")));
 
     Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")
