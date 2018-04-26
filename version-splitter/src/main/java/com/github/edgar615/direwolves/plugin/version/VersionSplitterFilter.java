@@ -69,7 +69,7 @@ public class VersionSplitterFilter implements Filter {
       }
       try {
         List<ApiDefinition> apiDefinitions = ar.result();
-        ApiDefinition apiDefinition = matchApi(apiDefinitions, apiContext);
+        ApiDefinition apiDefinition = matchApi(ApiDefinition.extractInOrder(apiDefinitions), apiContext);
         completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
         return;
       } catch (SystemException e) {

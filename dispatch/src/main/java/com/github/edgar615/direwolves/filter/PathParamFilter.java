@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.filter;
 
+import com.github.edgar615.direwolves.core.definition.RegexPathApiDefinition;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.utils.Log;
@@ -40,12 +41,13 @@ public class PathParamFilter implements Filter {
   @Override
   public boolean shouldFilter(ApiContext apiContext) {
     return apiContext.apiDefinition() != null
-            && !apiContext.apiDefinition().antStyle();
+            && apiContext.apiDefinition().regexStyle();
   }
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    Pattern pattern = apiContext.apiDefinition().pattern();
+    RegexPathApiDefinition apiDefinition = (RegexPathApiDefinition) apiContext.apiDefinition();
+    Pattern pattern = apiDefinition.pattern();
     String path = apiContext.path();
     Matcher matcher = pattern.matcher(path);
     if (matcher.matches()) {

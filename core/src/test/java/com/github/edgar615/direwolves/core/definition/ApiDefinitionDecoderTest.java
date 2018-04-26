@@ -41,7 +41,7 @@ public class ApiDefinitionDecoderTest {
 
     Assert.assertEquals(0, apiDefinition.plugins().size());
 
-    Assert.assertFalse(apiDefinition instanceof AntPathApiDefinitionImpl);
+    Assert.assertFalse(apiDefinition instanceof AntPathApiDefinition);
   }
 
   @Test

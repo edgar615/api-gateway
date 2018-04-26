@@ -6,13 +6,13 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * API定义的接口.
- *
+ * <p>
  * API名称约定的规范：[业务线].[应用名].[动作].[版本]
+ *
  * @author Edgar  Date 2016/9/13
  */
 public interface ApiDefinition {
@@ -36,11 +36,6 @@ public interface ApiDefinition {
    * @return API路径
    */
   String path();
-
-  /**
-   * @return 路径的正则表达式.在目前的设计中，它和path保持一致.
-   */
-  Pattern pattern();
 
   /**
    * @return 远程请求定义
@@ -76,12 +71,17 @@ public interface ApiDefinition {
     if (path.endsWith("/")) {
       path = path.substring(0, path.length() - 1);
     }
-    return new ApiDefinitionImpl(name, method, path, endpoints, Pattern.compile(path));
+    return new ApiDefinitionImpl(name, method, path, endpoints);
   }
 
   static ApiDefinition createAnt(String name, HttpMethod method, String path,
-                              List<Endpoint> endpoints) {
-    return new AntPathApiDefinitionImpl(name, method, path, endpoints);
+                                 List<Endpoint> endpoints) {
+    return new AntPathApiDefinition(name, method, path, endpoints);
+  }
+
+  static ApiDefinition createRegex(String name, HttpMethod method, String path,
+                                   List<Endpoint> endpoints) {
+    return new RegexPathApiDefinition(name, method, path, endpoints);
   }
 
   static ApiDefinition fromJson(JsonObject jsonObject) {
@@ -108,10 +108,20 @@ public interface ApiDefinition {
 
   /**
    * 是否是ant风格
+   *
    * @return
    */
   default boolean antStyle() {
-    return this instanceof AntPathApiDefinitionImpl;
+    return this instanceof AntPathApiDefinition;
+  }
+
+  /**
+   * 是否是regex风格
+   *
+   * @return
+   */
+  default boolean regexStyle() {
+    return this instanceof RegexPathApiDefinition;
   }
 
   default JsonObject toJson() {
@@ -119,7 +129,40 @@ public interface ApiDefinition {
   }
 
   default boolean match(JsonObject filter) {
-   return ApiDefinitionUtils.match(this, filter);
+    return ApiDefinitionUtils.match(this, filter);
   }
 
+  /**
+   * 按照 相等>正则>ant的优先级匹配
+   *
+   * @param apiDefinitions
+   * @return
+   */
+  static List<ApiDefinition> extractInOrder(List<ApiDefinition> apiDefinitions) {
+    if (apiDefinitions.isEmpty()) {//没有API
+      return null;
+    }
+    if (apiDefinitions.size() == 1) {//只有一个
+      return apiDefinitions;
+    }
+    //先判断相等
+    List<ApiDefinition> apiList = apiDefinitions.stream()
+            .filter(d -> !d.antStyle() && !d.regexStyle())
+            .collect(Collectors.toList());
+    if (!apiList.isEmpty()) {
+      return apiList;
+    }
+    //判断正则
+    //优先选择正则匹配的API
+    List<ApiDefinition> regexApiList = apiDefinitions.stream()
+            .filter(d -> d.regexStyle())
+            .collect(Collectors.toList());
+    if (!regexApiList.isEmpty()) {
+      return regexApiList;
+    }
+    List<ApiDefinition> antApiList = apiDefinitions.stream()
+            .filter(d -> d.antStyle())
+            .collect(Collectors.toList());
+    return antApiList;
+  }
 }

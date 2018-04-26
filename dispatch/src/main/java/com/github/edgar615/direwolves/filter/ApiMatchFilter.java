@@ -36,7 +36,7 @@ public class ApiMatchFilter implements Filter {
     this.vertx = vertx;
     JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions(dicoveryConfig));
+            new ApiDiscoveryOptions(dicoveryConfig));
     this.apiFinder = ApiFinder.create(vertx, discovery);
   }
 
@@ -64,14 +64,14 @@ public class ApiMatchFilter implements Filter {
       }
       try {
         List<ApiDefinition> apiDefinitions = ar.result();
-        ApiDefinition apiDefinition = matchApi(apiDefinitions);
+        ApiDefinition apiDefinition = extractApi(ApiDefinition.extractInOrder(apiDefinitions));
         System.out.println(apiContext.setApiDefinition(apiDefinition));
         completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
         return;
       } catch (SystemException e) {
         e.set("details", String.format("ApiMatchFailure %s:%s",
-                                       apiContext.method().name(),
-                                       apiContext.path()));
+                apiContext.method().name(),
+                apiContext.path()));
         failed(completeFuture, apiContext.id(), "ApiMatchFailure", e);
         return;
       } catch (Exception e) {
@@ -81,26 +81,6 @@ public class ApiMatchFilter implements Filter {
     });
   }
 
-  private ApiDefinition matchApi(List<ApiDefinition> apiDefinitions) {
-    if (apiDefinitions.isEmpty()) {//没有API
-      return null;
-    }
-    if (apiDefinitions.size() == 1) {//只有一个
-      return apiDefinitions.get(0);
-    }
-    //优先选择正则匹配的API
-    List<ApiDefinition> regexApiList = apiDefinitions.stream()
-            .filter(d -> !d.antStyle())
-            .collect(Collectors.toList());
-    if (regexApiList.isEmpty()) {
-      List<ApiDefinition> antApiList = apiDefinitions.stream()
-              .filter(d -> d.antStyle())
-              .collect(Collectors.toList());
-      return extractApi(antApiList);
-    } else {
-      return extractApi(regexApiList);
-    }
-  }
 
   private ApiDefinition extractApi(List<ApiDefinition> apiDefinitions) {
     if (apiDefinitions.isEmpty()) {//没有API

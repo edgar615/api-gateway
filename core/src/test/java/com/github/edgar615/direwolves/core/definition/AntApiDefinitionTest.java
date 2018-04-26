@@ -38,7 +38,7 @@ public class AntApiDefinitionTest {
             SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
                                     80, "localhost");
 
-    AntPathApiDefinitionImpl apiDefinition = (AntPathApiDefinitionImpl) ApiDefinition
+    AntPathApiDefinition apiDefinition = (AntPathApiDefinition) ApiDefinition
             .createAnt("get_device", HttpMethod.GET, "devices/**", Lists.newArrayList
                     (httpEndpoint));
     apiDefinition.addIgnoredPattern("/devices/123");

@@ -43,19 +43,22 @@ class ApiDefinitionUtils {
     if (expected.endsWith("/") && expected.length() > 1) {
       expected = expected.substring(0, expected.length() - 1);
     }
-    if (definition instanceof AntPathApiDefinitionImpl) {
+    if (definition instanceof AntPathApiDefinition) {
       AntPathMatcher matcher = new AntPathMatcher.Builder().build();
-      return !matchIgnore((AntPathApiDefinitionImpl) definition, matcher, expected)
+      return !matchIgnore((AntPathApiDefinition) definition, matcher, expected)
               && matcher.isMatch(definition.path(), expected);
-    } else {
-      Pattern pattern = definition.pattern();
+    } else if (definition instanceof RegexPathApiDefinition) {
+      RegexPathApiDefinition regexPathApiDefinition = (RegexPathApiDefinition) definition;
+      Pattern pattern = regexPathApiDefinition.pattern();
       Matcher matcher = pattern.matcher(expected);
       return matcher.matches();
+    } else {
+      return definition.path().equals(expected);
     }
 
   }
 
-  static boolean matchIgnore(AntPathApiDefinitionImpl definition, AntPathMatcher matcher,
+  static boolean matchIgnore(AntPathApiDefinition definition, AntPathMatcher matcher,
                              String expected) {
     return definition.ignoredPatterns()
             .stream().anyMatch(p -> matcher.isMatch(p, expected));

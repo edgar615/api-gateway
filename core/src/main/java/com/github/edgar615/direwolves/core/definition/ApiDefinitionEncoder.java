@@ -28,10 +28,13 @@ class ApiDefinitionEncoder implements Function<ApiDefinition, JsonObject> {
             .put("method", definition.method().name())
             .put("path", definition.path())
             .put("endpoints", createEndpointArray(definition.endpoints()));
-    if (definition instanceof AntPathApiDefinitionImpl) {
-      AntPathApiDefinitionImpl antPathApiDefinition = (AntPathApiDefinitionImpl) definition;
+    if (definition instanceof AntPathApiDefinition) {
+      AntPathApiDefinition antPathApiDefinition = (AntPathApiDefinition) definition;
       jsonObject.put("type", "ant");
       jsonObject.put("ignoredPatterns", antPathApiDefinition.ignoredPatterns());
+    }
+    if (definition instanceof RegexPathApiDefinition) {
+      jsonObject.put("type", "regex");
     }
     definition.plugins().forEach(p -> jsonObject.mergeIn(p.encode()));
     return jsonObject;

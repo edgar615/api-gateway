@@ -40,8 +40,8 @@ public class AntApiDefinitionDecoderTest {
 
     Assert.assertEquals(0, apiDefinition.plugins().size());
 
-    Assert.assertTrue(apiDefinition instanceof AntPathApiDefinitionImpl);
-    AntPathApiDefinitionImpl antPathApiDefinition = (AntPathApiDefinitionImpl) apiDefinition;
+    Assert.assertTrue(apiDefinition instanceof AntPathApiDefinition);
+    AntPathApiDefinition antPathApiDefinition = (AntPathApiDefinition) apiDefinition;
     Assert.assertEquals(0, antPathApiDefinition.ignoredPatterns().size());
   }
 
@@ -73,8 +73,8 @@ public class AntApiDefinitionDecoderTest {
 
     Assert.assertEquals(0, apiDefinition.plugins().size());
 
-    Assert.assertTrue(apiDefinition instanceof AntPathApiDefinitionImpl);
-    AntPathApiDefinitionImpl antPathApiDefinition = (AntPathApiDefinitionImpl) apiDefinition;
+    Assert.assertTrue(apiDefinition instanceof AntPathApiDefinition);
+    AntPathApiDefinition antPathApiDefinition = (AntPathApiDefinition) apiDefinition;
     Assert.assertEquals(2, antPathApiDefinition.ignoredPatterns().size());
   }
 }

@@ -52,16 +52,6 @@ class ApiDefinitionImpl implements ApiDefinition {
 
 
   /**
-   * 路径的正则表达式.在目前的设计中，它和path保持一致.
-   */
-  private final Pattern pattern;
-
-//    /**
-//     * 描述
-//     */
-//    private String description;
-
-  /**
    * 远程请求定义.
    */
   private final List<Endpoint> endpoints;
@@ -69,8 +59,7 @@ class ApiDefinitionImpl implements ApiDefinition {
   private final List<ApiPlugin> plugins = new ArrayList<>();
 
   ApiDefinitionImpl(String name, HttpMethod method, String path,
-                    List<Endpoint> endpoints,
-                    Pattern pattern) {
+                    List<Endpoint> endpoints) {
     Preconditions.checkNotNull(name, "name can not be null");
     Preconditions.checkNotNull(method, "method can not be null");
     Preconditions.checkNotNull(path, "path can not be null");
@@ -87,7 +76,7 @@ class ApiDefinitionImpl implements ApiDefinition {
     this.method = method;
     this.path = path;
     this.endpoints = ImmutableList.copyOf(endpoints);
-    this.pattern = pattern;
+
   }
 
   @Override
@@ -103,11 +92,6 @@ class ApiDefinitionImpl implements ApiDefinition {
   @Override
   public String path() {
     return path;
-  }
-
-  @Override
-  public Pattern pattern() {
-    return pattern;
   }
 
   @Override
