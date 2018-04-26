@@ -5,7 +5,7 @@
     <parent>
         <artifactId>direwolves</artifactId>
         <groupId>com.github.edgar615</groupId>
-        <version>1.1.1</version>
+        <version>${release.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -94,7 +94,7 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>direwolves-service-splitter</artifactId>
+            <artifactId>direwolves-version-splitter</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

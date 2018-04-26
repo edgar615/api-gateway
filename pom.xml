@@ -7,7 +7,7 @@
     <groupId>com.github.edgar615</groupId>
     <artifactId>direwolves</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.1</version>
+    <version>${release.version}</version>
     <modules>
         <module>definition</module>
         <module>dispatch</module>
@@ -32,6 +32,7 @@
     </modules>
 
     <properties>
+        <release.version>1.1.2</release.version>
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
         <java.encoding>UTF-8</java.encoding>

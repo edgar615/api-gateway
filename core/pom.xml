@@ -5,7 +5,7 @@
     <parent>
         <artifactId>direwolves</artifactId>
         <groupId>com.github.edgar615</groupId>
-        <version>1.1.1</version>
+        <version>${release.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -58,4 +58,25 @@
             <artifactId>vertx-util</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor>io.vertx.codegen.CodeGenProcessor
+                        </annotationProcessor>
+                    </annotationProcessors>
+                    <generatedSourcesDirectory>
+                        ${project.basedir}/src/main/generated
+                    </generatedSourcesDirectory>
+                    <compilerArgs>
+                        <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
