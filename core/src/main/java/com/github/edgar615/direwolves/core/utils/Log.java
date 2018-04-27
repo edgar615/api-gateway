@@ -56,11 +56,6 @@ public class Log {
    */
   private Throwable throwable;
 
-  /**
-   * 日志中是否输出应用
-   */
-  private boolean logApplication;
-
   private Log(Logger logger) {
     this.logger = logger;
   }
@@ -129,11 +124,6 @@ public class Log {
     return this;
   }
 
-  public Log setLogApplication(boolean logApplication) {
-    this.logApplication = logApplication;
-    return this;
-  }
-
   public Log setApplication(String application) {
     this.application = application;
     return this;
@@ -191,14 +181,12 @@ public class Log {
       logFormat = "[{}] [{}] [{}]";
 
       logArgs = new ArrayList<>();
-      if (logApplication) {
-        logFormat = "[{},{}] " + logFormat;
-        logArgs.add(application);
-        if (traceId == null) {
-          logArgs.add("");
-        } else {
-          logArgs.add(traceId);
-        }
+      logFormat = "[{},{}] " + logFormat;
+      logArgs.add(application);
+      if (traceId == null) {
+        logArgs.add("non-tracking");
+      } else {
+        logArgs.add(traceId);
       }
       logArgs.add(logType.name());
       logArgs.add(event == null ? "log" : event);

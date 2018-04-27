@@ -27,6 +27,8 @@ class FileApiImporter implements ApiImporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileApiImporter.class);
 
+  private static final String APPLICATION = FileApiDiscoveryVerticle.class.getSimpleName();
+
   private final List<String> imported = new ArrayList<>();
 
   private Vertx vertx;
@@ -57,15 +59,16 @@ class FileApiImporter implements ApiImporter {
       if (ar.succeeded()) {
         List<Future> futures = addApiList(publisher, ar.result());
         Log.create(LOGGER)
-                .setEvent("api.succeed")
+                .setApplication(APPLICATION)
+                .setEvent("import")
                 .addData("path", path)
                 .info();
-
         checkResult(futures, complete);
 
       } else {
         Log.create(LOGGER)
-                .setEvent("api.failed")
+                .setApplication(APPLICATION)
+                .setEvent("import")
                 .addData("path", path)
                 .setThrowable(ar.cause())
                 .error();
@@ -172,7 +175,7 @@ class FileApiImporter implements ApiImporter {
         datas.add(defineJson);
       } catch (Exception e) {
         LOGGER.error("[file.readed] [FAILED] [{}]", path
-                                                    + ":" + e.getMessage());
+                + ":" + e.getMessage());
       }
     }
     return datas;

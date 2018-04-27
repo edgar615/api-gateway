@@ -1,5 +1,6 @@
 package com.github.edgar615.direwolves.verticle;
 
+import com.github.edgar615.direwolves.core.utils.Log;
 import com.google.common.base.Strings;
 
 import com.github.edgar615.direwolves.core.apidiscovery.ApiDiscovery;
@@ -21,17 +22,27 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileApiDiscoveryVerticle.class);
 
+  private static final String APPLICATION = FileApiDiscoveryVerticle.class.getSimpleName();
+
   private static final String RELOAD_ADDR_PREFIX = "__com.github.edgar615.direwolves.api.discovery.reload.";
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    LOGGER.info("deploy FileApiDiscoveryVerticle");
+    Log.create(LOGGER)
+            .setApplication(APPLICATION)
+            .setEvent("deploying")
+            .addData("config", config().encode())
+            .info();
     String path = null;
     if (config().getValue("path") instanceof String) {
       path = config().getString("path");
     }
     if (Strings.isNullOrEmpty(path)) {
-      LOGGER.error("deploy FileApiDiscoveryVerticle failed,api path is null");
+      Log.create(LOGGER)
+              .setApplication(APPLICATION)
+              .setEvent("deploy.failed")
+              .setMessage("api path is null")
+              .error();
       startFuture.fail("api path is null");
       return;
     }
@@ -40,7 +51,11 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
       discoveryConfig = config().getJsonObject("api.discovery");
     }
     if (discoveryConfig == null) {
-      LOGGER.error("deploy FileApiDiscoveryVerticle failed,api.discovery is null");
+      Log.create(LOGGER)
+              .setApplication(APPLICATION)
+              .setEvent("deploy.failed")
+              .setMessage("api.discovery is null")
+              .error();
       startFuture.fail("api.discovery is null");
       return;
     }
@@ -53,10 +68,17 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
     FileApiImporter importer = new FileApiImporter();
     discovery.registerImporter(importer, importConfig, ar -> {
       if (ar.succeeded()) {
-        LOGGER.info("deploy FileApiDiscoveryVerticle succeed");
+        Log.create(LOGGER)
+                .setApplication(APPLICATION)
+                .setEvent("deploy.succeeded")
+                .info();
         startFuture.complete();
       } else {
-        LOGGER.error("deploy FileApiDiscoveryVerticle failed", ar.cause());
+        Log.create(LOGGER)
+                .setApplication(APPLICATION)
+                .setEvent("deploy.failed")
+                .setThrowable(ar.cause())
+                .error();
         startFuture.fail(ar.cause());
       }
     });
@@ -81,7 +103,6 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
       vertx.deployVerticle(WatcherVerticle.class.getName(), new DeploymentOptions()
               .setWorker(true)
               .setConfig(watchConfig));
-
       vertx.eventBus().consumer(reloadAddr, msg -> {
         importer.restart(Future.future());
       });
