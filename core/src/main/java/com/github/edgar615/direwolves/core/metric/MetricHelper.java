@@ -36,7 +36,8 @@ public class MetricHelper {
    * @return
    */
   public static MetricRegistry registry() {
-    String regisryName = System.getProperty("vertx.metrics.options.registryName", "my-register");
+    String regisryName = System.getProperty("vertx.metrics.options.registryName",
+                                            "direwolves-register");
     MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
     return registry;
   }

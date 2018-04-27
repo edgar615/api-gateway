@@ -1,18 +1,18 @@
 package com.github.edgar615.direwolves.core.definition;
 
-import com.github.edgar615.util.base.MorePreconditions;
-import com.google.common.base.Preconditions;
 import io.vertx.core.http.HttpMethod;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * 正则匹配规则的API定义
+ * 正则匹配规则的API定义.
+ * 示例：/tasks/([\\d+]+)/abandon，匹配请求/tasks/123/abandon
  */
 public class RegexPathApiDefinition extends ApiDefinitionImpl {
   /**
-   * 路径的正则表达式.在目前的设计中，它和path保持一致.
+   * 路径的正则表达式.
+   * 示例：/tasks/([\\d+]+)/abandon，匹配请求/tasks/123/abandon
    */
   private final Pattern pattern;
 
@@ -26,6 +26,7 @@ public class RegexPathApiDefinition extends ApiDefinitionImpl {
     }
     this.pattern = Pattern.compile(path);
   }
+
   /**
    * @return 路径的正则表达式.
    */

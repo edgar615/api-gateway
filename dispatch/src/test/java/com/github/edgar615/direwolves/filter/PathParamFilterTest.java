@@ -74,7 +74,7 @@ public class PathParamFilterTest {
     Endpoint httpEndpoint =
             SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "devices/", 80, "localhost");
     ApiDefinition definition = ApiDefinition
-        .create("get_device", HttpMethod.GET, "/devices/([\\d+]+)", Lists.newArrayList(httpEndpoint));
+        .createRegex("get_device", HttpMethod.GET, "/devices/([\\d+]+)", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
 
 

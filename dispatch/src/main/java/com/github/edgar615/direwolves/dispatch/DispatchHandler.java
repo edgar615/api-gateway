@@ -90,7 +90,7 @@ public class DispatchHandler implements Handler<RoutingContext> {
     task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()), rc);
     task = task.andThen("Response", apiContext -> response(rc, apiContext));
 //    task = doFilter(task, f -> Filter.AFTER_RESP.equalsIgnoreCase(f.type()));
-    task.onFailure(throwable -> FailureHandler.doHandle(rc, throwable));
+    task.onFailure(throwable -> rc.fail(throwable));
   }
 
   /**

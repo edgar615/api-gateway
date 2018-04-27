@@ -9,24 +9,10 @@ import io.vertx.core.http.HttpMethod;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * API的路由转发定义.
- * 该类仅定义参数校验，转发规则.对于其他逻辑交由其他的定义类，如<code>AuthDefinition</code>
- * <ul>
- * <li>name 名称，必填项</li>
- * <li>path 路径，可使用正则表达式，必填项</li>
- * <li>method 方法 GET POST PUT DELETE，必填项</li>
- * <li>scope 表示权限范围，默认为default</li>
- * <li>url.arg 查询参数，参考查询参数的定义</li>
- * <li>body.arg body参数，参考body参数的定义</li>
- * <li>description 描述</li>
- * <li>failture_policy 远程调用遇到错误之后对处理策略，默认值fail：直接返回错误信息，如果有多个错误信息，会按照endpont的定义顺序取出第一条信息，origin
- * ：与远程调用对返回值保持一致，custom：自定义对错误信息</li>
- * <li>custom_error:如果failture_policy=custom，该值为必填项，必须满足{code:xxx,message:xxx}的格式</li>
- * <li>endpoints 远程服务对定义，JSON数组，参考Endpoint的定义</li>
- * </ul>
+ * 该类仅定义参数校验，转发规则.对于其他逻辑交由插件实现.
  *
  * @author Edgar  Date 2016/9/8
  */
@@ -45,11 +31,9 @@ class ApiDefinitionImpl implements ApiDefinition {
   /**
    * API路径
    * 示例：/tasks，匹配请求：/tasks.
-   * 示例：/tasks，匹配请求：/tasks.
-   * 示例：/tasks/([\\d+]+)/abandon，匹配请求/tasks/123/abandon
+   * 示例：/tasks/123，匹配请求：/tasks/123.
    */
   private final String path;
-
 
   /**
    * 远程请求定义.

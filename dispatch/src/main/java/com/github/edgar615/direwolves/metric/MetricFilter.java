@@ -3,7 +3,6 @@ package com.github.edgar615.direwolves.metric;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
 import com.github.edgar615.direwolves.core.metric.ApiMetric;
-import com.github.edgar615.direwolves.core.utils.Consts;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -17,11 +16,8 @@ import io.vertx.core.json.JsonObject;
 public class MetricFilter implements Filter {
   private final Vertx vertx;
 
-  private final String namespace;
-
   public MetricFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
-    this.namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
   }
 
   @Override
@@ -42,7 +38,7 @@ public class MetricFilter implements Filter {
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
     try {
-      ApiMetric.request(namespace, apiContext.apiDefinition().name());
+      ApiMetric.apiRequest(apiContext.apiDefinition().name());
     } catch (Exception e) {
       //ignore
     }

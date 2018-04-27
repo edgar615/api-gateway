@@ -48,6 +48,8 @@
 
         <hazelcast.version>3.6.3</hazelcast.version>
         <logback.version>1.1.2</logback.version>
+        <!--用来测试时候输出日志的的-->
+        <slf4j-jdk14.version>1.7.25</slf4j-jdk14.version>
 
     </properties>
 
@@ -103,6 +105,12 @@
                 <groupId>io.vertx</groupId>
                 <artifactId>vertx-unit</artifactId>
                 <version>${vertx.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>${slf4j-jdk14.version}</version>
                 <scope>test</scope>
             </dependency>
 

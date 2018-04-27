@@ -32,12 +32,9 @@ class ApiFinderImpl implements ApiFinder {
     this.discovery = discovery;
     reload("*", ar -> {
       if (ar.succeeded()) {
-        Log.create(LOGGER)
-                .setEvent("cache.load.succeed");
+        LOGGER.info("[ApiDiscovery,{}] [reload cache] {}", this.discovery.name());
       } else {
-        Log.create(LOGGER)
-                .setEvent("cache.load.failure")
-                .setThrowable(ar.cause());
+        LOGGER.error("[ApiDiscovery,{}] [reload cache] {}", this.discovery.name(), ar.cause());
       }
     });
 

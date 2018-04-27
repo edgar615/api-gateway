@@ -93,8 +93,8 @@ public class ApiMatchFilterTest {
               testContext.assertNull(context.apiDefinition());
               async.complete();
             }).onFailure(throwable -> {
+      throwable.printStackTrace();
       testContext.fail();
-//      throwable.printStackTrace();
 //      testContext.assertTrue(throwable instanceof SystemException);
 //      SystemException se = (SystemException) throwable;
 //      testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, se.getErrorCode());

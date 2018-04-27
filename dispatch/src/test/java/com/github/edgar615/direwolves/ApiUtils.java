@@ -46,7 +46,7 @@ public class ApiUtils {
 
     httpEndpoint = SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices/$var.param0",
                                            devicePort, "localhost");
-    apiDefinition = ApiDefinition.create("get_device", HttpMethod.GET, "/devices/([\\d+]+)",
+    apiDefinition = ApiDefinition.createRegex("get_device", HttpMethod.GET, "/devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
     apiDiscovery.publish(apiDefinition, ar -> {
       seq.incrementAndGet();
@@ -61,7 +61,7 @@ public class ApiUtils {
     });
     httpEndpoint = SimpleHttpEndpoint.http("update_device", HttpMethod.PUT, "/devices/$var.param0",
                                            devicePort, "localhost");
-    apiDefinition = ApiDefinition.create("update_device", HttpMethod.PUT, "/devices/([\\d+]+)",
+    apiDefinition = ApiDefinition.createRegex("update_device", HttpMethod.PUT, "/devices/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
     apiDiscovery.publish(apiDefinition, ar -> {
       seq.incrementAndGet();
@@ -85,7 +85,7 @@ public class ApiUtils {
 
     httpEndpoint = SimpleHttpEndpoint.http("get_user", HttpMethod.GET, "/user",
                                            devicePort, "localhost");
-    apiDefinition = ApiDefinition.create("get_user", HttpMethod.GET, "/user/([\\d+]+)",
+    apiDefinition = ApiDefinition.createRegex("get_user", HttpMethod.GET, "/user/([\\d+]+)",
                                          Lists.newArrayList(httpEndpoint));
     apiDiscovery.publish(apiDefinition, ar -> {
       seq.incrementAndGet();

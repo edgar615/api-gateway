@@ -41,12 +41,6 @@ class AddApiCmd implements ApiCmd {
 
   @Override
   public Future<JsonObject> doHandle(JsonObject jsonObject) {
-//    Log.create(LOGGER)
-//            .setTraceId(jsonObject.getString("traceId"))
-//            .setModule("api.cmd")
-//            .setEvent(cmd())
-//            .addData("data", jsonObject.encode())
-//            .info();
 
     Validations.validate(jsonObject.getMap(), rules);
     String namespace = jsonObject.getString("namespace");

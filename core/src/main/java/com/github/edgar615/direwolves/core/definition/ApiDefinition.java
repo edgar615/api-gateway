@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -139,10 +140,7 @@ public interface ApiDefinition {
    * @return
    */
   static List<ApiDefinition> extractInOrder(List<ApiDefinition> apiDefinitions) {
-    if (apiDefinitions.isEmpty()) {//没有API
-      return null;
-    }
-    if (apiDefinitions.size() == 1) {//只有一个
+    if (apiDefinitions.size() <= 1) {//只有一个
       return apiDefinitions;
     }
     //先判断相等

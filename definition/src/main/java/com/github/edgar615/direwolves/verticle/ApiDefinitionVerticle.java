@@ -18,11 +18,8 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    Log.create(LOGGER)
-            .setEvent("definition.deploying")
-            .addData("config", config())
-            .info();
 
+    LOGGER.info("[ApiDefinitionVerticle] [deploying] {}", config().encode());
     initialize(startFuture);
   }
 
