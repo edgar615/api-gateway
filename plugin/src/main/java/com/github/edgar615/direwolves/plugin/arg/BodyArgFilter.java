@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.validation.Rule;

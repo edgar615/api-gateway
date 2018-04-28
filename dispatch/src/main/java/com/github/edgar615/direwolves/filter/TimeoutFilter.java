@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -83,7 +83,8 @@ public class TimeoutFilter implements Filter {
         || (timestamp < currentTime - timeout)) {
       Log.create(LOGGER)
               .setTraceId(apiContext.id())
-              .setEvent("timeout.tripped")
+              .setLogType("Filter")
+              .setEvent("TimeoutTripped")
               .setMessage("timestamp incorrect, client: {}, server:{}")
               .addArg(timestamp)
               .addArg(currentTime)

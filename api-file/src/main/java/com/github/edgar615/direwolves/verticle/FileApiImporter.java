@@ -3,7 +3,8 @@ package com.github.edgar615.direwolves.verticle;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiImporter;
 import com.github.edgar615.direwolves.core.apidiscovery.ApiPublisher;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
+import com.github.edgar615.util.log.LogType;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -27,8 +28,6 @@ class FileApiImporter implements ApiImporter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileApiImporter.class);
 
-  private static final String APPLICATION = FileApiDiscoveryVerticle.class.getSimpleName();
-
   private final List<String> imported = new ArrayList<>();
 
   private Vertx vertx;
@@ -36,6 +35,8 @@ class FileApiImporter implements ApiImporter {
   private ApiPublisher publisher;
 
   private JsonObject config;
+
+  private static final String LOG_TYPE=FileApiImporter.class.getSimpleName();
 
   @Override
   public void start(Vertx vertx, ApiPublisher publisher,
@@ -59,16 +60,16 @@ class FileApiImporter implements ApiImporter {
       if (ar.succeeded()) {
         List<Future> futures = addApiList(publisher, ar.result());
         Log.create(LOGGER)
-                .setApplication(APPLICATION)
-                .setEvent("import")
+                .setLogType(LOG_TYPE)
+                .setEvent("imported")
                 .addData("path", path)
                 .info();
         checkResult(futures, complete);
 
       } else {
         Log.create(LOGGER)
-                .setApplication(APPLICATION)
-                .setEvent("import")
+                .setLogType("ApiImporter")
+                .setEvent("import.failed")
                 .addData("path", path)
                 .setThrowable(ar.cause())
                 .error();
@@ -95,7 +96,11 @@ class FileApiImporter implements ApiImporter {
     imported.forEach(name -> {
       Future<Void> fut = Future.future();
       fut.setHandler(ar -> {
-        LOGGER.info("Unregistering " + name);
+        Log.create(LOGGER)
+                .setLogType(LOG_TYPE)
+                .setEvent("unregistering")
+                .addData("name", name)
+                .info();
         if (ar.succeeded()) {
           list.add(Future.succeededFuture());
         } else {
@@ -108,9 +113,16 @@ class FileApiImporter implements ApiImporter {
     CompositeFuture.all(list).setHandler(ar -> {
       imported.clear();
       if (ar.succeeded()) {
-        LOGGER.info("Successfully closed the file importer " + this);
+        Log.create(LOGGER)
+                .setLogType(LOG_TYPE)
+                .setEvent("close")
+                .info();
       } else {
-        LOGGER.error("A failure has been caught while stopping " + this, ar.cause());
+        Log.create(LOGGER)
+                .setLogType(LOG_TYPE)
+                .setEvent("close")
+                .setThrowable(ar.cause())
+                .error();
       }
       if (closeHandler != null) {
         closeHandler.handle(null);
@@ -131,13 +143,17 @@ class FileApiImporter implements ApiImporter {
 
   private List<Future> addApiList(ApiPublisher publisher, List<String> apiList) {
     List<Future> futures = new ArrayList<Future>();
-    for (String str : apiList) {
+    for (String source : apiList) {
       try {
-        ApiDefinition d = ApiDefinition.fromJson(new JsonObject(str));
+        ApiDefinition d = ApiDefinition.fromJson(new JsonObject(source));
         Future<ApiDefinition> addFuture = addApi(publisher, d);
         futures.add(addFuture);
       } catch (Exception e) {
-        LOGGER.error("[api.imported] [{}]", str, e);
+        Log.create(LOGGER)
+                .setLogType(LOG_TYPE)
+                .setEvent("publish.failed")
+                .setThrowable(e)
+                .error();
       }
     }
     return futures;
@@ -174,8 +190,11 @@ class FileApiImporter implements ApiImporter {
         String defineJson = buffer.toString();
         datas.add(defineJson);
       } catch (Exception e) {
-        LOGGER.error("[file.readed] [FAILED] [{}]", path
-                + ":" + e.getMessage());
+        Log.create(LOGGER)
+                .setLogType(LOG_TYPE)
+                .setEvent("read.failed")
+                .setThrowable(e)
+                .error();
       }
     }
     return datas;

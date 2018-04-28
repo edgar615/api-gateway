@@ -2,7 +2,7 @@ package com.github.edgar615.direwolves.core.dispatch;
 
 import com.google.common.collect.ImmutableList;
 
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

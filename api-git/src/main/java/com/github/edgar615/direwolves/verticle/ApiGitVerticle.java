@@ -3,6 +3,8 @@ package com.github.edgar615.direwolves.verticle;
 import com.google.common.base.Strings;
 
 import com.github.edgar615.util.base.EncryptUtils;
+import com.github.edgar615.util.log.Log;
+import com.github.edgar615.util.log.LogType;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonObject;
@@ -46,9 +48,14 @@ public class ApiGitVerticle extends AbstractVerticle {
   private String name;
 
   private String secret;
-
+  private static final String LOG_TYPE=ApiGitVerticle.class.getSimpleName();
   @Override
   public void start() throws Exception {
+    Log.create(LOGGER)
+            .setLogType(LOG_TYPE)
+            .setEvent("deploying")
+            .addData("config", config().encode())
+            .info();
     String name = Objects.requireNonNull(config().getString("name"),
                                          "The `name` configuration is required.");
     this.name = name;
@@ -56,7 +63,12 @@ public class ApiGitVerticle extends AbstractVerticle {
                                          "The `path` configuration is required.");
     this.path = new File(path);
     if (this.path.isFile()) {
-      throw new IllegalArgumentException("The `path` must not be a file");
+      Log.create(LOGGER)
+              .setLogType(LOG_TYPE)
+              .setEvent("deploying")
+              .setMessage("path must be a file")
+              .error();
+      throw new IllegalArgumentException("The `path` must be a file");
     }
 
     // Git repository
@@ -108,6 +120,12 @@ public class ApiGitVerticle extends AbstractVerticle {
     try {
       initializeGit();
     } catch (Exception e) {
+      Log.create(LOGGER)
+              .setLogType(LOG_TYPE)
+              .setEvent("git.pull")
+              .setMessage("Unable to initialize the Git repository")
+              .setThrowable(e)
+              .error();
       throw new VertxException("Unable to initialize the Git repository", e);
     }
     vertx.eventBus().send(RELOAD_ADDR_PREFIX + name, new JsonObject());
@@ -120,6 +138,13 @@ public class ApiGitVerticle extends AbstractVerticle {
       if (branch.equalsIgnoreCase(current)) {
         PullResult pull = git.pull().setRemote(remote).call();
         if (!pull.isSuccessful()) {
+          Log.create(LOGGER)
+                  .setLogType(LOG_TYPE)
+                  .setEvent("git.pull")
+                  .setMessage("Unable to pull the branch '{}' from the remote repository '{}'")
+                  .addArg(branch)
+                  .addArg(remote)
+                  .error();
           LOGGER.warn("Unable to pull the branch + '" + branch +
                       "' from the remote repository '" + remote + "'");
         }

@@ -2,6 +2,7 @@ package com.github.edgar615.direwolves.core.utils;
 
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
 
@@ -76,8 +77,9 @@ public class Filters {
         if (filter.shouldFilter(apiContext)) {
           invoked.put(filterName, true);
           Log.create(Filter.LOGGER)
+                  .setLogType("Filter")
                   .setTraceId(apiContext.id())
-                  .setEvent(filter.getClass().getSimpleName()+".invoke")
+                  .setEvent(filter.getClass().getSimpleName() + ".invoke")
                   .info();
 
           apiContext.addVariable("filterStarted", System.currentTimeMillis());
@@ -102,6 +104,7 @@ public class Filters {
 
           Log.create(Filter.LOGGER)
                   .setTraceId(apiContext.id())
+                  .setLogType("Filter")
                   .setEvent(filter.getClass().getSimpleName() + ".invoked")
                   .setMessage("[{}ms]")
                   .addArg(System.currentTimeMillis() - filterStarted)

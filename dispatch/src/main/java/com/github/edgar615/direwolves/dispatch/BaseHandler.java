@@ -4,8 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 import com.github.edgar615.direwolves.core.metric.ApiMetric;
-import com.github.edgar615.direwolves.core.utils.Log;
-import com.github.edgar615.direwolves.core.utils.LogType;
+import com.github.edgar615.util.log.Log;
+import com.github.edgar615.util.log.LogType;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
@@ -42,7 +42,7 @@ public class BaseHandler implements Handler<RoutingContext> {
     Log.create(LOGGER)
             .setTraceId(id)
             .setLogType(LogType.SR)
-            .setEvent("http.received")
+            .setEvent("HTTP")
             .setMessage("[{} {}] [{}] [{}] [{}]")
             .addArg(rc.request().method().name())
             .addArg(rc.normalisedPath())
@@ -78,7 +78,7 @@ public class BaseHandler implements Handler<RoutingContext> {
       Log.create(LOGGER)
               .setTraceId(id)
               .setLogType(LogType.SS)
-              .setEvent("http.reply")
+              .setEvent("HTTP")
               .addData("bf", reqTime)//API处理之前的耗时
               .addData("api", apiTime)//API处理的耗时
               .addData("resp", responseTime)//响应耗时

@@ -10,7 +10,7 @@ import io.vertx.core.Launcher;
 public class Example {
   public static void main(String[] args) {
     new Launcher().execute("run", ApiGitVerticle.class.getName(),
-                           "--conf=H:\\dev\\workspace\\direwolves\\api-github\\src\\main\\conf"
+                           "--conf=H:\\dev\\workspace\\direwolves\\api-git\\src\\main\\conf"
                            + "\\api.git.json");
   }
 }

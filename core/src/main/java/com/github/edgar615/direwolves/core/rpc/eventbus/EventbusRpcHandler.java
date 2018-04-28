@@ -3,22 +3,19 @@ package com.github.edgar615.direwolves.core.rpc.eventbus;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.direwolves.core.definition.EventbusEndpoint;
+import com.github.edgar615.direwolves.core.eventbus.EventbusUtils;
 import com.github.edgar615.direwolves.core.rpc.RpcHandler;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.RpcResponse;
-import com.github.edgar615.direwolves.core.utils.Log;
-import com.github.edgar615.direwolves.core.utils.LogType;
 import com.github.edgar615.direwolves.core.utils.MultimapUtils;
 import com.github.edgar615.util.base.StringUtils;
-import com.github.edgar615.util.exception.CustomErrorCode;
 import com.github.edgar615.util.exception.DefaultErrorCode;
-import com.github.edgar615.util.exception.ErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
+import com.github.edgar615.util.log.LogType;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.eventbus.ReplyException;
-import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
@@ -52,7 +49,7 @@ public class EventbusRpcHandler implements RpcHandler {
     Log.create(LOGGER)
             .setTraceId(request.id())
             .setLogType(LogType.CES)
-            .setEvent(type().toUpperCase())
+            .setEvent(type().toUpperCase() + "." + ((EventbusRpcRequest) rpcRequest).policy())
             .addData("address", request.address())
             .setMessage("[{}] [{}]")
             .addArg(MultimapUtils.convertToString(request.headers(), "no header"))
@@ -181,21 +178,7 @@ public class EventbusRpcHandler implements RpcHandler {
 
   private void failed(Future<RpcResponse> completed,
                       Throwable throwable) {
-    if (throwable instanceof ReplyException) {
-      ReplyException ex = (ReplyException) throwable;
-      if (ex.failureType() == ReplyFailure.NO_HANDLERS) {
-        SystemException resourceNotFoundEx =
-                SystemException.create(DefaultErrorCode.SERVICE_UNAVAILABLE)
-                        .set("details", "No handlers");
-        completed.fail(resourceNotFoundEx);
-      } else {
-        ErrorCode errorCode = CustomErrorCode.create(ex.failureCode(), ex.getMessage(), 400);
-        SystemException systemException
-                = SystemException.create(errorCode);
-        completed.fail(systemException);
-      }
-    } else {
-      completed.fail(throwable);
-    }
+    SystemException exception = EventbusUtils.reductionSystemException(throwable);
+    completed.fail(exception);
   }
 }

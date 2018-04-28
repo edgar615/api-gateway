@@ -3,6 +3,7 @@ package com.github.edgar615.direwolves.core.apidiscovery;
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -62,8 +63,12 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   @Override
   public void publish(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
-    LOGGER.info("[ApiDiscovery] [publish api] {}, {}, {}", this.name, definition.name(),
-                definition.toJson().encode());
+    Log.create(LOGGER)
+            .setLogType("ApiDiscovery")
+            .setEvent("api.publish")
+            .addData("namespace", this.name)
+            .addData("api", definition.name())
+            .info();
     backend.store(definition, ar -> {
       if (ar.succeeded()) {
         vertx.eventBus().publish(publishedAddress, definition.toJson());
@@ -74,7 +79,12 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   @Override
   public void unpublish(String name, Handler<AsyncResult<Void>> resultHandler) {
-    LOGGER.info("[ApiDiscovery,{}] [unpublish api] {}", this.name, name);
+    Log.create(LOGGER)
+            .setLogType("ApiDiscovery")
+            .setEvent("api.unpublish")
+            .addData("namespace", this.name)
+            .addData("api", name)
+            .info();
     backend.remove(name, ar -> {
       if (ar.failed()) {
         resultHandler.handle(Future.failedFuture(ar.cause()));
@@ -108,7 +118,13 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     Objects.requireNonNull(filter);
     backend.getDefinitions(ar -> {
       if (ar.failed()) {
-        LOGGER.error("[ApiDiscovery,{}] [filter api] {}", this.name, filter, ar.cause());
+        Log.create(LOGGER)
+                .setLogType("ApiDiscovery")
+                .setEvent("api.filter")
+                .addData("namespace", this.name)
+                .addData("filter", filter)
+                .setMessage(ar.cause().getMessage())
+                .error();
         resultHandler.handle(Future.failedFuture(ar.cause()));
       } else {
         List<ApiDefinition> definitions =
@@ -117,6 +133,13 @@ class ApiDiscoveryImpl implements ApiDiscovery {
                         .collect(Collectors.toList());
         LOGGER.debug("[ApiDiscovery,{}] [filter api] {}, {}", this.name, filter,
                      definitions.size());
+        Log.create(LOGGER)
+                .setLogType("ApiDiscovery")
+                .setEvent("api.filter")
+                .addData("namespace", this.name)
+                .addData("filter", filter)
+                .addData("result", definitions.size())
+                .debug();
         resultHandler.handle(Future.succeededFuture(definitions));
       }
     });
@@ -161,14 +184,22 @@ class ApiDiscoveryImpl implements ApiDiscovery {
     completed.setHandler(
             ar -> {
               if (ar.failed()) {
-                LOGGER.error("[ApiDiscovery,{}] [start import]", this
-                        .name, ar.cause());
+                Log.create(LOGGER)
+                        .setLogType("ApiDiscovery")
+                        .setEvent("importer.registered")
+                        .addData("namespace", this.name)
+                        .setThrowable(ar.cause())
+                        .error();
                 if (completionHandler != null) {
                   completionHandler.handle(Future.failedFuture(ar.cause()));
                 }
               } else {
                 importers.add(importer);
-                LOGGER.info("[ApiDiscovery,{}] [start import]", this.name);
+                Log.create(LOGGER)
+                        .setLogType("ApiDiscovery")
+                        .setEvent("importer.registered")
+                        .addData("namespace", this.name)
+                        .info();
                 if (completionHandler != null) {
                   completionHandler.handle(Future.succeededFuture(null));
                 }
@@ -182,7 +213,11 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
   @Override
   public void close() {
-    LOGGER.info("[ApiDiscovery,{}] [close]", this.name);
+    Log.create(LOGGER)
+            .setLogType("ApiDiscovery")
+            .setEvent("close")
+            .addData("namespace", this.name)
+            .info();
 
   }
 

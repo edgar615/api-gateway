@@ -59,6 +59,11 @@ public class FailureHandlerTest {
     router.get("/ex/reply2").handler(rc -> {
       throw new ReplyException(ReplyFailure.RECIPIENT_FAILURE);
     });
+    router.get("/ex/reply3").handler(rc -> {
+      JsonObject jsonObject = new JsonObject()
+              .put("foo", "bar");
+      throw new ReplyException(ReplyFailure.RECIPIENT_FAILURE, 1019, jsonObject.toString());
+    });
     router.route().failureHandler(FailureHandler.create());
     vertx.createHttpServer().requestHandler(router::accept)
             .listen(port, testContext.asyncAssertSuccess());
@@ -77,6 +82,7 @@ public class FailureHandlerTest {
                  resp -> {
                    resp.bodyHandler(body -> {
                      System.out.println(body.toString());
+                     System.out.println(resp.statusCode());
                      testContext.assertTrue(resp.statusCode() == 400);
                      testContext.assertEquals(DefaultErrorCode.MISSING_ARGS.getNumber(), new
                              JsonObject(body.toString()).getInteger("code"));
@@ -126,7 +132,7 @@ public class FailureHandlerTest {
                    resp.bodyHandler(body -> {
                      System.out.println(body.toString());
                      testContext.assertTrue(resp.statusCode() == 400);
-                     testContext.assertEquals(DefaultErrorCode.INVALID_REQ.getNumber(), new
+                     testContext.assertEquals(DefaultErrorCode.TIME_OUT.getNumber(), new
                              JsonObject(body.toString()).getInteger("code"));
                      async.complete();
                    });
@@ -141,8 +147,24 @@ public class FailureHandlerTest {
                  resp -> {
                    resp.bodyHandler(body -> {
                      System.out.println(body.toString());
-                     testContext.assertTrue(resp.statusCode() == 400);
+                     testContext.assertTrue(resp.statusCode() == 500);
                      testContext.assertEquals(-1, new
+                             JsonObject(body.toString()).getInteger("code"));
+                     async.complete();
+                   });
+                 }).end();
+  }
+
+  @Test
+  public void testReplyCode(TestContext testContext) {
+    Async async = testContext.async();
+    vertx.createHttpClient()
+            .get(port, "localhost", "/ex/reply3",
+                 resp -> {
+                   resp.bodyHandler(body -> {
+                     System.out.println(body.toString());
+                     testContext.assertTrue(resp.statusCode() == 400);
+                     testContext.assertEquals(1019, new
                              JsonObject(body.toString()).getInteger("code"));
                      async.complete();
                    });

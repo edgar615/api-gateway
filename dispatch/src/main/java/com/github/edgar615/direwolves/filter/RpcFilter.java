@@ -13,7 +13,7 @@ import com.github.edgar615.direwolves.core.rpc.RpcHandler;
 import com.github.edgar615.direwolves.core.rpc.RpcHandlerFactory;
 import com.github.edgar615.direwolves.core.rpc.RpcRequest;
 import com.github.edgar615.direwolves.core.rpc.RpcResponse;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.vertx.task.Task;
@@ -233,8 +233,9 @@ public class RpcFilter implements Filter {
                                     copyResp.responseObject().encode(), duration);
     }
     Log.create(LOGGER)
-            .setTraceId(request.id())
+            .setLogType("Filter")
             .setEvent("FallbackExecuted")
+            .setTraceId(request.id())
             .info();
     return response;
   }

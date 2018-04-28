@@ -1,7 +1,7 @@
 package com.github.edgar615.direwolves.core.apidiscovery;
 
 import com.github.edgar615.direwolves.core.definition.ApiDefinition;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -32,9 +32,18 @@ class ApiFinderImpl implements ApiFinder {
     this.discovery = discovery;
     reload("*", ar -> {
       if (ar.succeeded()) {
-        LOGGER.info("[ApiDiscovery,{}] [reload cache] {}", this.discovery.name());
+        Log.create(LOGGER)
+                .setLogType("ApiDiscovery")
+                .setEvent("cache.reloaded")
+                .addData("namespace", this.discovery.name())
+                .info();
       } else {
-        LOGGER.error("[ApiDiscovery,{}] [reload cache] {}", this.discovery.name(), ar.cause());
+        Log.create(LOGGER)
+                .setLogType("ApiDiscovery")
+                .setEvent("cache.reloaded")
+                .addData("namespace", this.discovery.name())
+                .setThrowable(ar.cause())
+                .error();
       }
     });
 

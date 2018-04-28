@@ -119,7 +119,7 @@ public class TokenFilter implements Filter {
             JsonObject jsonObject = body.toJsonObject();
             int code = jsonObject.getInteger("code", 1021);
             String message = jsonObject.getString("message", "Token Invalid");
-            CustomErrorCode errorCode = CustomErrorCode.create(code, message, 401);
+            CustomErrorCode errorCode = CustomErrorCode.create(code, message);
             SystemException e = SystemException.create(errorCode);
             completeHandler.handle(Future.failedFuture(e));
           } catch (Exception e1) {

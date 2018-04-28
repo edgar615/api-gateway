@@ -4,7 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Vertx;
@@ -71,6 +71,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
   private void onHalfOpen(String circuitBreakerName) {
     Log.create(LOGGER)
+            .setLogType("CircuitBreaker")
             .setEvent("BreakerHalfOpen")
             .addData("name", circuitBreakerName)
             .info();
@@ -81,6 +82,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
   private void onClose(String circuitBreakerName) {
     Log.create(LOGGER)
+            .setLogType("CircuitBreaker")
             .setEvent("BreakerClose")
             .addData("name", circuitBreakerName)
             .info();
@@ -91,6 +93,7 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
   private void onOpen(String circuitBreakerName) {
     Log.create(LOGGER)
+            .setLogType("CircuitBreaker")
             .setEvent("BreakerOpen")
             .addData("name", circuitBreakerName)
             .warn();

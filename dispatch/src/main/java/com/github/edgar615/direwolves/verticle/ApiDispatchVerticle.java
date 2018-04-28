@@ -2,7 +2,7 @@ package com.github.edgar615.direwolves.verticle;
 
 import com.github.edgar615.direwolves.core.cmd.CmdRegister;
 import com.github.edgar615.direwolves.core.utils.Consts;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.direwolves.dispatch.BaseHandler;
 import com.github.edgar615.direwolves.dispatch.DispatchHandler;
 import com.github.edgar615.direwolves.dispatch.FailureHandler;

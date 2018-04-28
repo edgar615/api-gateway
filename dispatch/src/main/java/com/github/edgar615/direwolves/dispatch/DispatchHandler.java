@@ -9,7 +9,7 @@ import com.github.edgar615.direwolves.core.dispatch.FilterFactory;
 import com.github.edgar615.direwolves.core.dispatch.Result;
 import com.github.edgar615.direwolves.core.utils.Consts;
 import com.github.edgar615.direwolves.core.utils.Filters;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -60,7 +60,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
     this.filters = ImmutableList.copyOf(filterList);
     this.filters.forEach(filter -> {
       Log.create(LOGGER)
-              .setEvent("filter.load")
+              .setLogType("Filter")
+              .setEvent("load")
               .addData("filter", filter.getClass().getSimpleName())
               .setMessage("[{}] [{}]")
               .addArg(filter.type())

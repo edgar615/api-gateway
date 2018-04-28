@@ -3,7 +3,7 @@ package com.github.edgar615.direwolves.filter;
 import com.github.edgar615.direwolves.core.definition.RegexPathApiDefinition;
 import com.github.edgar615.direwolves.core.dispatch.ApiContext;
 import com.github.edgar615.direwolves.core.dispatch.Filter;
-import com.github.edgar615.direwolves.core.utils.Log;
+import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +62,11 @@ public class PathParamFilter implements Filter {
         }
       } catch (UnsupportedEncodingException e) {
         Log.create(LOGGER)
+                .setLogType("Filter")
+                .setEvent("PathParam")
                 .setTraceId(apiContext.id())
                 .setEvent("path.decode.failed")
-                .error();
+                .warn();
       }
     }
     completeFuture.complete(apiContext);
