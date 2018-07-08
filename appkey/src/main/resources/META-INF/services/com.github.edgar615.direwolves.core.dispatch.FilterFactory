@@ -1,2 +1,3 @@
 com.github.edgar615.direwolves.plugin.appkey.AppKeyFilterFactory
 com.github.edgar615.direwolves.plugin.appkey.AppKeyRestrictionFilterFactory
+com.github.edgar615.direwolves.plugin.appkey.AppKeyHeaderFilterFactory

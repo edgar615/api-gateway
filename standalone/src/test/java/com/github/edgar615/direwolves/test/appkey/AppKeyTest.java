@@ -126,7 +126,7 @@ public class AppKeyTest {
                 System.out.println(body.toString());
                 JsonObject jsonObject = body.toJsonObject();
                 testContext.assertEquals("RmOI7jCvDtfZ1RcAkea1", jsonObject.getString("appKey"));
-                testContext.assertEquals(0, jsonObject.getValue("appId"));
+                testContext.assertEquals(0, jsonObject.getValue("clientCode"));
 //                testContext.assertTrue(details.containsKey("signMethod"));
                 check.set(true);
               });
@@ -155,7 +155,7 @@ public class AppKeyTest {
                 System.out.println(body.toString());
                 JsonObject jsonObject = body.toJsonObject();
                 testContext.assertEquals("RmOI7jCvDtfZ1RcAkea1", jsonObject.getString("appKey"));
-                testContext.assertEquals(0, jsonObject.getValue("appId"));
+                testContext.assertEquals(0, jsonObject.getValue("clientCode"));
 //                testContext.assertTrue(details.containsKey("signMethod"));
                 check.set(true);
               });
@@ -182,7 +182,7 @@ public class AppKeyTest {
                 System.out.println(body.toString());
                 JsonObject jsonObject = body.toJsonObject();
                 testContext.assertEquals("pyuywmyijucuzlfkhxvs", jsonObject.getString("appKey"));
-                testContext.assertEquals(100, jsonObject.getValue("appId"));
+                testContext.assertEquals(100, jsonObject.getValue("clientCode"));
 //                testContext.assertTrue(details.containsKey("signMethod"));
                 check.set(true);
               });

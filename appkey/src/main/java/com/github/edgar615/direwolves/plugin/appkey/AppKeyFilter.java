@@ -188,8 +188,8 @@ public class AppKeyFilter implements Filter {
       failed(completeFuture, apiContext.id(), "SignIncorrect", e);
     } else {
       apiContext.addVariable("client_appKey", app.getString("appKey", "anonymous"));
-      if (app.containsKey("appId")) {
-        apiContext.addVariable("client_appId", app.getValue("appId"));
+      if (app.containsKey("clientCode")) {
+        apiContext.addVariable("client_clientCode", app.getValue("clientCode"));
       }
       if (app.containsKey("permissions")) {
         apiContext.addVariable("client_permissions", app.getValue("permissions"));

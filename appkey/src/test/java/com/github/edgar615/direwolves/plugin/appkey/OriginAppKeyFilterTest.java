@@ -44,7 +44,7 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  int appCode = Integer.parseInt(Randoms.randomNumber(3));
+  int clientCode = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
 
@@ -70,7 +70,7 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
   public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("clientCode", clientCode)
             .put("appKey", UUID.randomUUID().toString());
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
@@ -107,7 +107,7 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("clientCode", clientCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
@@ -129,7 +129,7 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
   public void invalidSignShouldThrowInvalidReq(TestContext testContext) {
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("clientCode", clientCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
@@ -174,7 +174,7 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("clientCode", clientCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));
@@ -227,7 +227,7 @@ public class OriginAppKeyFilterTest extends AbstractAppKeyFilterTest {
   public void testSignWithBody(TestContext testContext) {
     JsonObject origin = new JsonObject()
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("clientCode", clientCode)
             .put("appKey", appKey);
     JsonObject config = new JsonObject()
             .put("data", new JsonArray().add(origin));

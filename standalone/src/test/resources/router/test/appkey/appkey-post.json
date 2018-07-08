@@ -9,7 +9,7 @@
       "type": "dummy",
       "result" : {
         "appKey" : "$var.client_appKey",
-        "appId" : "$var.client_appId",
+        "clientCode" : "$var.client_clientCode",
         "permissions" : "$var.client_permissions"
       }
     }

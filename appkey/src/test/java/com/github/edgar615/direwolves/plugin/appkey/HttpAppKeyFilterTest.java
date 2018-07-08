@@ -1,5 +1,9 @@
 package com.github.edgar615.direwolves.plugin.appkey;
 
+import com.github.edgar615.direwolves.core.rpc.RpcRequest;
+import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusRpcRequest;
+import com.github.edgar615.direwolves.core.rpc.http.HttpRpcRequest;
+import com.github.edgar615.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -45,7 +49,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  int appCode = Integer.parseInt(Randoms.randomNumber(3));
+  int clientCode = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
 
@@ -237,6 +241,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
             .put("appkey", config)
             .put("port", port));
     filters.add(filter);
+    filters.add(Filter.create(AppKeyHeaderFilter.class.getSimpleName(), vertx, new JsonObject()));
 
     try {
       TimeUnit.SECONDS.sleep(2);
@@ -268,6 +273,11 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
             .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     apiContext.setApiDefinition(definition);
     definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
+    RpcRequest rpcRequest = SimpleHttpRequest.create("test", "test");
+    apiContext.addRequest(rpcRequest);
+    RpcRequest eventbusReq = EventbusRpcRequest.create("test2", "test2","test.address", "point-to-point",
+            ArrayListMultimap.create(), new JsonObject());
+    apiContext.addRequest(eventbusReq);
 
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
@@ -278,6 +288,11 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
               testContext.assertTrue(context.params().containsKey("signMethod"));
               testContext.assertTrue(context.params().containsKey("v"));
               testContext.assertTrue(context.params().containsKey("appKey"));
+              HttpRpcRequest httpRpcRequest = (HttpRpcRequest) context.requests().get(0);
+              System.out.println(httpRpcRequest.headers());
+              testContext.assertTrue(httpRpcRequest.headers().containsKey("x-client-appkey"));
+              EventbusRpcRequest eventbusRpcRequest = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertTrue(eventbusRpcRequest.headers().containsKey("x-client-appkey"));
               async.complete();
             })
             .onFailure(t -> {
@@ -298,7 +313,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
                 .put("appSecret", appSecret)
-                .put("appCode", appCode)
+                .put("clientCode", clientCode)
                 .put("permissions", "all");
         req.response().end(jsonObject.encode());
       } else {

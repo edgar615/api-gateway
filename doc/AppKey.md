@@ -29,7 +29,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 校验通过后，会在上下文中存入三个变量，其他Filter可以根据这三个变量实现额外的功能：
 
 - client_appKey 必填
-- client_appId 可选
+- client_clientCode 可选
 - client_permissions 可选
 
 
@@ -57,7 +57,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
     "data": [ {
       "appKey": "RmOI7jCvDtfZ1RcAkea1",
       "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
-      "appId": 0,
+      "clientCode": 0,
       "permissions": "all"
     }]
   }
@@ -70,7 +70,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 一个AppKey有下列四个属性
 - **appKey** 必选，字符串
 - **appSecret** 必选 字符串
-- **appId** 可选 字符串或整数
+- **clientCode** 可选 字符串或整数
 - **permissions** 可选  字符串 权限范围，多个权限范围用逗号","分隔，如`device:read,device:write`
 
 **path的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**

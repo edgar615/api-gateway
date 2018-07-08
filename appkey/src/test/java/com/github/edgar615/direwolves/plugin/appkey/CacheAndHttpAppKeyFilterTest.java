@@ -46,7 +46,7 @@ public class CacheAndHttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
   String appSecret = UUID.randomUUID().toString();
 
-  int appCode = Integer.parseInt(Randoms.randomNumber(3));
+  int clientCode = Integer.parseInt(Randoms.randomNumber(3));
 
   String signMethod = "HMACMD5";
 
@@ -196,7 +196,7 @@ public class CacheAndHttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
     JsonObject jsonObject = new JsonObject()
             .put("appKey", appKey)
             .put("appSecret", appSecret)
-            .put("appCode", appCode)
+            .put("clientCode", clientCode)
             .put("permissions", "all");
     cache.put("appKey:" +appKey, jsonObject, ar -> {
       complete.set(true);
@@ -276,7 +276,7 @@ public class CacheAndHttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
                 .put("appSecret", appSecret)
-                .put("appCode", appCode)
+                .put("clientCode", clientCode)
                 .put("permissions", "all");
         req.response().end(jsonObject.encode());
       } else {

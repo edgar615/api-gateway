@@ -33,7 +33,7 @@ public class TestVerticle extends AbstractVerticle {
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", "pyuywmyijucuzlfkhxvs")
                 .put("appSecret", "5416cc11b35d403bba9505a05954517a")
-                .put("appId", 100)
+                .put("clientCode", 100)
                 .put("permissions", new JsonArray().add("all"));
         EventbusUtils.reply(msg, jsonObject, 0);
       } else {

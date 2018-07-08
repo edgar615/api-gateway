@@ -68,7 +68,7 @@
       {
         "appKey": "RmOI7jCvDtfZ1RcAkea1",
         "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
-        "appId": 0,
+        "clientCode": 0,
         "permissions": ["all"]
       }
     ],
