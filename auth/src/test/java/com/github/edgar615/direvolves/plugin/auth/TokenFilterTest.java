@@ -1,5 +1,9 @@
 package com.github.edgar615.direvolves.plugin.auth;
 
+import com.github.edgar615.direwolves.core.rpc.RpcRequest;
+import com.github.edgar615.direwolves.core.rpc.eventbus.EventbusRpcRequest;
+import com.github.edgar615.direwolves.core.rpc.http.HttpRpcRequest;
+import com.github.edgar615.direwolves.core.rpc.http.SimpleHttpRequest;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -145,9 +149,15 @@ public class TokenFilterTest {
                            new JsonObject().put("token", userConfig)
                                    .put("port", port));
     filters.add(filter);
+    filters.add(Filter.create(UserHeaderFilter.class.getSimpleName(), vertx, new JsonObject()));
     ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",
                                                                   "Bearer " + token),
                                              ArrayListMultimap.create());
+    RpcRequest rpcRequest = SimpleHttpRequest.create("test", "test");
+    apiContext.addRequest(rpcRequest);
+    RpcRequest eventbusReq = EventbusRpcRequest.create("test2", "test2","test.address", "point-to-point",
+            ArrayListMultimap.create(), new JsonObject());
+    apiContext.addRequest(eventbusReq);
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
@@ -157,6 +167,11 @@ public class TokenFilterTest {
               System.out.println(user);
               testContext.assertEquals(userId, user.getValue("userId"));
               testContext.assertTrue(user.containsKey("username"));
+              HttpRpcRequest httpRpcRequest = (HttpRpcRequest) context.requests().get(0);
+              System.out.println(httpRpcRequest.headers());
+              testContext.assertTrue(httpRpcRequest.headers().containsKey("x-client-principal"));
+              EventbusRpcRequest eventbusRpcRequest = (EventbusRpcRequest) context.requests().get(1);
+              testContext.assertTrue(eventbusRpcRequest.headers().containsKey("x-client-principal"));
               async.complete();
             })
             .onFailure(throwable -> {
