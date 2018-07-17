@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.edgar615</groupId>
-    <artifactId>direwolves</artifactId>
+    <artifactId>gateway</artifactId>
     <packaging>pom</packaging>
-    <version>${release.version}</version>
+    <version>1.1.3</version>
     <modules>
         <module>definition</module>
         <module>dispatch</module>
@@ -32,7 +32,7 @@
     </modules>
 
     <properties>
-        <release.version>1.1.2</release.version>
+        <gateway.release.version>1.1.3</gateway.release.version>
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
         <java.encoding>UTF-8</java.encoding>
@@ -324,8 +324,19 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.6</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
 
     </build>
 </project>
