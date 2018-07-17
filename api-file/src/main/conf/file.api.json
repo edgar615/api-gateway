@@ -1,8 +1,8 @@
 {
   "api.discovery" : {
     "name" : "iotp-app",
-    "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
-    "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
+    "publishedAddress" : "__com.github.edgar615.gateway.api.published",
+    "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
   },
   "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
 }

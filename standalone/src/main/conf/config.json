@@ -17,27 +17,27 @@
       }
     },
     "ApiDefinitionVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
+      "class": "com.github.edgar615.gateway.verticle.ApiDefinitionVerticle",
       "instances": 1,
       "worker": false,
       "config": {
       }
     },
     "FileApiDiscoveryVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle",
+      "class": "com.github.edgar615.gateway.verticle.FileApiDiscoveryVerticle",
       "instances": 1,
       "worker": false,
       "config": {
         "api.discovery" : {
           "name" : "iotp-app",
-          "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
-          "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
+          "publishedAddress" : "__com.github.edgar615.gateway.api.published",
+          "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
         },
         "file" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend"
       }
     },
     "RedisVerticle": {
-      "class": "com.github.edgar615.direwolves.redis.RedisVerticle",
+      "class": "com.github.edgar615.gateway.redis.RedisVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -53,7 +53,7 @@
       }
     },
     "ApiDispatchVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "class": "com.github.edgar615.gateway.verticle.ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "dependencies": [
@@ -65,8 +65,8 @@
         "bodyLimit":  1024,
         "api.discovery" : {
           "name" : "example",
-          "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
-          "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
+          "publishedAddress" : "__com.github.edgar615.gateway.api.published",
+          "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
         },
         "service.discovery" : {
           "announceAddress": "vertx.discovery.announce",

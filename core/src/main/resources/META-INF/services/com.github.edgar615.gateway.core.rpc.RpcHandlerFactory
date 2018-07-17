@@ -1,0 +1,3 @@
+com.github.edgar615.gateway.core.rpc.eventbus.EventbusHandlerFactory
+com.github.edgar615.gateway.core.rpc.dummy.DummyHandlerFactory
+com.github.edgar615.gateway.core.rpc.http.SimpleHttpRpcHandlerFactory

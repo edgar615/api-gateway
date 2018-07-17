@@ -1,0 +1,3 @@
+com.github.edgar615.gateway.core.definition.SimpleHttpEndpointCodec
+com.github.edgar615.gateway.core.definition.EventbusEndpointCodec
+com.github.edgar615.gateway.core.definition.DummyEndpointCodec

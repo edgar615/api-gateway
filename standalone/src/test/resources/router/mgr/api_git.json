@@ -8,7 +8,7 @@
       "policy": "point-point",
       "name": "git.api",
       "type": "eventbus",
-      "address" : "__com.github.edgar615.direwolves.api.discovery.git.example"
+      "address" : "__com.github.edgar615.gateway.api.discovery.git.example"
     }
   ]
 }

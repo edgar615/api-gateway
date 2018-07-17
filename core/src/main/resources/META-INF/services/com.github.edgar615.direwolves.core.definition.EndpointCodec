@@ -1,3 +1,0 @@
-com.github.edgar615.direwolves.core.definition.SimpleHttpEndpointCodec
-com.github.edgar615.direwolves.core.definition.EventbusEndpointCodec
-com.github.edgar615.direwolves.core.definition.DummyEndpointCodec

@@ -46,7 +46,7 @@ MainVerticle是我实现的一个工具类——用于启动有多个Verticle的
 {
   "verticles": {
     "ApiDefinitionVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
+      "class": "ApiDefinitionVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -54,7 +54,7 @@ MainVerticle是我实现的一个工具类——用于启动有多个Verticle的
       }
     },
     "ApiDispatchVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "class": "ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "dependencies": [
@@ -69,7 +69,7 @@ MainVerticle是我实现的一个工具类——用于启动有多个Verticle的
 verticles是config.json中必须包含的JSON对象，这个JSON对象的属性名就是需要启动的Verticle的名字。我们通过ApiDispatchVerticle来看下启动一个Verticle需要配置配置属性
 ```
 "ApiDispatchVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "class": "ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "dependencies": [
@@ -92,7 +92,7 @@ verticles是config.json中必须包含的JSON对象，这个JSON对象的属性�
 {
   "verticles": {
     "RedisVerticle": {
-      "class": "com.github.edgar615.direwolves.redis.RedisVerticle",
+      "class": "RedisVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -100,7 +100,7 @@ verticles是config.json中必须包含的JSON对象，这个JSON对象的属性�
       }
     },
     "ApiDispatchVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "class": "ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "dependencies": [
@@ -212,8 +212,8 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 {
   "api.discovery" : {
     "name" : "iotp-app",
-    "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
-    "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
+    "publishedAddress" : "__com.github.edgar615.gateway.api.published",
+    "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
   },
   "path" : "H:/csst/java-core/trunk/06SRC/iotp-app/router/api/backend",
   "watch" : true
@@ -225,7 +225,7 @@ API定义存放的路径
 是否监控path目录下文件的变化，如果开启，文件的任何变化都会引起对应ApiDiscovery的重新加载
 .**因为API的名称是写在文件中的，所以文件变化的时候，并不知道是变化的是哪个API，除非强制API名称就是文件名**
 
-FileApiDiscoveryVerticle订阅`__com.github.edgar615.direwolves.api.discovery.reload.<网关名>`事件，在接收到这个事件后会重新加载ApiDiscovery
+FileApiDiscoveryVerticle订阅`__com.github.edgar615.gateway.api.discovery.reload.<网关名>`事件，在接收到这个事件后会重新加载ApiDiscovery
 文件监听功能就是通过发送这个事件来实现的API刷新，我们也可以配置一个API路由来实现手动刷新
 ```
 {
@@ -238,7 +238,7 @@ FileApiDiscoveryVerticle订阅`__com.github.edgar615.direwolves.api.discovery.re
       "policy": "point-point",
       "name": "reload.api",
       "type": "eventbus",
-      "address" : "__com.github.edgar615.direwolves.api.discovery.reload.example"
+      "address" : "__com.github.edgar615.gateway.api.discovery.reload.example"
     }
   ]
 }
@@ -263,7 +263,7 @@ FileApiDiscoveryVerticle订阅`__com.github.edgar615.direwolves.api.discovery.re
 - path 本地clone的目录
 - name API网关的名称
 
-ApiGitVerticle订阅`__com.github.edgar615.direwolves.api.discovery.git.<网关名>`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
+ApiGitVerticle订阅`__com.github.edgar615.gateway.api.discovery.git.<网关名>`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
 ```
 {
   "name": "api.git.1.0.0",
@@ -275,7 +275,7 @@ ApiGitVerticle订阅`__com.github.edgar615.direwolves.api.discovery.git.<网关�
       "policy": "point-point",
       "name": "git.api",
       "type": "eventbus",
-      "address" : "__com.github.edgar615.direwolves.api.discovery.git.example"
+      "address" : "__com.github.edgar615.gateway.api.discovery.git.example"
     }
   ]
 }

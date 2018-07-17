@@ -1,0 +1,5 @@
+com.github.edgar615.gateway.cmd.AddApiCmdFactory
+com.github.edgar615.gateway.cmd.DeleteApiCmdFactory
+com.github.edgar615.gateway.cmd.GetApiCmdFactory
+com.github.edgar615.gateway.cmd.ListApiCmdFactory
+com.github.edgar615.gateway.cmd.ApiPluginCmdFactory

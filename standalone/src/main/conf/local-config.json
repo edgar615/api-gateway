@@ -1,7 +1,7 @@
 {
   "verticles": {
     "EventbusTestVerticle": {
-      "class": "com.github.edgar615.direwolves.standalone.TestVerticle",
+      "class": "com.github.edgar615.gateway.standalone.TestVerticle",
       "instances": 1,
       "worker": false,
       "config": {
@@ -38,27 +38,27 @@
       }
     },
     "ApiDefinitionVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDefinitionVerticle",
+      "class": "com.github.edgar615.gateway.verticle.ApiDefinitionVerticle",
       "instances": 1,
       "worker": false,
       "config": {
       }
     },
     "FileApiDiscoveryVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.FileApiDiscoveryVerticle",
+      "class": "com.github.edgar615.gateway.verticle.FileApiDiscoveryVerticle",
       "instances": 1,
       "worker": true,
       "config": {
         "api.discovery" : {
           "name" : "example",
-          "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
-          "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
+          "publishedAddress" : "__com.github.edgar615.gateway.api.published",
+          "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
         },
         "path" : "H:/api"
       }
     },
     "ApiGitVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiGitVerticle",
+      "class": "com.github.edgar615.gateway.verticle.ApiGitVerticle",
       "instances": 1,
       "worker": true,
       "dependencies": [
@@ -73,7 +73,7 @@
       }
     },
     "ApiDispatchVerticle": {
-      "class": "com.github.edgar615.direwolves.verticle.ApiDispatchVerticle",
+      "class": "com.github.edgar615.gateway.verticle.ApiDispatchVerticle",
       "instances": 1,
       "worker": false,
       "dependencies": [
@@ -84,8 +84,8 @@
         "bodyLimit": 1024,
         "api.discovery" : {
           "name" : "example",
-          "publishedAddress" : "__com.github.edgar615.direwolves.api.published",
-          "unpublishedAddress" : "__com.github.edgar615.direwolves.api.unpublished"
+          "publishedAddress" : "__com.github.edgar615.gateway.api.published",
+          "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
         },
         "service.discovery": {
           "announceAddress": "vertx.discovery.announce",

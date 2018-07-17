@@ -1,0 +1,10 @@
+com.github.edgar615.gateway.plugin.arg.UrlArgFilterFactory
+com.github.edgar615.gateway.plugin.arg.BodyArgFilterFactory
+com.github.edgar615.gateway.plugin.arg.StrictArgFilterFactory
+com.github.edgar615.gateway.plugin.transformer.RequestTransformerFilterFactory
+com.github.edgar615.gateway.plugin.transformer.ResponseTransformerFilterFactory
+com.github.edgar615.gateway.plugin.ip.IpRestrictionFilterFactory
+com.github.edgar615.gateway.plugin.transformer.EventbusRequestTransformerFilterFactory
+com.github.edgar615.gateway.plugin.acl.AclRestrictionFilterFactory
+com.github.edgar615.gateway.plugin.fallback.RequestFallbackFilterFactory
+com.github.edgar615.gateway.plugin.user.UserRestrictionFilterFactory
