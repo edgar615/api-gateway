@@ -32,7 +32,7 @@ public interface ApiDefinition {
    * API路径
    * 示例：/tasks，匹配请求：/tasks.
    * 示例：/tasks，匹配请求：/tasks.
-   * 示例：/tasks/([\\d+]+)/abandon，匹配请求/tasks/123/abandon
+   * 示例：/tasks/123/abandon，匹配请求/tasks/123/abandon
    *
    * @return API路径
    */

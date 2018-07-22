@@ -26,7 +26,6 @@ class ApiDefinitionUtils {
           match = matchPath(definition, filter.getString("path"));
           break;
         default:
-          // metadata
           match = true;
           break;
       }
