@@ -17,7 +17,7 @@ public class DummyEndpointCodec implements EndpointCodec {
     Preconditions.checkNotNull(type, "endpoint type cannot be null");
     Preconditions.checkArgument(type.equalsIgnoreCase("dummy"),
         "endpoint name must be dummy");
-    String name = jsonObject.getString("name");
+    String name = jsonObject.getString("name", "default");
     Preconditions.checkNotNull(name, "endpoint name cannot be null");
     JsonObject result = jsonObject.getJsonObject("result", new JsonObject());
 

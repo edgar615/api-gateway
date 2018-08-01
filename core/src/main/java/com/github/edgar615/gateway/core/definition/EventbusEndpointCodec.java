@@ -26,7 +26,7 @@ public class EventbusEndpointCodec implements EndpointCodec {
                                 "endpoint name must be eventbus");
     String address = jsonObject.getString("address");
     Preconditions.checkNotNull(address, "endpoint address cannot be null");
-    String name = jsonObject.getString("name");
+    String name = jsonObject.getString("name", "default");
     Preconditions.checkNotNull(name, "endpoint name cannot be null");
     String policy = jsonObject.getString("policy");
     Preconditions.checkNotNull(policy, "endpoint policy cannot be null");

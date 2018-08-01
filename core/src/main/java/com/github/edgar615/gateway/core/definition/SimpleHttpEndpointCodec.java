@@ -18,7 +18,7 @@ public class SimpleHttpEndpointCodec implements EndpointCodec {
     Preconditions.checkNotNull(type, "endpoint type cannot be null");
     Preconditions.checkArgument(type.equalsIgnoreCase("simple-http"),
                                 "endpoint name must be http");
-    String name = jsonObject.getString("name");
+    String name = jsonObject.getString("name", "default");
     Preconditions.checkNotNull(name, "endpoint name cannot be null");
     String path = jsonObject.getString("path");
     Preconditions.checkNotNull(path, "endpoint path cannot be null");

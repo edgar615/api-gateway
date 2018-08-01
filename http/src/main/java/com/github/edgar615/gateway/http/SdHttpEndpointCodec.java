@@ -20,7 +20,7 @@ public class SdHttpEndpointCodec implements EndpointCodec {
     Preconditions.checkNotNull(type, "endpoint type cannot be null");
     Preconditions.checkArgument(type.equalsIgnoreCase("http"),
                                 "endpoint name must be http");
-    String name = jsonObject.getString("name");
+    String name = jsonObject.getString("name", "default");
     Preconditions.checkNotNull(name, "endpoint name cannot be null");
     String service = jsonObject.getString("service");
     Preconditions.checkNotNull(service, "endpoint service cannot be null");

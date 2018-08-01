@@ -32,7 +32,7 @@ public class RequestTransformerPluginFactory implements ApiPluginFactory {
     JsonArray jsonArray = jsonObject.getJsonArray("request.transformer", new JsonArray());
     for (int i = 0; i < jsonArray.size(); i++) {
       JsonObject request = jsonArray.getJsonObject(i);
-      String name = request.getString("name");
+      String name = request.getString("name", "default");
       RequestTransformer transformer = RequestTransformer.create(name);
       RequestTransfomerConverter.fromJson(request, transformer);
 
