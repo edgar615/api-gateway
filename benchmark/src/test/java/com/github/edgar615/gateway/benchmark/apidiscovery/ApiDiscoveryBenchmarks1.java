@@ -47,7 +47,7 @@ public class ApiDiscoveryBenchmarks1 {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
-  @OperationsPerInvocation(10000)
+  @OperationsPerInvocation(100000)
   public void testApi(ApiBackend pool) {
     final CountDownLatch latch = new CountDownLatch(1);
     pool.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
@@ -64,51 +64,16 @@ public class ApiDiscoveryBenchmarks1 {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
-  @OperationsPerInvocation(10000)
+  @OperationsPerInvocation(100000)
   public void testAverage(ApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
+    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices"), ar -> {
       latch.countDown();
     });
     try {
       latch.await();
     } catch (InterruptedException e) {
       e.printStackTrace();
-    }
-  }
-
-  @State(Scope.Benchmark)
-  public static class ApiBackend {
-    private Vertx vertx;
-
-    private ApiDiscovery apiDiscovery;
-
-    public ApiBackend() {
-      vertx = Vertx.vertx();
-      apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
-      JsonObject apiConfig = new JsonObject()
-              .put("name", "app");
-      JsonObject config = new JsonObject()
-              .put("api.discovery", apiConfig)
-              .put("file", "H:\\csst\\java-core\\trunk\\06SRC\\iotp-app\\router\\api");
-      vertx.deployVerticle(FileApiDiscoveryVerticle.class,
-                           new DeploymentOptions().setConfig(config),
-                           Future.future());
-      try {
-        TimeUnit.SECONDS.sleep(3);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-
-    public void getDefinitions(JsonObject jsonObject,
-                               Handler<AsyncResult<List<ApiDefinition>>>
-                                       handler) {
-      apiDiscovery.getDefinitions(jsonObject, handler);
-    }
-
-    public void close() {
-      vertx.close();
     }
   }
 

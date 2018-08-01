@@ -22,14 +22,14 @@ import java.util.concurrent.TimeUnit;
 public class ApiDiscoveryEmptyApiBenchmarks {
 
   @State(Scope.Benchmark)
-  public static class ApiBackend {
+  public static class EmptyApiBackend {
     private Vertx vertx;
 
     private ApiDiscovery apiDiscovery;
 
-    public ApiBackend() {
+    public EmptyApiBackend() {
       vertx = Vertx.vertx();
-      apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName("app"));
+      apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions());
       try {
         TimeUnit.SECONDS.sleep(3);
       } catch (InterruptedException e) {
@@ -49,7 +49,7 @@ public class ApiDiscoveryEmptyApiBenchmarks {
   }
 
   @TearDown(Level.Trial)
-  public void tearDown(ApiBackend pool) {
+  public void tearDown(EmptyApiBackend pool) {
     pool.close();
   }
 
@@ -58,7 +58,7 @@ public class ApiDiscoveryEmptyApiBenchmarks {
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   @Fork(1)
   @OperationsPerInvocation(10000)
-  public void testThroughput(ApiBackend backend) {
+  public void testThroughput(EmptyApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
       latch.countDown();
@@ -75,7 +75,7 @@ public class ApiDiscoveryEmptyApiBenchmarks {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(1)
   @OperationsPerInvocation(10000)
-  public void testAverage(ApiBackend backend) {
+  public void testAverage(EmptyApiBackend backend) {
     final CountDownLatch latch = new CountDownLatch(1);
     backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
       latch.countDown();

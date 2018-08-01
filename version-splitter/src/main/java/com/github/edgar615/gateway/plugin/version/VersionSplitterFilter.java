@@ -34,14 +34,13 @@ public class VersionSplitterFilter implements Filter {
 
   private final Vertx vertx;
 
-  private final ApiFinder apiFinder;
+  private final ApiDiscovery discovery;
 
   public VersionSplitterFilter(Vertx vertx, JsonObject config) {
     this.vertx = vertx;
     JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
-    ApiDiscovery discovery = ApiDiscovery.create(vertx,
+    this.discovery = ApiDiscovery.create(vertx,
                                                  new ApiDiscoveryOptions(dicoveryConfig));
-    this.apiFinder = ApiFinder.create(vertx, discovery);
   }
 
   @Override
@@ -61,7 +60,7 @@ public class VersionSplitterFilter implements Filter {
 
   @Override
   public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    apiFinder.getDefinitions(apiContext.method().name(), apiContext.path(), ar -> {
+    discovery.filter(apiContext.method().name(), apiContext.path(), ar -> {
       if (ar.failed()) {
         failed(completeFuture, apiContext.id(), "ApiMatchFailure", ar.cause());
         return;

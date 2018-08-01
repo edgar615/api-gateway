@@ -32,12 +32,10 @@ public class FileApiDiscoveryVerticleTest {
 
   @Test
   public void testImportDirSuccess(TestContext testContext) {
-    String namespace = UUID.randomUUID().toString();
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions());
     JsonObject jsonObject = new JsonObject()
-            .put("path", "src/test/resources/api")
-            .put("api.discovery", new JsonObject().put("name", namespace));
+            .put("path", "src/test/resources/api");
 
     AtomicBoolean check1 = new AtomicBoolean();
     vertx.deployVerticle(FileApiDiscoveryVerticle.class,
@@ -66,12 +64,10 @@ public class FileApiDiscoveryVerticleTest {
 
   @Test
   public void testImportFileSuccess(TestContext testContext) {
-    String namespace = UUID.randomUUID().toString();
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions());
     JsonObject jsonObject = new JsonObject()
-            .put("path", "src/test/resources/api/device_add.json")
-            .put("api.discovery", new JsonObject().put("name", namespace));
+            .put("path", "src/test/resources/api/device_add.json");
 
     AtomicBoolean check1 = new AtomicBoolean();
     vertx.deployVerticle(FileApiDiscoveryVerticle.class,
@@ -102,7 +98,7 @@ public class FileApiDiscoveryVerticleTest {
   public void testInvalidJsonShouldNotAddAnyApi(TestContext testContext) {
     String namespace = UUID.randomUUID().toString();
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions());
 
     JsonObject jsonObject = new JsonObject()
             .put("path", "src/test/resources/invalid")

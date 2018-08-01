@@ -46,7 +46,7 @@ public class VersionApiSplitterFilterTest {
   @Before
   public void setUp(TestContext testContext) {
     vertx = Vertx.vertx();
-    apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
+    apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions());
     ApiUtils.registerApi(apiDiscovery, devicePort);
   }
 

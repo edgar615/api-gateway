@@ -81,6 +81,11 @@
             <artifactId>gateway-version-splitter</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.edgar615</groupId>
+            <artifactId>gateway-http</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

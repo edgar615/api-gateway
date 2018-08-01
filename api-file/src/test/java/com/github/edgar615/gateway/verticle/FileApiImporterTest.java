@@ -32,9 +32,8 @@ public class FileApiImporterTest {
 
   @Test
   public void testImportDirSuccess(TestContext testContext) {
-    String namespace = UUID.randomUUID().toString();
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions());
     JsonObject jsonObject = new JsonObject()
             .put("path", "src/test/resources/api");
 
@@ -66,9 +65,8 @@ public class FileApiImporterTest {
 
   @Test
   public void testImportFileSuccess(TestContext testContext) {
-    String namespace = UUID.randomUUID().toString();
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions());
     JsonObject jsonObject = new JsonObject()
             .put("path", "src/test/resources/api/device_add.json");
     AtomicBoolean check1 = new AtomicBoolean();
@@ -98,11 +96,10 @@ public class FileApiImporterTest {
 
   @Test
   public void testInvalidJsonShouldNotAddAnyApi(TestContext testContext) {
-    String namespace = UUID.randomUUID().toString();
     JsonObject jsonObject = new JsonObject()
             .put("path", "src/test/resources/invalid");
     ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions().setName(namespace));
+                                                 new ApiDiscoveryOptions());
 
     ApiImporter apiImporter = new FileApiImporter();
     AtomicBoolean check1 = new AtomicBoolean();

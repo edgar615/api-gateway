@@ -5,15 +5,19 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.shareddata.LocalMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
- * Created by Edgar on 2017/6/20.
+ * 使用本地map存储API.
+ * 最初LocalMap中存储的是string，但是经过压测发现每次通过string转为ApiDefinition，对性能的影响较大。
+ * 所以将ApiDefinition声明为Shareable，存储在LocalMap中(性能有显著提升)
  *
  * @author Edgar  Date 2017/6/20
  */
@@ -21,7 +25,11 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionBackend.class);
 
-    private final List<ApiDefinition> registry = new CopyOnWriteArrayList<>();
+    private final LocalMap<String, ApiDefinition> registry;
+
+    DefaultApiDefinitionBackend(Vertx vertx, String name) {
+        this.registry = vertx.sharedData().<String, ApiDefinition>getLocalMap(name);
+    }
 
     @Override
     public void store(ApiDefinition definition, Handler<AsyncResult<ApiDefinition>> resultHandler) {
@@ -29,8 +37,7 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
             resultHandler.handle(Future.failedFuture("definition is null"));
             return;
         }
-        registry.removeIf(d -> d.name().equals(definition.name()));
-        registry.add(definition);
+        registry.put(definition.name(), definition);
         resultHandler.handle(Future.succeededFuture(definition));
     }
 
@@ -40,11 +47,9 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
             resultHandler.handle(Future.failedFuture("name required"));
             return;
         }
-        Optional<ApiDefinition> optional = registry.stream()
-                .filter(d -> d.name().equals(name))
-                .findFirst();
-        if (optional.isPresent()) {
-            resultHandler.handle(Future.succeededFuture(optional.get()));
+        ApiDefinition definition = registry.remove(name);
+        if (definition != null) {
+            resultHandler.handle(Future.succeededFuture(definition));
         } else {
             resultHandler.handle(Future.failedFuture("Api: '" + name + "' not found"));
         }
@@ -52,7 +57,7 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
 
     @Override
     public void getDefinitions(Handler<AsyncResult<List<ApiDefinition>>> resultHandler) {
-        resultHandler.handle(Future.succeededFuture(registry));
+        resultHandler.handle(Future.succeededFuture(new ArrayList<>(registry.values())));
     }
 
     @Override
@@ -61,11 +66,9 @@ class DefaultApiDefinitionBackend implements ApiDefinitionBackend {
             resultHandler.handle(Future.failedFuture("name required"));
             return;
         }
-        Optional<ApiDefinition> optional = registry.stream()
-                .filter(d -> d.name().equals(name))
-                .findFirst();
-        if (optional.isPresent()) {
-            resultHandler.handle(Future.succeededFuture(optional.get()));
+        ApiDefinition definition = registry.get(name);
+        if (definition != null) {
+            resultHandler.handle(Future.succeededFuture(definition));
         } else {
             resultHandler.handle(Future.failedFuture("Api: '" + name + "' not found"));
         }

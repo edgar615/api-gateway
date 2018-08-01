@@ -30,6 +30,8 @@ class ApiDiscoveryImpl implements ApiDiscovery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiDiscovery.class);
 
+    private static final String NAME = "api-definition";
+
     private final Vertx vertx;
 
     private final ApiDefinitionBackend backend;
@@ -47,7 +49,7 @@ class ApiDiscoveryImpl implements ApiDiscovery {
         Objects.requireNonNull(options.getUnpublishedAddress());
         this.vertx = vertx;
         this.options = options;
-        this.backend = new DefaultApiDefinitionBackend();
+        this.backend = new DefaultApiDefinitionBackend(vertx, NAME);
         this.publishedAddress = options.getPublishedAddress();
         this.unpublishedAddress = options.getUnpublishedAddress();
     }
