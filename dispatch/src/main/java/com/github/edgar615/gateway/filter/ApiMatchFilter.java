@@ -2,7 +2,6 @@ package com.github.edgar615.gateway.filter;
 
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
-import com.github.edgar615.gateway.core.apidiscovery.ApiFinder;
 import com.github.edgar615.gateway.core.definition.ApiDefinition;
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
@@ -13,7 +12,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 该filter根据请求从API路由注册表中读取到对应的API定义.

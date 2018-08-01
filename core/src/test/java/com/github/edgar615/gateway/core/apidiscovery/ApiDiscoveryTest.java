@@ -31,250 +31,236 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(VertxUnitRunner.class)
 public class ApiDiscoveryTest {
 
-  Vertx vertx;
+    Vertx vertx;
 
-  ApiDiscovery discovery;
+    ApiDiscovery discovery;
 
-  String namespace;
-
-  @Before
-  public void setUp() {
-    namespace = UUID.randomUUID().toString();
-   vertx = Vertx.vertx();
-    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-  }
-
-  @After
-  public void clear() {
-    discovery.close();
-  }
-
-  @Test
-  public void testRegister(TestContext testContext) {
-    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/",
-                  80, "localhost");
-
-    ApiDefinition apiDefinition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-
-    AtomicInteger seq = new AtomicInteger();
-    List<ApiDefinition> definitions = new ArrayList<>();
-    definitions.add(apiDefinition);
-
-    ClusterDiscovery clusterDiscovery = new ClusterDiscovery(namespace, definitions, seq);
-    Awaitility.await().until(() -> seq.get() == definitions.size());
-
-
-    AtomicBoolean check1 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(1, ar.result().size());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
-
-    apiDefinition = ApiDefinition
-            .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-
-    AtomicBoolean completed = new AtomicBoolean();
-    clusterDiscovery.add(apiDefinition, completed);
-    Awaitility.await().until(() -> completed.get());
-
-    AtomicBoolean check2 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check2.set(true);
-    });
-
-    Awaitility.await().until(() -> check2.get());
-
-  }
-
-  @Test
-  public void testUniqueName(TestContext testContext) {
-    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/",
-                  80, "localhost");
-
-    ApiDefinition apiDefinition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-
-    AtomicInteger seq = new AtomicInteger();
-    List<ApiDefinition> definitions = new ArrayList<>();
-    definitions.add(apiDefinition);
-
-    ClusterDiscovery clusterDiscovery = new ClusterDiscovery(namespace, definitions, seq);
-    Awaitility.await().until(() -> seq.get() == definitions.size());
-
-
-    AtomicBoolean check1 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(1, ar.result().size());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
-
-    AtomicBoolean completed = new AtomicBoolean();
-    clusterDiscovery.add(apiDefinition, completed);
-    Awaitility.await().until(() -> completed.get());
-
-    AtomicBoolean check2 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(1, ar.result().size());
-      check2.set(true);
-    });
-
-    Awaitility.await().until(() -> check2.get());
-  }
-
-  @Test
-  public void testFilterByName(TestContext testContext) {
-    SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
-            .http("get_device", HttpMethod.GET, "devices/",
-                  80, "localhost");
-
-    ApiDefinition apiDefinition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-
-
-    final List<ApiDefinition> definitions = new CopyOnWriteArrayList<>();
-    definitions.add(apiDefinition);
-
-    apiDefinition = ApiDefinition
-            .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
-    definitions.add(apiDefinition);
-
-    AtomicInteger seq = new AtomicInteger();
-    ClusterDiscovery clusterDiscovery = new ClusterDiscovery(namespace, definitions, seq);
-    Awaitility.await().until(() -> seq.get() == definitions.size());
-
-    AtomicBoolean check1 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
-
-    AtomicBoolean check2 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "get_device"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(1, ar.result().size());
-      testContext.assertEquals("get_device", ar.result().get(0).name());
-      check2.set(true);
-    });
-    Awaitility.await().until(() -> check2.get());
-
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "get_device3"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(0, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-
-    AtomicBoolean check4 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "get*"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check4.set(true);
-    });
-    Awaitility.await().until(() -> check4.get());
-
-    AtomicBoolean check5 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "*device*"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(0, ar.result().size());
-      check5.set(true);
-    });
-    Awaitility.await().until(() -> check5.get());
-
-    AtomicBoolean check6 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "***"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(0, ar.result().size());
-      check6.set(true);
-    });
-    Awaitility.await().until(() -> check6.get());
-
-    AtomicBoolean check7 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "*"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check7.set(true);
-    });
-    Awaitility.await().until(() -> check7.get());
-
-    AtomicBoolean check8 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject().put("name", "***"), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(0, ar.result().size());
-      check8.set(true);
-    });
-    Awaitility.await().until(() -> check8.get());
-  }
-
-  private class ClusterDiscovery {
-
-    private ApiDiscovery apiDiscovery;
-
-    public ClusterDiscovery(String name, List<ApiDefinition> definitions, AtomicInteger seq) {
-      vertx
-              .deployVerticle(new AbstractVerticle() {
-                @Override
-                public void start() throws Exception {
-                  apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(name));
-                  for (ApiDefinition definition : definitions) {
-                    apiDiscovery.publish(definition,
-                                         ar -> seq.incrementAndGet());
-                  }
-                }
-              });
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+        discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions());
     }
 
-    public void add(ApiDefinition definition, AtomicBoolean complete) {
-      apiDiscovery.publish(definition, ar -> complete.set(true));
+    @After
+    public void clear() {
+        AtomicBoolean completed = new AtomicBoolean();
+        discovery.clear(ar -> completed.set(true));
+        Awaitility.await().until(() -> completed.get());
+
     }
 
-  }
+    @Test
+    public void testRegister(TestContext testContext) {
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(0, ar.result().size());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
+
+        SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+                .http("get_device", HttpMethod.GET, "devices/",
+                        80, "localhost");
+
+        ApiDefinition apiDefinition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+        AtomicBoolean completed = new AtomicBoolean();
+        discovery.publish(apiDefinition, ar -> completed.set(true));
+        Awaitility.await().until(() -> completed.get());
+
+        AtomicBoolean check2 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(1, ar.result().size());
+            check2.set(true);
+        });
+
+        Awaitility.await().until(() -> check2.get());
+
+    }
+
+    @Test
+    public void testUniqueName(TestContext testContext) {
+        SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+                .http("get_device", HttpMethod.GET, "devices/",
+                        80, "localhost");
+
+        ApiDefinition apiDefinition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+
+        AtomicBoolean completed = new AtomicBoolean();
+        discovery.publish(apiDefinition, ar -> completed.set(true));
+        Awaitility.await().until(() -> completed.get());
+
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(1, ar.result().size());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
+
+        AtomicBoolean completed2 = new AtomicBoolean();
+        discovery.publish(apiDefinition, ar -> completed2.set(true));
+        Awaitility.await().until(() -> completed2.get());
+
+        AtomicBoolean check2 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(1, ar.result().size());
+            check2.set(true);
+        });
+
+        Awaitility.await().until(() -> check2.get());
+    }
+
+    @Test
+    public void testFilterByName(TestContext testContext) {
+        SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+                .http("get_device", HttpMethod.GET, "devices/",
+                        80, "localhost");
+
+        ApiDefinition apiDefinition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+        AtomicBoolean completed = new AtomicBoolean();
+        discovery.publish(apiDefinition, ar -> completed.set(true));
+        Awaitility.await().until(() -> completed.get());
+
+        apiDefinition = ApiDefinition
+                .create("get_device2", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+        AtomicBoolean completed2 = new AtomicBoolean();
+        discovery.publish(apiDefinition, ar -> completed2.set(true));
+        Awaitility.await().until(() -> completed2.get());
+
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(2, ar.result().size());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
+
+        AtomicBoolean check2 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "get_device"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(1, ar.result().size());
+            testContext.assertEquals("get_device", ar.result().get(0).name());
+            check2.set(true);
+        });
+        Awaitility.await().until(() -> check2.get());
+
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "get_device3"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(0, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+
+        AtomicBoolean check4 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "get*"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(2, ar.result().size());
+            check4.set(true);
+        });
+        Awaitility.await().until(() -> check4.get());
+
+        AtomicBoolean check5 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "*device*"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(0, ar.result().size());
+            check5.set(true);
+        });
+        Awaitility.await().until(() -> check5.get());
+
+        AtomicBoolean check6 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "***"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(0, ar.result().size());
+            check6.set(true);
+        });
+        Awaitility.await().until(() -> check6.get());
+
+        AtomicBoolean check7 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "*"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(2, ar.result().size());
+            check7.set(true);
+        });
+        Awaitility.await().until(() -> check7.get());
+
+        AtomicBoolean check8 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject().put("name", "***"), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(0, ar.result().size());
+            check8.set(true);
+        });
+        Awaitility.await().until(() -> check8.get());
+    }
+
+    @Test
+    public void testFilter(TestContext testContext) {
+        SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
+                .http("get_device", HttpMethod.GET, "devices/",
+                        80, "localhost");
+
+        ApiDefinition apiDefinition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
+
+        AtomicBoolean completed = new AtomicBoolean();
+        discovery.publish(apiDefinition, ar -> completed.set(true));
+        Awaitility.await().until(() -> completed.get());
+
+        AtomicBoolean check2 = new AtomicBoolean();
+        discovery.filter("get", "/device", ar -> {
+            testContext.assertEquals(1, ar.result().size());
+            check2.set(true);
+        });
+        Awaitility.await().until(() -> check2.get());
+
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.filter("get", "/devices", ar -> {
+            testContext.assertEquals(0, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
+
 }

@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
-import com.github.edgar615.gateway.core.apidiscovery.ApiFinder;
 import com.github.edgar615.gateway.core.definition.ApiDefinition;
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;

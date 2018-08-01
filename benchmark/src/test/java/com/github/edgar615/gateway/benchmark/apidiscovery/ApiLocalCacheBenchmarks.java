@@ -2,7 +2,6 @@ package com.github.edgar615.gateway.benchmark.apidiscovery;
 
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
-import com.github.edgar615.gateway.core.apidiscovery.ApiFinder;
 import com.github.edgar615.gateway.core.definition.ApiDefinition;
 import com.github.edgar615.gateway.verticle.FileApiDiscoveryVerticle;
 import io.vertx.core.AsyncResult;

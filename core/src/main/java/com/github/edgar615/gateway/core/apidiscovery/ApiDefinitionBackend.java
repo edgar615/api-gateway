@@ -19,4 +19,6 @@ public interface ApiDefinitionBackend {
   void getDefinitions(Handler<AsyncResult<List<ApiDefinition>>> resultHandler);
 
   void getDefinition(String name, Handler<AsyncResult<ApiDefinition>> resultHandler);
+
+  void clear(Handler<AsyncResult<Void>> resultHandler);
 }
