@@ -37,7 +37,7 @@ public class MetricHelper {
    */
   public static MetricRegistry registry() {
     String regisryName = System.getProperty("vertx.metrics.options.registryName",
-                                            "gateway-register");
+                                            "api-gateway");
     MetricRegistry registry = SharedMetricRegistries.getOrCreate(regisryName);
     return registry;
   }
