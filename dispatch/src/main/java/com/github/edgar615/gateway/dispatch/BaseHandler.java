@@ -64,16 +64,16 @@ public class BaseHandler implements Handler<RoutingContext> {
       long reqTime = -1;
       long apiTime = -1;
       long responseTime = -1;
-      long apiCreatedOn = -1;
-      if (rc.data().containsKey("apiCreatedOn")) {
-        apiCreatedOn = (long) rc.data().get("apiCreatedOn");
-        apiTime = now - apiCreatedOn;
-        reqTime = apiCreatedOn - start;
+      long requestReceivedOn = -1;
+      if (rc.data().containsKey("requestReceivedOn")) {
+        requestReceivedOn = (long) rc.data().get("requestReceivedOn");
+        apiTime = now - requestReceivedOn;
+        reqTime = requestReceivedOn - start;
       }
       if (rc.data().containsKey("responsedOn")) {
         long responsedOn = (long) rc.data().get("responsedOn");
         responseTime = now - responsedOn;
-        apiTime = responsedOn - apiCreatedOn;
+        apiTime = responsedOn - requestReceivedOn;
       }
       Log.create(LOGGER)
               .setTraceId(id)

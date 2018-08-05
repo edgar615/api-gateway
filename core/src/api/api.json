@@ -1,0 +1,13 @@
+{
+  "name": "ping",
+  "method": "GET",
+  "path": "/ping",
+  "endpoints": [
+    {
+      "name": "ping",
+      "type": "dummy",
+      "result" : {
+      }
+    }
+  ]
+}

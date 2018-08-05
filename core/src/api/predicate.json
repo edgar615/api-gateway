@@ -1,0 +1,24 @@
+{
+  "predicate": {
+    "before" : "2018-08-05T17:05:02.717+08:00",
+    "after" : "2018-08-06T17:05:02.717+08:00",
+    "between": ["2018-08-05T17:05:02.717+08:00", "2018-08-06T17:05:02.717+08:00"],
+    "headerContains": ["X-Api-Version", "Content-Type"],
+    "headerEquals": {
+      "X-Api-Version": "0.0.1"
+    },
+    "headerRegex" : {
+      "X-Api-Version" : "\\d+"
+    },
+    "queryContains": ["version", "foo"],
+    "queryEquals": {
+      "X-Api-Version": "0.0.1"
+    },
+    "queryRegex" : {
+      "X-Api-Version" : "\\d+"
+    },
+    "versionEquals": "0.0.1",
+    "versionAtLeast": "0.0.1",
+    "versionAtMost": "0.0.1"
+  }
+}

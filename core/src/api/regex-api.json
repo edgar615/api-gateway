@@ -1,13 +1,13 @@
 {
-  "name": "ping",
+  "name": "user-regex",
   "method": "GET",
-  "path": "/ping",
+  "path": "/user/([\\d+]+)",
+  "type" : "regex",
   "endpoints": [
     {
-      "name": "ping",
-      "type": "dummy",
-      "result" : {
-      }
+      "type": "http",
+      "path": "/v1/$var.param0",
+      "service" : "user"
     }
   ]
 }
