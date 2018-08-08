@@ -1,10 +1,12 @@
 package com.github.edgar615.gateway.core.plugin.predicate;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
+import com.github.edgar615.gateway.core.utils.MultimapUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class QueryRegexPredicate implements ApiPredicate {
 
@@ -16,6 +18,17 @@ public class QueryRegexPredicate implements ApiPredicate {
   }
 
   public boolean test(ApiContext context) {
-    return false;
+    Set<String> names = query.keySet();
+    for (String name : names) {
+      String value = query.get(name);
+      String queryValue = MultimapUtils.getCaseInsensitive(context.params(), name);
+      if (queryValue == null) {
+        return false;
+      }
+      if (!queryValue.matches(value)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

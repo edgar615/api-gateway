@@ -1,6 +1,7 @@
 package com.github.edgar615.gateway.core.plugin.predicate;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
+import com.github.edgar615.gateway.core.utils.MultimapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,11 @@ public class HeaderContainsPredicate implements ApiPredicate {
   }
 
   public boolean test(ApiContext context) {
-    return false;
+    for (String header : headers) {
+      if (MultimapUtils.getCaseInsensitive(context.headers(), header) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 }
