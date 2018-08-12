@@ -1,7 +1,6 @@
-com.github.edgar615.gateway.filter.ApiMatchFilterFactory
+com.github.edgar615.gateway.filter.ApiFindFilterFactory
 com.github.edgar615.gateway.filter.PathParamFilterFactory
 com.github.edgar615.gateway.filter.AntPathParamFilterFactory
-com.github.edgar615.gateway.filter.ApiCheckFilterFactory
 com.github.edgar615.gateway.filter.HttpRequestReplaceFilterFactory
 com.github.edgar615.gateway.filter.TimeoutFilterFactory
 com.github.edgar615.gateway.filter.ExtractResultFilterFactory

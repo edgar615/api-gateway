@@ -1,6 +1,7 @@
 package com.github.edgar615.gateway.core.plugin.predicate;
 
 import com.github.edgar615.gateway.core.definition.ApiPlugin;
+import com.github.edgar615.gateway.core.dispatch.ApiContext;
 
 import java.util.ArrayList;
 import java.util.List;

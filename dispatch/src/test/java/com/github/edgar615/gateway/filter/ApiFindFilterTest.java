@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @author Edgar  Date 2017/1/9
  */
 @RunWith(VertxUnitRunner.class)
-public class ApiMatchFilterTest {
+public class ApiFindFilterTest {
 
   ApiDiscovery apiDiscovery;
 
@@ -58,7 +58,7 @@ public class ApiMatchFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiMatchFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -82,7 +82,7 @@ public class ApiMatchFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiMatchFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -90,15 +90,12 @@ public class ApiMatchFilterTest {
     }
     Filters.doFilter(task, Lists.newArrayList(filter))
             .andThen(context -> {
-              testContext.assertNull(context.apiDefinition());
-              async.complete();
+              testContext.fail();
             }).onFailure(throwable -> {
-      throwable.printStackTrace();
-      testContext.fail();
-//      testContext.assertTrue(throwable instanceof SystemException);
-//      SystemException se = (SystemException) throwable;
-//      testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, se.getErrorCode());
-//      async.complete();
+      testContext.assertTrue(throwable instanceof SystemException);
+      SystemException se = (SystemException) throwable;
+      testContext.assertEquals(DefaultErrorCode.RESOURCE_NOT_FOUND, se.getErrorCode());
+      async.complete();
     });
   }
 
@@ -109,7 +106,7 @@ public class ApiMatchFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiMatchFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -134,7 +131,7 @@ public class ApiMatchFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiMatchFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {
@@ -158,7 +155,7 @@ public class ApiMatchFilterTest {
     Task<ApiContext> task = Task.create();
     task.complete(apiContext);
     Async async = testContext.async();
-    Filter filter = Filter.create(ApiMatchFilter.class.getSimpleName(), vertx, config);
+    Filter filter = Filter.create(ApiFindFilter.class.getSimpleName(), vertx, config);
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException e) {

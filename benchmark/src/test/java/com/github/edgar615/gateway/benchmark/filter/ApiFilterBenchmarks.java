@@ -5,7 +5,7 @@ import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
 import com.github.edgar615.gateway.core.utils.Filters;
-import com.github.edgar615.gateway.filter.ApiMatchFilterFactory;
+import com.github.edgar615.gateway.filter.ApiFindFilterFactory;
 import com.github.edgar615.gateway.verticle.FileApiDiscoveryVerticle;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.DeploymentOptions;
@@ -131,7 +131,7 @@ public class ApiFilterBenchmarks {
       JsonObject jsonObject = new JsonObject()
               .put("namespace", "app");
 
-      filters.add(new ApiMatchFilterFactory().create(vertx, jsonObject));
+      filters.add(new ApiFindFilterFactory().create(vertx, jsonObject));
       try {
         TimeUnit.SECONDS.sleep(2);
       } catch (InterruptedException e) {
