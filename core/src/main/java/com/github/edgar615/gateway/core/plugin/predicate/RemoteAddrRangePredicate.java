@@ -34,4 +34,11 @@ public class RemoteAddrRangePredicate implements ApiPredicate {
     return ipNumber >= start && ipNumber <= end;
   }
 
+  public long start() {
+    return start;
+  }
+
+  public long end() {
+    return end;
+  }
 }

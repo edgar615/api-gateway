@@ -28,4 +28,8 @@ public class HeaderEqualsPredicate implements ApiPredicate {
     }
     return true;
   }
+
+  public Map<String, String> headers() {
+    return headers;
+  }
 }

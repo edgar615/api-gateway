@@ -10,11 +10,14 @@ import java.util.Objects;
 
 public class BeforePredicate implements ApiPredicate {
 
-  private final ZonedDateTime datetime;
+  private final ZonedDateTime zonedDateTime;
+
+  private final String dateTime;
 
   public BeforePredicate(String datetime) {
     Objects.requireNonNull(datetime);
-    this.datetime = ZonedDateTime.parse(datetime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    this.dateTime = datetime;
+    this.zonedDateTime = ZonedDateTime.parse(datetime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
   }
 
   public boolean test(ApiContext context) {
@@ -22,6 +25,10 @@ public class BeforePredicate implements ApiPredicate {
             System.currentTimeMillis());
     ZonedDateTime now = Instant.ofEpochMilli(requestReceivedOn).atOffset(ZoneOffset.ofTotalSeconds(0))
             .toZonedDateTime();
-    return now.isBefore(datetime);
+    return now.isBefore(zonedDateTime);
+  }
+
+  public String dateTime() {
+    return dateTime;
   }
 }

@@ -31,4 +31,8 @@ public class QueryEqualsPredicate implements ApiPredicate {
     }
     return true;
   }
+
+  public Map<String, String> query() {
+    return query;
+  }
 }

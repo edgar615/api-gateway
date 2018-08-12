@@ -18,4 +18,13 @@ public class PredicatePlugin implements ApiPlugin {
     this.predicates.add(predicate);
     return this;
   }
+
+  public PredicatePlugin addAll(List<ApiPredicate> predicates) {
+    this.predicates.addAll(predicates);
+    return this;
+  }
+
+  public List<ApiPredicate> predicates() {
+    return predicates;
+  }
 }

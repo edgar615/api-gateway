@@ -45,4 +45,8 @@ public class RemoteAddrAppointPredicate implements ApiPredicate {
     }
     return true;
   }
+
+  public List<String> appoint() {
+    return appoint;
+  }
 }

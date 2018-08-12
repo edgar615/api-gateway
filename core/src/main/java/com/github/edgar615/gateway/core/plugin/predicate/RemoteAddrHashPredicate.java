@@ -40,4 +40,11 @@ public class RemoteAddrHashPredicate implements ApiPredicate {
     return ipHash >= start && ipHash <= end;
   }
 
+  public int start() {
+    return start;
+  }
+
+  public int end() {
+    return end;
+  }
 }

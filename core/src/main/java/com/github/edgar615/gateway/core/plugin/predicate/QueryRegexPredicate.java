@@ -31,4 +31,8 @@ public class QueryRegexPredicate implements ApiPredicate {
     }
     return true;
   }
+
+  public Map<String, String> query() {
+    return query;
+  }
 }

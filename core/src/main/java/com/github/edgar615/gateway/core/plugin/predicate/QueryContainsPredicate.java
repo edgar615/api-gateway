@@ -24,4 +24,8 @@ public class QueryContainsPredicate implements ApiPredicate {
     }
     return true;
   }
+
+  public List<String> query() {
+    return query;
+  }
 }

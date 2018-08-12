@@ -24,4 +24,8 @@ public class HeaderContainsPredicate implements ApiPredicate {
     }
     return true;
   }
+
+  public List<String> headers() {
+    return headers;
+  }
 }
