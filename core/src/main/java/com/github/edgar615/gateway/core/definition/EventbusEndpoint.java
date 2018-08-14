@@ -49,6 +49,19 @@ public interface EventbusEndpoint extends Endpoint {
   }
 
   /**
+   * 创建Req-Resp类型的Endpoint，名称为"default"
+   *
+   * @param address 事件地址
+   * @param header  请求头
+   * @return
+   */
+  static EventbusEndpoint reqResp(String address, String action,
+                                  Multimap<String, String> header) {
+    return new EventbusEndpointImpl("default", address, EventbusEndpoint.REQ_RESP, action, header);
+  }
+
+
+  /**
    * 创建广播类型的Endpoint
    *
    * @param name    名称
@@ -62,6 +75,18 @@ public interface EventbusEndpoint extends Endpoint {
   }
 
   /**
+   * 创建广播类型的Endpoint，名称为"default"
+   *
+   * @param address 事件地址
+   * @param header  请求头
+   * @return
+   */
+  static EventbusEndpoint publish(String address, String action,
+                                  Multimap<String, String> header) {
+    return new EventbusEndpointImpl("default", address, EventbusEndpoint.PUB_SUB, action, header);
+  }
+
+  /**
    * 创建点对点类型的Endpoint
    *
    * @param name    名称
@@ -72,6 +97,18 @@ public interface EventbusEndpoint extends Endpoint {
   static EventbusEndpoint pointToPoint(String name, String address, String action,
                                        Multimap<String, String> header) {
     return new EventbusEndpointImpl(name, address, EventbusEndpoint.POINT_POINT, action, header);
+  }
+
+  /**
+   * 创建点对点类型的Endpoint，名称为"default"
+   *
+   * @param address 事件地址
+   * @param header  请求头
+   * @return
+   */
+  static EventbusEndpoint pointToPoint(String address, String action,
+                                       Multimap<String, String> header) {
+    return new EventbusEndpointImpl("default", address, EventbusEndpoint.POINT_POINT, action, header);
   }
 
   default String type() {

@@ -21,6 +21,17 @@ public interface DummyEndpoint extends Endpoint {
     return new DummyEndpointImpl(name, result);
   }
 
+  /**
+   * 创建一个Dummy类型的endpoint，名称为"default"
+   *
+   * @param result 　响应结果
+   * @return
+   */
+  static DummyEndpoint dummy(JsonObject result) {
+    return new DummyEndpointImpl("default", result);
+  }
+
+
   JsonObject result();
 
   default String type() {

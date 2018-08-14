@@ -26,6 +26,18 @@ public interface SdHttpEndpoint extends HttpEndpoint {
   }
 
   /**
+   * 创建HTTP类型的Endpoint，名称为"default"
+   *
+   * @param method  请求方法 GET | POST | DELETE | PUT
+   * @param path    API路径
+   * @param service 服务名，用于服务发现
+   * @return SdHttpEndpoint
+   */
+  static SdHttpEndpoint http(HttpMethod method, String path, String service) {
+    return new SdHttpEndpointImpl("default", method, path, service);
+  }
+
+  /**
    * @return 请求方法 GET | POST | DELETE | PUT.
    */
   HttpMethod method();
