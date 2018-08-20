@@ -6,8 +6,6 @@ import com.github.edgar615.util.exception.CustomErrorCode;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.ErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.log.LogType;
 import com.github.edgar615.util.validation.ValidationException;
 import com.github.edgar615.util.vertx.JsonUtils;
 import io.vertx.core.buffer.Buffer;
@@ -36,14 +34,8 @@ public class EventbusUtils {
 
   public static void onFailure(Message<JsonObject> received, long duration, Throwable throwable) {
     final String id = received.headers().get("x-request-id");
-    Log.create(LOGGER)
-            .setTraceId(id)
-            .setLogType(LogType.SES)
-            .setEvent(received.headers().get("x-request-address") + ".reply")
-            .setThrowable(throwable)
-            .setMessage("[{}ms]")
-            .addArg(duration)
-            .error();
+    LOGGER.error("[{}] [SER] [failed] [{}] [{}ms]", id, received.headers().get("x-request-address"),
+                 duration, throwable);
 
     if (throwable instanceof SystemException) {
       SystemException ex = (SystemException) throwable;
@@ -73,15 +65,9 @@ public class EventbusUtils {
       options.addHeader("x-request-address", received.headers().get("x-request-address"));
     }
 
-    Log.create(LOGGER)
-            .setTraceId(id)
-            .setLogType(LogType.SES)
-            .setEvent(received.headers().get("x-request-address") + ".reply")
-//            .addData("message", reply.encode())
-            .setMessage("[{}ms] [{}bytes]")
-            .addArg(duration)
-            .addArg(reply.toString().getBytes().length)
-            .info();
+    LOGGER.info("[{}] [SER] [OK] [{}bytes] [{}ms]", id,
+                received.headers().get("x-request-address"),
+                reply.toString().getBytes().length, duration);
     received.reply(reply, options);
   }
 

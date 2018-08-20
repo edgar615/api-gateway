@@ -58,20 +58,10 @@ class FileApiImporter implements ApiImporter {
     }, ar -> {
       if (ar.succeeded()) {
         List<Future> futures = addApiList(publisher, ar.result());
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent("imported")
-                .addData("path", path)
-                .info();
+        LOGGER.info("[ApiDiscovery] [fileImport] [OK] [{}]", path);
         checkResult(futures, complete);
-
       } else {
-        Log.create(LOGGER)
-                .setLogType("ApiImporter")
-                .setEvent("import.failed")
-                .addData("path", path)
-                .setThrowable(ar.cause())
-                .error();
+        LOGGER.error("[ApiDiscovery] [fileImport] [failed] [{}]", path, ar.cause());
         complete.complete();
       }
     });
@@ -95,11 +85,7 @@ class FileApiImporter implements ApiImporter {
     imported.forEach(name -> {
       Future<Void> fut = Future.future();
       fut.setHandler(ar -> {
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent("unregistering")
-                .addData("name", name)
-                .info();
+        LOGGER.info("[ApiDiscovery] [unpublish] [{}]", name);
         if (ar.succeeded()) {
           list.add(Future.succeededFuture());
         } else {
@@ -112,16 +98,10 @@ class FileApiImporter implements ApiImporter {
     CompositeFuture.all(list).setHandler(ar -> {
       imported.clear();
       if (ar.succeeded()) {
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent("close")
-                .info();
+        LOGGER.info("[ApiDiscovery] [closeImport] [{}]", FileApiImporter.class.getSimpleName());
       } else {
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent("close")
-                .setThrowable(ar.cause())
-                .error();
+        LOGGER.error("[ApiDiscovery] [closeImport] [{}]", FileApiImporter.class.getSimpleName(),
+                     ar.cause());
       }
       if (closeHandler != null) {
         closeHandler.handle(null);
@@ -148,11 +128,7 @@ class FileApiImporter implements ApiImporter {
         Future<ApiDefinition> addFuture = addApi(publisher, d);
         futures.add(addFuture);
       } catch (Exception e) {
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent("publish.failed")
-                .setThrowable(e)
-                .error();
+        LOGGER.error("[ApiDiscovery] [publish] [failed]", e);
       }
     }
     return futures;
@@ -189,11 +165,7 @@ class FileApiImporter implements ApiImporter {
         String defineJson = buffer.toString();
         datas.add(defineJson);
       } catch (Exception e) {
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent("read.failed")
-                .setThrowable(e)
-                .error();
+        LOGGER.error("[ApiDiscovery] [readFile] [failed]", e);
       }
     }
     return datas;

@@ -182,54 +182,40 @@ public class SimpleHttpHandler implements RpcHandler {
   }
 
   private void logRequestError(RpcRequest rpcRequest, Duration duration, Throwable throwable) {
-    Log.create(LOGGER)
-            .setTraceId(rpcRequest.id())
-            .setLogType(LogType.CR)
-            .setEvent("HTTP")
-            .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-                                                              duration.getCreatedon())
-            .addData("et", duration.getEndedOn() == 0 ? 0 :
-                    duration.getEndedOn() - duration.getCreatedon())
-            .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-                    duration.getRepliedOn() - duration.getCreatedon())
-            .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-                    duration.getBodyHandledOn() - duration.getCreatedon())
-            .setThrowable(throwable)
-            .error();
+
+    LOGGER.error("[{}] [CR] [HTTP] [failed] [{}ms]", rpcRequest.id(),
+                 duration.getRepliedOn() - duration.getCreatedon(), throwable);
+
+//    Log.create(LOGGER)
+//            .setTraceId(rpcRequest.id())
+//            .setLogType(LogType.CR)
+//            .setEvent("HTTP")
+//            .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
+//                                                              duration.getCreatedon())
+//            .addData("et", duration.getEndedOn() == 0 ? 0 :
+//                    duration.getEndedOn() - duration.getCreatedon())
+//            .addData("rt", duration.getRepliedOn() == 0 ? 0 :
+//                    duration.getRepliedOn() - duration.getCreatedon())
+//            .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
+//                    duration.getBodyHandledOn() - duration.getCreatedon())
+//            .setThrowable(throwable)
+//            .error();
   }
 
   private void logClientReceived(RpcResponse rpcResponse, Buffer body, Duration duration) {
-    Log.create(LOGGER)
-            .setTraceId(rpcResponse.id())
-            .setLogType(LogType.CR)
-            .setEvent("HTTP")
-            .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-                                                              duration.getCreatedon())
-            .addData("et", duration.getEndedOn() == 0 ? 0 :
-                    duration.getEndedOn() - duration.getCreatedon())
-            .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-                    duration.getRepliedOn() - duration.getCreatedon())
-            .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-                    duration.getBodyHandledOn() - duration.getCreatedon())
-            .setMessage(" [{}] [{}ms] [{} bytes]")
-            .addArg(rpcResponse.statusCode())
-            .addArg(rpcResponse.elapsedTime())
-            .addArg(body.getBytes().length)
-            .info();
+    LOGGER.info("[{}] [CR] [HTTP] [OK] [{}] [{}bytes] [{}ms]", rpcResponse.id(),
+                 rpcResponse.statusCode(),
+                 body.getBytes().length,
+                 rpcResponse.elapsedTime());
   }
 
   private void logClientSend(HttpRpcRequest httpRpcRequest) {
-    Log.create(LOGGER)
-            .setTraceId(httpRpcRequest.id())
-            .setLogType(LogType.CS)
-            .setEvent("HTTP")
-            .addData("server", httpRpcRequest.host() + ":" + httpRpcRequest.port())
-            .setMessage("[{}] [{}] [{}] [{}]")
-            .addArg(httpRpcRequest.method().name() + " " + httpRpcRequest.path())
-            .addArg(MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"))
-            .addArg(MultimapUtils.convertToString(httpRpcRequest.params(), "no param"))
-            .addArg(httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode())
-            .info();
+    LOGGER.info("[{}] [CS] [HTTP] [{}:{}] [{} {}] [{}] [{}] [{}]", httpRpcRequest.id(),
+                httpRpcRequest.host(),httpRpcRequest.port(),
+                httpRpcRequest.method().name(), httpRpcRequest.path(),
+                MultimapUtils.convertToString(httpRpcRequest.headers(), "no header"),
+                MultimapUtils.convertToString(httpRpcRequest.params(), "no param"),
+                httpRpcRequest.body() == null ? "no body" : httpRpcRequest.body().encode());
   }
 
   /**

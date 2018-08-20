@@ -30,11 +30,14 @@ public class ApiGitVerticle extends AbstractVerticle {
   private final static Logger LOGGER
           = LoggerFactory.getLogger(ApiGitVerticle.class);
 
-  private static final String RELOAD_ADDR_PREFIX = "__com.github.edgar615.gateway.api.discovery.reload.";
+  private static final String RELOAD_ADDR_PREFIX =
+          "__com.github.edgar615.gateway.api.discovery.reload.";
 
   private static final String GIT_ADDR_PREFIX = "__com.github.edgar615.gateway.api.discovery.git.";
 
   private static final String WEBHOOK_ADDR_PREFIX = "api.discovery.webhook.";
+
+  private static final String LOG_TYPE = ApiGitVerticle.class.getSimpleName();
 
   private File path;
 
@@ -47,14 +50,30 @@ public class ApiGitVerticle extends AbstractVerticle {
   private String name;
 
   private String secret;
-  private static final String LOG_TYPE=ApiGitVerticle.class.getSimpleName();
+
+  private static boolean verifySignature(String payload, String signature, String secret) {
+    boolean isValid = false;
+
+    try {
+      String actual = EncryptUtils.encryptHmacSha1(payload, secret);
+      String excepted = signature.substring(5);
+      System.out.println(actual);
+      System.out.println(excepted);
+      isValid = excepted.equalsIgnoreCase(actual);
+
+    } catch (IOException ex) {
+
+      ex.printStackTrace();
+
+    }
+
+    return isValid;
+  }
+
   @Override
   public void start() throws Exception {
-    Log.create(LOGGER)
-            .setLogType(LOG_TYPE)
-            .setEvent("deploying")
-            .addData("config", config().encode())
-            .info();
+    LOGGER.info("[Verticle] [start] [{}]",
+                ApiGitVerticle.class.getSimpleName());
     String name = Objects.requireNonNull(config().getString("name"),
                                          "The `name` configuration is required.");
     this.name = name;
@@ -62,11 +81,7 @@ public class ApiGitVerticle extends AbstractVerticle {
                                          "The `path` configuration is required.");
     this.path = new File(path);
     if (this.path.isFile()) {
-      Log.create(LOGGER)
-              .setLogType(LOG_TYPE)
-              .setEvent("deploying")
-              .setMessage("path must be a file")
-              .error();
+      logError("path must be a file");
       throw new IllegalArgumentException("The `path` must be a file");
     }
 
@@ -96,38 +111,19 @@ public class ApiGitVerticle extends AbstractVerticle {
     });
   }
 
-  private static boolean verifySignature(String payload, String signature, String secret) {
-    boolean isValid = false;
-
-    try {
-      String actual = EncryptUtils.encryptHmacSha1(payload, secret);
-      String excepted = signature.substring(5);
-      System.out.println(actual);
-      System.out.println(excepted);
-      isValid = excepted.equalsIgnoreCase(actual);
-
-    } catch (IOException ex) {
-
-      ex.printStackTrace();
-
-    }
-
-    return isValid;
-  }
-
   public void pullApi() {
     try {
       initializeGit();
     } catch (Exception e) {
-      Log.create(LOGGER)
-              .setLogType(LOG_TYPE)
-              .setEvent("git.pull")
-              .setMessage("Unable to initialize the Git repository")
-              .setThrowable(e)
-              .error();
+      logError("Unable to initialize the Git repository");
       throw new VertxException("Unable to initialize the Git repository", e);
     }
     vertx.eventBus().send(RELOAD_ADDR_PREFIX + name, new JsonObject());
+  }
+
+  private void logError(String message) {
+    LOGGER.error("[Verticle] [failed] [{}] [{}]",
+                ApiGitVerticle.class.getSimpleName(), message);
   }
 
   private Git initializeGit() throws IOException, GitAPIException {
@@ -137,15 +133,8 @@ public class ApiGitVerticle extends AbstractVerticle {
       if (branch.equalsIgnoreCase(current)) {
         PullResult pull = git.pull().setRemote(remote).call();
         if (!pull.isSuccessful()) {
-          Log.create(LOGGER)
-                  .setLogType(LOG_TYPE)
-                  .setEvent("git.pull")
-                  .setMessage("Unable to pull the branch '{}' from the remote repository '{}'")
-                  .addArg(branch)
-                  .addArg(remote)
-                  .error();
-          LOGGER.warn("Unable to pull the branch + '" + branch +
-                      "' from the remote repository '" + remote + "'");
+          logError("Unable to pull the branch + '" + branch +
+                   "' from the remote repository '" + remote + "'");
         }
         return git;
       } else {

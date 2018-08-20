@@ -1,8 +1,5 @@
 package com.github.edgar615.gateway.core.rpc.eventbus;
 
-import com.github.edgar615.gateway.core.definition.EventbusEndpoint;
-import com.github.edgar615.gateway.core.eventbus.EventbusUtils;
-import com.github.edgar615.gateway.core.utils.MultimapUtils;
 import com.google.common.collect.Multimap;
 
 import com.github.edgar615.gateway.core.definition.EventbusEndpoint;
@@ -49,15 +46,11 @@ public class EventbusRpcHandler implements RpcHandler {
     EventbusRpcRequest request = (EventbusRpcRequest) rpcRequest;
     DeliveryOptions deliveryOptions = createDeliveryOptions(request);
     JsonObject message = creeateMessage(request);
-    Log.create(LOGGER)
-            .setTraceId(request.id())
-            .setLogType(LogType.CES)
-            .setEvent(type().toUpperCase() + "." + ((EventbusRpcRequest) rpcRequest).policy())
-            .addData("address", request.address())
-            .setMessage("[{}] [{}]")
-            .addArg(MultimapUtils.convertToString(request.headers(), "no header"))
-            .addArg(request.message() == null ? "no body" : request.message().encode())
-            .info();
+    LOGGER.info("[{}] [CES] [{} {}] [{}] [{}]", request.id(),
+                ((EventbusRpcRequest) rpcRequest).policy(),
+                request.address(),
+                MultimapUtils.convertToString(request.headers(), "no header"),
+                request.message() == null ? "no body" : request.message().encode());
 
     Future<RpcResponse> future = Future.future();
     if (EventbusEndpoint.PUB_SUB.equalsIgnoreCase(request.policy())) {
@@ -147,35 +140,26 @@ public class EventbusRpcHandler implements RpcHandler {
           completed.complete(
                   RpcResponse.createJsonArray(id, 200, (JsonArray) result, elapsedTime));
         } else {
-          logError("req-resp", id, SystemException.create(DefaultErrorCode.INVALID_JSON));
+          logError("req-resp", id, elapsedTime,
+                   SystemException.create(DefaultErrorCode.INVALID_JSON));
           completed.fail(SystemException.create(DefaultErrorCode.INVALID_JSON));
           return;
         }
       } else {
-        logError("req-resp", id, ar.cause());
+        logError("req-resp", id, elapsedTime, ar.cause());
         failed(completed, ar.cause());
       }
     });
   }
 
   private void logSuccess(String type, String id, long elapsedTime, int bytes) {
-    Log.create(LOGGER)
-            .setTraceId(id)
-            .setLogType(LogType.CER)
-            .setEvent("EVENTBUS." + type)
-            .setMessage(" [{}ms] [{} bytes]")
-            .addArg(elapsedTime)
-            .addArg(bytes)
-            .info();
+    LOGGER.info("[{}] [CER] [OK] [{}bytes] [{}ms]", id,
+                bytes, elapsedTime);
   }
 
-  private void logError(String type, String id, Throwable throwable) {
-    Log.create(LOGGER)
-            .setTraceId(id)
-            .setLogType(LogType.CER)
-            .setEvent("EVENTBUS." + type)
-            .setThrowable(throwable)
-            .error();
+  private void logError(String type, String id, long elapsedTime, Throwable throwable) {
+    LOGGER.info("[{}] [CER] [failed] [{}ms]", id,
+                elapsedTime, throwable);
   }
 
 

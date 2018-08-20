@@ -49,10 +49,7 @@ public class UrlArgFilter implements Filter {
     try {
       Validations.validate(newContext.params(), rules);
     } catch (Exception e) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("QueryStringInvalid")
-              .warn();
+      LOGGER.warn("[{}] [UrlArgFilter] [{}]", apiContext.id(), "QueryStringInvalid");
       throw e;
     }
     completeFuture.complete(newContext);

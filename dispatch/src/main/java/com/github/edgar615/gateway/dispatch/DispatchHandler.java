@@ -59,14 +59,8 @@ public class DispatchHandler implements Handler<RoutingContext> {
     Filters.sort(filterList);
     this.filters = ImmutableList.copyOf(filterList);
     this.filters.forEach(filter -> {
-      Log.create(LOGGER)
-              .setLogType("Filter")
-              .setEvent("load")
-              .addData("filter", filter.getClass().getSimpleName())
-              .setMessage("[{}] [{}]")
-              .addArg(filter.type())
-              .addArg(filter.order())
-              .info();
+      Filter.LOGGER.info("[ApiGateway] [Filter] [{}] [{}] [{}]",
+                         filter.getClass().getSimpleName(), filter.type(), filter.order());
     });
   }
 

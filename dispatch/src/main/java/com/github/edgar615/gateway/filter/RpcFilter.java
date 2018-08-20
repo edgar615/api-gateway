@@ -13,7 +13,6 @@ import com.github.edgar615.gateway.core.rpc.RpcHandler;
 import com.github.edgar615.gateway.core.rpc.RpcHandlerFactory;
 import com.github.edgar615.gateway.core.rpc.RpcRequest;
 import com.github.edgar615.gateway.core.rpc.RpcResponse;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import com.github.edgar615.util.vertx.task.Task;
@@ -138,16 +137,14 @@ public class RpcFilter implements Filter {
       if (ar.failed()) {
         if (ar.cause() instanceof NoStackTraceThrowable
             && "operation timeout".equals(ar.cause().getMessage())) {
+          LOGGER.error("[{}] [{}] [{}]", traceId, RpcFilter.class.getSimpleName(), "timeout");
           future.fail(SystemException.create(DefaultErrorCode.TIME_OUT)
                               .set("timeout", config.getLong("timeout", 10000l)));
           return;
         }
         if (ar.cause() instanceof RuntimeException
             && "open circuit".equals(ar.cause().getMessage())) {
-          Log.create(LOGGER)
-                  .setTraceId(traceId)
-                  .setEvent("BreakerTripped")
-                  .error();
+          LOGGER.error("[{}] [{}] [{}]", traceId, RpcFilter.class.getSimpleName(), "BreakerTripped");
           future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
                               .set("details", String.format("Please try again after %ds",
                                                             config.getLong("resetTimeout",
@@ -232,11 +229,7 @@ public class RpcFilter implements Filter {
       response = RpcResponse.create(request.id(), copyResp.statusCode(),
                                     copyResp.responseObject().encode(), duration);
     }
-    Log.create(LOGGER)
-            .setLogType("Filter")
-            .setEvent("FallbackExecuted")
-            .setTraceId(request.id())
-            .info();
+    LOGGER.warn("[{}] [{}] [{}]", request.id(), RpcFilter.class.getSimpleName(), "FallbackExecuted");
     return response;
   }
 

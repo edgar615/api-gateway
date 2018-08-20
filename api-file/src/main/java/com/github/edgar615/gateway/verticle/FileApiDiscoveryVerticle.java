@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
-import com.github.edgar615.util.log.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -24,28 +23,18 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
 
     private static final String RELOAD_ADDR_PREFIX = "__com.github.edgar615.gateway.api.discovery.reload";
 
-    private static final String LOG_TYPE = FileApiDiscoveryVerticle.class.getSimpleName();
-
-    private static final String LOG_EVENT = "deploying";
-
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-        Log.create(LOGGER)
-                .setLogType(LOG_TYPE)
-                .setEvent(LOG_EVENT)
-                .addData("config", config().encode())
-                .info();
+        LOGGER.info("[Verticle] [start] [{}]",
+                    FileApiDiscoveryVerticle.class.getSimpleName());
         String path = null;
         if (config().getValue("path") instanceof String) {
             path = config().getString("path");
         }
         if (Strings.isNullOrEmpty(path)) {
-            Log.create(LOGGER)
-                    .setLogType(LOG_TYPE)
-                    .setEvent(LOG_EVENT)
-                    .setMessage("path required")
-                    .error();
-            startFuture.fail(LOG_EVENT);
+            LOGGER.info("[Verticle] [failed] [{}] [path required]",
+                        FileApiDiscoveryVerticle.class.getSimpleName());
+            startFuture.fail("path required");
             return;
         }
         ApiDiscovery discovery
@@ -57,17 +46,10 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
         FileApiImporter importer = new FileApiImporter();
         discovery.registerImporter(importer, importConfig, ar -> {
             if (ar.succeeded()) {
-                Log.create(LOGGER)
-                        .setLogType("ApiImporter")
-                        .setEvent("registered")
-                        .info();
+                LOGGER.info("[ApiDiscovery] [importRegistered] [OK]");
                 startFuture.complete();
             } else {
-                Log.create(LOGGER)
-                        .setLogType("ApiImporter")
-                        .setEvent("registered.failed")
-                        .setThrowable(ar.cause())
-                        .error();
+                LOGGER.error("[ApiDiscovery] [importRegistered] [failed]", ar.cause());
                 startFuture.fail(ar.cause());
             }
         });

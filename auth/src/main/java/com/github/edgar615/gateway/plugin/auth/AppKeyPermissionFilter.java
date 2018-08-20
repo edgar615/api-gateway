@@ -81,10 +81,7 @@ public class AppKeyPermissionFilter implements Filter {
       });
     }
     if (permissions.contains("all") || permissions.contains(permission)) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("ClientPermissionAdmitted")
-              .info();
+      log(apiContext.id(), "ClientPermissionAdmitted");
       completeFuture.complete(apiContext);
     } else {
       SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)

@@ -70,33 +70,21 @@ class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
   }
 
   private void onHalfOpen(String circuitBreakerName) {
-    Log.create(LOGGER)
-            .setLogType("CircuitBreaker")
-            .setEvent("BreakerHalfOpen")
-            .addData("name", circuitBreakerName)
-            .info();
+    LOGGER.info("[ApiGateway] [CircuitBreakerHalfOpen] [{}]", circuitBreakerName);
     vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
             .put("name", circuitBreakerName)
             .put("state", "halfOpen"));
   }
 
   private void onClose(String circuitBreakerName) {
-    Log.create(LOGGER)
-            .setLogType("CircuitBreaker")
-            .setEvent("BreakerClose")
-            .addData("name", circuitBreakerName)
-            .info();
+    LOGGER.info("[ApiGateway] [CircuitBreakerClose] [{}]", circuitBreakerName);
     vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
             .put("name", circuitBreakerName)
             .put("state", "close"));
   }
 
   private void onOpen(String circuitBreakerName) {
-    Log.create(LOGGER)
-            .setLogType("CircuitBreaker")
-            .setEvent("BreakerOpen")
-            .addData("name", circuitBreakerName)
-            .warn();
+    LOGGER.warn("[ApiGateway] [CircuitBreakerOpen] [{}]", circuitBreakerName);
     vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
             .put("name", circuitBreakerName)
             .put("state", "open"));

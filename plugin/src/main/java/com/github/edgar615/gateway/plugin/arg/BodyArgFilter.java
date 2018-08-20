@@ -57,10 +57,7 @@ public class BodyArgFilter implements Filter {
     plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));
     try {
       Validations.validate(newContext.body().getMap(), rules);
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("BodyInvalid")
-              .warn();
+      LOGGER.warn("[{}] [BodyArgFilter] [{}]", apiContext.id(), "BodyInvalid");
     } catch (Exception e) {
       throw e;
     }

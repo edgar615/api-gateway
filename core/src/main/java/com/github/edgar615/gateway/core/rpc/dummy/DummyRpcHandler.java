@@ -37,13 +37,8 @@ public class DummyRpcHandler implements RpcHandler {
   public Future<RpcResponse> handle(RpcRequest rpcRequest) {
     DummyRequest request = (DummyRequest) rpcRequest;
     Future<RpcResponse> future = Future.future();
-    Log.create(LOGGER)
-            .setTraceId(request.id())
-            .setLogType(LogType.LOG)
-            .setEvent(type().toUpperCase())
-            .setMessage("[0ms] [{}bytes]")
-            .addArg(request.result().encode().getBytes().length)
-            .info();
+    LOGGER.info("[{}] [DUMMY] [OK] [{}bytes] [{}ms]", request.id(),
+                request.result().encode().getBytes().length, 0);
     future.complete(RpcResponse.createJsonObject(request.id(), 200, request.result(), 0));
     return future;
   }

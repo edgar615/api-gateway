@@ -39,9 +39,11 @@ class ServiceFinderImpl implements ServiceFinder {
     //启动时加载所有服务
     reload(ar -> {
       if (ar.succeeded()) {
+        //todo
         Log.create(LOGGER)
                 .setEvent("service.load.succeed");
       } else {
+        //todo
         Log.create(LOGGER)
                 .setEvent("service.load.failure")
                 .setThrowable(ar.cause());

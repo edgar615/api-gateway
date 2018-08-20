@@ -4,10 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 import com.github.edgar615.gateway.core.metric.ApiMetric;
-import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.log.LogType;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,58 +38,51 @@ public class BaseHandler implements Handler<RoutingContext> {
     rc.put("x-request-id", id);
     long start = System.currentTimeMillis();
     rc.put("x-request-time", start);
-    Log.create(LOGGER)
-            .setTraceId(id)
-            .setLogType(LogType.SR)
-            .setEvent("HTTP")
-            .setMessage("[{} {}] [{}] [{}] [{}]")
-            .addArg(rc.request().method().name())
-            .addArg(rc.normalisedPath())
-            .addArg(mutiMapToString(rc.request().headers(), "no header"))
-            .addArg(mutiMapToString(rc.request().params(), "no param"))
-            .addArg((rc.getBody() == null || rc.getBody().length() == 0) ? "no body" : rc.getBody()
-                    .toString())
-            .info();
-
+    LOGGER.info("[{}] [SR] [HTTP] [{} {}] [{}] [{}] [{}] [{}]", id, rc.request().method().name(),
+                rc.normalisedPath(),
+                mutiMapToString(rc.request().headers(), "no header"),
+                mutiMapToString(rc.request().params(), "no param"),
+                body(rc), getClientIp(rc.request())
+    );
 
     rc.addHeadersEndHandler(v -> {
       rc.response().putHeader("x-server-time",
-                              ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME ));
+                              ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
     });
 
     rc.addBodyEndHandler(v -> {
-      long now = System.currentTimeMillis();
-      long duration = now - start;
-      long reqTime = -1;
-      long apiTime = -1;
-      long responseTime = -1;
-      long requestReceivedOn = -1;
-      if (rc.data().containsKey("requestReceivedOn")) {
-        requestReceivedOn = (long) rc.data().get("requestReceivedOn");
-        apiTime = now - requestReceivedOn;
-        reqTime = requestReceivedOn - start;
-      }
-      if (rc.data().containsKey("responsedOn")) {
-        long responsedOn = (long) rc.data().get("responsedOn");
-        responseTime = now - responsedOn;
-        apiTime = responsedOn - requestReceivedOn;
-      }
-      Log.create(LOGGER)
-              .setTraceId(id)
-              .setLogType(LogType.SS)
-              .setEvent("HTTP")
-              .addData("bf", reqTime)//API处理之前的耗时
-              .addData("api", apiTime)//API处理的耗时
-              .addData("resp", responseTime)//响应耗时
-              .setMessage(" [{}] [{}] [{}ms] [{} bytes]")
-              .addArg(rc.response().getStatusCode())
-              .addArg(mutiMapToString(rc.response().headers(), "no header"))
-              .addArg(duration)
-              .addArg(rc.response().bytesWritten())
-              .info();
+      long duration = System.currentTimeMillis() - start;
+      LOGGER.info("[{}] [SS] [HTTP] [{}] [{}] [{}bytes] [{}ms]", id,
+                  rc.response().getStatusCode(),
+                  mutiMapToString(rc.response().headers(), "no header"),
+                  rc.response().bytesWritten(),
+                  duration);
       responseMetric(rc, duration);
     });
     rc.next();
+  }
+
+  private String body(RoutingContext rc) {
+    return (rc.getBody() == null || rc.getBody().length() == 0)
+            ? "no body" : rc.getBody().toString();
+  }
+
+  private String getClientIp(HttpServerRequest request) {
+    String ip = request.getHeader("X-Forwarded-For");
+    if (!Strings.isNullOrEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
+      //多次反向代理后会有多个ip值，第一个ip才是真实ip
+      int index = ip.indexOf(",");
+      if (index != -1) {
+        return ip.substring(0, index);
+      } else {
+        return ip;
+      }
+    }
+    ip = request.getHeader("X-Real-IP");
+    if (!Strings.isNullOrEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
+      return ip;
+    }
+    return request.remoteAddress().host();
   }
 
   private void responseMetric(RoutingContext rc, long duration) {

@@ -1,5 +1,6 @@
 package com.github.edgar615.gateway.dispatch;
 
+import com.github.edgar615.gateway.core.dispatch.Filter;
 import com.github.edgar615.gateway.core.eventbus.EventbusUtils;
 import com.github.edgar615.gateway.core.utils.Consts;
 import com.github.edgar615.util.exception.DefaultErrorCode;
@@ -55,20 +56,9 @@ public class FailureHandler implements Handler<RoutingContext> {
       }
     }
     if (ex.getErrorCode() == DefaultErrorCode.UNKOWN) {
-      Log.create(LOGGER)
-              .setTraceId(id)
-              .setLogType("FAILURE")
-              .setEvent("HTTP")
-              .setMessage(failureMsg.encode())
-              .setThrowable(throwable)
-              .error();
+      LOGGER.error("[{}] [failed] [{}]", id, failureMsg.encode(), throwable);
     } else {
-      Log.create(LOGGER)
-              .setTraceId(id)
-              .setLogType("FAILURE")
-              .setEvent("HTTP")
-              .setMessage(failureMsg.encode())
-              .warn();
+      LOGGER.warn("[{}] [failed] [{}]", id, failureMsg.encode());
     }
     response.putHeader("x-request-id", id)
             .setStatusCode(statusCode).end(failureMsg.encode());

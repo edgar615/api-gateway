@@ -2,7 +2,6 @@ package com.github.edgar615.gateway.core.dispatch;
 
 import com.google.common.collect.ImmutableList;
 
-import com.github.edgar615.util.log.Log;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -59,13 +58,6 @@ public interface Filter {
   void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture);
 
   /**
-   * 运行时更新配置
-   * @param config
-   */
-  default void updateConfig(JsonObject config) {
-    //do nothing
-  }
-  /**
    * 创建一个过滤器.
    *
    * @param name   过滤器的名称
@@ -83,14 +75,24 @@ public interface Filter {
     return list.get(0).create(vertx, config);
   }
 
+  /**
+   * 运行时更新配置
+   *
+   * @param config
+   */
+  default void updateConfig(JsonObject config) {
+    //do nothing
+  }
+
+  default void log(String traceId, String event) {
+    LOGGER.info("[{}] [ApiGateway] [{}]", traceId, event);
+  }
+
   default void failed(Future<ApiContext> completeFuture,
                       String traceId,
                       String event,
                       Throwable throwable) {
-    Log.create(LOGGER)
-            .setTraceId(traceId)
-            .setEvent(event)
-            .warn();
+    LOGGER.warn("[{}] [ApiGateway] [{}]", traceId, event);
     completeFuture.fail(throwable);
   }
 

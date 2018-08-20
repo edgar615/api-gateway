@@ -128,11 +128,7 @@ public class ServiceDiscoveryFilter implements Filter {
     //todo 处理tag未找到时，向默认服务转发的逻辑
     loadBalance.chooseServer(service, serviceFilters, ar -> {
       if (ar.failed() || ar.result() == null) {
-        Log.create(LOGGER)
-                .setTraceId(apiContext.id())
-                .setEvent("ServiceNonExistent")
-                .addData("service", service)
-                .warn();
+        LOGGER.warn("[{}] [ServiceDiscoveryFilter] [{}]", apiContext.id(), "ServiceNonExistent");
         future.complete(null);
         return;
       }

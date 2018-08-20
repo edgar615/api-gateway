@@ -1,6 +1,5 @@
 package com.github.edgar615.gateway.redis;
 
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.redis.RedisClientHelper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -20,22 +19,13 @@ public class RedisVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    Log.create(LOGGER)
-            .setEvent("redis.deploying")
-            .addData("config", config())
-            .info();
     JsonObject redisConfig = config().getJsonObject("redis", new JsonObject());
     RedisClient redisClient = RedisClientHelper.createShared(vertx, redisConfig);
     redisClient.ping(ar -> {
       if (ar.succeeded()) {
-        Log.create(LOGGER)
-                .setEvent("redis.started.succeed")
-                .info();
         startFuture.complete();
       } else {
-        Log.create(LOGGER)
-                .setEvent("redis.started.failed")
-                .error();
+        LOGGER.error("[Redis] [unconnected] [{}]", ar.cause());
         startFuture.fail(ar.cause());
       }
     });

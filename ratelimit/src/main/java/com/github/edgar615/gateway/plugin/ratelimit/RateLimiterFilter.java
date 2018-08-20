@@ -49,11 +49,13 @@ public class RateLimiterFilter implements Filter {
     tokenBucket = new MultiTokenBucket(vertx, redisClient, future);
     future.setHandler(ar -> {
       if (ar.succeeded()) {
+        //todo
         Log.create(LOGGER)
                 .setEvent("ratelimiter.init.succeed")
                 .info();
         luaLoaded.set(true);
       } else {
+        //todo
         Log.create(LOGGER)
                 .setEvent("ratelimiter.init.succeed")
                 .error();
@@ -114,10 +116,8 @@ public class RateLimiterFilter implements Filter {
         ratelimitDetails.forEach((k, v) -> apiContext.addVariable(k, v));
         completeFuture.complete(apiContext);
       } else {
-        Log.create(LOGGER)
-                .setEvent("RateLimiterTripped")
-                .addData("details", result.details())
-                .warn();
+        LOGGER.warn("[{}] [RateLimiterFilter] [{}] [{}]", apiContext.id(), "RateLimiterTripped",
+                    result.details());
         SystemException se = SystemException.create(DefaultErrorCode.TOO_MANY_REQ);
         Map<String, Object> ratelimitDetails = ratelimitDetails(rules, result.details());
         ratelimitDetails.forEach((k, v) -> se.set(k, v));

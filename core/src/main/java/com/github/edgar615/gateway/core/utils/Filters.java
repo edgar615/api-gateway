@@ -2,8 +2,6 @@ package com.github.edgar615.gateway.core.utils;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
-import com.github.edgar615.gateway.core.dispatch.ApiContext;
-import com.github.edgar615.gateway.core.dispatch.Filter;
 import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
@@ -78,12 +76,8 @@ public class Filters {
       task = task.flatMap(filterName, apiContext -> {
         if (filter.shouldFilter(apiContext)) {
           invoked.put(filterName, true);
-          Log.create(Filter.LOGGER)
-                  .setLogType("Filter")
-                  .setTraceId(apiContext.id())
-                  .setEvent(filter.getClass().getSimpleName() + ".invoke")
-                  .info();
-
+          Filter.LOGGER.debug("[{}] [filterStart] [{}]", apiContext.id(),
+                              filter.getClass().getSimpleName());
           apiContext.addVariable("filterStarted", System.currentTimeMillis());
           Future<ApiContext> completeFuture = Future.future();
           filter.doFilter(apiContext.copy(), completeFuture);
@@ -103,14 +97,9 @@ public class Filters {
           } catch (Exception e) {
             //ignore
           }
-
-          Log.create(Filter.LOGGER)
-                  .setTraceId(apiContext.id())
-                  .setLogType("Filter")
-                  .setEvent(filter.getClass().getSimpleName() + ".invoked")
-                  .setMessage("[{}ms]")
-                  .addArg(System.currentTimeMillis() - filterStarted)
-                  .info();
+          Filter.LOGGER.debug("[{}] [filterEnd] [{}] [{}ms]", apiContext.id(),
+                              filter.getClass().getSimpleName(),
+                              System.currentTimeMillis() - filterStarted);
         }
       });
     }

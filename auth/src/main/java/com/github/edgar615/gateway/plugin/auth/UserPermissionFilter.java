@@ -63,19 +63,12 @@ public class UserPermissionFilter implements Filter {
     }
 
     if (permissions.contains("all") || permissions.contains(appScope)) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("UserPermissionAdmitted")
-              .info();
+      log(apiContext.id(), "UserPermissionAdmitted");
       completeFuture.complete(apiContext);
     } else {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("UserPermissionDenied")
-              .warn();
       SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
               .set("details", "User does not have permission");
-      completeFuture.fail(ex);
+      failed(completeFuture, apiContext.id(), "UserPermissionDenied", ex);
     }
 
   }

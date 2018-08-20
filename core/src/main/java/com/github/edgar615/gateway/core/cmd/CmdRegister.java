@@ -34,11 +34,11 @@ public class CmdRegister implements Initializable {
             .map(f -> f.create(vertx, config))
             .forEach(cmd -> {
               String address = cmdAddress(cmd.cmd());
-              Log.create(LOGGER)
-                      .setLogType("ApiDiscovery")
-                      .setEvent("register")
-                      .addData("address", cmd.cmd())
-                      .info();
+//              Log.create(LOGGER)
+//                      .setLogType("ApiDiscovery")
+//                      .setEvent("register")
+//                      .addData("address", cmd.cmd())
+//                      .info();
 
               eb.<JsonObject>consumer(address, msg -> {
                 try {
@@ -54,12 +54,12 @@ public class CmdRegister implements Initializable {
   public void consumer(ApiCmd cmd, Message<JsonObject> received) {
     JsonObject message = received.body();
     final String id = received.headers().get("x-request-id");
-    Log.create(LOGGER)
-            .setTraceId(id)
-            .setLogType(LogType.SER)
-            .setEvent(cmd.cmd())
-            .addData("message", message)
-            .info();
+//    Log.create(LOGGER)
+//            .setTraceId(id)
+//            .setLogType(LogType.SER)
+//            .setEvent(cmd.cmd())
+//            .addData("message", message)
+//            .info();
     long started = System.currentTimeMillis();
     Future<JsonObject> future = cmd.handle(message.put("traceId", id));
     future.setHandler(ar -> {

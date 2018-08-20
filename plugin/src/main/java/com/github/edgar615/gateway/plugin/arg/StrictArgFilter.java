@@ -74,10 +74,7 @@ public class StrictArgFilter implements Filter {
               .forEach(k -> error.put(k, "prohibited"));
     }
     if (!error.isEmpty()) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setEvent("ArgProhibited")
-              .warn();
+      LOGGER.warn("[{}] [StrictArgFilter] [{}]", apiContext.id(), "ArgProhibited");
       throw new ValidationException(error);
     }
 

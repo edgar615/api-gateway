@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.gateway.core.utils.MultimapUtils;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -81,16 +80,9 @@ public class TimeoutFilter implements Filter {
     long currentTime = Instant.now().getEpochSecond();
     if ((timestamp > currentTime + timeout)
         || (timestamp < currentTime - timeout)) {
-      Log.create(LOGGER)
-              .setTraceId(apiContext.id())
-              .setLogType("Filter")
-              .setEvent("TimeoutTripped")
-              .setMessage("timestamp incorrect, client: {}, server:{}")
-              .addArg(timestamp)
-              .addArg(currentTime)
-              .error();
-      completeFuture.fail(SystemException.create(DefaultErrorCode.EXPIRE)
-                                  .set("details", "timestamp:" + timestamp + " is incorrect"));
+      SystemException ex = SystemException.create(DefaultErrorCode.EXPIRE)
+              .set("details", "timestamp:" + timestamp + " is incorrect");
+      failed(completeFuture, apiContext.id(), "TimeoutTripped", ex);
     } else {
       completeFuture.complete(apiContext);
     }
