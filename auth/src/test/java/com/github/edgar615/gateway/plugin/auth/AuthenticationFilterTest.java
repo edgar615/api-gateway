@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2016/10/31
  */
 @RunWith(VertxUnitRunner.class)
-public class TokenFilterTest {
+public class AuthenticationFilterTest {
 
     private final List<Filter> filters = new ArrayList<>();
 
@@ -98,7 +98,7 @@ public class TokenFilterTest {
     public void noHeaderShouldThrowInvalidToken(TestContext testContext) {
 
         ApiContext apiContext = createApiContext();
-        Filter filter = Filter.create(TokenFilter.class.getSimpleName(),
+        Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                       vertx, new JsonObject());
         filters.add(filter);
 
@@ -122,7 +122,7 @@ public class TokenFilterTest {
                                                                       "invalidtoken"),
                                                  ArrayListMultimap.create());
 
-        Filter filter = Filter.create(TokenFilter.class.getSimpleName(),
+        Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(),
                                       vertx, new JsonObject());
         filters.add(filter);
         Task<ApiContext> task = Task.create();
@@ -145,7 +145,7 @@ public class TokenFilterTest {
         JsonObject userConfig = new JsonObject()
                 .put("path", path);
 
-        Filter filter = Filter.create(TokenFilter.class.getSimpleName(), vertx,
+        Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(), vertx,
                                       new JsonObject().put("token", userConfig)
                                               .put("port", port));
         filters.add(filter);
@@ -190,7 +190,7 @@ public class TokenFilterTest {
         JsonObject userConfig = new JsonObject()
                 .put("path", path);
 
-        Filter filter = Filter.create(TokenFilter.class.getSimpleName(), vertx,
+        Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(), vertx,
                                       new JsonObject().put("token", userConfig)
                                               .put("port", port));
         filters.add(filter);
@@ -219,7 +219,7 @@ public class TokenFilterTest {
         ApiDefinition definition = ApiDefinition
                 .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
         apiContext.setApiDefinition(definition);
-        TokenPlugin plugin = (TokenPlugin) ApiPlugin.create(TokenPlugin
+        AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
                                                                     .class
                                                                     .getSimpleName());
         apiContext.apiDefinition().addPlugin(plugin);
@@ -235,7 +235,7 @@ public class TokenFilterTest {
         ApiDefinition definition = ApiDefinition
                 .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
         apiContext.setApiDefinition(definition);
-        TokenPlugin plugin = (TokenPlugin) ApiPlugin.create(TokenPlugin
+        AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
                                                                     .class
                                                                     .getSimpleName());
         apiContext.apiDefinition().addPlugin(plugin);

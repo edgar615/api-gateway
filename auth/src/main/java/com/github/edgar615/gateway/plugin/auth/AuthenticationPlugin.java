@@ -15,18 +15,18 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class TokenPlugin implements ApiPlugin {
+public class AuthenticationPlugin implements ApiPlugin {
 
     @Override
     public String name() {
-        return TokenPlugin.class.getSimpleName();
+        return AuthenticationPlugin.class.getSimpleName();
     }
 
 
     @Override
     public String toString() {
         return MoreObjects
-                .toStringHelper("TokenPlugin")
+                .toStringHelper("AuthenticationPlugin")
                 .toString();
     }
 }

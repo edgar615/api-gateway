@@ -9,22 +9,22 @@ import io.vertx.core.json.JsonObject;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class TokenPluginFactory implements ApiPluginFactory {
+public class AuthenticationPluginFactory implements ApiPluginFactory {
     @Override
     public String name() {
-        return TokenPlugin.class.getSimpleName();
+        return AuthenticationPlugin.class.getSimpleName();
     }
 
     @Override
     public ApiPlugin create() {
-        return new TokenPlugin();
+        return new AuthenticationPlugin();
     }
 
     @Override
     public ApiPlugin decode(JsonObject jsonObject) {
 
-        if (jsonObject.getBoolean("token", false)) {
-            return new TokenPlugin();
+        if (jsonObject.getBoolean("authentication", false)) {
+            return new AuthenticationPlugin();
         }
         return null;
     }
@@ -34,6 +34,6 @@ public class TokenPluginFactory implements ApiPluginFactory {
         if (plugin == null) {
             return new JsonObject();
         }
-        return new JsonObject().put("token", true);
+        return new JsonObject().put("authentication", true);
     }
 }

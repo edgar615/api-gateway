@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author Edgar  Date 2018/2/5
  */
-public class TokenFilter implements Filter {
+public class AuthenticationFilter implements Filter {
     private static final String AUTH_HEADER = "Authorization";
 
     private static final String HEADER_PREFIX = "Bearer ";
@@ -38,7 +38,7 @@ public class TokenFilter implements Filter {
 
     private final String prefix;
 
-    TokenFilter(Vertx vertx, JsonObject config) {
+    AuthenticationFilter(Vertx vertx, JsonObject config) {
         this.vertx = vertx;
         JsonObject tokenConfig = config.getJsonObject("token", new JsonObject());
         this.port = config.getInteger("port", Consts.DEFAULT_PORT);
@@ -60,7 +60,7 @@ public class TokenFilter implements Filter {
     @Override
     public boolean shouldFilter(ApiContext apiContext) {
         return apiContext.apiDefinition()
-                       .plugin(TokenPlugin.class.getSimpleName()) != null
+                       .plugin(AuthenticationPlugin.class.getSimpleName()) != null
                && apiContext.principal() == null;
     }
 

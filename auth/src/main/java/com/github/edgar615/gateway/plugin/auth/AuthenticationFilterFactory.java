@@ -9,14 +9,14 @@ import io.vertx.core.json.JsonObject;
  * TokenFilter的工厂类.
  * Created by edgar on 16-12-11.
  */
-public class TokenFilterFactory implements FilterFactory {
+public class AuthenticationFilterFactory implements FilterFactory {
     @Override
     public String name() {
-        return TokenFilter.class.getSimpleName();
+        return AuthenticationFilter.class.getSimpleName();
     }
 
     @Override
     public Filter create(Vertx vertx, JsonObject config) {
-        return new TokenFilter(vertx, config);
+        return new AuthenticationFilter(vertx, config);
     }
 }

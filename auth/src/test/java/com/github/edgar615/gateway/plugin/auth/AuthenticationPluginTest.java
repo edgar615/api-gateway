@@ -11,24 +11,24 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class TokenPluginTest {
+public class AuthenticationPluginTest {
     @Test
     public void testDecode() {
         JsonObject config = new JsonObject()
-                .put("token", true);
-        ApiPluginFactory factory = new TokenPluginFactory();
-        TokenPlugin plugin = (TokenPlugin) factory.decode(config);
+                .put("authentication", true);
+        ApiPluginFactory factory = new AuthenticationPluginFactory();
+        AuthenticationPlugin plugin = (AuthenticationPlugin) factory.decode(config);
         Assert.assertNotNull(plugin);
     }
 
     @Test
     public void testEncode() {
-        TokenPlugin plugin = (TokenPlugin) ApiPlugin.create(TokenPlugin
+        AuthenticationPlugin plugin = (AuthenticationPlugin) ApiPlugin.create(AuthenticationPlugin
                                                                     .class
                                                                     .getSimpleName());
         JsonObject jsonObject = plugin.encode();
         System.out.println(jsonObject);
-        Assert.assertTrue(jsonObject.getBoolean("token"));
+        Assert.assertTrue(jsonObject.getBoolean("authentication"));
     }
 
 }

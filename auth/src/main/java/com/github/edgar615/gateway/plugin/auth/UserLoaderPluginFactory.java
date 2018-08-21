@@ -24,7 +24,7 @@ public class UserLoaderPluginFactory implements ApiPluginFactory {
     public ApiPlugin decode(JsonObject jsonObject) {
 
         if (jsonObject.getBoolean("user.loader", false)) {
-            return new TokenPlugin();
+            return new AuthenticationPlugin();
         }
         return null;
     }
