@@ -23,7 +23,7 @@ public class JwtPluginFactory implements ApiPluginFactory {
     @Override
     public ApiPlugin decode(JsonObject jsonObject) {
 
-        if (jsonObject.getBoolean("authentication", false)) {
+        if (jsonObject.getBoolean("jwt.verify", false)) {
             return new JwtPluginImpl();
         }
         return null;
@@ -34,6 +34,6 @@ public class JwtPluginFactory implements ApiPluginFactory {
         if (plugin == null) {
             return new JsonObject();
         }
-        return new JsonObject().put("authentication", true);
+        return new JsonObject().put("jwt.verify", true);
     }
 }

@@ -15,7 +15,7 @@ public class JwtPluginTest {
     @Test
     public void testDecode() {
         JsonObject config = new JsonObject()
-                .put("authentication", true);
+                .put("jwt.verify", true);
         ApiPluginFactory factory = new JwtPluginFactory();
         JwtPlugin plugin = (JwtPlugin) factory.decode(config);
         Assert.assertNotNull(plugin);
@@ -28,7 +28,7 @@ public class JwtPluginTest {
                                                                 .getSimpleName());
         JsonObject jsonObject = plugin.encode();
         System.out.println(jsonObject);
-        Assert.assertTrue(jsonObject.getBoolean("authentication"));
+        Assert.assertTrue(jsonObject.getBoolean("jwt.verify"));
     }
 
 }
