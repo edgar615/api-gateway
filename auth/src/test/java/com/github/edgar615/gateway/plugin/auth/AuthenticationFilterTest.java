@@ -63,6 +63,7 @@ public class AuthenticationFilterTest {
         AtomicBoolean completed = new AtomicBoolean();
 
         vertx.createHttpServer().requestHandler(req -> {
+            System.out.println(req.query());
             if (req.path().equals(path)) {
                 req.bodyHandler(body -> {
                     String token = body.toJsonObject().getString("token");
@@ -143,10 +144,10 @@ public class AuthenticationFilterTest {
     public void testAuthSuccess(TestContext testContext) {
 
         JsonObject userConfig = new JsonObject()
-                .put("path", path);
+                .put("api", path);
 
         Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(), vertx,
-                                      new JsonObject().put("token", userConfig)
+                                      new JsonObject().put("authentication", userConfig)
                                               .put("port", port));
         filters.add(filter);
         filters.add(Filter.create(UserHeaderFilter.class.getSimpleName(), vertx, new JsonObject()));
@@ -188,10 +189,10 @@ public class AuthenticationFilterTest {
     public void testInvalidTokenShouldThrowException(TestContext testContext) {
 
         JsonObject userConfig = new JsonObject()
-                .put("path", path);
+                .put("api", path);
 
         Filter filter = Filter.create(AuthenticationFilter.class.getSimpleName(), vertx,
-                                      new JsonObject().put("token", userConfig)
+                                      new JsonObject().put("authentication", userConfig)
                                               .put("port", port));
         filters.add(filter);
         ApiContext apiContext = createApiContext(ImmutableMultimap.of("Authorization",

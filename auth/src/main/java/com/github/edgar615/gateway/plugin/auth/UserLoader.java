@@ -33,9 +33,9 @@ class UserLoader implements CacheLoader<String, JsonObject> {
             requestURI = "/" + requestURI;
         }
         if (requestURI.contains("?")) {
-            requestURI = requestURI + "&userId=" + key;
+            requestURI = requestURI + "&principal=" + key;
         } else {
-            requestURI = requestURI + "?userId=" + key;
+            requestURI = requestURI + "?principal=" + key;
         }
         vertx.createHttpClient().get(port, "127.0.0.1", requestURI, response -> {
             if (response.statusCode() >= 400) {

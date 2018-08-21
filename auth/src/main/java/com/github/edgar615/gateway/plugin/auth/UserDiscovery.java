@@ -20,7 +20,7 @@ import java.util.UUID;
  *
  * @author Edgar  Date 2018/2/6
  */
-class UserFinder {
+class UserDiscovery {
     private static final long CACHE_EXPIRE = 1800L;
 
     private static final String NON_EXISTENT = UUID.randomUUID().toString();
@@ -31,10 +31,10 @@ class UserFinder {
 
     private final Cache<String, JsonObject> cache;
 
-    UserFinder(Vertx vertx, JsonObject config) {
+    UserDiscovery(Vertx vertx, JsonObject config) {
         int port = config.getInteger("port", Consts.DEFAULT_PORT);
         if (config.getValue("api") instanceof String) {
-            String path = config.getString("api", "/");
+            String path = config.getString("api", "/principal");
             this.userLoader = new UserLoader(vertx, port, path);
         } else {
             userLoader = null;

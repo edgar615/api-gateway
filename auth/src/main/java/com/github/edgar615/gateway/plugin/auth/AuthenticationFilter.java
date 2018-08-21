@@ -40,11 +40,11 @@ public class AuthenticationFilter implements Filter {
 
     AuthenticationFilter(Vertx vertx, JsonObject config) {
         this.vertx = vertx;
-        JsonObject tokenConfig = config.getJsonObject("token", new JsonObject());
+        JsonObject authConfig = config.getJsonObject("authentication", new JsonObject());
         this.port = config.getInteger("port", Consts.DEFAULT_PORT);
-        this.path = tokenConfig.getString("path", "/");
-        this.prefix = tokenConfig.getString("prefix", HEADER_PREFIX);
-        this.headerName = tokenConfig.getString("headerName", AUTH_HEADER);
+        this.path = authConfig.getString("api", "/authentication");
+        this.prefix = authConfig.getString("prefix", HEADER_PREFIX);
+        this.headerName = authConfig.getString("headerName", AUTH_HEADER);
     }
 
     @Override
@@ -68,17 +68,17 @@ public class AuthenticationFilter implements Filter {
     public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
         try {
             String token = extractToken(apiContext);
-            auth(token, ar -> {
+            authentication(token, ar -> {
                 if (ar.succeeded()) {
                     JsonObject principal = ar.result();
                     apiContext.setPrincipal(principal);
                     completeFuture.complete(apiContext);
                 } else {
-                    failed(completeFuture, apiContext.id(), "AuthFailure", ar.cause());
+                    failed(completeFuture, apiContext.id(), "AuthenticationFailure", ar.cause());
                 }
             });
         } catch (Exception e) {
-            failed(completeFuture, apiContext.id(), "AuthFailure", e);
+            failed(completeFuture, apiContext.id(), "AuthenticationFailure", e);
         }
     }
 
@@ -96,7 +96,7 @@ public class AuthenticationFilter implements Filter {
                 return authorization.substring(prefix.length()).trim();
             } else {
                 throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
-                        .set("details", String.format("The format of the token: %s:%s<token>",
+                        .set("details", String.format("The format of the token: %s:%stoken",
                                                       headerName, prefix));
             }
         }
@@ -111,8 +111,8 @@ public class AuthenticationFilter implements Filter {
      * @param token
      * @return
      */
-    private void auth(String token, Handler<AsyncResult<JsonObject>> completeHandler) {
-        vertx.createHttpClient().get(port, "127.0.0.1", path, response -> {
+    private void authentication(String token, Handler<AsyncResult<JsonObject>> completeHandler) {
+        vertx.createHttpClient().get(port, "127.0.0.1", path + "?token=" + token, response -> {
             if (response.statusCode() >= 400) {
                 response.bodyHandler(body -> {
                     try {

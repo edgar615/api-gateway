@@ -37,9 +37,11 @@ public class UserLoaderFilter implements Filter {
 
     private final Vertx vertx;
 
-    private final String userKey = "userId";
+    private static final String DEFAULT_USER_KEY = "userId";
 
-    private final UserFinder userFinder;
+    private final String userKey;
+
+    private final UserDiscovery userDiscovery;
 
     /**
      * @param vertx  Vertx
@@ -48,9 +50,10 @@ public class UserLoaderFilter implements Filter {
     UserLoaderFilter(Vertx vertx, JsonObject config) {
         this.vertx = vertx;
         JsonObject userConfig = config.getJsonObject("user", new JsonObject());
+        this.userKey = userConfig.getString("uniqueKey", DEFAULT_USER_KEY);
         int port = config.getInteger("port", Consts.DEFAULT_PORT);
         userConfig.put("port", port);
-        this.userFinder = new UserFinder(vertx, userConfig);
+        this.userDiscovery = new UserDiscovery(vertx, userConfig);
     }
 
     @Override
@@ -76,7 +79,7 @@ public class UserLoaderFilter implements Filter {
     @Override
     public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
         Object userId = apiContext.principal().getValue(userKey);
-        userFinder.find(userId.toString(), ar -> {
+        userDiscovery.find(userId.toString(), ar -> {
             if (ar.failed()) {
                 SystemException e = SystemException.create(DefaultErrorCode.UNKOWN_ACCOUNT)
                         .set("details", "Non-existent User:" + userId);

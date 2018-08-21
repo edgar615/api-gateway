@@ -1,4 +1,4 @@
-### 认证 Authentication
+## 认证 Authentication
 认证（Authentication ）是用来回答以下问题：
 - 用户是谁
 - 当前用户是否真的是他所代表的角色
@@ -11,7 +11,7 @@ TOKEN的生成有两种方式：
 
 对于网关生成TOKEN的方式，我们使用JWT来做用户的TOKEN。
 下面我们来看下如何通过插件来生成JWT和校验JWT。
-#### Plugin: JwtBuildPlugin
+### Plugin: JwtBuildPlugin
 表明这个API在向调用方法返回前需要通过`JwtBuildFilter`来生成一个Token
 配置
 ```
@@ -20,7 +20,7 @@ TOKEN的生成有两种方式：
 - true 表示开启这个插件
 - false 表示关闭这个插件
 
-#### Filter: JwtBuildFilter
+### Filter: JwtBuildFilter
 根据响应体创建一个JWT，如何追加到响应体中。
 这个请求要求响应体中包括一个`userId`属性，如果响应体中没有这个属性，可以通过替换插件替换
 
@@ -81,7 +81,7 @@ keytool -genkeypair -keystore keystore.jceks -storetype jceks -storepass secret 
 keytool -genkeypair -keystore keystore.jceks -storetype jceks -storepass secret -keyalg EC -keysize 521 -alias ES512 -keypass secret -sigalg SHA512withECDSA -dname "CN=,OU=,O=,L=,ST=,C=" -validity 36
 ```
 
-#### Plugin: JwtPlugin
+### Plugin: JwtPlugin
 表明这个API需要对JWT进行校验
 配置
 ```
@@ -90,7 +90,7 @@ keytool -genkeypair -keystore keystore.jceks -storetype jceks -storepass secret 
 - true 表示开启这个插件
 - false 表示关闭这个插件
 
-#### Filter: JwtFilter
+### Filter: JwtFilter
 从请求头中取出下面格式的TOKEN，然后进行JWT的校验。
 ```
 Authorization:Bearer <token>
@@ -131,47 +131,7 @@ keyStore配置与前面相同，不在描述。
 
 AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的principal中
 
-#### Plugin: UserLoaderPlugin
-表明这个API需要从下游服务请求用户信息。
-有些时候为了减少JWT的长度，我们可能在claims中不会保存过多的用户信息，而有些API请求需要使用这些额外的用户信息时就可以通过UserLoaderPlugin从下游服务获取
-配置
-```
-"user.loader": true
-```
-- true 表示开启这个插件
-- false 表示关闭这个插件
-
-
-#### Filter: UserLoaderFilter
-根据JwtFilter的结果，从下游服务中拉取用户信息并更新到principal中。
-
-
-- **type** PRE
-- **order** 11000
-
-**前置条件**：UserLoaderPlugin开启，上下文中存在用户信息，userId不为空
-
-配置
-```
-  "user" : {
-    "cacheEnable" : true,
-    "expireAfterWrite" : 1800,
-    "api": "/users"
-  }
-```
-
-- **cacheEnable** 是否开启缓存，如果配置了这个参数，会从缓存中查找appKey，依赖于缓存的实现
-- **expireAfterWrite** 缓存的过期时间
-- **api** API地址，如果配置了这个参数，当缓存中没有找到对应的appKey时，会向通过这个地址发送GET请求，向下游服务请求AppKey，最终发送的请求为http://127.0.0.1:${port}/{api}?userId=${userId}
-
-**api的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**
-
-一个用户信息有下列个属性
-
-- **userId** 必选，字符串或整数
-- **permissions** 可选  字符串 权限范围，多个权限范围用逗号","分隔，如`device:read,device:write`
-
-#### Plugin: UserRestriction
+### Plugin: UserRestriction
 表明API对调用方的userId做了限制。
 配置
 ```
@@ -185,7 +145,7 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
 > *代表所有
 
 **userId不能同时存在于whitelist和blacklist，因为在设置某个userId黑名单/白名单时会清除对应的白名单/黑名单**
-#### Filter: UserRestrictionFilter
+### Filter: UserRestrictionFilter
 校验userId是否能够访问对应的API。禁止访问会返回1004的错误码：
 
 - **type** PRE
@@ -201,7 +161,7 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
 ```
 配置示例与UserRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestriction插件来添加例外
 
-#### Plugin: AclRestriction
+### Plugin: AclRestriction
 表明API对调用方所属组做了限制。
 配置
 ```
@@ -215,7 +175,7 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
 > *代表所有
 
 **group不能同时存在于whitelist和blacklist，因为在设置某个group黑名单/白名单时会清除对应的白名单/黑名单**
-#### Filter: AclRestrictionFilter
+### Filter: AclRestrictionFilter
 校验group是否能够访问对应的API。禁止访问会返回1004的错误码。
 用户的group有两个来源：1.AuthenticationFilter通过后从TOKEN中解析的group，2.UserLoaderFilter从下游服务读取的group（如果读取到group会覆盖）。
 
@@ -236,12 +196,12 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
 ```
 配置示例与AclRestriction的类似。一旦配置了全局的参数，会对所有的API都有效，如果某个API需要存在例外，就可以通过UserRestriction插件来添加例外
 
-### 授权 Authorization
+## 授权 Authorization
 授权（Authorization）是用来回答以下问题：
 - 用户A是否被授权访问资源R
 - 用户A是否被授权执行P操作
 
-#### Plugin: ScopePlugin
+### Plugin: ScopePlugin
 
 校验对应的appkey或者用户是否有API的访问权限。
 
@@ -255,7 +215,7 @@ AuthenticationFilter对JWT用户校验通过后会将claims保存到上下文的
 device:write表示API的权限字符串
 
 为了减少API网关与下游服务直接的交互，调用方或用户拥有的权限在做身份认证的时候就从下游服务获取。
-#### Filter: AppKeyScopeFilter
+### Filter: AppKeyScopeFilter
 
 如果调用方通过了AppKey的校验，会在上下文中保存`client_permissions`的变量(字符串)，如果`app.permissions`中不包括接口的scope，拒绝访问.
 
@@ -265,7 +225,7 @@ device:write表示API的权限字符串
 
 **前置条件**：ScopePlugin开启，且上下文中存在`client_permissions`变量
 
-#### Filter: UserScopeFilter
+### Filter: UserScopeFilter
 如果调用方通过了身份认证的校验，会在用户中保存`permissions`的变量(字符串)，如果`permissions`中不包括接口的scope，拒绝访问.
 
 - type PRE

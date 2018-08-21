@@ -64,8 +64,8 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
     }]
   }
 ```
-- **cacheEnable** 是否开启缓存，如果配置了这个参数，会从缓存中查找appKey，依赖于缓存的实现
-- **expireAfterWrite** 缓存的过期时间
+- **cacheEnable** 是否开启缓存，默认false，如果配置了这个参数，会从缓存中查找appKey，依赖于缓存的实现
+- **expireAfterWrite** 缓存的过期时间，默认1800秒
 - **api** API地址，如果配置了这个参数，当缓存中没有找到对应的appKey时，会向通过这个地址发送GET请求，向下游服务请求AppKey，最终发送的请求为http://127.0.0.1:${port}/{api}?appKey=${appKey}
 - **data** JSON数组，存放一些固定的AppKey。
 
