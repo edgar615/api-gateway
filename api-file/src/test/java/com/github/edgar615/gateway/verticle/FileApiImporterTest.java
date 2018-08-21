@@ -3,6 +3,7 @@ package com.github.edgar615.gateway.verticle;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.gateway.core.apidiscovery.ApiImporter;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -125,4 +127,61 @@ public class FileApiImporterTest {
         Awaitility.await().until(() -> check3.get());
     }
 
+    @Test
+    public void testReload(TestContext testContext) {
+        ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                     new ApiDiscoveryOptions());
+        JsonObject jsonObject = new JsonObject()
+                .put("path", "src/test/resources/api");
+
+        FileApiImporter apiImporter = new FileApiImporter();
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.registerImporter(apiImporter, jsonObject, ar -> {
+            if (ar.succeeded()) {
+                check1.set(true);
+            } else {
+                ar.cause().printStackTrace();
+                testContext.fail();
+            }
+        });
+
+        Awaitility.await().until(() -> check1.get());
+
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(2, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+
+        AtomicBoolean check4 = new AtomicBoolean();
+        Future<Void> reloadFuture = Future.future();
+        apiImporter.reload(reloadFuture);
+        reloadFuture.setHandler(ar -> {
+            check4.set(true);
+        });
+
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        AtomicBoolean check5 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(2, ar.result().size());
+            check5.set(true);
+        });
+        Awaitility.await().until(() -> check5.get());
+    }
 }

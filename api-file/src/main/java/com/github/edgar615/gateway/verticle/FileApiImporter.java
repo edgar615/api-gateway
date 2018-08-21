@@ -15,7 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 从文件中读取Api.
@@ -26,7 +29,7 @@ class FileApiImporter implements ApiImporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileApiImporter.class);
 
-    private final List<String> imported = new ArrayList<>();
+    private final Set<String> imported = new HashSet<>();
 
     private Vertx vertx;
 
@@ -54,7 +57,39 @@ class FileApiImporter implements ApiImporter {
             }
         }, ar -> {
             if (ar.succeeded()) {
-                List<Future> futures = addApiList(publisher, ar.result());
+                List<Future> futures = addApiList(publisher, decode(ar.result()));
+                LOGGER.info("[ApiDiscovery] [apiImport] {path:{}} import api from file", path);
+                checkResult(futures, complete);
+            } else {
+                LOGGER.error("[ApiDiscovery] [apiImport] {path:{}} import api from file", path,
+                             ar.cause());
+                complete.complete();
+            }
+        });
+    }
+
+    public void reload(Future<Void> complete) {
+        String path = config.getString("path");
+        vertx.<List<String>>executeBlocking(f -> {
+            try {
+                List<String> apiList = readFromFile(path);
+                f.complete(apiList);
+            } catch (Exception e) {
+                f.fail(e);
+            }
+        }, ar -> {
+            if (ar.succeeded()) {
+                List<ApiDefinition> definitions = decode(ar.result());
+                List<String> existsNames = definitions.stream().map(d -> d.name())
+                        .collect(Collectors.toList());
+                //删除已经不存在的
+                imported.forEach(api -> {
+                    if (!existsNames.contains(api)) {
+                        publisher.unpublish(api, uar -> imported
+                                .removeIf(name -> api.equalsIgnoreCase(name)));
+                    }
+                });
+                List<Future> futures = addApiList(publisher, definitions);
                 LOGGER.info("[ApiDiscovery] [apiImport] {path:{}} import api from file", path);
                 checkResult(futures, complete);
             } else {
@@ -67,9 +102,7 @@ class FileApiImporter implements ApiImporter {
 
     @Override
     public void restart(Future<Void> complete) {
-        close(v -> {
-            doImport(complete);
-        });
+        reload(complete);
     }
 
     @Override
@@ -119,12 +152,24 @@ class FileApiImporter implements ApiImporter {
                 });
     }
 
-    private List<Future> addApiList(ApiPublisher publisher, List<String> apiList) {
-        List<Future> futures = new ArrayList<Future>();
+    private List<ApiDefinition> decode(List<String> apiList) {
+        List<ApiDefinition> definitions = new ArrayList<>();
         for (String source : apiList) {
             try {
                 ApiDefinition d = ApiDefinition.fromJson(new JsonObject(source));
-                Future<ApiDefinition> addFuture = addApi(publisher, d);
+                definitions.add(d);
+            } catch (Exception e) {
+                LOGGER.error("[ApiDiscovery] [apiPublish]", e);
+            }
+        }
+        return definitions;
+    }
+
+    private List<Future> addApiList(ApiPublisher publisher, List<ApiDefinition> apiList) {
+        List<Future> futures = new ArrayList<>();
+        for (ApiDefinition definition : apiList) {
+            try {
+                Future<ApiDefinition> addFuture = addApi(publisher, definition);
                 futures.add(addFuture);
             } catch (Exception e) {
                 LOGGER.error("[ApiDiscovery] [apiPublish]", e);
