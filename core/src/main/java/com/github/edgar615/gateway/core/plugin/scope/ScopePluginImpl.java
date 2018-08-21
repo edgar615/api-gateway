@@ -1,23 +1,23 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.core.plugin.scope;
 
 import com.google.common.base.MoreObjects;
 
 /**
  * Created by edgar on 16-12-25.
  */
-public class PermissionPluginImpl implements PermissionPlugin {
+public class ScopePluginImpl implements ScopePlugin {
 
     private String permission = "default";
 
-    PermissionPluginImpl() {
+    ScopePluginImpl() {
     }
 
-    PermissionPluginImpl(String scope) {
+    ScopePluginImpl(String scope) {
         this.permission = scope;
     }
 
     @Override
-    public String permission() {
+    public String scope() {
         return permission;
     }
 
@@ -28,8 +28,8 @@ public class PermissionPluginImpl implements PermissionPlugin {
     @Override
     public String toString() {
         return MoreObjects
-                .toStringHelper("PermissionPlugin")
-                .add("permission", permission)
+                .toStringHelper("ScopePlugin")
+                .add("scope", permission)
                 .toString();
     }
 }

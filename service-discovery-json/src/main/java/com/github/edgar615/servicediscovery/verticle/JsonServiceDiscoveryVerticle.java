@@ -21,6 +21,8 @@ public class JsonServiceDiscoveryVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
+        LOGGER.info("[Verticle] [start] start {}",
+                    JsonServiceDiscoveryVerticle.class.getSimpleName());
         ServiceDiscoveryOptions options;
         if (config().getValue("service.discovery") instanceof JsonObject) {
             options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
@@ -29,7 +31,6 @@ public class JsonServiceDiscoveryVerticle extends AbstractVerticle {
         }
         ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
 
-        LOGGER.info("deploy JsonServiceDiscoveryVerticle succeeded");
         if (config().getValue("services") instanceof JsonObject) {
             JsonObject services = config().getJsonObject("services");
             for (String name : services.fieldNames()) {
@@ -51,9 +52,9 @@ public class JsonServiceDiscoveryVerticle extends AbstractVerticle {
             record.setLocation(service);
             discovery.publish(record, ar -> {
                 if (ar.succeeded()) {
-                    LOGGER.info("publish record succeeded: {}", ar.result().toJson().encode());
+                    LOGGER.info("[ServiceDiscovery] [publish] {}", ar.result().toJson().encode());
                 } else {
-                    LOGGER.info("publish record failed: {}", record.toJson().encode());
+                    LOGGER.error("[ServiceDiscovery] [publish] {}", ar.result().toJson().encode());
                 }
             });
         }

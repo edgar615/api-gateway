@@ -1,9 +1,10 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.plugin.appkey;
 
 import com.google.common.base.Splitter;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
+import com.github.edgar615.gateway.core.plugin.scope.ScopePlugin;
 import com.github.edgar615.gateway.core.utils.Consts;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -54,15 +55,15 @@ public class AppKeyPermissionFilter implements Filter {
 
     @Override
     public boolean shouldFilter(ApiContext apiContext) {
-        return apiContext.apiDefinition().plugin(PermissionPlugin.class.getSimpleName()) != null
+        return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null
                && apiContext.variables().containsKey("client_appKey");
     }
 
     @Override
     public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-        PermissionPlugin plugin = (PermissionPlugin) apiContext.apiDefinition()
-                .plugin(PermissionPlugin.class.getSimpleName());
-        String permission = plugin.permission();
+        ScopePlugin plugin = (ScopePlugin) apiContext.apiDefinition()
+                .plugin(ScopePlugin.class.getSimpleName());
+        String permission = plugin.scope();
 
         Set<String> permissions = new HashSet<>();
         Object clientPermissions = apiContext.variables().get("client_permissions");

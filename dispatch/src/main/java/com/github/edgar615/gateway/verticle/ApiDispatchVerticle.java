@@ -29,8 +29,8 @@ public class ApiDispatchVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-        LOGGER.info("ApiDispatchVerticle deploying, config:{}", config());
-
+        LOGGER.info("[Verticle] [start] start {}",
+                    ApiDispatchVerticle.class.getSimpleName());
         //读取命令
         Future<Void> importCmdFuture = Future.future();
         new CmdRegister().initialize(vertx, config(), importCmdFuture);
@@ -70,12 +70,11 @@ public class ApiDispatchVerticle extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(config().getInteger("port", port), ar -> {
                     if (ar.succeeded()) {
-                        LOGGER.info("ApiDispatchVerticle deploy succeeded, namespace:{}, port",
-                                    namespace, port);
+                        LOGGER.info("[ApiDispatch] [start] listening port: {}", port);
                         startFuture.complete();
                     } else {
-                        LOGGER.error("ApiDispatchVerticle deploy failed, namespace:{}, port",
-                                     namespace, port, ar.cause());
+                        LOGGER.error("[ApiDispatch] [start] listening port failed: {}", port,
+                                     ar.cause());
                         startFuture.fail(ar.cause());
                     }
                 });

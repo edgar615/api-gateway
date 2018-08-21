@@ -1,4 +1,4 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.core.plugin.scope;
 
 import com.github.edgar615.gateway.core.definition.ApiPlugin;
 import com.github.edgar615.gateway.core.definition.ApiPluginFactory;
@@ -8,22 +8,22 @@ import io.vertx.core.json.JsonObject;
  * 权限校验的工厂类.
  * Created by edgar on 16-12-25.
  */
-public class PermissionPluginFactory implements ApiPluginFactory {
+public class ScopePluginFactory implements ApiPluginFactory {
     @Override
     public String name() {
-        return PermissionPlugin.class.getSimpleName();
+        return ScopePlugin.class.getSimpleName();
     }
 
     @Override
     public ApiPlugin create() {
-        return new PermissionPluginImpl();
+        return new ScopePluginImpl();
     }
 
     @Override
     public ApiPlugin decode(JsonObject jsonObject) {
-        if (jsonObject.containsKey("permission")) {
-            String scope = jsonObject.getString("permission", "default");
-            return new PermissionPluginImpl(scope);
+        if (jsonObject.containsKey("scope")) {
+            String scope = jsonObject.getString("scope", "default");
+            return new ScopePluginImpl(scope);
         }
         return null;
     }
@@ -33,7 +33,7 @@ public class PermissionPluginFactory implements ApiPluginFactory {
         if (plugin == null) {
             return new JsonObject();
         }
-        PermissionPlugin permissionPlugin = (PermissionPlugin) plugin;
-        return new JsonObject().put("permission", permissionPlugin.permission());
+        ScopePlugin scopePlugin = (ScopePlugin) plugin;
+        return new JsonObject().put("scope", scopePlugin.scope());
     }
 }

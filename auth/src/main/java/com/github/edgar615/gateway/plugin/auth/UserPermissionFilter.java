@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
+import com.github.edgar615.gateway.core.plugin.scope.ScopePlugin;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -42,15 +43,15 @@ public class UserPermissionFilter implements Filter {
 
     @Override
     public boolean shouldFilter(ApiContext apiContext) {
-        return apiContext.apiDefinition().plugin(PermissionPlugin.class.getSimpleName()) != null
+        return apiContext.apiDefinition().plugin(ScopePlugin.class.getSimpleName()) != null
                && apiContext.principal() != null;
     }
 
     @Override
     public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-        PermissionPlugin plugin = (PermissionPlugin) apiContext.apiDefinition()
-                .plugin(PermissionPlugin.class.getSimpleName());
-        String appScope = plugin.permission();
+        ScopePlugin plugin = (ScopePlugin) apiContext.apiDefinition()
+                .plugin(ScopePlugin.class.getSimpleName());
+        String appScope = plugin.scope();
 
         Set<String> permissions = new HashSet<>();
         Object userPermissions = apiContext.principal()

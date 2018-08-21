@@ -115,7 +115,7 @@ public class AppKeyFilter implements Filter {
 
     private final Vertx vertx;
 
-    private final AppKeyFinder appKeyFinder;
+    private final AppKeyDiscovery appKeyDiscovery;
 
     AppKeyFilter(Vertx vertx, JsonObject config) {
         this.vertx = vertx;
@@ -133,7 +133,7 @@ public class AppKeyFilter implements Filter {
         int port = config.getInteger("port", Consts.DEFAULT_PORT);
         JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
         appKeyConfig.put("port", port);
-        this.appKeyFinder = new AppKeyFinder(vertx, appKeyConfig);
+        this.appKeyDiscovery = new AppKeyDiscovery(vertx, appKeyConfig);
     }
 
     @Override
@@ -164,7 +164,7 @@ public class AppKeyFilter implements Filter {
             params.removeAll("body");
             params.put("body", apiContext.body().encode());
         }
-        appKeyFinder.find(appKey, ar -> {
+        appKeyDiscovery.find(appKey, ar -> {
             if (ar.failed()) {
                 SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
                         .set("details", "Non-existent AppKey:" + appKey);
@@ -189,8 +189,11 @@ public class AppKeyFilter implements Filter {
             failed(completeFuture, apiContext.id(), "SignIncorrect", e);
         } else {
             apiContext.addVariable("client_appKey", app.getString("appKey", "anonymous"));
-            if (app.containsKey("clientCode")) {
-                apiContext.addVariable("client_clientCode", app.getValue("clientCode"));
+            if (app.containsKey("appId")) {
+                apiContext.addVariable("client_appId", app.getValue("appId"));
+            }
+            if (app.containsKey("appName")) {
+                apiContext.addVariable("client_appName", app.getValue("appName"));
             }
             if (app.containsKey("permissions")) {
                 apiContext.addVariable("client_permissions", app.getValue("permissions"));

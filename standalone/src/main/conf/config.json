@@ -122,31 +122,31 @@
             {
               "appKey": "RmOI7jCvDtfZ1RcAkea1",
               "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
-              "clientCode": 0,
+              "appId": 0,
               "permissions": ["all"]
             },
             {
               "appKey": "FSG1NLKJqM4UKBsboS2j",
               "appSecret": "7c102b815d24489eb460a026691a1440",
-              "clientCode": 0,
+              "appId": 0,
               "permissions":  ["all"]
             },
             {
               "appKey": "EUL6mX7s383HS4SJGkGd",
               "appSecret": "f7c3fe9887034bdd88a8f4399b0a6788",
-              "clientCode": 20,
+              "appId": 20,
               "permissions": ["oem:identify"]
             },
             {
               "appKey": "YM2ILRYlK5GUpheJh63K",
               "appSecret": "6b9caaad457243fdb5ea5e5444ea3709",
-              "clientCode": 10,
+              "appId": 10,
               "permissions": ["user:read","user:write","device:read","device:write","alarm:read"]
             },
             {
               "appKey": "AEA3C65BFFCDC720AF5",
               "appSecret": "0bee264bf88642708e653ab282f55074",
-              "clientCode": 10,
+              "appId": 10,
               "permissions": ["user:read","user:write","device:read","device:write","alarm:read"]
             }
           ],

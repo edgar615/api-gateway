@@ -1,4 +1,4 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.plugin.appkey;
 
 import com.github.edgar615.gateway.core.dispatch.Filter;
 import com.github.edgar615.gateway.core.dispatch.FilterFactory;

@@ -5,7 +5,6 @@ import com.github.edgar615.gateway.core.dispatch.Filter;
 import com.github.edgar615.gateway.core.utils.Consts;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.redis.RedisClientHelper;
 import com.github.edgar615.util.vertx.redis.ratelimit.LimitResult;
 import com.github.edgar615.util.vertx.redis.ratelimit.MultiTokenBucket;
@@ -49,16 +48,9 @@ public class RateLimiterFilter implements Filter {
         tokenBucket = new MultiTokenBucket(vertx, redisClient, future);
         future.setHandler(ar -> {
             if (ar.succeeded()) {
-                //todo
-                Log.create(LOGGER)
-                        .setEvent("ratelimiter.init.succeed")
-                        .info();
                 luaLoaded.set(true);
             } else {
-                //todo
-                Log.create(LOGGER)
-                        .setEvent("ratelimiter.init.succeed")
-                        .error();
+                LOGGER.error("[redis] [rateLimiter] create rateLimiter failed ", ar.cause());
             }
         });
         JsonObject rateLimter = config.getJsonObject("rate.limiter", new JsonObject());
@@ -117,8 +109,8 @@ public class RateLimiterFilter implements Filter {
                 ratelimitDetails.forEach((k, v) -> apiContext.addVariable(k, v));
                 completeFuture.complete(apiContext);
             } else {
-                LOGGER.warn("[{}] [RateLimiterFilter] [{}] [{}]", apiContext.id(),
-                            "RateLimiterTripped",
+                LOGGER.warn("[{}] [{}] [{}] {}", apiContext.id(),
+                            RateLimiterFilter.class.getSimpleName(), "RateLimiterTripped",
                             result.details());
                 SystemException se = SystemException.create(DefaultErrorCode.TOO_MANY_REQ);
                 Map<String, Object> ratelimitDetails = ratelimitDetails(rules, result.details());

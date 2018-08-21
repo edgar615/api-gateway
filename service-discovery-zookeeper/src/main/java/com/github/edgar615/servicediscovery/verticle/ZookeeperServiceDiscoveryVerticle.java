@@ -21,6 +21,8 @@ public class ZookeeperServiceDiscoveryVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
+        LOGGER.info("[Verticle] [start] start {}",
+                    ZookeeperServiceDiscoveryVerticle.class.getSimpleName());
         ServiceDiscoveryOptions options;
         if (config().getValue("service.discovery") instanceof JsonObject) {
             options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
@@ -29,7 +31,6 @@ public class ZookeeperServiceDiscoveryVerticle extends AbstractVerticle {
         }
         ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
 
-        LOGGER.info("deploy ZookeeperServiceDiscoveryVerticle succeeded");
         if (config().getValue("zookeeper") instanceof JsonObject) {
             registerZookeeper(discovery, config().getJsonObject("zookeeper"));
         }

@@ -17,8 +17,8 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-
-        LOGGER.info("[ApiDefinitionVerticle] [deploying] {}", config().encode());
+        LOGGER.info("[Verticle] [start] start {}",
+                    ApiDefinitionVerticle.class.getSimpleName());
         initialize(startFuture);
     }
 

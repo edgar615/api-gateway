@@ -92,7 +92,7 @@ public class AppKeyRestrictionFilter implements Filter {
         if (satisfyList(appKey, blacklist)) {
             SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
                     .set("details", "The appKey is forbidden");
-            failed(completeFuture, apiContext.id(), "appKey.tripped", e);
+            failed(completeFuture, apiContext.id(), "AppKeyForbidden", e);
             return;
         }
         completeFuture.complete(apiContext);

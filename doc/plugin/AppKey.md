@@ -1,4 +1,4 @@
-### AppKey
+## AppKey
 一般开放平台的API都需要根据`App Key`和`App Secret`来验证调用方的合法性。
 - **App Key** 应用唯一的识别标志，服务提供方通过App Key鉴别应用的身份
 - **App Secret** 给应用分配的密钥，调用方需要妥善保存这个密钥，从而保证应用来源的的可靠性，防止被伪造。
@@ -15,7 +15,7 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 > App Secret：银行卡密码
 
 
-#### Plugin: AppKeyPlugin
+### Plugin: AppKeyPlugin
 表明API需要验证调用方合法性。
 配置
 ```
@@ -24,12 +24,13 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 - true 表示开启这个插件
 - false 表示关闭这个插件
 
-#### Filter: AppKeyFilter
+### Filter: AppKeyFilter
 通过appKey需要验证调用方合法性。如果签名校验未通过，会返回`1022`非法请求的错误。
-校验通过后，会在上下文中存入三个变量，其他Filter可以根据这三个变量实现额外的功能：
+校验通过后，会在上下文中存入四个变量，其他Filter可以根据这四个变量实现额外的功能：
 
 - client_appKey 必填
-- client_clientCode 可选
+- client_appId 可选
+- client_appName 可选
 - client_permissions 可选
 
 
@@ -57,7 +58,8 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
     "data": [ {
       "appKey": "RmOI7jCvDtfZ1RcAkea1",
       "appSecret": "dbb0f95c8ebf4317942d9f5057d0b38e",
-      "clientCode": 0,
+      "appName": "test",
+      "appId": 0,
       "permissions": "all"
     }]
   }
@@ -70,15 +72,15 @@ AppKey和AppSecret是成对出现，同一个AppId可以对应多个AppKey+AppSe
 一个AppKey有下列四个属性
 - **appKey** 必选，字符串
 - **appSecret** 必选 字符串
-- **clientCode** 可选 字符串或整数
-- **permissions** 可选  字符串 权限范围，多个权限范围用逗号","分隔，如`device:read,device:write`
+- **appId** 可选 字符串或整数
+- **appName** 可选 应用名称
+- **permissions** 可选  字符串 权限范围，多个权限范围用逗号","分隔，如`device:read,device:write`；如果每一个appKey的权限字符串不多，可以通过这个字符串来判断appKey的权限
 
 **path的地址需要定义在API路由中，并且限制只能127.0.0.1的IP访问**
 
 appKey的查找按照data -> cache -> api的顺序进行查找。
 如果同时开启了cache和api，那么在cache没有找到对应的appKey但是api找到了对应的appKey，会将appKey存入缓存，从而减少对下游服务的请求。
 同时为了避免缓存穿透问题，如果api也没有找到对应的appKey，会在缓存中存入一个不存在的key，来减小不存在的key对下游服务的请求
-
 
 客户端生成生成签名的通用步骤如下：
 1. 设所有发送或者接收到的数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序），使用URL键值对的格式（即key1=value1&key2=value2…）拼接成字符串stringA，如果请求带请求体，将请求体中的JSON对象转换为字符串之后按照body=JSON的格式加入到URL键值中，拼接成字符串stringA。
@@ -133,7 +135,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 ```
 /login?appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4A45
 ```
-#### Plugin: AppKeyRestriction
+### Plugin: AppKeyRestriction
 表明API对调用方的appKey做了限制。
 配置
 ```
@@ -147,7 +149,7 @@ appKey=XXXXX&nonce=123456&signMethod=HMACMD5&sign= A61C44F04361DE0530F4EF2E363C4
 > *代表所有
 
 **appKey不能同时存在于whitelist和blacklist，因为在设置某个appKey黑名单/白名单时会清除对应的白名单/黑名单**
-#### Filter: AppKeyRestrictionFilter
+### Filter: AppKeyRestrictionFilter
 校验调用方是否能够访问对应的API。禁止调用方访问会返回1004的错误码：
 
 - **type** PRE

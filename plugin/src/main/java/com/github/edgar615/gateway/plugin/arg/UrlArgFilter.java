@@ -48,11 +48,11 @@ public class UrlArgFilter implements Filter {
         plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));
         try {
             Validations.validate(newContext.params(), rules);
+            completeFuture.complete(newContext);
         } catch (Exception e) {
-            LOGGER.warn("[{}] [UrlArgFilter] [{}]", apiContext.id(), "QueryStringInvalid");
-            throw e;
+            failed(completeFuture, apiContext.id(), "QueryStringInvalid", e);
         }
-        completeFuture.complete(newContext);
+
     }
 
     public ApiContext checkDefaultValue(ApiContext apiContext, UrlArgPlugin plugin) {

@@ -43,13 +43,17 @@ public class AppKeyHeaderFilter implements Filter {
     public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
         JsonObject appKeyJson = new JsonObject();
         appKeyJson.put("appKey", apiContext.variables().getOrDefault("client_appKey", "anonymous"));
-        if (apiContext.variables().containsKey("client_clientCode")) {
-            appKeyJson.put("clientCode",
-                           apiContext.variables().getOrDefault("client_clientCode", "-1"));
+        if (apiContext.variables().containsKey("client_appId")) {
+            appKeyJson.put("appId",
+                           apiContext.variables().get("client_appId"));
+        }
+        if (apiContext.variables().containsKey("client_appId")) {
+            appKeyJson.put("appId",
+                           apiContext.variables().get("client_appId"));
         }
         if (apiContext.variables().containsKey("client_appName")) {
             appKeyJson.put("appName",
-                           apiContext.variables().getOrDefault("client_appName", "unkown"));
+                           apiContext.variables().get("client_appName"));
         }
         String clientBase64 = Base64.getEncoder().encodeToString(appKeyJson.encode().getBytes());
         for (RpcRequest rpcRequest : apiContext.requests()) {

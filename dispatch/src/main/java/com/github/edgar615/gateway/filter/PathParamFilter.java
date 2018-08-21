@@ -60,7 +60,8 @@ public class PathParamFilter implements Filter {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-                LOGGER.warn("[{}] [PathParamFilter] [{}]", apiContext.id(), "PathDecodeFailed");
+                LOGGER.warn("[{}] [{}] [{}]", apiContext.id(),
+                            PathParamFilter.class.getSimpleName(), "PathDecodeFailed");
             }
         }
         completeFuture.complete(apiContext);

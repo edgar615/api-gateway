@@ -1,4 +1,3 @@
-com.github.edgar615.gateway.plugin.auth.PermissionPluginFactory
 com.github.edgar615.gateway.plugin.auth.TokenPluginFactory
 com.github.edgar615.gateway.plugin.auth.JwtPluginFactory
 com.github.edgar615.gateway.plugin.auth.JwtBuildPluginFactory

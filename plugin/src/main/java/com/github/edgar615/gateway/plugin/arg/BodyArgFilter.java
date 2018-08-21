@@ -57,11 +57,10 @@ public class BodyArgFilter implements Filter {
         plugin.parameters().forEach(p -> rules.putAll(p.name(), p.rules()));
         try {
             Validations.validate(newContext.body().getMap(), rules);
-            LOGGER.warn("[{}] [BodyArgFilter] [{}]", apiContext.id(), "BodyInvalid");
+            completeFuture.complete(newContext);
         } catch (Exception e) {
-            throw e;
+            failed(completeFuture, apiContext.id(), "BodyInvalid", e);
         }
-        completeFuture.complete(newContext);
     }
 
     public ApiContext checkDefaultValue(ApiContext apiContext, BodyArgPlugin plugin) {

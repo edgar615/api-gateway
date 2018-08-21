@@ -1,4 +1,3 @@
-com.github.edgar615.gateway.plugin.auth.AppKeyPermissionFilterFactory
 com.github.edgar615.gateway.plugin.auth.UserPermissionFilterFactory
 com.github.edgar615.gateway.plugin.auth.TokenFilterFactory
 com.github.edgar615.gateway.plugin.auth.JwtFilterFactory

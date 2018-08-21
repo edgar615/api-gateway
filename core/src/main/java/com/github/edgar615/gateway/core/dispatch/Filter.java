@@ -85,14 +85,14 @@ public interface Filter {
     }
 
     default void log(String traceId, String event) {
-        LOGGER.info("[{}] [ApiGateway] [{}]", traceId, event);
+        LOGGER.info("[{}] [{}] [{}]", traceId, this.getClass().getSimpleName(), event);
     }
 
     default void failed(Future<ApiContext> completeFuture,
                         String traceId,
                         String event,
                         Throwable throwable) {
-        LOGGER.warn("[{}] [ApiGateway] [{}]", traceId, event);
+        LOGGER.warn("[{}] [{}] [{}]", traceId, this.getClass().getSimpleName(), event);
         completeFuture.fail(throwable);
     }
 

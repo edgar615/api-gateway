@@ -49,7 +49,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
     String appSecret = UUID.randomUUID().toString();
 
-    int clientCode = Integer.parseInt(Randoms.randomNumber(3));
+    int appId = Integer.parseInt(Randoms.randomNumber(3));
 
     String signMethod = "HMACMD5";
 
@@ -317,7 +317,7 @@ public class HttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
                 JsonObject jsonObject = new JsonObject()
                         .put("appKey", appKey)
                         .put("appSecret", appSecret)
-                        .put("clientCode", clientCode)
+                        .put("appId", appId)
                         .put("permissions", "all");
                 req.response().end(jsonObject.encode());
             } else {

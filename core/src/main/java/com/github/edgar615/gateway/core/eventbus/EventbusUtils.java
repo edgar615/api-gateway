@@ -34,7 +34,7 @@ public class EventbusUtils {
 
     public static void onFailure(Message<JsonObject> received, long duration, Throwable throwable) {
         final String id = received.headers().get("x-request-id");
-        LOGGER.error("[{}] [SER] [failed] [{}] [{}ms]", id,
+        LOGGER.error("[{}] [SER] [{}] [{}ms]", id,
                      received.headers().get("x-request-address"),
                      duration, throwable);
 
@@ -66,7 +66,7 @@ public class EventbusUtils {
             options.addHeader("x-request-address", received.headers().get("x-request-address"));
         }
 
-        LOGGER.info("[{}] [SER] [OK] [{}bytes] [{}ms]", id,
+        LOGGER.info("[{}] [SER] [{}bytes] [{}ms]", id,
                     received.headers().get("x-request-address"),
                     reply.toString().getBytes().length, duration);
         received.reply(reply, options);

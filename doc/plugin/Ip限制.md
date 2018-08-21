@@ -1,5 +1,5 @@
-### IP
-#### Plugin: IpRestriction
+## IP
+### Plugin: IpRestriction
 表明API对调用方的IP做了限制。
 配置
 ```
@@ -12,7 +12,7 @@
 - blacklist：黑名单的数组，只要调用方所在组符合黑名单规则，且不符合白名单规则，都不允许继续请求
 > *代表所有
 
-#### Filter: IpRestrictionFilter
+### Filter: IpRestrictionFilter
 校验调用方的IP是否能够访问对应的API。禁止访问会返回1004的错误码。
 
 - **type** PRE

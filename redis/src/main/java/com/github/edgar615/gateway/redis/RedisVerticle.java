@@ -19,6 +19,8 @@ public class RedisVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
+        LOGGER.info("[Verticle] [start] start {}",
+                    RedisVerticle.class.getSimpleName());
         JsonObject redisConfig = config().getJsonObject("redis", new JsonObject());
         RedisClient redisClient = RedisClientHelper.createShared(vertx, redisConfig);
         redisClient.ping(ar -> {

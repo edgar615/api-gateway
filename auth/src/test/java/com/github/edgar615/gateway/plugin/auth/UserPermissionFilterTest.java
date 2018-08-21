@@ -9,6 +9,8 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
 import com.github.edgar615.gateway.core.definition.SimpleHttpEndpoint;
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
+import com.github.edgar615.gateway.core.plugin.scope.ScopePlugin;
+import com.github.edgar615.gateway.core.plugin.scope.ScopePluginImpl;
 import com.github.edgar615.gateway.core.utils.Filters;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
@@ -125,8 +127,8 @@ public class UserPermissionFilterTest {
         ApiDefinition definition = ApiDefinition
                 .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
         apiContext.setApiDefinition(definition);
-        PermissionPluginImpl plugin =
-                (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin.class.getSimpleName());
+        ScopePluginImpl plugin =
+                (ScopePluginImpl) ApiPlugin.create(ScopePlugin.class.getSimpleName());
         plugin.setPermission("user.read");
         definition.addPlugin(plugin);
         return apiContext;

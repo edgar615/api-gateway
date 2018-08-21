@@ -21,6 +21,8 @@ public class ConsulServiceDiscoveryVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
+        LOGGER.info("[Verticle] [start] start {}",
+                    ConsulServiceDiscoveryVerticle.class.getSimpleName());
         ServiceDiscoveryOptions options;
         if (config().getValue("service.discovery") instanceof JsonObject) {
             options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
@@ -28,10 +30,6 @@ public class ConsulServiceDiscoveryVerticle extends AbstractVerticle {
             options = new ServiceDiscoveryOptions();
         }
         ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
-
-
-        LOGGER.info("deploy ConsulServiceDiscoveryVerticle succeeded");
-
         if (config().getValue("consul") instanceof JsonObject) {
             registerConsul(discovery, config().getJsonObject("consul"));
         }

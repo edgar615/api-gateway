@@ -233,7 +233,7 @@ public class RpcFilter implements Filter {
                                           copyResp.responseObject().encode(), duration);
         }
         LOGGER.warn("[{}] [{}] [{}]", request.id(), RpcFilter.class.getSimpleName(),
-                    "FallbackExecuted");
+                    "fallback");
         return response;
     }
 

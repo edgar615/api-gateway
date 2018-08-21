@@ -156,12 +156,12 @@ public class EventbusRpcHandler implements RpcHandler {
     }
 
     private void logSuccess(String type, String id, long elapsedTime, int bytes) {
-        LOGGER.info("[{}] [CER] [OK] [{}bytes] [{}ms]", id,
+        LOGGER.info("[{}] [CER] [{}bytes] [{}ms]", id,
                     bytes, elapsedTime);
     }
 
     private void logError(String type, String id, long elapsedTime, Throwable throwable) {
-        LOGGER.info("[{}] [CER] [failed] [{}ms]", id,
+        LOGGER.info("[{}] [CER] [{}ms]", id,
                     elapsedTime, throwable);
     }
 

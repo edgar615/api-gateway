@@ -23,7 +23,7 @@ import java.util.UUID;
  *
  * @author Edgar  Date 2018/2/6
  */
-class AppKeyFinder {
+class AppKeyDiscovery {
     private static final long CACHE_EXPIRE = 1800L;
 
     private static final String NON_EXISTENT = UUID.randomUUID().toString();
@@ -36,7 +36,7 @@ class AppKeyFinder {
 
     private final Cache<String, JsonObject> cache;
 
-    AppKeyFinder(Vertx vertx, JsonObject config) {
+    AppKeyDiscovery(Vertx vertx, JsonObject config) {
         JsonArray originData = config.getJsonArray("data", new JsonArray());
         for (int i = 0; i < originData.size(); i++) {
             JsonObject jsonObject = originData.getJsonObject(i);
@@ -104,9 +104,7 @@ class AppKeyFinder {
     }
 
     private void nonExistentAppKey(String key, Handler<AsyncResult<JsonObject>> resultHandler) {
-        SystemException
-
-                e = SystemException.create(DefaultErrorCode.INVALID_REQ)
+        SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
                 .set("details", "Undefined AppKey:" + key);
         resultHandler.handle(Future.failedFuture(e));
     }

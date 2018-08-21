@@ -179,27 +179,12 @@ public class SimpleHttpHandler implements RpcHandler {
 
     private void logRequestError(RpcRequest rpcRequest, Duration duration, Throwable throwable) {
 
-        LOGGER.error("[{}] [CR] [HTTP] [failed] [{}ms]", rpcRequest.id(),
+        LOGGER.error("[{}] [CR] [HTTP] [{}ms]", rpcRequest.id(),
                      duration.getRepliedOn() - duration.getCreatedon(), throwable);
-
-//    Log.create(LOGGER)
-//            .setTraceId(rpcRequest.id())
-//            .setLogType(LogType.CR)
-//            .setEvent("HTTP")
-//            .addData("ct", duration.getCreatedon() == 0 ? 0 : duration.getCreatedon() -
-//                                                              duration.getCreatedon())
-//            .addData("et", duration.getEndedOn() == 0 ? 0 :
-//                    duration.getEndedOn() - duration.getCreatedon())
-//            .addData("rt", duration.getRepliedOn() == 0 ? 0 :
-//                    duration.getRepliedOn() - duration.getCreatedon())
-//            .addData("bt", duration.getBodyHandledOn() == 0 ? 0 :
-//                    duration.getBodyHandledOn() - duration.getCreatedon())
-//            .setThrowable(throwable)
-//            .error();
     }
 
     private void logClientReceived(RpcResponse rpcResponse, Buffer body, Duration duration) {
-        LOGGER.info("[{}] [CR] [HTTP] [OK] [{}] [{}bytes] [{}ms]", rpcResponse.id(),
+        LOGGER.info("[{}] [CR] [HTTP] [{}] [{}bytes] [{}ms]", rpcResponse.id(),
                     rpcResponse.statusCode(),
                     body.getBytes().length,
                     rpcResponse.elapsedTime());

@@ -1,4 +1,4 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.core.plugin.scope;
 
 import com.github.edgar615.gateway.core.definition.ApiPlugin;
 import com.github.edgar615.gateway.core.definition.ApiPluginFactory;
@@ -11,31 +11,31 @@ import org.junit.Test;
  *
  * @author Edgar  Date 2016/10/31
  */
-public class PermissionPluginTest {
+public class ScopePluginTest {
     @Test
     public void testDecode() {
         JsonObject config = new JsonObject()
-                .put("permission", "user.read");
-        ApiPluginFactory factory = new PermissionPluginFactory();
-        PermissionPlugin plugin = (PermissionPlugin) factory.decode(config);
+                .put("scope", "user.read");
+        ApiPluginFactory factory = new ScopePluginFactory();
+        ScopePlugin plugin = (ScopePlugin) factory.decode(config);
         Assert.assertNotNull(plugin);
-        Assert.assertEquals("user.read", plugin.permission());
+        Assert.assertEquals("user.read", plugin.scope());
     }
 
     @Test
     public void testEncode() {
-        PermissionPluginImpl plugin = (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin
+        ScopePluginImpl plugin = (ScopePluginImpl) ApiPlugin.create(ScopePlugin
                                                                                       .class
                                                                                       .getSimpleName());
         plugin.setPermission("user.read");
         JsonObject jsonObject = plugin.encode();
         System.out.println(jsonObject);
-        Assert.assertEquals("user.read", jsonObject.getString("permission"));
+        Assert.assertEquals("user.read", jsonObject.getString("scope"));
     }
 
     @Test
     public void testNullShoudReturnEmptyJson() {
-        ApiPluginFactory factory = new PermissionPluginFactory();
+        ApiPluginFactory factory = new ScopePluginFactory();
         JsonObject jsonObject = factory.encode(null);
         Assert.assertTrue(jsonObject.isEmpty());
     }

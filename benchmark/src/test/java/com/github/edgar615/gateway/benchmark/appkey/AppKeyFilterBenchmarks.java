@@ -181,11 +181,11 @@ public class AppKeyFilterBenchmarks {
             vertx = Vertx.vertx();
             JsonObject origin = new JsonObject()
                     .put("appSecret", appSecret)
-                    .put("clientCode", 0)
+                    .put("appId", 0)
                     .put("appKey", appKey);
             JsonObject config = new JsonObject()
                     .put("secretKey", "appSecret")
-                    .put("codeKey", "clientCode")
+                    .put("codeKey", "appId")
                     .put("data", new JsonArray().add(origin));
             JsonObject jsonObject = new JsonObject()
                     .put("appkey", config)
