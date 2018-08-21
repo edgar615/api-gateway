@@ -12,23 +12,23 @@ import org.junit.Test;
  * @author Edgar  Date 2016/10/31
  */
 public class JwtPluginTest {
-  @Test
-  public void testDecode() {
-    JsonObject config = new JsonObject()
-            .put("authentication", true);
-    ApiPluginFactory factory = new JwtPluginFactory();
-    JwtPlugin plugin = (JwtPlugin) factory.decode(config);
-    Assert.assertNotNull(plugin);
-  }
+    @Test
+    public void testDecode() {
+        JsonObject config = new JsonObject()
+                .put("authentication", true);
+        ApiPluginFactory factory = new JwtPluginFactory();
+        JwtPlugin plugin = (JwtPlugin) factory.decode(config);
+        Assert.assertNotNull(plugin);
+    }
 
-  @Test
-  public void testEncode() {
-    JwtPlugin plugin = (JwtPlugin) ApiPlugin.create(JwtPlugin
-                                                                                  .class
-                                                                                  .getSimpleName());
-    JsonObject jsonObject = plugin.encode();
-    System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.getBoolean("authentication"));
-  }
+    @Test
+    public void testEncode() {
+        JwtPlugin plugin = (JwtPlugin) ApiPlugin.create(JwtPlugin
+                                                                .class
+                                                                .getSimpleName());
+        JsonObject jsonObject = plugin.encode();
+        System.out.println(jsonObject);
+        Assert.assertTrue(jsonObject.getBoolean("authentication"));
+    }
 
 }

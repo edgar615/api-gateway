@@ -15,43 +15,43 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public class VersionSplitterPlugin implements ApiPlugin {
 
-  /**
-   * floor默认取最低版本，ceil默认取最高的版本
-   */
-  private String unSatisfyStrategy;
+    /**
+     * floor默认取最低版本，ceil默认取最高的版本
+     */
+    private String unSatisfyStrategy;
 
-  private VersionTraffic traffic;
+    private VersionTraffic traffic;
 
-  public VersionSplitterPlugin() {
-  }
+    public VersionSplitterPlugin() {
+    }
 
-  public VersionSplitterPlugin(String unSatisfyStrategy, VersionTraffic traffic) {
-    this.unSatisfyStrategy = unSatisfyStrategy;
-    this.traffic = traffic;
-  }
+    public VersionSplitterPlugin(String unSatisfyStrategy, VersionTraffic traffic) {
+        this.unSatisfyStrategy = unSatisfyStrategy;
+        this.traffic = traffic;
+    }
 
-  public VersionSplitterPlugin floor(VersionTraffic traffic) {
-    this.unSatisfyStrategy = "floor";
-    this.traffic = traffic;
-    return this;
-  }
+    public VersionSplitterPlugin floor(VersionTraffic traffic) {
+        this.unSatisfyStrategy = "floor";
+        this.traffic = traffic;
+        return this;
+    }
 
-  public VersionSplitterPlugin ceil(VersionTraffic traffic) {
-    this.unSatisfyStrategy = "ceil";
-    this.traffic = traffic;
-    return this;
-  }
+    public VersionSplitterPlugin ceil(VersionTraffic traffic) {
+        this.unSatisfyStrategy = "ceil";
+        this.traffic = traffic;
+        return this;
+    }
 
-  public VersionTraffic traffic() {
-    return traffic;
-  }
+    public VersionTraffic traffic() {
+        return traffic;
+    }
 
-  public String unSatisfyStrategy() {
-    return unSatisfyStrategy;
-  }
+    public String unSatisfyStrategy() {
+        return unSatisfyStrategy;
+    }
 
-  @Override
-  public String name() {
-    return VersionSplitterPlugin.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return VersionSplitterPlugin.class.getSimpleName();
+    }
 }

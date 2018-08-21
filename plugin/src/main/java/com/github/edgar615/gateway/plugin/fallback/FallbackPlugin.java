@@ -35,19 +35,19 @@ import java.util.Map;
  */
 public class FallbackPlugin implements ApiPlugin {
 
-  private final Map<String, RpcResponse> fallback = new HashMap<>();
+    private final Map<String, RpcResponse> fallback = new HashMap<>();
 
-  @Override
-  public String name() {
-    return FallbackPlugin.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return FallbackPlugin.class.getSimpleName();
+    }
 
-  public FallbackPlugin addFallBack(String name, RpcResponse rpcResponse) {
-    this.fallback.put(name, rpcResponse);
-    return this;
-  }
+    public FallbackPlugin addFallBack(String name, RpcResponse rpcResponse) {
+        this.fallback.put(name, rpcResponse);
+        return this;
+    }
 
-  public Map<String, RpcResponse> fallback() {
-    return fallback;
-  }
+    public Map<String, RpcResponse> fallback() {
+        return fallback;
+    }
 }

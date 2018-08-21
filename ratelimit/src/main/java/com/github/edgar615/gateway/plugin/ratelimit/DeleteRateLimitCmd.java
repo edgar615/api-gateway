@@ -19,21 +19,21 @@ import io.vertx.core.json.JsonObject;
  */
 public class DeleteRateLimitCmd implements ApiSubCmd {
 
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  public DeleteRateLimitCmd() {
-    rules.put("type", Rule.optional(Lists.newArrayList("second", "minute", "hour", "day")));
+    public DeleteRateLimitCmd() {
+        rules.put("type", Rule.optional(Lists.newArrayList("second", "minute", "hour", "day")));
 
-    rules.put("key", Rule.optional(Lists.newArrayList("user", "ip", "appkey")));
-  }
+        rules.put("key", Rule.optional(Lists.newArrayList("user", "ip", "appkey")));
+    }
 
-  @Override
-  public String cmd() {
-    return "ratelimit.delete";
-  }
+    @Override
+    public String cmd() {
+        return "ratelimit.delete";
+    }
 
-  @Override
-  public void handle(ApiDefinition definition, JsonObject jsonObject) {
+    @Override
+    public void handle(ApiDefinition definition, JsonObject jsonObject) {
 
 //    Validations.validate(jsonObject.getMap(), rules);
 //    String type = jsonObject.getString("type");
@@ -44,5 +44,5 @@ public class DeleteRateLimitCmd implements ApiSubCmd {
 //      plugin.removeRateLimiter(key, type);
 //    }
 
-  }
+    }
 }

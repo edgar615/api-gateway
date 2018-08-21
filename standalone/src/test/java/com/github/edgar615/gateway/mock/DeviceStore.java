@@ -15,53 +15,53 @@ import java.util.stream.Collectors;
  */
 @Deprecated
 public class DeviceStore {
-  private final List<Device> devices = new CopyOnWriteArrayList<>();
+    private final List<Device> devices = new CopyOnWriteArrayList<>();
 
-  public void add(Device device) {
-    boolean exists = devices.stream()
-            .anyMatch(d -> d.getId() == device.getId());
-    if (exists) {
-      throw SystemException.create(DefaultErrorCode.ALREADY_EXISTS);
+    public void add(Device device) {
+        boolean exists = devices.stream()
+                .anyMatch(d -> d.getId() == device.getId());
+        if (exists) {
+            throw SystemException.create(DefaultErrorCode.ALREADY_EXISTS);
+        }
+        devices.add(device);
     }
-    devices.add(device);
-  }
 
-  public void update(Device device) {
-    devices.removeIf(d -> d.getId() == device.getId());
-    devices.add(device);
-  }
-
-  public Device get(int id) {
-    Optional<Device> optional = devices.stream()
-            .filter(d -> d.getId() == id)
-            .findFirst();
-    if (optional.isPresent()) {
-      return optional.get();
+    public void update(Device device) {
+        devices.removeIf(d -> d.getId() == device.getId());
+        devices.add(device);
     }
-    throw SystemException.create(DefaultErrorCode.ALREADY_EXISTS);
-  }
 
-  public void delete(int id) {
-    devices.removeIf(d -> d.getId() == id);
-  }
+    public Device get(int id) {
+        Optional<Device> optional = devices.stream()
+                .filter(d -> d.getId() == id)
+                .findFirst();
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        throw SystemException.create(DefaultErrorCode.ALREADY_EXISTS);
+    }
 
-  public List<Device> query(int start, int offset, Integer id, String name) {
-    return devices.stream()
-            .filter(d -> {
-              boolean filter = true;
-              if (id != null) {
-                filter = id.equals(d.getId());
-              }
-              if (name != null) {
-                filter = name.equals(d.getName());
-              }
-              return filter;
-            }).collect(Collectors.toList())
-            .subList(start, start + offset);
-  }
+    public void delete(int id) {
+        devices.removeIf(d -> d.getId() == id);
+    }
 
-  public void clear() {
-    devices.clear();
-  }
+    public List<Device> query(int start, int offset, Integer id, String name) {
+        return devices.stream()
+                .filter(d -> {
+                    boolean filter = true;
+                    if (id != null) {
+                        filter = id.equals(d.getId());
+                    }
+                    if (name != null) {
+                        filter = name.equals(d.getName());
+                    }
+                    return filter;
+                }).collect(Collectors.toList())
+                .subList(start, start + offset);
+    }
+
+    public void clear() {
+        devices.clear();
+    }
 
 }

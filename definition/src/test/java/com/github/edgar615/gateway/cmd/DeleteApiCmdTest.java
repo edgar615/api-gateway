@@ -21,148 +21,148 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class DeleteApiCmdTest extends BaseApiCmdTest {
 
-  @Before
-  public void setUp() {
-   super.setUp();
-    addMockApi();
-  }
+    @Before
+    public void setUp() {
+        super.setUp();
+        addMockApi();
+    }
 
-  @Test
-  public void testMissNameShouldThrowValidationException(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.delete", new JsonObject(), ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        ar.cause().printStackTrace();
-        testContext.assertTrue(ar.cause() instanceof ReplyException);
-        testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
-                                 ReplyException.class.cast(ar.cause()).failureCode());
-        check.set(true);
-      }
-    });
-    Awaitility.await().until(() -> check.get());
+    @Test
+    public void testMissNameShouldThrowValidationException(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.delete", new JsonObject(), ar -> {
+            if (ar.succeeded()) {
+                testContext.fail();
+            } else {
+                ar.cause().printStackTrace();
+                testContext.assertTrue(ar.cause() instanceof ReplyException);
+                testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
+                                         ReplyException.class.cast(ar.cause()).failureCode());
+                check.set(true);
+            }
+        });
+        Awaitility.await().until(() -> check.get());
 
-  }
+    }
 
-  @Test
-  public void testDeleteApiByFullname(TestContext testContext) {
-    AtomicBoolean check1 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
+    @Test
+    public void testDeleteApiByFullname(TestContext testContext) {
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(2, ar.result().size());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
 
-    AtomicBoolean check2 = new AtomicBoolean();
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "add_device");
+        AtomicBoolean check2 = new AtomicBoolean();
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "add_device");
 
-    vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        check2.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check2.get());
+        vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                check2.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check2.get());
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      System.out.println(ar.result());
-      testContext.assertEquals(1, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(1, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
-  @Test
-  public void testDeleteApiByUndefinedNameShouldSuccess(TestContext testContext) {
-    AtomicBoolean check1 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
+    @Test
+    public void testDeleteApiByUndefinedNameShouldSuccess(TestContext testContext) {
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(2, ar.result().size());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
 
-    AtomicBoolean check2 = new AtomicBoolean();
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", UUID.randomUUID().toString());
+        AtomicBoolean check2 = new AtomicBoolean();
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", UUID.randomUUID().toString());
 
-    vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        check2.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check2.get());
+        vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                check2.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check2.get());
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      System.out.println(ar.result());
-      testContext.assertEquals(2, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(2, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
-  @Test
-  public void testDeleteApiByWildcard(TestContext testContext) {
-    AtomicBoolean check1 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      testContext.assertEquals(2, ar.result().size());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
+    @Test
+    public void testDeleteApiByWildcard(TestContext testContext) {
+        AtomicBoolean check1 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            testContext.assertEquals(2, ar.result().size());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
 
-    AtomicBoolean check2 = new AtomicBoolean();
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "*device");
+        AtomicBoolean check2 = new AtomicBoolean();
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "*device");
 
-    vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        check2.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check2.get());
+        vertx.eventBus().<JsonObject>send("api.delete", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                check2.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check2.get());
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      System.out.println(ar.result());
-      testContext.assertEquals(0, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
+                testContext.fail();
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(0, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
 }

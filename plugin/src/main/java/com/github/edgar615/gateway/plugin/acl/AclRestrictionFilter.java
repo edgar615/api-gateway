@@ -32,90 +32,91 @@ import java.util.List;
  */
 public class AclRestrictionFilter implements Filter {
 
-  private final List<String> globalBlacklist = new ArrayList<>();
+    private final List<String> globalBlacklist = new ArrayList<>();
 
-  private final List<String> globalWhitelist = new ArrayList<>();
+    private final List<String> globalWhitelist = new ArrayList<>();
 
-  private final String groupKey = "group";
+    private final String groupKey = "group";
 
-  public AclRestrictionFilter(JsonObject config) {
-    updateConfig(config);
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 12000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.principal() == null) {
-      return false;
+    public AclRestrictionFilter(JsonObject config) {
+        updateConfig(config);
     }
-    return !globalBlacklist.isEmpty()
-           || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(AclRestriction.class.getSimpleName()) != null;
-  }
 
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    AclRestriction plugin = (AclRestriction) apiContext.apiDefinition()
-            .plugin(AclRestriction.class.getSimpleName());
-    List<String> blacklist = new ArrayList<>(globalBlacklist);
-    List<String> whitelist = new ArrayList<>(globalWhitelist);
-    if (plugin != null) {
-      blacklist.addAll(plugin.blacklist());
-      whitelist.addAll(plugin.whitelist());
+    @Override
+    public String type() {
+        return PRE;
     }
-    String group = apiContext.principal().getString(groupKey, "anonymous");
-    //匹配到白名单则允许通过
-    if (satisfyList(group, whitelist)) {
-      completeFuture.complete(apiContext);
-      return;
-    }
-    //匹配到黑名单则禁止通过
-    if (satisfyList(group, blacklist)) {
-      SystemException systemException = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "The group is forbidden");
-      failed(completeFuture, apiContext.id(), "AclForbidden", systemException);
-      return;
-    }
-    completeFuture.complete(apiContext);
-  }
 
-  @Override
-  public void updateConfig(JsonObject config) {
-    if (config.getValue("acl.restriction") instanceof JsonObject) {
-      JsonObject jsonObject = config.getJsonObject("acl.restriction", new JsonObject());
-      JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-      JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-      globalBlacklist.clear();
-      globalWhitelist.clear();
-      for (int i = 0; i < blackArray.size(); i++) {
-        globalBlacklist.add(blackArray.getString(i));
-      }
-      for (int i = 0; i < whiteArray.size(); i++) {
-        globalWhitelist.add(whiteArray.getString(i));
-      }
+    @Override
+    public int order() {
+        return 12000;
     }
-  }
 
-  private boolean satisfyList(String group, List<String> list) {
-    return list.stream()
-                   .filter(r -> checkGroup(r, group))
-                   .count() > 0;
-  }
-
-  private boolean checkGroup(String rule, String group) {
-    if ("*".equals(rule)) {
-      return true;
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.principal() == null) {
+            return false;
+        }
+        return !globalBlacklist.isEmpty()
+               || !globalWhitelist.isEmpty()
+               || apiContext.apiDefinition().plugin(AclRestriction.class.getSimpleName()) != null;
     }
-    return rule.equalsIgnoreCase(group);
-  }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        AclRestriction plugin = (AclRestriction) apiContext.apiDefinition()
+                .plugin(AclRestriction.class.getSimpleName());
+        List<String> blacklist = new ArrayList<>(globalBlacklist);
+        List<String> whitelist = new ArrayList<>(globalWhitelist);
+        if (plugin != null) {
+            blacklist.addAll(plugin.blacklist());
+            whitelist.addAll(plugin.whitelist());
+        }
+        String group = apiContext.principal().getString(groupKey, "anonymous");
+        //匹配到白名单则允许通过
+        if (satisfyList(group, whitelist)) {
+            completeFuture.complete(apiContext);
+            return;
+        }
+        //匹配到黑名单则禁止通过
+        if (satisfyList(group, blacklist)) {
+            SystemException systemException =
+                    SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+                            .set("details", "The group is forbidden");
+            failed(completeFuture, apiContext.id(), "AclForbidden", systemException);
+            return;
+        }
+        completeFuture.complete(apiContext);
+    }
+
+    @Override
+    public void updateConfig(JsonObject config) {
+        if (config.getValue("acl.restriction") instanceof JsonObject) {
+            JsonObject jsonObject = config.getJsonObject("acl.restriction", new JsonObject());
+            JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+            JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+            globalBlacklist.clear();
+            globalWhitelist.clear();
+            for (int i = 0; i < blackArray.size(); i++) {
+                globalBlacklist.add(blackArray.getString(i));
+            }
+            for (int i = 0; i < whiteArray.size(); i++) {
+                globalWhitelist.add(whiteArray.getString(i));
+            }
+        }
+    }
+
+    private boolean satisfyList(String group, List<String> list) {
+        return list.stream()
+                       .filter(r -> checkGroup(r, group))
+                       .count() > 0;
+    }
+
+    private boolean checkGroup(String rule, String group) {
+        if ("*".equals(rule)) {
+            return true;
+        }
+        return rule.equalsIgnoreCase(group);
+    }
 
 }

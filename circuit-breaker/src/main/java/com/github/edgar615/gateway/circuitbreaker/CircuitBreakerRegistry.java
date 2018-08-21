@@ -10,15 +10,15 @@ import io.vertx.core.Vertx;
  */
 public interface CircuitBreakerRegistry {
 
-  /**
-   * 获取服务节点对应的断路器
-   *
-   * @param circuitBreakerName 断路器名称
-   * @return
-   */
-  CircuitBreaker get(String circuitBreakerName);
+    /**
+     * 获取服务节点对应的断路器
+     *
+     * @param circuitBreakerName 断路器名称
+     * @return
+     */
+    CircuitBreaker get(String circuitBreakerName);
 
-  static CircuitBreakerRegistry create(Vertx vertx, CircuitBreakerRegistryOptions options) {
-    return new CircuitBreakerRegistryImpl(vertx, options);
-  }
+    static CircuitBreakerRegistry create(Vertx vertx, CircuitBreakerRegistryOptions options) {
+        return new CircuitBreakerRegistryImpl(vertx, options);
+    }
 }

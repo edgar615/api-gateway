@@ -23,110 +23,126 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class FileApiDiscoveryVerticleTest {
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-  }
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+    }
 
-  @Test
-  public void testImportDirSuccess(TestContext testContext) {
-    ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions());
-    JsonObject jsonObject = new JsonObject()
-            .put("path", "src/test/resources/api");
+    @Test
+    public void testNoPath(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject();
 
-    AtomicBoolean check1 = new AtomicBoolean();
-    vertx.deployVerticle(FileApiDiscoveryVerticle.class,
-                         new DeploymentOptions().setConfig            (jsonObject), ar ->{
-              if (ar.succeeded()) {
-                check1.set(true);
-              } else {
-                ar.cause().printStackTrace();
+        AtomicBoolean check1 = new AtomicBoolean();
+        vertx.deployVerticle(FileApiDiscoveryVerticle.class,
+                             new DeploymentOptions().setConfig(jsonObject), ar -> {
+                    if (ar.succeeded()) {
+                        testContext.fail();
+                    } else {
+                        check1.set(true);
+                    }
+                });
+        Awaitility.await().until(() -> check1.get());
+    }
+
+    @Test
+    public void testImportDirSuccess(TestContext testContext) {
+        ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                     new ApiDiscoveryOptions());
+        JsonObject jsonObject = new JsonObject()
+                .put("path", "src/test/resources/api");
+
+        AtomicBoolean check1 = new AtomicBoolean();
+        vertx.deployVerticle(FileApiDiscoveryVerticle.class,
+                             new DeploymentOptions().setConfig(jsonObject), ar -> {
+                    if (ar.succeeded()) {
+                        check1.set(true);
+                    } else {
+                        ar.cause().printStackTrace();
+                        testContext.fail();
+                    }
+                });
+        Awaitility.await().until(() -> check1.get());
+
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
                 testContext.fail();
-              }
-            } );
-    Awaitility.await().until(() -> check1.get());
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(2, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      System.out.println(ar.result());
-      testContext.assertEquals(2, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+    @Test
+    public void testImportFileSuccess(TestContext testContext) {
+        ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                     new ApiDiscoveryOptions());
+        JsonObject jsonObject = new JsonObject()
+                .put("path", "src/test/resources/api/device_add.json");
 
-  @Test
-  public void testImportFileSuccess(TestContext testContext) {
-    ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions());
-    JsonObject jsonObject = new JsonObject()
-            .put("path", "src/test/resources/api/device_add.json");
+        AtomicBoolean check1 = new AtomicBoolean();
+        vertx.deployVerticle(FileApiDiscoveryVerticle.class,
+                             new DeploymentOptions().setConfig(jsonObject), ar -> {
+                    if (ar.succeeded()) {
+                        check1.set(true);
+                    } else {
+                        ar.cause().printStackTrace();
+                        testContext.fail();
+                    }
+                });
+        Awaitility.await().until(() -> check1.get());
 
-    AtomicBoolean check1 = new AtomicBoolean();
-    vertx.deployVerticle(FileApiDiscoveryVerticle.class,
-                         new DeploymentOptions().setConfig            (jsonObject), ar ->{
-              if (ar.succeeded()) {
-                check1.set(true);
-              } else {
-                ar.cause().printStackTrace();
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
                 testContext.fail();
-              }
-            } );
-    Awaitility.await().until(() -> check1.get());
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(1, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      System.out.println(ar.result());
-      testContext.assertEquals(1, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+    @Test
+    public void testInvalidJsonShouldNotAddAnyApi(TestContext testContext) {
+        String namespace = UUID.randomUUID().toString();
+        ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                     new ApiDiscoveryOptions());
 
-  @Test
-  public void testInvalidJsonShouldNotAddAnyApi(TestContext testContext) {
-    String namespace = UUID.randomUUID().toString();
-    ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions());
+        JsonObject jsonObject = new JsonObject()
+                .put("path", "src/test/resources/invalid")
+                .put("api.discovery", new JsonObject().put("name", namespace));
 
-    JsonObject jsonObject = new JsonObject()
-            .put("path", "src/test/resources/invalid")
-            .put("api.discovery", new JsonObject().put("name", namespace));
+        AtomicBoolean check1 = new AtomicBoolean();
+        vertx.deployVerticle(FileApiDiscoveryVerticle.class,
+                             new DeploymentOptions().setConfig(jsonObject), ar -> {
+                    if (ar.succeeded()) {
+                        check1.set(true);
+                    } else {
+                        ar.cause().printStackTrace();
+                        testContext.fail();
+                    }
+                });
+        Awaitility.await().until(() -> check1.get());
 
-    AtomicBoolean check1 = new AtomicBoolean();
-    vertx.deployVerticle(FileApiDiscoveryVerticle.class,
-                         new DeploymentOptions().setConfig            (jsonObject), ar ->{
-              if (ar.succeeded()) {
-                check1.set(true);
-              } else {
-                ar.cause().printStackTrace();
+        AtomicBoolean check3 = new AtomicBoolean();
+        discovery.getDefinitions(new JsonObject(), ar -> {
+            if (ar.failed()) {
                 testContext.fail();
-              }
-            } );
-    Awaitility.await().until(() -> check1.get());
-
-    AtomicBoolean check3 = new AtomicBoolean();
-    discovery.getDefinitions(new JsonObject(), ar -> {
-      if (ar.failed()) {
-        testContext.fail();
-        return;
-      }
-      System.out.println(ar.result());
-      testContext.assertEquals(0, ar.result().size());
-      check3.set(true);
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+                return;
+            }
+            System.out.println(ar.result());
+            testContext.assertEquals(0, ar.result().size());
+            check3.set(true);
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
 }

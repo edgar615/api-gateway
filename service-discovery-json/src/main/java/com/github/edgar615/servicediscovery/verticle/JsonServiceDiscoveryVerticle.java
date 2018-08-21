@@ -16,45 +16,46 @@ import org.slf4j.LoggerFactory;
  * @author Edgar  Date 2017/6/9
  */
 public class JsonServiceDiscoveryVerticle extends AbstractVerticle {
-  private static final Logger LOGGER = LoggerFactory.getLogger(JsonServiceDiscoveryVerticle.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(JsonServiceDiscoveryVerticle.class);
 
-  @Override
-  public void start() throws Exception {
-    ServiceDiscoveryOptions options;
-    if (config().getValue("service.discovery") instanceof JsonObject) {
-      options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
-    } else {
-      options = new ServiceDiscoveryOptions();
-    }
-    ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
-
-    LOGGER.info("deploy JsonServiceDiscoveryVerticle succeeded");
-    if (config().getValue("services") instanceof JsonObject) {
-      JsonObject services = config().getJsonObject("services");
-      for (String name : services.fieldNames()) {
-        JsonArray jsonArray = services.getJsonArray(name);
-        for (int i = 0; i < jsonArray.size(); i++) {
-          JsonObject service = jsonArray.getJsonObject(i);
-          publishRecord(discovery, name, service);
-        }
-      }
-    }
-
-  }
-
-  private void publishRecord(ServiceDiscovery discovery, String name, JsonObject service) {
-    String host = service.getString("host");
-    Integer port = service.getInteger("port");
-    if (host != null && port != null) {
-      Record record = HttpEndpoint.createRecord(name, host, port, "/");
-      record.setLocation(service);
-      discovery.publish(record, ar -> {
-        if (ar.succeeded()) {
-          LOGGER.info("publish record succeeded: {}", ar.result().toJson().encode());
+    @Override
+    public void start() throws Exception {
+        ServiceDiscoveryOptions options;
+        if (config().getValue("service.discovery") instanceof JsonObject) {
+            options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
         } else {
-          LOGGER.info("publish record failed: {}", record.toJson().encode());
+            options = new ServiceDiscoveryOptions();
         }
-      });
+        ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
+
+        LOGGER.info("deploy JsonServiceDiscoveryVerticle succeeded");
+        if (config().getValue("services") instanceof JsonObject) {
+            JsonObject services = config().getJsonObject("services");
+            for (String name : services.fieldNames()) {
+                JsonArray jsonArray = services.getJsonArray(name);
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JsonObject service = jsonArray.getJsonObject(i);
+                    publishRecord(discovery, name, service);
+                }
+            }
+        }
+
     }
-  }
+
+    private void publishRecord(ServiceDiscovery discovery, String name, JsonObject service) {
+        String host = service.getString("host");
+        Integer port = service.getInteger("port");
+        if (host != null && port != null) {
+            Record record = HttpEndpoint.createRecord(name, host, port, "/");
+            record.setLocation(service);
+            discovery.publish(record, ar -> {
+                if (ar.succeeded()) {
+                    LOGGER.info("publish record succeeded: {}", ar.result().toJson().encode());
+                } else {
+                    LOGGER.info("publish record failed: {}", record.toJson().encode());
+                }
+            });
+        }
+    }
 }

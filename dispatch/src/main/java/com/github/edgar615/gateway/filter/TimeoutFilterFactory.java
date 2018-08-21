@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-27.
  */
 public class TimeoutFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return TimeoutFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return TimeoutFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new TimeoutFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new TimeoutFilter(config);
+    }
 }

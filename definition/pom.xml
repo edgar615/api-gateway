@@ -47,24 +47,24 @@
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-plugin</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-auth</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-appkey</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
     </dependencies>
 

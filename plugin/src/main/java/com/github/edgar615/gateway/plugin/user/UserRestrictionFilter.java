@@ -29,94 +29,94 @@ import java.util.List;
  */
 public class UserRestrictionFilter implements Filter {
 
-  private final List<String> globalBlacklist = new ArrayList<>();
+    private final List<String> globalBlacklist = new ArrayList<>();
 
-  private final List<String> globalWhitelist = new ArrayList<>();
+    private final List<String> globalWhitelist = new ArrayList<>();
 
-  private final String userKey = "userId";
+    private final String userKey = "userId";
 
-  public UserRestrictionFilter(JsonObject config) {
-    updateConfig(config);
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 10500;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.principal() == null) {
-      return false;
-    }
-    return !globalBlacklist.isEmpty()
-           || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(UserRestriction.class.getSimpleName())
-              != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    UserRestriction plugin = (UserRestriction) apiContext.apiDefinition()
-            .plugin(UserRestriction.class.getSimpleName());
-    List<String> blacklist = new ArrayList<>(globalBlacklist);
-    List<String> whitelist = new ArrayList<>(globalWhitelist);
-    if (plugin != null) {
-      blacklist.addAll(plugin.blacklist());
-      whitelist.addAll(plugin.whitelist());
-    }
-    String userId = apiContext.principal().getValue(userKey).toString();
-
-    //匹配到白名单则允许通过
-    if (satisfyList(userId, whitelist)) {
-      completeFuture.complete(apiContext);
-      return;
-    }
-    //匹配到黑名单则禁止通过
-    if (satisfyList(userId, blacklist)) {
-      SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "The user is forbidden");
-      failed(completeFuture, apiContext.id(), "UserForbidden", e);
-      return;
-    }
-    completeFuture.complete(apiContext);
-
-  }
-
-  @Override
-  public void updateConfig(JsonObject newConfig) {
-    if (newConfig.getValue("user.restriction") instanceof JsonObject) {
-      JsonObject jsonObject = newConfig.getJsonObject("user.restriction", new JsonObject());
-      JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-      JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-      globalBlacklist.clear();
-      globalWhitelist.clear();
-      for (int i = 0; i < blackArray.size(); i++) {
-        globalBlacklist.add(blackArray.getValue(i).toString());
-      }
-      for (int i = 0; i < whiteArray.size(); i++) {
-        globalWhitelist.add(whiteArray.getValue(i).toString());
-      }
+    public UserRestrictionFilter(JsonObject config) {
+        updateConfig(config);
     }
 
-  }
-
-  private boolean satisfyList(String userId, List<String> list) {
-    return list.stream()
-                   .filter(r -> checkUser(r, userId))
-                   .count() > 0;
-  }
-
-  private boolean checkUser(String rule, String group) {
-    if ("*".equals(rule)) {
-      return true;
+    @Override
+    public String type() {
+        return PRE;
     }
-    return rule.equalsIgnoreCase(group);
-  }
+
+    @Override
+    public int order() {
+        return 10500;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.principal() == null) {
+            return false;
+        }
+        return !globalBlacklist.isEmpty()
+               || !globalWhitelist.isEmpty()
+               || apiContext.apiDefinition().plugin(UserRestriction.class.getSimpleName())
+                  != null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        UserRestriction plugin = (UserRestriction) apiContext.apiDefinition()
+                .plugin(UserRestriction.class.getSimpleName());
+        List<String> blacklist = new ArrayList<>(globalBlacklist);
+        List<String> whitelist = new ArrayList<>(globalWhitelist);
+        if (plugin != null) {
+            blacklist.addAll(plugin.blacklist());
+            whitelist.addAll(plugin.whitelist());
+        }
+        String userId = apiContext.principal().getValue(userKey).toString();
+
+        //匹配到白名单则允许通过
+        if (satisfyList(userId, whitelist)) {
+            completeFuture.complete(apiContext);
+            return;
+        }
+        //匹配到黑名单则禁止通过
+        if (satisfyList(userId, blacklist)) {
+            SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+                    .set("details", "The user is forbidden");
+            failed(completeFuture, apiContext.id(), "UserForbidden", e);
+            return;
+        }
+        completeFuture.complete(apiContext);
+
+    }
+
+    @Override
+    public void updateConfig(JsonObject newConfig) {
+        if (newConfig.getValue("user.restriction") instanceof JsonObject) {
+            JsonObject jsonObject = newConfig.getJsonObject("user.restriction", new JsonObject());
+            JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+            JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+            globalBlacklist.clear();
+            globalWhitelist.clear();
+            for (int i = 0; i < blackArray.size(); i++) {
+                globalBlacklist.add(blackArray.getValue(i).toString());
+            }
+            for (int i = 0; i < whiteArray.size(); i++) {
+                globalWhitelist.add(whiteArray.getValue(i).toString());
+            }
+        }
+
+    }
+
+    private boolean satisfyList(String userId, List<String> list) {
+        return list.stream()
+                       .filter(r -> checkUser(r, userId))
+                       .count() > 0;
+    }
+
+    private boolean checkUser(String rule, String group) {
+        if ("*".equals(rule)) {
+            return true;
+        }
+        return rule.equalsIgnoreCase(group);
+    }
 
 }

@@ -111,127 +111,129 @@ import java.util.List;
  */
 public class AppKeyFilter implements Filter {
 
-  private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
+    private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final AppKeyFinder appKeyFinder;
+    private final AppKeyFinder appKeyFinder;
 
-  AppKeyFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    commonParamRule.put("appKey", Rule.required());
-    commonParamRule.put("nonce", Rule.required());
-    commonParamRule.put("signMethod", Rule.required());
-    List<Object> optionalRule = new ArrayList<>();
-    optionalRule.add("HMACSHA256");
-    optionalRule.add("HMACSHA512");
-    optionalRule.add("HMACMD5");
-    optionalRule.add("MD5");
-    commonParamRule.put("signMethod", Rule.optional(optionalRule));
-    commonParamRule.put("sign", Rule.required());
+    AppKeyFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        commonParamRule.put("appKey", Rule.required());
+        commonParamRule.put("nonce", Rule.required());
+        commonParamRule.put("signMethod", Rule.required());
+        List<Object> optionalRule = new ArrayList<>();
+        optionalRule.add("HMACSHA256");
+        optionalRule.add("HMACSHA512");
+        optionalRule.add("HMACMD5");
+        optionalRule.add("MD5");
+        commonParamRule.put("signMethod", Rule.optional(optionalRule));
+        commonParamRule.put("sign", Rule.required());
 
-    int port = config.getInteger("port", Consts.DEFAULT_PORT);
-    JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
-    appKeyConfig.put("port", port);
-    this.appKeyFinder = new AppKeyFinder(vertx, appKeyConfig);
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 8000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().plugin(AppKeyPlugin.class.getSimpleName()) != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    //校验参数
-    Validations.validate(apiContext.params(), commonParamRule);
-    Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
-    String clientSignValue = MultimapUtils.getFirst(params, "sign").toString();
-    String signMethod = MultimapUtils.getFirst(params, "signMethod").toString();
-    String appKey = MultimapUtils.getFirst(params, "appKey").toString();
-    params.removeAll("sign");
-    if (apiContext.body() != null) {
-      params.removeAll("body");
-      params.put("body", apiContext.body().encode());
+        int port = config.getInteger("port", Consts.DEFAULT_PORT);
+        JsonObject appKeyConfig = config.getJsonObject("appkey", new JsonObject());
+        appKeyConfig.put("port", port);
+        this.appKeyFinder = new AppKeyFinder(vertx, appKeyConfig);
     }
-    appKeyFinder.find(appKey, ar -> {
-      if (ar.failed()) {
-        SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
-                .set("details", "Non-existent AppKey:" + appKey);
-        failed(completeFuture, apiContext.id(), "AppKeyNonExistent", e);
-        return;
-      }
-      JsonObject jsonObject = ar.result();
-      checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, jsonObject);
-    });
 
-  }
-
-  private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
-                         Multimap<String, String> params, String clientSignValue, String signMethod,
-                         JsonObject app) {
-    String secret = app.getString("appSecret", "UNKOWNSECRET");
-    String serverSignValue = signTopRequest(params, secret, signMethod);
-    if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
-      SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
-              .set("details", "Incorrect sign");
-      failed(completeFuture, apiContext.id(), "SignIncorrect", e);
-    } else {
-      apiContext.addVariable("client_appKey", app.getString("appKey", "anonymous"));
-      if (app.containsKey("clientCode")) {
-        apiContext.addVariable("client_clientCode", app.getValue("clientCode"));
-      }
-      if (app.containsKey("permissions")) {
-        apiContext.addVariable("client_permissions", app.getValue("permissions"));
-      }
-      completeFuture.complete(apiContext);
+    @Override
+    public String type() {
+        return PRE;
     }
-  }
 
-  private String signTopRequest(Multimap<String, String> params, String secret, String signMethod) {
-    String queryString = baseString(params);
-
-    String sign = null;
-    try {
-      if (EncryptUtils.HMACMD5.equalsIgnoreCase(signMethod)) {
-        sign = EncryptUtils.encryptHmacMd5(queryString, secret);
-      } else if (EncryptUtils.HMACSHA256.equalsIgnoreCase(signMethod)) {
-        sign = EncryptUtils.encryptHmacSha256(queryString, secret);
-      } else if (EncryptUtils.HMACSHA512.equalsIgnoreCase(signMethod)) {
-        sign = EncryptUtils.encryptHmacSha512(queryString, secret);
-      } else if (EncryptUtils.MD5.equalsIgnoreCase(signMethod)) {
-        sign = EncryptUtils.encryptMD5(secret + queryString + secret);
-      }
-    } catch (IOException e) {
-
+    @Override
+    public int order() {
+        return 8000;
     }
-    return sign;
-  }
 
-  private String baseString(Multimap<String, String> params) {// 第一步：检查参数是否已经排序
-    String[] keys = params.keySet().toArray(new String[0]);
-    Arrays.sort(keys);
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition().plugin(AppKeyPlugin.class.getSimpleName()) != null;
+    }
 
-    // 第二步：把所有参数名和参数值串在一起
-    List<String> query = new ArrayList<>(params.size());
-    for (String key : keys) {
-      if (!key.startsWith("$param")) {
-        String value = MultimapUtils.getFirst(params, key);
-        if (!Strings.isNullOrEmpty(value)) {
-          query.add(key + "=" + value);
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        //校验参数
+        Validations.validate(apiContext.params(), commonParamRule);
+        Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
+        String clientSignValue = MultimapUtils.getFirst(params, "sign").toString();
+        String signMethod = MultimapUtils.getFirst(params, "signMethod").toString();
+        String appKey = MultimapUtils.getFirst(params, "appKey").toString();
+        params.removeAll("sign");
+        if (apiContext.body() != null) {
+            params.removeAll("body");
+            params.put("body", apiContext.body().encode());
         }
-      }
+        appKeyFinder.find(appKey, ar -> {
+            if (ar.failed()) {
+                SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
+                        .set("details", "Non-existent AppKey:" + appKey);
+                failed(completeFuture, apiContext.id(), "AppKeyNonExistent", e);
+                return;
+            }
+            JsonObject jsonObject = ar.result();
+            checkSign(apiContext, completeFuture, params, clientSignValue, signMethod, jsonObject);
+        });
+
     }
-    return Joiner.on("&").join(query);
-  }
+
+    private void checkSign(ApiContext apiContext, Future<ApiContext> completeFuture,
+                           Multimap<String, String> params, String clientSignValue,
+                           String signMethod,
+                           JsonObject app) {
+        String secret = app.getString("appSecret", "UNKOWNSECRET");
+        String serverSignValue = signTopRequest(params, secret, signMethod);
+        if (!clientSignValue.equalsIgnoreCase(serverSignValue)) {
+            SystemException e = SystemException.create(DefaultErrorCode.INVALID_REQ)
+                    .set("details", "Incorrect sign");
+            failed(completeFuture, apiContext.id(), "SignIncorrect", e);
+        } else {
+            apiContext.addVariable("client_appKey", app.getString("appKey", "anonymous"));
+            if (app.containsKey("clientCode")) {
+                apiContext.addVariable("client_clientCode", app.getValue("clientCode"));
+            }
+            if (app.containsKey("permissions")) {
+                apiContext.addVariable("client_permissions", app.getValue("permissions"));
+            }
+            completeFuture.complete(apiContext);
+        }
+    }
+
+    private String signTopRequest(Multimap<String, String> params, String secret,
+                                  String signMethod) {
+        String queryString = baseString(params);
+
+        String sign = null;
+        try {
+            if (EncryptUtils.HMACMD5.equalsIgnoreCase(signMethod)) {
+                sign = EncryptUtils.encryptHmacMd5(queryString, secret);
+            } else if (EncryptUtils.HMACSHA256.equalsIgnoreCase(signMethod)) {
+                sign = EncryptUtils.encryptHmacSha256(queryString, secret);
+            } else if (EncryptUtils.HMACSHA512.equalsIgnoreCase(signMethod)) {
+                sign = EncryptUtils.encryptHmacSha512(queryString, secret);
+            } else if (EncryptUtils.MD5.equalsIgnoreCase(signMethod)) {
+                sign = EncryptUtils.encryptMD5(secret + queryString + secret);
+            }
+        } catch (IOException e) {
+
+        }
+        return sign;
+    }
+
+    private String baseString(Multimap<String, String> params) {// 第一步：检查参数是否已经排序
+        String[] keys = params.keySet().toArray(new String[0]);
+        Arrays.sort(keys);
+
+        // 第二步：把所有参数名和参数值串在一起
+        List<String> query = new ArrayList<>(params.size());
+        for (String key : keys) {
+            if (!key.startsWith("$param")) {
+                String value = MultimapUtils.getFirst(params, key);
+                if (!Strings.isNullOrEmpty(value)) {
+                    query.add(key + "=" + value);
+                }
+            }
+        }
+        return Joiner.on("&").join(query);
+    }
 }

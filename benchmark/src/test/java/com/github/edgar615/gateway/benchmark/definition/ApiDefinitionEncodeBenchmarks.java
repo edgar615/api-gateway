@@ -31,67 +31,67 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class ApiDefinitionEncodeBenchmarks {
 
-  private ApiDefinition apiDefinition;
+    private ApiDefinition apiDefinition;
 
-  @Setup(Level.Invocation)
-  public void setup() {
+    @Setup(Level.Invocation)
+    public void setup() {
 
-    HttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
-                                    "/devices", 80, "localhost");
-    apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
-                                         Lists.newArrayList(httpEndpoint));
-    BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().create();
-    Parameter parameter = Parameter.create("barcode", null);
-    parameter.addRule(Rule.required());
-    parameter.addRule(Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));
-    plugin.add(parameter);
-    parameter = Parameter.create("encryptKey", null);
-    parameter.addRule(Rule.required());
-    parameter.addRule(Rule.regex("[0-9A-F]{16}"));
-    plugin.add(parameter);
-    apiDefinition.addPlugin(plugin);
+        HttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("device.add", HttpMethod.POST,
+                                        "/devices", 80, "localhost");
+        apiDefinition = ApiDefinition.create("device.add", HttpMethod.POST, "/devices",
+                                             Lists.newArrayList(httpEndpoint));
+        BodyArgPlugin plugin = (BodyArgPlugin) new BodyArgPluginFactory().create();
+        Parameter parameter = Parameter.create("barcode", null);
+        parameter.addRule(Rule.required());
+        parameter.addRule(Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));
+        plugin.add(parameter);
+        parameter = Parameter.create("encryptKey", null);
+        parameter.addRule(Rule.required());
+        parameter.addRule(Rule.regex("[0-9A-F]{16}"));
+        plugin.add(parameter);
+        apiDefinition.addPlugin(plugin);
 
-    UrlArgPlugin urlArgPlugin = (UrlArgPlugin) new UrlArgPluginFactory().create();
-    parameter = Parameter.create("barcode", null);
-    parameter.addRule(Rule.required());
-    parameter.addRule(Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));
-    urlArgPlugin.add(parameter);
-    parameter = Parameter.create("encryptKey", null);
-    parameter.addRule(Rule.required());
-    parameter.addRule(Rule.regex("[0-9A-F]{16}"));
-    urlArgPlugin.add(parameter);
-    apiDefinition.addPlugin(urlArgPlugin);
+        UrlArgPlugin urlArgPlugin = (UrlArgPlugin) new UrlArgPluginFactory().create();
+        parameter = Parameter.create("barcode", null);
+        parameter.addRule(Rule.required());
+        parameter.addRule(Rule.regex("LH[0-7][0-9a-fA-F]{2}[0-5][0-4][0-9a-fA-F]{12}"));
+        urlArgPlugin.add(parameter);
+        parameter = Parameter.create("encryptKey", null);
+        parameter.addRule(Rule.required());
+        parameter.addRule(Rule.regex("[0-9A-F]{16}"));
+        urlArgPlugin.add(parameter);
+        apiDefinition.addPlugin(urlArgPlugin);
 
-    IpRestriction ipRestriction = (IpRestriction) new IpRestrictionFactory().create();
-    apiDefinition.addPlugin(ipRestriction);
+        IpRestriction ipRestriction = (IpRestriction) new IpRestrictionFactory().create();
+        apiDefinition.addPlugin(ipRestriction);
 
-    AclRestriction aclRestriction =
-            (AclRestriction) new AclRestrictionFactory().create();
-    apiDefinition.addPlugin(aclRestriction);
+        AclRestriction aclRestriction =
+                (AclRestriction) new AclRestrictionFactory().create();
+        apiDefinition.addPlugin(aclRestriction);
 
-    AppKeyPlugin appKeyPlugin = (AppKeyPlugin) new AppKeyPluginFactory().create();
-    apiDefinition.addPlugin(appKeyPlugin);
+        AppKeyPlugin appKeyPlugin = (AppKeyPlugin) new AppKeyPluginFactory().create();
+        apiDefinition.addPlugin(appKeyPlugin);
 
-  }
+    }
 
 
-  @Benchmark
-  @BenchmarkMode(Mode.Throughput)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(10000)
-  public JsonObject testApi() {
-    return apiDefinition.toJson();
-  }
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Fork(1)
+    @OperationsPerInvocation(10000)
+    public JsonObject testApi() {
+        return apiDefinition.toJson();
+    }
 
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(10000)
-  public JsonObject testAverage() {
-    return apiDefinition.toJson();
-  }
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    @Fork(1)
+    @OperationsPerInvocation(10000)
+    public JsonObject testAverage() {
+        return apiDefinition.toJson();
+    }
 
 }

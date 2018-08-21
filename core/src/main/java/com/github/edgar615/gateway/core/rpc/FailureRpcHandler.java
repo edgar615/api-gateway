@@ -8,26 +8,26 @@ import io.vertx.core.Future;
  */
 public class FailureRpcHandler implements RpcHandler {
 
-  /**
-   * 错误消息
-   */
-  private final String failureMessage;
+    /**
+     * 错误消息
+     */
+    private final String failureMessage;
 
-  FailureRpcHandler(String failureMessage) {
-    this.failureMessage = failureMessage;
-  }
+    FailureRpcHandler(String failureMessage) {
+        this.failureMessage = failureMessage;
+    }
 
-  public static FailureRpcHandler create(String failureMessage) {
-    return new FailureRpcHandler(failureMessage);
-  }
+    public static FailureRpcHandler create(String failureMessage) {
+        return new FailureRpcHandler(failureMessage);
+    }
 
-  @Override
-  public String type() {
-    return "failed";
-  }
+    @Override
+    public String type() {
+        return "failed";
+    }
 
-  @Override
-  public Future<RpcResponse> handle(RpcRequest rpcRequest) {
-    return Future.failedFuture(failureMessage);
-  }
+    @Override
+    public Future<RpcResponse> handle(RpcRequest rpcRequest) {
+        return Future.failedFuture(failureMessage);
+    }
 }

@@ -28,62 +28,62 @@ import java.util.stream.Collectors;
  * @author Edgar  Date 2017/1/19
  */
 class ListApiCmd implements ApiCmd {
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final JsonObject configuration = new JsonObject();
+    private final JsonObject configuration = new JsonObject();
 
-  ListApiCmd(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    rules.put("namespace", Rule.required());
-    setConfig(config, configuration);
-  }
-
-  @Override
-  public String cmd() {
-    return "api.list";
-  }
-
-  @Override
-  public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    Validations.validate(jsonObject.getMap(), rules);
-    String namespace = jsonObject.getString("namespace");
-    Integer start = JsonUtils.getInteger(jsonObject, "start", 0);
-    Integer limit = JsonUtils.getInteger(jsonObject, "limit", 10);
-    String name = jsonObject.getString("name", "*");
-    JsonObject filter = new JsonObject();
-    if (name != null) {
-      filter.put("name", name);
+    ListApiCmd(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        rules.put("namespace", Rule.required());
+        setConfig(config, configuration);
     }
-    Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace))
-            .getDefinitions(filter, ar -> {
-              if (ar.failed()) {
-                future.fail(ar.cause());
-                return;
-              }
-              List<ApiDefinition> definitions = ar.result();
-              if (start > definitions.size()) {
-                future.complete(new JsonObject()
-                                        .put("result", new JsonArray()));
-                return;
-              }
-              int toIndex = start + limit;
-              if (toIndex > definitions.size()) {
-                toIndex = definitions.size();
-              }
-              List<JsonObject> result = definitions
-                      .stream()
-                      .sorted((o1, o2) -> o1.name().compareToIgnoreCase(o2.name()))
-                      .collect(Collectors.toList())
-                      .subList(start, toIndex).stream()
-                      .map(d -> d.toJson())
-                      .collect(Collectors.toList());
 
-              future.complete(new JsonObject()
-                                      .put("result", result));
-            });
-    return future;
-  }
+    @Override
+    public String cmd() {
+        return "api.list";
+    }
+
+    @Override
+    public Future<JsonObject> doHandle(JsonObject jsonObject) {
+        Validations.validate(jsonObject.getMap(), rules);
+        String namespace = jsonObject.getString("namespace");
+        Integer start = JsonUtils.getInteger(jsonObject, "start", 0);
+        Integer limit = JsonUtils.getInteger(jsonObject, "limit", 10);
+        String name = jsonObject.getString("name", "*");
+        JsonObject filter = new JsonObject();
+        if (name != null) {
+            filter.put("name", name);
+        }
+        Future<JsonObject> future = Future.future();
+        ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace))
+                .getDefinitions(filter, ar -> {
+                    if (ar.failed()) {
+                        future.fail(ar.cause());
+                        return;
+                    }
+                    List<ApiDefinition> definitions = ar.result();
+                    if (start > definitions.size()) {
+                        future.complete(new JsonObject()
+                                                .put("result", new JsonArray()));
+                        return;
+                    }
+                    int toIndex = start + limit;
+                    if (toIndex > definitions.size()) {
+                        toIndex = definitions.size();
+                    }
+                    List<JsonObject> result = definitions
+                            .stream()
+                            .sorted((o1, o2) -> o1.name().compareToIgnoreCase(o2.name()))
+                            .collect(Collectors.toList())
+                            .subList(start, toIndex).stream()
+                            .map(d -> d.toJson())
+                            .collect(Collectors.toList());
+
+                    future.complete(new JsonObject()
+                                            .put("result", result));
+                });
+        return future;
+    }
 }

@@ -9,16 +9,16 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public class StrictArgPlugin implements ApiPlugin {
 
-  private final boolean strict;
+    private final boolean strict;
 
-  public StrictArgPlugin(boolean strict) {this.strict = strict;}
+    public StrictArgPlugin(boolean strict) {this.strict = strict;}
 
-  @Override
-  public String name() {
-    return StrictArgPlugin.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return StrictArgPlugin.class.getSimpleName();
+    }
 
-  public boolean strict() {
-    return strict;
-  }
+    public boolean strict() {
+        return strict;
+    }
 }

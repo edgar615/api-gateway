@@ -7,13 +7,13 @@ import com.google.common.base.MoreObjects;
  */
 class UrlArgPluginImpl extends ArgPluginImpl implements UrlArgPlugin {
 
-  UrlArgPluginImpl() {
-  }
+    UrlArgPluginImpl() {
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper("BodyArgPlugin")
-            .add("parameters", parameters())
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper("BodyArgPlugin")
+                .add("parameters", parameters())
+                .toString();
+    }
 }

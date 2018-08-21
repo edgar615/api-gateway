@@ -11,13 +11,13 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/11/10
  */
 public class MetricFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return MetricFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return MetricFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new MetricFilter(vertx, config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new MetricFilter(vertx, config);
+    }
 }

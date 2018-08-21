@@ -7,7 +7,7 @@ package com.github.edgar615.gateway.core.rpc;
  */
 public interface Fallbackable {
 
-  void setFallback(RpcResponse fallback);
+    void setFallback(RpcResponse fallback);
 
-  RpcResponse fallback();
+    RpcResponse fallback();
 }

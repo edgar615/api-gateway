@@ -23,88 +23,88 @@ import java.util.UUID;
 @RunWith(VertxUnitRunner.class)
 public class FilterTest {
 
-  Vertx vertx;
+    Vertx vertx;
 
-  @Before
-  public void setUp(TestContext testContext) {
-    vertx = Vertx.vertx();
-  }
-
-
-  @Test
-  public void testCreateDefinedFilter(TestContext testContext) {
-
-    Filter filter = Filter.create(MockFilter.class.getSimpleName(), vertx, new JsonObject());
-    Assert.assertTrue(filter instanceof MockFilter);
-  }
-
-  @Test
-  public void testUndefinedFilterShouldThrowNoSuchElementException(TestContext testContext) {
-
-    try {
-      Filter.create(UUID.randomUUID().toString(), vertx, new JsonObject());
-      Assert.fail();
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof NoSuchElementException);
+    @Before
+    public void setUp(TestContext testContext) {
+        vertx = Vertx.vertx();
     }
-  }
 
-  @Test
-  public void testException(TestContext testContext) {
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
+    @Test
+    public void testCreateDefinedFilter(TestContext testContext) {
 
-    MockFilter filter = new MockFilter();
-
-    Future<ApiContext> future = Future.future();
-    try {
-      filter.doFilter(apiContext, future);
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof NullPointerException);
+        Filter filter = Filter.create(MockFilter.class.getSimpleName(), vertx, new JsonObject());
+        Assert.assertTrue(filter instanceof MockFilter);
     }
-  }
 
-  @Test
-  public void testSuccess(TestContext testContext) {
+    @Test
+    public void testUndefinedFilterShouldThrowNoSuchElementException(TestContext testContext) {
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
-    apiContext.variables().put("test", true);
+        try {
+            Filter.create(UUID.randomUUID().toString(), vertx, new JsonObject());
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof NoSuchElementException);
+        }
+    }
 
-    MockFilter filter = new MockFilter();
+    @Test
+    public void testException(TestContext testContext) {
 
-    Future<ApiContext> future = Future.future();
-    filter.doFilter(apiContext, future);
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
 
-    Async async = testContext.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        async.complete();
-      } else {
-        testContext.fail();
-      }
-    });
-  }
+        MockFilter filter = new MockFilter();
 
-  @Test
-  public void testFailed(TestContext testContext) {
+        Future<ApiContext> future = Future.future();
+        try {
+            filter.doFilter(apiContext, future);
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof NullPointerException);
+        }
+    }
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
-    apiContext.variables().put("test", false);
+    @Test
+    public void testSuccess(TestContext testContext) {
 
-    MockFilter filter = new MockFilter();
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
+        apiContext.variables().put("test", true);
 
-    Future<ApiContext> future = Future.future();
-    filter.doFilter(apiContext, future);
+        MockFilter filter = new MockFilter();
 
-    Async async = testContext.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        async.complete();
-      }
-    });
-  }
+        Future<ApiContext> future = Future.future();
+        filter.doFilter(apiContext, future);
+
+        Async async = testContext.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                async.complete();
+            } else {
+                testContext.fail();
+            }
+        });
+    }
+
+    @Test
+    public void testFailed(TestContext testContext) {
+
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, null, null);
+        apiContext.variables().put("test", false);
+
+        MockFilter filter = new MockFilter();
+
+        Future<ApiContext> future = Future.future();
+        filter.doFilter(apiContext, future);
+
+        Async async = testContext.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                testContext.fail();
+            } else {
+                async.complete();
+            }
+        });
+    }
 
 
 }

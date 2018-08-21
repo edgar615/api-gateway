@@ -24,24 +24,24 @@ public class ConflictTest {
 //    System.out.println(UUID.randomUUID().toString().replace("-", ""));
 //  }
 
-  @Test
-  public void testOk(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost", "/conflict")
-            .handler(resp -> {
-              testContext.assertEquals(500, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                testContext.assertEquals(DefaultErrorCode.CONFLICT.getNumber(),
-                                         body.toJsonObject().getInteger("code"));
-                check.set(true);
-              });
-            })
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
+    @Test
+    public void testOk(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient().get(9000, "localhost", "/conflict")
+                .handler(resp -> {
+                    testContext.assertEquals(500, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        testContext.assertEquals(DefaultErrorCode.CONFLICT.getNumber(),
+                                                 body.toJsonObject().getInteger("code"));
+                        check.set(true);
+                    });
+                })
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
 
 
 }

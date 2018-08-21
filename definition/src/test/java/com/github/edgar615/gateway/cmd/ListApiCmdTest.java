@@ -22,225 +22,225 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class ListApiCmdTest extends BaseApiCmdTest {
 
-  @Before
-  public void setUp() {
-    super.setUp();
+    @Before
+    public void setUp() {
+        super.setUp();
 
-    addMockApi();
-  }
+        addMockApi();
+    }
 
-  @Test
-  public void testMissNameShouldThrowValidationException(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", new JsonObject(), ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        ar.cause().printStackTrace();
-        testContext.assertTrue(ar.cause() instanceof ReplyException);
-        testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
-                                 ReplyException.class.cast(ar.cause()).failureCode());
-        check.set(true);
-      }
-    });
-    Awaitility.await().until(() -> check.get());
+    @Test
+    public void testMissNameShouldThrowValidationException(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", new JsonObject(), ar -> {
+            if (ar.succeeded()) {
+                testContext.fail();
+            } else {
+                ar.cause().printStackTrace();
+                testContext.assertTrue(ar.cause() instanceof ReplyException);
+                testContext.assertEquals(DefaultErrorCode.INVALID_ARGS.getNumber(),
+                                         ReplyException.class.cast(ar.cause()).failureCode());
+                check.set(true);
+            }
+        });
+        Awaitility.await().until(() -> check.get());
 
-  }
+    }
 
-  @Test
-  public void testListAll(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace);
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+    @Test
+    public void testListAll(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace);
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(2, jsonArray.size());
-        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-        testContext.assertEquals("add_device", apiDefinition.name());
-        apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
-        testContext.assertEquals("get_device", apiDefinition.name());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
+                testContext.assertEquals(2, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("add_device", apiDefinition.name());
+                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+                testContext.assertEquals("get_device", apiDefinition.name());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
 
-  }
+    }
 
-  @Test
-  public void testListByFullname(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "get_device");
+    @Test
+    public void testListByFullname(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "get_device");
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(1, jsonArray.size());
-        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-        testContext.assertEquals("get_device", apiDefinition.name());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-  }
+                testContext.assertEquals(1, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("get_device", apiDefinition.name());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+    }
 
-  @Test
-  public void testListByWildcard(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "*device");
+    @Test
+    public void testListByWildcard(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "*device");
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(2, jsonArray.size());
-        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-        testContext.assertEquals("add_device", apiDefinition.name());
-        apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
-        testContext.assertEquals("get_device", apiDefinition.name());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(2, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("add_device", apiDefinition.name());
+                apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(1));
+                testContext.assertEquals("get_device", apiDefinition.name());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testListByUndefinedWildcard(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "*rererere");
+    @Test
+    public void testListByUndefinedWildcard(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "*rererere");
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(0, jsonArray.size());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(0, jsonArray.size());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testListByStart(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "*")
-            .put("start", 1);
+    @Test
+    public void testListByStart(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "*")
+                .put("start", 1);
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(1, jsonArray.size());
-        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-        testContext.assertEquals("get_device", apiDefinition.name());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(1, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("get_device", apiDefinition.name());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testListByStartOut(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("start", 3);
+    @Test
+    public void testListByStartOut(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("start", 3);
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(0, jsonArray.size());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(0, jsonArray.size());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testListByLimit(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("limit", 1);
+    @Test
+    public void testListByLimit(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("limit", 1);
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(1, jsonArray.size());
-        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-        testContext.assertEquals("add_device", apiDefinition.name());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(1, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("add_device", apiDefinition.name());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testListByLimitZero(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("limit", 0);
+    @Test
+    public void testListByLimitZero(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("limit", 0);
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(0, jsonArray.size());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(0, jsonArray.size());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testListByStartAndLimit(TestContext testContext) {
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("start", 1)
-            .put("limit", 1);
+    @Test
+    public void testListByStartAndLimit(TestContext testContext) {
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("start", 1)
+                .put("limit", 1);
 
-    AtomicBoolean check = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        JsonArray jsonArray = ar.result().body().getJsonArray("result");
+        AtomicBoolean check = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.list", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                JsonArray jsonArray = ar.result().body().getJsonArray("result");
 
-        testContext.assertEquals(1, jsonArray.size());
-        ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
-        testContext.assertEquals("get_device", apiDefinition.name());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
-  }
+                testContext.assertEquals(1, jsonArray.size());
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(jsonArray.getJsonObject(0));
+                testContext.assertEquals("get_device", apiDefinition.name());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+    }
 
 }

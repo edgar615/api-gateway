@@ -16,35 +16,35 @@ import org.slf4j.LoggerFactory;
  * @author Edgar  Date 2017/6/9
  */
 public class ZookeeperServiceDiscoveryVerticle extends AbstractVerticle {
-  private static final Logger LOGGER =
-          LoggerFactory.getLogger(ZookeeperServiceDiscoveryVerticle.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ZookeeperServiceDiscoveryVerticle.class);
 
-  @Override
-  public void start() throws Exception {
-    ServiceDiscoveryOptions options;
-    if (config().getValue("service.discovery") instanceof JsonObject) {
-      options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
-    } else {
-      options = new ServiceDiscoveryOptions();
+    @Override
+    public void start() throws Exception {
+        ServiceDiscoveryOptions options;
+        if (config().getValue("service.discovery") instanceof JsonObject) {
+            options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
+        } else {
+            options = new ServiceDiscoveryOptions();
+        }
+        ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
+
+        LOGGER.info("deploy ZookeeperServiceDiscoveryVerticle succeeded");
+        if (config().getValue("zookeeper") instanceof JsonObject) {
+            registerZookeeper(discovery, config().getJsonObject("zookeeper"));
+        }
+
     }
-    ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
 
-    LOGGER.info("deploy ZookeeperServiceDiscoveryVerticle succeeded");
-    if (config().getValue("zookeeper") instanceof JsonObject) {
-      registerZookeeper(discovery, config().getJsonObject("zookeeper"));
+    private void registerZookeeper(ServiceDiscovery discovery, JsonObject config) {
+        try {
+            ServiceImporter serviceImporter = new ZookeeperServiceImporter();
+            discovery
+                    .registerServiceImporter(serviceImporter, config,
+                                             Future.<Void>future().completer());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-
-  }
-
-  private void registerZookeeper(ServiceDiscovery discovery, JsonObject config) {
-    try {
-      ServiceImporter serviceImporter = new ZookeeperServiceImporter();
-      discovery
-              .registerServiceImporter(serviceImporter, config,
-                                       Future.<Void>future().completer());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 
 }

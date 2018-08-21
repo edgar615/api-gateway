@@ -30,95 +30,100 @@ import java.util.stream.Collectors;
  */
 public class ApiFindFilter implements Filter {
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final ApiDiscovery discovery;
+    private final ApiDiscovery discovery;
 
-  public ApiFindFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
-    this.discovery = ApiDiscovery.create(vertx,
-            new ApiDiscoveryOptions(dicoveryConfig));
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return Integer.MIN_VALUE + 1000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition() == null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    discovery.filter(apiContext.method().name(), apiContext.path(), ar -> {
-      if (ar.failed()) {
-        failed(completeFuture, apiContext.id(), "ApiFindFailure", ar.cause());
-        return;
-      }
-      try {
-        List<ApiDefinition> apiDefinitions = ar.result();
-        ApiDefinition apiDefinition = extractApi(apiContext, ApiDefinition.extractInOrder(apiDefinitions));
-        completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
-        return;
-      } catch (SystemException e) {
-        failed(completeFuture, apiContext.id(), "ApiFindFailure", e);
-        return;
-      } catch (Exception e) {
-        failed(completeFuture, apiContext.id(), "ApiFindFailure", e);
-        return;
-      }
-    });
-  }
-
-  private boolean predicate(ApiContext context, ApiDefinition apiDefinition) {
-    if (apiDefinition.plugin(PredicatePlugin.class.getSimpleName()) == null) {
-      return true;
+    public ApiFindFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        JsonObject dicoveryConfig = config.getJsonObject("api.discovery", new JsonObject());
+        this.discovery = ApiDiscovery.create(vertx,
+                                             new ApiDiscoveryOptions(dicoveryConfig));
     }
-    PredicatePlugin predicatePlugin = (PredicatePlugin) apiDefinition.plugin(PredicatePlugin.class.getSimpleName());
-    return predicatePlugin.predicates().stream().allMatch(p -> p.test(context));
-  }
 
-  private int order(ApiDefinition definition) {
-    OrderPlugin orderPlugin = (OrderPlugin) definition.plugin(OrderPlugin.class.getSimpleName());
-    if (orderPlugin != null) {
-      return orderPlugin.order();
+    @Override
+    public String type() {
+        return PRE;
     }
-    return Integer.MAX_VALUE;
-  }
+
+    @Override
+    public int order() {
+        return Integer.MIN_VALUE + 1000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition() == null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        discovery.filter(apiContext.method().name(), apiContext.path(), ar -> {
+            if (ar.failed()) {
+                failed(completeFuture, apiContext.id(), "ApiFindFailure", ar.cause());
+                return;
+            }
+            try {
+                List<ApiDefinition> apiDefinitions = ar.result();
+                ApiDefinition apiDefinition =
+                        extractApi(apiContext, ApiDefinition.extractInOrder(apiDefinitions));
+                completeFuture.complete(apiContext.setApiDefinition(apiDefinition));
+                return;
+            } catch (SystemException e) {
+                failed(completeFuture, apiContext.id(), "ApiFindFailure", e);
+                return;
+            } catch (Exception e) {
+                failed(completeFuture, apiContext.id(), "ApiFindFailure", e);
+                return;
+            }
+        });
+    }
+
+    private boolean predicate(ApiContext context, ApiDefinition apiDefinition) {
+        if (apiDefinition.plugin(PredicatePlugin.class.getSimpleName()) == null) {
+            return true;
+        }
+        PredicatePlugin predicatePlugin =
+                (PredicatePlugin) apiDefinition.plugin(PredicatePlugin.class.getSimpleName());
+        return predicatePlugin.predicates().stream().allMatch(p -> p.test(context));
+    }
+
+    private int order(ApiDefinition definition) {
+        OrderPlugin orderPlugin =
+                (OrderPlugin) definition.plugin(OrderPlugin.class.getSimpleName());
+        if (orderPlugin != null) {
+            return orderPlugin.order();
+        }
+        return Integer.MAX_VALUE;
+    }
 
 
-  private ApiDefinition extractApi(ApiContext context, List<ApiDefinition> apiDefinitions) {
-    List<ApiDefinition> predicateList = apiDefinitions.stream()
-            .filter(d -> predicate(context, d))
-            .collect(Collectors.toList());
-    if (predicateList.isEmpty()) {//没有API
-      throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
-              .set("details", String.format("Api: %s:%s",
-                      context.method().name(),
-                      context.path()));
+    private ApiDefinition extractApi(ApiContext context, List<ApiDefinition> apiDefinitions) {
+        List<ApiDefinition> predicateList = apiDefinitions.stream()
+                .filter(d -> predicate(context, d))
+                .collect(Collectors.toList());
+        if (predicateList.isEmpty()) {//没有API
+            throw SystemException.create(DefaultErrorCode.RESOURCE_NOT_FOUND)
+                    .set("details", String.format("Api: %s:%s",
+                                                  context.method().name(),
+                                                  context.path()));
+        }
+        if (predicateList.size() == 1) {//只有一个
+            return predicateList.get(0);
+        }
+        //有多个，用order排序
+        List<ApiDefinition> sortedDefinitions =
+                predicateList.stream().sorted(Comparator.comparingInt(this::order))
+                        .collect(Collectors.toList());
+        ApiDefinition d1 = sortedDefinitions.get(0);
+        ApiDefinition d2 = sortedDefinitions.get(1);
+        if (order(d1) == order(d2)) {
+            throw SystemException.create(DefaultErrorCode.CONFLICT)
+                    .set("details", String.format("Api: %s:%s",
+                                                  context.method().name(),
+                                                  context.path()));
+        }
+        return d1;
     }
-    if (predicateList.size() == 1) {//只有一个
-      return predicateList.get(0);
-    }
-    //有多个，用order排序
-    List<ApiDefinition> sortedDefinitions = predicateList.stream().sorted(Comparator.comparingInt(this::order)).collect(Collectors.toList());
-    ApiDefinition d1 = sortedDefinitions.get(0);
-    ApiDefinition d2 = sortedDefinitions.get(1);
-    if (order(d1) == order(d2)) {
-      throw SystemException.create(DefaultErrorCode.CONFLICT)
-              .set("details", String.format("Api: %s:%s",
-                      context.method().name(),
-                      context.path()));
-    }
-    return d1;
-  }
 
 }

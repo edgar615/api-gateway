@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>

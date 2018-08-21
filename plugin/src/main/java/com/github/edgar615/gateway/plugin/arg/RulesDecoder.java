@@ -37,85 +37,86 @@ import java.util.function.Function;
  */
 class RulesDecoder implements Function<JsonObject, List<Rule>> {
 
-  private static final RulesDecoder INSTANCE = new RulesDecoder();
+    private static final RulesDecoder INSTANCE = new RulesDecoder();
 
-  private RulesDecoder() {
-  }
+    private RulesDecoder() {
+    }
 
-  static Function<JsonObject, List<Rule>> instance() {
-    return INSTANCE;
-  }
+    static Function<JsonObject, List<Rule>> instance() {
+        return INSTANCE;
+    }
 
-  @Override
-  public List<Rule> apply(JsonObject jsonObject) {
-    return rules(jsonObject);
-  }
+    @Override
+    public List<Rule> apply(JsonObject jsonObject) {
+        return rules(jsonObject);
+    }
 
-  private List<Rule> rules(JsonObject jsonObject) {
-    List<Rule> rules = new ArrayList<>();
-    jsonObject.getMap().forEach((key, value) -> {
-      if ("required".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.required());
-      }
-      if ("maxLength".equals(key)) {
-        rules.add(Rule.maxLength((Integer) value));
-      }
-      if ("minLength".equals(key)) {
-        rules.add(Rule.minLength((Integer) value));
-      }
-      if ("fixLength".equals(key)) {
-        rules.add(Rule.fixLength((Integer) value));
-      }
-      if ("max".equals(key)) {
-        rules.add(Rule.max((Integer) value));
-      }
-      if ("min".equals(key)) {
-        rules.add(Rule.min((Integer) value));
-      }
-      if ("regex".equals(key)) {
-        rules.add(Rule.regex((String) value));
-      }
-      if ("prohibited".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.prohibited());
-      }
-      if ("email".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.email());
-      }
-      if ("integer".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.integer());
-      }
-      if ("bool".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.bool());
-      }
-      if ("list".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.list());
-      }
-      if ("map".equals(key) &&
-          "true".equals(value.toString())) {
-        rules.add(Rule.map());
-      }
-      if ("equals".equals(key)) {
-        rules.add(Rule.equals(value.toString()));
-      }
-      if ("optional".equals(key)) {
-        if (value instanceof Collection) {
-          rules.add(Rule.optional(ImmutableList.copyOf((Collection) value)));
-        } else if (value instanceof JsonArray) {
-          JsonArray array = (JsonArray) value;
-          rules.add(Rule.optional(ImmutableList.copyOf(array.getList())));
-        }else {
-          Iterable<String> iterable =
-                  Splitter.on(",").trimResults().omitEmptyStrings().split(value.toString());
-          rules.add(Rule.optional(ImmutableList.copyOf(iterable)));
-        }
-      }
-    });
-    return rules;
-  }
+    private List<Rule> rules(JsonObject jsonObject) {
+        List<Rule> rules = new ArrayList<>();
+        jsonObject.getMap().forEach((key, value) -> {
+            if ("required".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.required());
+            }
+            if ("maxLength".equals(key)) {
+                rules.add(Rule.maxLength((Integer) value));
+            }
+            if ("minLength".equals(key)) {
+                rules.add(Rule.minLength((Integer) value));
+            }
+            if ("fixLength".equals(key)) {
+                rules.add(Rule.fixLength((Integer) value));
+            }
+            if ("max".equals(key)) {
+                rules.add(Rule.max((Integer) value));
+            }
+            if ("min".equals(key)) {
+                rules.add(Rule.min((Integer) value));
+            }
+            if ("regex".equals(key)) {
+                rules.add(Rule.regex((String) value));
+            }
+            if ("prohibited".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.prohibited());
+            }
+            if ("email".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.email());
+            }
+            if ("integer".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.integer());
+            }
+            if ("bool".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.bool());
+            }
+            if ("list".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.list());
+            }
+            if ("map".equals(key) &&
+                "true".equals(value.toString())) {
+                rules.add(Rule.map());
+            }
+            if ("equals".equals(key)) {
+                rules.add(Rule.equals(value.toString()));
+            }
+            if ("optional".equals(key)) {
+                if (value instanceof Collection) {
+                    rules.add(Rule.optional(ImmutableList.copyOf((Collection) value)));
+                } else if (value instanceof JsonArray) {
+                    JsonArray array = (JsonArray) value;
+                    rules.add(Rule.optional(ImmutableList.copyOf(array.getList())));
+                } else {
+                    Iterable<String> iterable =
+                            Splitter.on(",").trimResults().omitEmptyStrings()
+                                    .split(value.toString());
+                    rules.add(Rule.optional(ImmutableList.copyOf(iterable)));
+                }
+            }
+        });
+        return rules;
+    }
 }

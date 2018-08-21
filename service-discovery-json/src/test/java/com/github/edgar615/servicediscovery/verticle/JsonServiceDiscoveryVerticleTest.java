@@ -23,53 +23,53 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class JsonServiceDiscoveryVerticleTest {
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  private ServiceDiscovery serviceDiscovery;
+    private ServiceDiscovery serviceDiscovery;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-    serviceDiscovery = ServiceDiscovery.create(vertx);
-  }
-
-  @Test
-  public void testPublish(TestContext testContext) {
-    JsonObject services = new JsonObject()
-            .put("user", new JsonArray()
-                    .add(new JsonObject().put("host", "192.168.0.100").put("port", 8080))
-                    .add(new JsonObject().put("host", "192.168.0.101").put("port", 8080)))
-            .put("device", new JsonArray()
-                    .add(new JsonObject().put("host", "192.168.0.100").put("port", 8081)));
-    JsonObject config = new JsonObject()
-            .put("services", services);
-    vertx.deployVerticle(JsonServiceDiscoveryVerticle.class.getName(), new DeploymentOptions()
-            .setConfig(config));
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+        serviceDiscovery = ServiceDiscovery.create(vertx);
     }
-    AtomicBoolean check = new AtomicBoolean();
-    serviceDiscovery.getRecords(r -> true, ar -> {
-      if (ar.succeeded()) {
-        testContext.assertEquals(3, ar.result().size());
-        check.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check.get());
 
-    AtomicBoolean check2 = new AtomicBoolean();
-    serviceDiscovery.getRecords(new JsonObject().put("name", "device"), ar -> {
-      if (ar.succeeded()) {
-        testContext.assertEquals(1, ar.result().size());
-        check2.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check2.get());
-  }
+    @Test
+    public void testPublish(TestContext testContext) {
+        JsonObject services = new JsonObject()
+                .put("user", new JsonArray()
+                        .add(new JsonObject().put("host", "192.168.0.100").put("port", 8080))
+                        .add(new JsonObject().put("host", "192.168.0.101").put("port", 8080)))
+                .put("device", new JsonArray()
+                        .add(new JsonObject().put("host", "192.168.0.100").put("port", 8081)));
+        JsonObject config = new JsonObject()
+                .put("services", services);
+        vertx.deployVerticle(JsonServiceDiscoveryVerticle.class.getName(), new DeploymentOptions()
+                .setConfig(config));
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        AtomicBoolean check = new AtomicBoolean();
+        serviceDiscovery.getRecords(r -> true, ar -> {
+            if (ar.succeeded()) {
+                testContext.assertEquals(3, ar.result().size());
+                check.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check.get());
+
+        AtomicBoolean check2 = new AtomicBoolean();
+        serviceDiscovery.getRecords(new JsonObject().put("name", "device"), ar -> {
+            if (ar.succeeded()) {
+                testContext.assertEquals(1, ar.result().size());
+                check2.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check2.get());
+    }
 }

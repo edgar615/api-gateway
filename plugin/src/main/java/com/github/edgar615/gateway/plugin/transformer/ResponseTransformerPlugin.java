@@ -29,8 +29,8 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  * @author Edgar  Date 2016/10/8
  */
 public interface ResponseTransformerPlugin extends BodyTransfomer, HeaderTransfomer, ApiPlugin {
-  @Override
-  default String name() {
-    return ResponseTransformerPlugin.class.getSimpleName();
-  }
+    @Override
+    default String name() {
+        return ResponseTransformerPlugin.class.getSimpleName();
+    }
 }

@@ -11,8 +11,8 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/4/1
  */
 public class ApiMetricCmdFactory implements ApiCmdFactory {
-  @Override
-  public ApiCmd create(Vertx vertx, JsonObject config) {
-    return new ApiMetricCmd(vertx);
-  }
+    @Override
+    public ApiCmd create(Vertx vertx, JsonObject config) {
+        return new ApiMetricCmd(vertx);
+    }
 }

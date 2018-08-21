@@ -4,9 +4,6 @@ import com.github.edgar615.gateway.core.definition.DummyEndpoint;
 import com.github.edgar615.gateway.core.rpc.RpcHandler;
 import com.github.edgar615.gateway.core.rpc.RpcRequest;
 import com.github.edgar615.gateway.core.rpc.RpcResponse;
-import com.github.edgar615.gateway.core.definition.DummyEndpoint;
-import com.github.edgar615.util.log.Log;
-import com.github.edgar615.util.log.LogType;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -20,26 +17,26 @@ import org.slf4j.LoggerFactory;
  */
 public class DummyRpcHandler implements RpcHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DummyRpcHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyRpcHandler.class);
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  DummyRpcHandler(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-  }
+    DummyRpcHandler(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+    }
 
-  @Override
-  public String type() {
-    return DummyEndpoint.TYPE;
-  }
+    @Override
+    public String type() {
+        return DummyEndpoint.TYPE;
+    }
 
-  @Override
-  public Future<RpcResponse> handle(RpcRequest rpcRequest) {
-    DummyRequest request = (DummyRequest) rpcRequest;
-    Future<RpcResponse> future = Future.future();
-    LOGGER.info("[{}] [DUMMY] [OK] [{}bytes] [{}ms]", request.id(),
-                request.result().encode().getBytes().length, 0);
-    future.complete(RpcResponse.createJsonObject(request.id(), 200, request.result(), 0));
-    return future;
-  }
+    @Override
+    public Future<RpcResponse> handle(RpcRequest rpcRequest) {
+        DummyRequest request = (DummyRequest) rpcRequest;
+        Future<RpcResponse> future = Future.future();
+        LOGGER.info("[{}] [DUMMY] [OK] [{}bytes] [{}ms]", request.id(),
+                    request.result().encode().getBytes().length, 0);
+        future.complete(RpcResponse.createJsonObject(request.id(), 200, request.result(), 0));
+        return future;
+    }
 }

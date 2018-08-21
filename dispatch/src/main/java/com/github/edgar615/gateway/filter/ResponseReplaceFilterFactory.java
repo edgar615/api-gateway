@@ -11,13 +11,13 @@ import io.vertx.core.json.JsonObject;
 public class ResponseReplaceFilterFactory implements FilterFactory {
 
 
-  @Override
-  public String name() {
-    return ResponseReplaceFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return ResponseReplaceFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new ResponseReplaceFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new ResponseReplaceFilter();
+    }
 }

@@ -22,26 +22,26 @@ import java.util.List;
  */
 @RunWith(VertxUnitRunner.class)
 public class FiltersTest {
-  private Vertx vertx;
+    private Vertx vertx;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-  }
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+    }
 
-  @Test
-  public void testFilter(TestContext testContext) {
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/aaaa", null, null, null);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
+    @Test
+    public void testFilter(TestContext testContext) {
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/aaaa", null, null, null);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
 
-    List<Filter> filters = new ArrayList<>();
-    filters.add(new ApiDefinitionFilter());
-    Async async = testContext.async();
-    Filters.doFilter(task, filters, apiContext2 -> {})
-            .andThen(apiContext1 -> {
-              System.out.println(apiContext1);
-              async.complete();
-            });
-  }
+        List<Filter> filters = new ArrayList<>();
+        filters.add(new ApiDefinitionFilter());
+        Async async = testContext.async();
+        Filters.doFilter(task, filters, apiContext2 -> {})
+                .andThen(apiContext1 -> {
+                    System.out.println(apiContext1);
+                    async.complete();
+                });
+    }
 }

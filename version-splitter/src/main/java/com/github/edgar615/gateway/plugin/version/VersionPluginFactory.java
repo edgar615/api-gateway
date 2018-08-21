@@ -10,33 +10,33 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/11/6
  */
 public class VersionPluginFactory implements ApiPluginFactory {
-  @Override
-  public String name() {
-    return VersionPlugin.class.getSimpleName();
-  }
-
-  @Override
-  public ApiPlugin create() {
-    return new VersionPlugin();
-  }
-
-  @Override
-  public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.containsKey("version")) {
-      String version = jsonObject.getString("version");
-      VersionPlugin plugin = new VersionPlugin();
-      plugin.setVersion(version);
-      return plugin;
+    @Override
+    public String name() {
+        return VersionPlugin.class.getSimpleName();
     }
-    return null;
-  }
 
-  @Override
-  public JsonObject encode(ApiPlugin plugin) {
-    VersionPlugin versionPlugin = (VersionPlugin) plugin;
-    if (versionPlugin.version() != null) {
-      return new JsonObject().put("version", versionPlugin.version());
+    @Override
+    public ApiPlugin create() {
+        return new VersionPlugin();
     }
-    return new JsonObject();
-  }
+
+    @Override
+    public ApiPlugin decode(JsonObject jsonObject) {
+        if (jsonObject.containsKey("version")) {
+            String version = jsonObject.getString("version");
+            VersionPlugin plugin = new VersionPlugin();
+            plugin.setVersion(version);
+            return plugin;
+        }
+        return null;
+    }
+
+    @Override
+    public JsonObject encode(ApiPlugin plugin) {
+        VersionPlugin versionPlugin = (VersionPlugin) plugin;
+        if (versionPlugin.version() != null) {
+            return new JsonObject().put("version", versionPlugin.version());
+        }
+        return new JsonObject();
+    }
 }

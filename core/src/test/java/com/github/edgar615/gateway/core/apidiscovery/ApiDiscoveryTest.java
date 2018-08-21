@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 
 import com.github.edgar615.gateway.core.definition.ApiDefinition;
 import com.github.edgar615.gateway.core.definition.SimpleHttpEndpoint;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -16,12 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Edgar on 2016/4/11.
@@ -64,7 +58,7 @@ public class ApiDiscoveryTest {
 
         SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
                 .http("get_device", HttpMethod.GET, "devices/",
-                        80, "localhost");
+                      80, "localhost");
 
         ApiDefinition apiDefinition = ApiDefinition
                 .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
@@ -90,7 +84,7 @@ public class ApiDiscoveryTest {
     public void testUniqueName(TestContext testContext) {
         SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
                 .http("get_device", HttpMethod.GET, "devices/",
-                        80, "localhost");
+                      80, "localhost");
 
         ApiDefinition apiDefinition = ApiDefinition
                 .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
@@ -131,7 +125,7 @@ public class ApiDiscoveryTest {
     public void testFilterByName(TestContext testContext) {
         SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
                 .http("get_device", HttpMethod.GET, "devices/",
-                        80, "localhost");
+                      80, "localhost");
 
         ApiDefinition apiDefinition = ApiDefinition
                 .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));
@@ -239,7 +233,7 @@ public class ApiDiscoveryTest {
     public void testFilter(TestContext testContext) {
         SimpleHttpEndpoint httpEndpoint = SimpleHttpEndpoint
                 .http("get_device", HttpMethod.GET, "devices/",
-                        80, "localhost");
+                      80, "localhost");
 
         ApiDefinition apiDefinition = ApiDefinition
                 .create("get_device", HttpMethod.GET, "device/", Lists.newArrayList(httpEndpoint));

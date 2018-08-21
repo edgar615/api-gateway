@@ -11,8 +11,8 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/1/19
  */
 public class DeleteApiCmdFactory implements ApiCmdFactory {
-  @Override
-  public ApiCmd create(Vertx vertx, JsonObject config) {
-    return new DeleteApiCmd(vertx, config);
-  }
+    @Override
+    public ApiCmd create(Vertx vertx, JsonObject config) {
+        return new DeleteApiCmd(vertx, config);
+    }
 }

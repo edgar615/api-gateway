@@ -16,17 +16,17 @@ import java.util.function.Function;
  */
 public interface ServiceFinder {
 
-  void getRecord(Function<Record, Boolean> filter,
-                 Handler<AsyncResult<Record>> resultHandler);
+    void getRecord(Function<Record, Boolean> filter,
+                   Handler<AsyncResult<Record>> resultHandler);
 
-  void getRecords(Function<Record, Boolean> filter,
-                  Handler<AsyncResult<List<Record>>> resultHandler);
+    void getRecords(Function<Record, Boolean> filter,
+                    Handler<AsyncResult<List<Record>>> resultHandler);
 
-  void reload(Handler<AsyncResult<List<Record>>> resultHandler);
+    void reload(Handler<AsyncResult<List<Record>>> resultHandler);
 
 
-  static ServiceFinder create(Vertx vertx, ServiceDiscovery discovery) {
-    return new ServiceFinderImpl(vertx, discovery);
-  }
+    static ServiceFinder create(Vertx vertx, ServiceDiscovery discovery) {
+        return new ServiceFinderImpl(vertx, discovery);
+    }
 
 }

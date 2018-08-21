@@ -24,98 +24,98 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class CircuitBreakerTest {
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-  }
-
-  @Test
-  public void testCircuitBreaker(TestContext testContext) {
-    JsonObject config = new JsonObject()
-            .put("maxFailures", 1)
-            .put("timeout", 1000);
-    CircuitBreakerRegistry registry =
-            CircuitBreakerRegistry.create(vertx, new CircuitBreakerRegistryOptions(config));
-    String name = UUID.randomUUID().toString();
-    CircuitBreaker circuitBreaker = registry.get(name);
-
-    Future<Void> future = circuitBreaker.execute(f -> {
-
-    });
-
-    future.setHandler(ar -> {
-      if (future.succeeded()) {
-        testContext.fail();
-      } else {
-        ar.cause().printStackTrace();
-      }
-    });
-
-    Awaitility.await().until(() -> circuitBreaker.state() == CircuitBreakerState.OPEN);
-
-  }
-
-  @Test
-  public void testCircuitBreakerReset(TestContext testContext) {
-    JsonObject config = new JsonObject()
-            .put("maxFailures", 1)
-            .put("timeout", 1000)
-            .put("resetTimeout", 1000);
-
-    CircuitBreakerRegistry registry =
-            CircuitBreakerRegistry.create(vertx, new CircuitBreakerRegistryOptions(config));
-    String name = UUID.randomUUID().toString();
-    CircuitBreaker circuitBreaker = registry.get(name);
-    Future<Void> future = circuitBreaker.execute(f -> {
-
-    });
-
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        ar.cause().printStackTrace();
-      }
-    });
-
-    Awaitility.await().until(() -> circuitBreaker.state() == CircuitBreakerState.OPEN);
-
-    future = circuitBreaker.execute(f -> {
-
-    });
-
-    AtomicBoolean check2 = new AtomicBoolean();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        testContext.fail();
-      } else {
-        check2.set(true);
-      }
-    });
-
-    Awaitility.await().until(() -> check2.get());
-
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
     }
 
-    future = circuitBreaker.execute(f -> {
-      f.complete();
-    });
+    @Test
+    public void testCircuitBreaker(TestContext testContext) {
+        JsonObject config = new JsonObject()
+                .put("maxFailures", 1)
+                .put("timeout", 1000);
+        CircuitBreakerRegistry registry =
+                CircuitBreakerRegistry.create(vertx, new CircuitBreakerRegistryOptions(config));
+        String name = UUID.randomUUID().toString();
+        CircuitBreaker circuitBreaker = registry.get(name);
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        check3.set(true);
-      } else {
-        testContext.fail();
-      }
-    });
+        Future<Void> future = circuitBreaker.execute(f -> {
 
-    Awaitility.await().until(() -> check3.get());
-  }
+        });
+
+        future.setHandler(ar -> {
+            if (future.succeeded()) {
+                testContext.fail();
+            } else {
+                ar.cause().printStackTrace();
+            }
+        });
+
+        Awaitility.await().until(() -> circuitBreaker.state() == CircuitBreakerState.OPEN);
+
+    }
+
+    @Test
+    public void testCircuitBreakerReset(TestContext testContext) {
+        JsonObject config = new JsonObject()
+                .put("maxFailures", 1)
+                .put("timeout", 1000)
+                .put("resetTimeout", 1000);
+
+        CircuitBreakerRegistry registry =
+                CircuitBreakerRegistry.create(vertx, new CircuitBreakerRegistryOptions(config));
+        String name = UUID.randomUUID().toString();
+        CircuitBreaker circuitBreaker = registry.get(name);
+        Future<Void> future = circuitBreaker.execute(f -> {
+
+        });
+
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                testContext.fail();
+            } else {
+                ar.cause().printStackTrace();
+            }
+        });
+
+        Awaitility.await().until(() -> circuitBreaker.state() == CircuitBreakerState.OPEN);
+
+        future = circuitBreaker.execute(f -> {
+
+        });
+
+        AtomicBoolean check2 = new AtomicBoolean();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                testContext.fail();
+            } else {
+                check2.set(true);
+            }
+        });
+
+        Awaitility.await().until(() -> check2.get());
+
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        future = circuitBreaker.execute(f -> {
+            f.complete();
+        });
+
+        AtomicBoolean check3 = new AtomicBoolean();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                check3.set(true);
+            } else {
+                testContext.fail();
+            }
+        });
+
+        Awaitility.await().until(() -> check3.get());
+    }
 }

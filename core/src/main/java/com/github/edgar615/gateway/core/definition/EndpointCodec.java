@@ -9,9 +9,9 @@ import io.vertx.core.json.JsonObject;
  */
 public interface EndpointCodec {
 
-  Endpoint fromJson(JsonObject jsonObject);
+    Endpoint fromJson(JsonObject jsonObject);
 
-  JsonObject toJson(Endpoint endpoint);
+    JsonObject toJson(Endpoint endpoint);
 
-  String type();
+    String type();
 }

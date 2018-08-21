@@ -4,7 +4,8 @@
  * @author Edgar  Date 2018/3/12
  */
 
-@ModuleGen(name = "gateway-apidiscovery", groupPackage = "com.github.edgar615.gateway.core.apidiscovery")
+@ModuleGen(name = "gateway-apidiscovery", groupPackage = "com.github.edgar615.gateway.core"
+                                                         + ".apidiscovery")
 package com.github.edgar615.gateway.core.apidiscovery;
 
 import io.vertx.codegen.annotations.ModuleGen;

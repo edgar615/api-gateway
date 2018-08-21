@@ -34,79 +34,80 @@ import java.util.List;
  */
 public class AppKeyRestrictionFilter implements Filter {
 
-  private final List<String> globalBlacklist = new ArrayList<>();
+    private final List<String> globalBlacklist = new ArrayList<>();
 
-  private final List<String> globalWhitelist = new ArrayList<>();
+    private final List<String> globalWhitelist = new ArrayList<>();
 
 
-  public AppKeyRestrictionFilter(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("appKey.restriction", new JsonObject());
-    JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-    JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-    for (int i = 0; i < blackArray.size(); i++) {
-      globalBlacklist.add(blackArray.getString(i));
+    public AppKeyRestrictionFilter(JsonObject config) {
+        JsonObject jsonObject = config.getJsonObject("appKey.restriction", new JsonObject());
+        JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+        JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+        for (int i = 0; i < blackArray.size(); i++) {
+            globalBlacklist.add(blackArray.getString(i));
+        }
+        for (int i = 0; i < whiteArray.size(); i++) {
+            globalWhitelist.add(whiteArray.getString(i));
+        }
     }
-    for (int i = 0; i < whiteArray.size(); i++) {
-      globalWhitelist.add(whiteArray.getString(i));
-    }
-  }
 
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 8100;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (!apiContext.variables().containsKey("client_appKey")) {
-      return false;
+    @Override
+    public String type() {
+        return PRE;
     }
-    return !globalBlacklist.isEmpty()
-           || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(AppKeyRestriction.class.getSimpleName()) != null;
-  }
 
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    AppKeyRestriction plugin = (AppKeyRestriction) apiContext.apiDefinition()
-            .plugin(AppKeyRestriction.class.getSimpleName());
-    List<String> blacklist = new ArrayList<>(globalBlacklist);
-    List<String> whitelist = new ArrayList<>(globalWhitelist);
-    if (plugin != null) {
-      blacklist.addAll(plugin.blacklist());
-      whitelist.addAll(plugin.whitelist());
+    @Override
+    public int order() {
+        return 8100;
     }
-    String appKey = (String) apiContext.variables().getOrDefault("client_appKey", "anonymous");
-    //匹配到白名单则允许通过
-    if (satisfyList(appKey, whitelist)) {
-      completeFuture.complete(apiContext);
-      return;
-    }
-    //匹配到黑名单则禁止通过
-    if (satisfyList(appKey, blacklist)) {
-      SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "The appKey is forbidden");
-      failed(completeFuture, apiContext.id(), "appKey.tripped", e);
-      return;
-    }
-    completeFuture.complete(apiContext);
-  }
 
-  private boolean satisfyList(String appKey, List<String> list) {
-    return list.stream()
-                   .filter(r -> checkAppKey(r, appKey))
-                   .count() > 0;
-  }
-
-  private boolean checkAppKey(String rule, String appKey) {
-    if ("*".equals(rule)) {
-      return true;
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (!apiContext.variables().containsKey("client_appKey")) {
+            return false;
+        }
+        return !globalBlacklist.isEmpty()
+               || !globalWhitelist.isEmpty()
+               || apiContext.apiDefinition().plugin(AppKeyRestriction.class.getSimpleName())
+                  != null;
     }
-    return rule.equalsIgnoreCase(appKey);
-  }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        AppKeyRestriction plugin = (AppKeyRestriction) apiContext.apiDefinition()
+                .plugin(AppKeyRestriction.class.getSimpleName());
+        List<String> blacklist = new ArrayList<>(globalBlacklist);
+        List<String> whitelist = new ArrayList<>(globalWhitelist);
+        if (plugin != null) {
+            blacklist.addAll(plugin.blacklist());
+            whitelist.addAll(plugin.whitelist());
+        }
+        String appKey = (String) apiContext.variables().getOrDefault("client_appKey", "anonymous");
+        //匹配到白名单则允许通过
+        if (satisfyList(appKey, whitelist)) {
+            completeFuture.complete(apiContext);
+            return;
+        }
+        //匹配到黑名单则禁止通过
+        if (satisfyList(appKey, blacklist)) {
+            SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+                    .set("details", "The appKey is forbidden");
+            failed(completeFuture, apiContext.id(), "appKey.tripped", e);
+            return;
+        }
+        completeFuture.complete(apiContext);
+    }
+
+    private boolean satisfyList(String appKey, List<String> list) {
+        return list.stream()
+                       .filter(r -> checkAppKey(r, appKey))
+                       .count() > 0;
+    }
+
+    private boolean checkAppKey(String rule, String appKey) {
+        if ("*".equals(rule)) {
+            return true;
+        }
+        return rule.equalsIgnoreCase(appKey);
+    }
 }

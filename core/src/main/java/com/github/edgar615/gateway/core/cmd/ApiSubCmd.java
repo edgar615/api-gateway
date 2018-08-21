@@ -1,7 +1,6 @@
 package com.github.edgar615.gateway.core.cmd;
 
 import com.github.edgar615.gateway.core.definition.ApiDefinition;
-import com.github.edgar615.gateway.core.definition.ApiDefinition;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -10,7 +9,7 @@ import io.vertx.core.json.JsonObject;
  * <Pre>
  * cmd : api.plugin
  * name: device.get
- *subcmd : ip.blacklist.add
+ * subcmd : ip.blacklist.add
  * ip : 10.4.7.15
  * </Pre>
  *
@@ -18,17 +17,17 @@ import io.vertx.core.json.JsonObject;
  */
 public interface ApiSubCmd {
 
-  /**
-   * @return 命令名称.
-   */
-  String cmd();
+    /**
+     * @return 命令名称.
+     */
+    String cmd();
 
-  /**
-   * 处理命令
-   *
-   * @param definition API定义
-   * @param jsonObject 参数
-   */
-  void handle(ApiDefinition definition, JsonObject jsonObject);
+    /**
+     * 处理命令
+     *
+     * @param definition API定义
+     * @param jsonObject 参数
+     */
+    void handle(ApiDefinition definition, JsonObject jsonObject);
 
 }

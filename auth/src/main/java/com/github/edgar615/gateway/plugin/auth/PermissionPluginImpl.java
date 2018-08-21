@@ -7,29 +7,29 @@ import com.google.common.base.MoreObjects;
  */
 public class PermissionPluginImpl implements PermissionPlugin {
 
-  private String permission = "default";
+    private String permission = "default";
 
-  PermissionPluginImpl() {
-  }
+    PermissionPluginImpl() {
+    }
 
-  PermissionPluginImpl(String scope) {
-    this.permission = scope;
-  }
+    PermissionPluginImpl(String scope) {
+        this.permission = scope;
+    }
 
-  @Override
-  public String permission() {
-    return permission;
-  }
+    @Override
+    public String permission() {
+        return permission;
+    }
 
-  public void setPermission(String permission) {
-    this.permission = permission;
-  }
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("PermissionPlugin")
-            .add("permission", permission)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("PermissionPlugin")
+                .add("permission", permission)
+                .toString();
+    }
 }

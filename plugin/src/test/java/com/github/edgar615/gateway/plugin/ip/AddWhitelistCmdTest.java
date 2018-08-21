@@ -18,50 +18,50 @@ import org.junit.Test;
  */
 public class AddWhitelistCmdTest {
 
-  ApiDefinition definition;
+    ApiDefinition definition;
 
-  @Before
-  public void setUp() {
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
-    definition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-  }
-
-  @Test
-  public void testAddWhitelist() {
-    IpRestriction restriction =
-            (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
-    Assert.assertNull(restriction);
-
-    AddWhitelistCmd cmd = new AddWhitelistCmd();
-    JsonObject jsonObject = new JsonObject()
-            .put("ip", "192.168.1.100");
-    cmd.handle(definition, jsonObject);
-
-    restriction =
-            (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
-    Assert.assertNotNull(restriction);
-    Assert.assertEquals(1, restriction.whitelist().size());
-  }
-
-  @Test
-  public void missIpShouldThrowValidationException() {
-    IpRestriction restriction =
-            (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
-    Assert.assertNull(restriction);
-
-    AddWhitelistCmd cmd = new AddWhitelistCmd();
-    JsonObject jsonObject = new JsonObject()
-            .put("ip2", "192.168.1.100");
-    try {
-      cmd.handle(definition, jsonObject);
-      Assert.fail();
-    } catch (Exception e) {
-      e.printStackTrace();
-      Assert.assertTrue(e instanceof ValidationException);
+    @Before
+    public void setUp() {
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                        80, "localhost");
+        definition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
     }
 
-  }
+    @Test
+    public void testAddWhitelist() {
+        IpRestriction restriction =
+                (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
+        Assert.assertNull(restriction);
+
+        AddWhitelistCmd cmd = new AddWhitelistCmd();
+        JsonObject jsonObject = new JsonObject()
+                .put("ip", "192.168.1.100");
+        cmd.handle(definition, jsonObject);
+
+        restriction =
+                (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
+        Assert.assertNotNull(restriction);
+        Assert.assertEquals(1, restriction.whitelist().size());
+    }
+
+    @Test
+    public void missIpShouldThrowValidationException() {
+        IpRestriction restriction =
+                (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
+        Assert.assertNull(restriction);
+
+        AddWhitelistCmd cmd = new AddWhitelistCmd();
+        JsonObject jsonObject = new JsonObject()
+                .put("ip2", "192.168.1.100");
+        try {
+            cmd.handle(definition, jsonObject);
+            Assert.fail();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertTrue(e instanceof ValidationException);
+        }
+
+    }
 }

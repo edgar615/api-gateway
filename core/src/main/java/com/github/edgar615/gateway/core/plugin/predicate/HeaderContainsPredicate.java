@@ -9,23 +9,23 @@ import java.util.Objects;
 
 public class HeaderContainsPredicate implements ApiPredicate {
 
-  private final List<String> headers = new ArrayList<>();
+    private final List<String> headers = new ArrayList<>();
 
-  public HeaderContainsPredicate(List<String> headers) {
-    Objects.requireNonNull(headers);
-    this.headers.addAll(headers);
-  }
-
-  public boolean test(ApiContext context) {
-    for (String header : headers) {
-      if (MultimapUtils.getCaseInsensitive(context.headers(), header) == null) {
-        return false;
-      }
+    public HeaderContainsPredicate(List<String> headers) {
+        Objects.requireNonNull(headers);
+        this.headers.addAll(headers);
     }
-    return true;
-  }
 
-  public List<String> headers() {
-    return headers;
-  }
+    public boolean test(ApiContext context) {
+        for (String header : headers) {
+            if (MultimapUtils.getCaseInsensitive(context.headers(), header) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public List<String> headers() {
+        return headers;
+    }
 }

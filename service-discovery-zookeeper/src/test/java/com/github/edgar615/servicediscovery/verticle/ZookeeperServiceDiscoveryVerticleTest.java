@@ -16,23 +16,23 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class ZookeeperServiceDiscoveryVerticleTest {
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  private ServiceDiscovery serviceDiscovery;
+    private ServiceDiscovery serviceDiscovery;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-    serviceDiscovery = ServiceDiscovery.create(vertx);
-  }
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+        serviceDiscovery = ServiceDiscovery.create(vertx);
+    }
 
-  /**
-   * zookeeper需要集成
-   *
-   * @param testContext
-   */
-  @Test
-  public void testPublish(TestContext testContext) {
+    /**
+     * zookeeper需要集成
+     *
+     * @param testContext
+     */
+    @Test
+    public void testPublish(TestContext testContext) {
 //    JsonObject zookeeper = new JsonObject()
 //            .put("connect", "127.0.0.1");
 //    JsonObject config = new JsonObject()
@@ -66,5 +66,5 @@ public class ZookeeperServiceDiscoveryVerticleTest {
 //      }
 //    });
 //    Awaitility.await().until(() -> check2.get());
-  }
+    }
 }

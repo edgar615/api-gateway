@@ -14,15 +14,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class RoundRobinStrategy implements ChooseStrategy {
 
-  private final AtomicInteger integer = new AtomicInteger(0);
+    private final AtomicInteger integer = new AtomicInteger(0);
 
-  @Override
-  public Record get(List<Record> records) {
-    if (records == null || records.isEmpty()) {
-      return null;
+    @Override
+    public Record get(List<Record> records) {
+        if (records == null || records.isEmpty()) {
+            return null;
+        }
+        int index = Math.abs(integer.getAndIncrement());
+        return records.get(index % records.size());
     }
-    int index = Math.abs(integer.getAndIncrement());
-    return records.get(index % records.size());
-  }
 
 }

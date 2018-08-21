@@ -6,7 +6,7 @@ package com.github.edgar615.gateway.http.loadbalance;
  * @author Edgar  Date 2017/7/31
  */
 public class ServiceNotFoundException extends RuntimeException {
-  public ServiceNotFoundException(String message) {
-    super(message, null, false, false);
-  }
+    public ServiceNotFoundException(String message) {
+        super(message, null, false, false);
+    }
 }

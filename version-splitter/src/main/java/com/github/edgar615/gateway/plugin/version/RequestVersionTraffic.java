@@ -10,11 +10,11 @@ import com.github.edgar615.gateway.core.utils.MultimapUtils;
  */
 public class RequestVersionTraffic implements VersionTraffic {
 
-  private static final String HEADER_NAME = "x-api-version";
+    private static final String HEADER_NAME = "x-api-version";
 
-  @Override
-  public String decision(ApiContext apiContext) {
-    String reqVersion = MultimapUtils.getCaseInsensitive(apiContext.headers(), HEADER_NAME);
-    return reqVersion;
-  }
+    @Override
+    public String decision(ApiContext apiContext) {
+        String reqVersion = MultimapUtils.getCaseInsensitive(apiContext.headers(), HEADER_NAME);
+        return reqVersion;
+    }
 }

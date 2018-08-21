@@ -34,68 +34,68 @@
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-api-file</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-api-git</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-definition</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-dispatch</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-redis</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>service-discovery-zookeeper</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>service-discovery-json</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-http</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-plugin</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-auth</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-appkey</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-version-splitter</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>

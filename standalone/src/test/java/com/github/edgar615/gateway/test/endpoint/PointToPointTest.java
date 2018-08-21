@@ -18,26 +18,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class PointToPointTest {
 
-  @Test
-  public void testOk(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    JsonObject data = new JsonObject()
-            .put("lat", "1")
-            .put("lng", "2");
-    Vertx.vertx().createHttpClient().post(9000, "localhost", "/user/location")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                testContext.assertEquals(1,body.toJsonObject().getInteger("result"));
-                check.set(true);
-              });
-            })
-            .setChunked(true)
-            .end(data.encode());
-    Awaitility.await().until(() -> check.get());
-  }
+    @Test
+    public void testOk(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        JsonObject data = new JsonObject()
+                .put("lat", "1")
+                .put("lng", "2");
+        Vertx.vertx().createHttpClient().post(9000, "localhost", "/user/location")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        testContext.assertEquals(1, body.toJsonObject().getInteger("result"));
+                        check.set(true);
+                    });
+                })
+                .setChunked(true)
+                .end(data.encode());
+        Awaitility.await().until(() -> check.get());
+    }
 
 
 }

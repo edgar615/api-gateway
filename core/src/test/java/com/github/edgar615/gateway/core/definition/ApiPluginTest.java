@@ -14,26 +14,26 @@ import java.util.UUID;
  */
 public class ApiPluginTest {
 
-  @Test
-  public void testCreate() {
-    ApiPlugin plugin = ApiPlugin.create(MockPlugin.class.getSimpleName());
-    Assert.assertNotNull(plugin);
-    Assert.assertTrue(plugin instanceof MockPlugin);
-  }
-
-  @Test
-  public void testUndefinedPluginShouldThrowNoSuchElement() {
-    try {
-      ApiPlugin.create(UUID.randomUUID().toString());
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof NoSuchElementException);
+    @Test
+    public void testCreate() {
+        ApiPlugin plugin = ApiPlugin.create(MockPlugin.class.getSimpleName());
+        Assert.assertNotNull(plugin);
+        Assert.assertTrue(plugin instanceof MockPlugin);
     }
-  }
 
-  @Test
-  public void testEncode() {
-    ApiPlugin plugin = ApiPlugin.create(MockPlugin.class.getSimpleName());
-    JsonObject jsonObject = plugin.encode();
-    Assert.assertTrue(jsonObject.getBoolean("mock"));
-  }
+    @Test
+    public void testUndefinedPluginShouldThrowNoSuchElement() {
+        try {
+            ApiPlugin.create(UUID.randomUUID().toString());
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof NoSuchElementException);
+        }
+    }
+
+    @Test
+    public void testEncode() {
+        ApiPlugin plugin = ApiPlugin.create(MockPlugin.class.getSimpleName());
+        JsonObject jsonObject = plugin.encode();
+        Assert.assertTrue(jsonObject.getBoolean("mock"));
+    }
 }

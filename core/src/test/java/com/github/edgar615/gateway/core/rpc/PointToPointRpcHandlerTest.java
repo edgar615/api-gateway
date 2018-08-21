@@ -26,80 +26,80 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class PointToPointRpcHandlerTest {
 
-  static Vertx vertx;
+    static Vertx vertx;
 
-  RpcHandler rpcHandler;
+    RpcHandler rpcHandler;
 
-  @BeforeClass
-  public static void startServer(TestContext context) {
-    vertx = Vertx.vertx();
+    @BeforeClass
+    public static void startServer(TestContext context) {
+        vertx = Vertx.vertx();
 //    vertx.deployVerticle(DeviceHttpVerticle.class.getName(), context.asyncAssertSuccess());
-  }
+    }
 
-  @Before
-  public void before(TestContext context) {
-    rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
+    @Before
+    public void before(TestContext context) {
+        rpcHandler = new EventbusHandlerFactory().create(vertx, new JsonObject());
 //    rpcHandler = new HttpRpcHandler(vertx, new JsonObject());
-  }
+    }
 
-  @After
-  public void after(TestContext context) {
+    @After
+    public void after(TestContext context) {
 //    vertx.close(context.asyncAssertSuccess());
-  }
+    }
 
-  @Test
-  public void pointToPointShouldAlwaysReturn200(TestContext context) {
-    String address = UUID.randomUUID().toString();
-    RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
-                                                      EventbusEndpoint.POINT_POINT,  null,
-                                                      new JsonObject().put("id", 1));
+    @Test
+    public void pointToPointShouldAlwaysReturn200(TestContext context) {
+        String address = UUID.randomUUID().toString();
+        RpcRequest rpcRequest = EventbusRpcRequest.create("abc", "device", address,
+                                                          EventbusEndpoint.POINT_POINT, null,
+                                                          new JsonObject().put("id", 1));
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    AtomicBoolean complete = new AtomicBoolean();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
-        complete.set(true);
-      } else {
-        context.fail();
-      }
-    });
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        AtomicBoolean complete = new AtomicBoolean();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
+                complete.set(true);
+            } else {
+                context.fail();
+            }
+        });
 
-    Awaitility.await().until(() -> complete.get());
-  }
+        Awaitility.await().until(() -> complete.get());
+    }
 
-  @Test
-  public void testSend(TestContext context) {
+    @Test
+    public void testSend(TestContext context) {
 
-    String address = UUID.randomUUID().toString();
-    String id = UUID.randomUUID().toString();
-    AtomicBoolean complete1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>consumer(address, ar -> {
-      String eventId = ar.headers().get("x-request-id");
-      context.assertEquals(id, eventId);
-      System.out.println(eventId);
-      complete1.set(true);
-    });
+        String address = UUID.randomUUID().toString();
+        String id = UUID.randomUUID().toString();
+        AtomicBoolean complete1 = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>consumer(address, ar -> {
+            String eventId = ar.headers().get("x-request-id");
+            context.assertEquals(id, eventId);
+            System.out.println(eventId);
+            complete1.set(true);
+        });
 
-    RpcRequest rpcRequest = EventbusRpcRequest
-            .create(id, "device", address, EventbusEndpoint.POINT_POINT,  null,
-                    new JsonObject().put("id", 1));
+        RpcRequest rpcRequest = EventbusRpcRequest
+                .create(id, "device", address, EventbusEndpoint.POINT_POINT, null,
+                        new JsonObject().put("id", 1));
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    AtomicBoolean complete2 = new AtomicBoolean();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
-        complete2.set(true);
-      } else {
-        context.fail();
-      }
-    });
-    Awaitility.await().until(() -> complete2.get());
-    Awaitility.await().until(() -> complete1.get());
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        AtomicBoolean complete2 = new AtomicBoolean();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
+                complete2.set(true);
+            } else {
+                context.fail();
+            }
+        });
+        Awaitility.await().until(() -> complete2.get());
+        Awaitility.await().until(() -> complete1.get());
+    }
 }

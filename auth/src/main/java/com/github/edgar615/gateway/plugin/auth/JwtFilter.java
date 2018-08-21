@@ -37,141 +37,144 @@ import java.util.List;
  */
 public class JwtFilter implements Filter {
 
-  private static final String AUTH_HEADER = "Authorization";
+    private static final String AUTH_HEADER = "Authorization";
 
-  private static final String HEADER_PREFIX = "Bearer ";
+    private static final String HEADER_PREFIX = "Bearer ";
 
-  private final String userKey = "userId";
+    private final String userKey = "userId";
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final JWTAuthOptions jwtAuthOptions;
+    private final JWTAuthOptions jwtAuthOptions;
 
-  private final String headerName;
+    private final String headerName;
 
-  private final String prefix;
+    private final String prefix;
 
-  JwtFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    JsonObject tokenConfig = config.getJsonObject("token", new JsonObject());
-    this.prefix = tokenConfig.getString("prefix", HEADER_PREFIX);
-    this.headerName = tokenConfig.getString("headerName", AUTH_HEADER);
-    if (config.getValue("jwt.auth") instanceof JsonObject) {
-      JsonObject jwtConfig = config.getJsonObject("jwt.auth");
-      this.jwtAuthOptions = new JWTAuthOptions(jwtConfig);
-    } else {
-      this.jwtAuthOptions = new JWTAuthOptions();
-    }
-
-    if (config.getValue("keyStore") instanceof JsonObject) {
-      this.jwtAuthOptions
-              .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
-    } else {
-      KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
-              .setPath("keystore.jceks")
-              .setType("jceks")
-              .setPassword("INIHPMOZPO");
-      this.jwtAuthOptions.setKeyStore(keyStoreOptions);
-    }
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 10000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition()
-                   .plugin(JwtPlugin.class.getSimpleName()) != null
-            && apiContext.principal() == null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    try {
-      String token = extractToken(apiContext);
-      Future<JsonObject> authFuture = auth(token);
-      authFuture
-              .setHandler(ar -> {
-                if (ar.succeeded()) {
-                  JsonObject principal = ar.result();
-                  apiContext.setPrincipal(principal);
-                  completeFuture.complete(apiContext);
-                } else {
-                  failed(completeFuture, apiContext.id(), "AuthFailure", ar.cause());
-                }
-              });
-    } catch (Exception e) {
-      failed(completeFuture, apiContext.id(), "AuthFailure", e);
-    }
-  }
-
-
-  /**
-   * 从header中提取token信息.
-   *
-   * @param apiContext
-   */
-  private String extractToken(ApiContext apiContext) {
-    if (apiContext.headers().containsKey(headerName)) {
-      List<String> authorizationHeaders = new ArrayList<>(apiContext.headers().get(headerName));
-      String authorization = authorizationHeaders.get(0);
-      if (!Strings.isNullOrEmpty(authorization) && authorization.startsWith(prefix)) {
-        return authorization.substring(prefix.length()).trim();
-      } else {
-        throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
-                .set("details", String.format("The format of the token: %s:%s<token>",
-                                              headerName, prefix));
-      }
-    }
-    throw SystemException.create(DefaultErrorCode.INVALID_REQ)
-            .set("details", "Miss rquest header: " + headerName);
-  }
-
-  private Future<JsonObject> auth(String token) {
-    Future<JsonObject> authFuture = Future.future();
-    JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
-    provider.authenticate(new JsonObject().put("jwt", token), ar -> {
-      if (ar.succeeded()) {
-        JsonObject principal = ar.result().principal();
-        if (principal.containsKey(userKey)) {
-          authFuture.complete(principal);
+    JwtFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        JsonObject tokenConfig = config.getJsonObject("token", new JsonObject());
+        this.prefix = tokenConfig.getString("prefix", HEADER_PREFIX);
+        this.headerName = tokenConfig.getString("headerName", AUTH_HEADER);
+        if (config.getValue("jwt.auth") instanceof JsonObject) {
+            JsonObject jwtConfig = config.getJsonObject("jwt.auth");
+            this.jwtAuthOptions = new JWTAuthOptions(jwtConfig);
         } else {
-          SystemException systemException = SystemException.create(DefaultErrorCode.INVALID_TOKEN)
-                  .set("details", "no " + userKey);
-          authFuture.fail(systemException);
+            this.jwtAuthOptions = new JWTAuthOptions();
         }
 
-      } else {
-        fail(authFuture, ar);
-      }
-    });
-    return authFuture;
-  }
-
-  private void fail(Future<JsonObject> completeFuture, AsyncResult<User> ar) {
-    String errorMessage = ar.cause().getMessage();
-    if (errorMessage != null) {
-      if (errorMessage.startsWith("Expired JWT")) {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.EXPIRE_TOKEN, ar.cause())
-                                    .set("details", errorMessage));
-      } else if (errorMessage.startsWith("Invalid JWT")) {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause())
-                                    .set("details", errorMessage));
-      } else {
-        completeFuture.fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
-                                    .set("details", ar.cause().getMessage()));
-      }
-    } else {
-      completeFuture.fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
-                                  .set("details", ar.cause().getMessage()));
+        if (config.getValue("keyStore") instanceof JsonObject) {
+            this.jwtAuthOptions
+                    .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
+        } else {
+            KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
+                    .setPath("keystore.jceks")
+                    .setType("jceks")
+                    .setPassword("INIHPMOZPO");
+            this.jwtAuthOptions.setKeyStore(keyStoreOptions);
+        }
     }
-  }
+
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return 10000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition()
+                       .plugin(JwtPlugin.class.getSimpleName()) != null
+               && apiContext.principal() == null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        try {
+            String token = extractToken(apiContext);
+            Future<JsonObject> authFuture = auth(token);
+            authFuture
+                    .setHandler(ar -> {
+                        if (ar.succeeded()) {
+                            JsonObject principal = ar.result();
+                            apiContext.setPrincipal(principal);
+                            completeFuture.complete(apiContext);
+                        } else {
+                            failed(completeFuture, apiContext.id(), "AuthFailure", ar.cause());
+                        }
+                    });
+        } catch (Exception e) {
+            failed(completeFuture, apiContext.id(), "AuthFailure", e);
+        }
+    }
+
+
+    /**
+     * 从header中提取token信息.
+     *
+     * @param apiContext
+     */
+    private String extractToken(ApiContext apiContext) {
+        if (apiContext.headers().containsKey(headerName)) {
+            List<String> authorizationHeaders =
+                    new ArrayList<>(apiContext.headers().get(headerName));
+            String authorization = authorizationHeaders.get(0);
+            if (!Strings.isNullOrEmpty(authorization) && authorization.startsWith(prefix)) {
+                return authorization.substring(prefix.length()).trim();
+            } else {
+                throw SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+                        .set("details", String.format("The format of the token: %s:%s<token>",
+                                                      headerName, prefix));
+            }
+        }
+        throw SystemException.create(DefaultErrorCode.INVALID_REQ)
+                .set("details", "Miss rquest header: " + headerName);
+    }
+
+    private Future<JsonObject> auth(String token) {
+        Future<JsonObject> authFuture = Future.future();
+        JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
+        provider.authenticate(new JsonObject().put("jwt", token), ar -> {
+            if (ar.succeeded()) {
+                JsonObject principal = ar.result().principal();
+                if (principal.containsKey(userKey)) {
+                    authFuture.complete(principal);
+                } else {
+                    SystemException systemException =
+                            SystemException.create(DefaultErrorCode.INVALID_TOKEN)
+                                    .set("details", "no " + userKey);
+                    authFuture.fail(systemException);
+                }
+
+            } else {
+                fail(authFuture, ar);
+            }
+        });
+        return authFuture;
+    }
+
+    private void fail(Future<JsonObject> completeFuture, AsyncResult<User> ar) {
+        String errorMessage = ar.cause().getMessage();
+        if (errorMessage != null) {
+            if (errorMessage.startsWith("Expired JWT")) {
+                completeFuture.fail(SystemException.wrap(DefaultErrorCode.EXPIRE_TOKEN, ar.cause())
+                                            .set("details", errorMessage));
+            } else if (errorMessage.startsWith("Invalid JWT")) {
+                completeFuture.fail(SystemException.wrap(DefaultErrorCode.INVALID_TOKEN, ar.cause())
+                                            .set("details", errorMessage));
+            } else {
+                completeFuture
+                        .fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
+                                      .set("details", ar.cause().getMessage()));
+            }
+        } else {
+            completeFuture.fail(SystemException.wrap(DefaultErrorCode.PERMISSION_DENIED, ar.cause())
+                                        .set("details", ar.cause().getMessage()));
+        }
+    }
 
 }

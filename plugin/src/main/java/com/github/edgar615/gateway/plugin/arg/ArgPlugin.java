@@ -8,37 +8,37 @@ import java.util.List;
  */
 public interface ArgPlugin {
 
-  /**
-   * @return 参数列表
-   */
-  List<Parameter> parameters();
+    /**
+     * @return 参数列表
+     */
+    List<Parameter> parameters();
 
-  /**
-   * 增加一个参数
-   *
-   * @param parameter 参数
-   * @return ArgPlugin
-   */
-  ArgPlugin add(Parameter parameter);
+    /**
+     * 增加一个参数
+     *
+     * @param parameter 参数
+     * @return ArgPlugin
+     */
+    ArgPlugin add(Parameter parameter);
 
-  /**
-   * 删除一个参数
-   *
-   * @param name 参数名
-   * @return ArgPlugin
-   */
-  ArgPlugin remove(String name);
+    /**
+     * 删除一个参数
+     *
+     * @param name 参数名
+     * @return ArgPlugin
+     */
+    ArgPlugin remove(String name);
 
-  /**
-   * @param name 参数名
-   * @return　参数
-   */
-  Parameter parameter(String name);
+    /**
+     * @param name 参数名
+     * @return　参数
+     */
+    Parameter parameter(String name);
 
-  /**
-   * 删除所有参数.
-   *
-   * @return ArgPlugin
-   */
-  ArgPlugin clear();
+    /**
+     * 删除所有参数.
+     *
+     * @return ArgPlugin
+     */
+    ArgPlugin clear();
 }

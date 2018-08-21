@@ -33,90 +33,92 @@ import java.util.stream.Collectors;
  */
 class ApiPluginCmd implements ApiCmd {
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  private final List<ApiSubCmd> subCmdList
-          = Lists.newArrayList(ServiceLoader.load(ApiSubCmd.class));
-  private final JsonObject configuration = new JsonObject();
+    private final List<ApiSubCmd> subCmdList
+            = Lists.newArrayList(ServiceLoader.load(ApiSubCmd.class));
 
-  ApiPluginCmd(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    rules.put("namespace", Rule.required());
-    rules.put("name", Rule.required());
-    rules.put("subcmd", Rule.required());
-    setConfig(config, configuration);
-  }
+    private final JsonObject configuration = new JsonObject();
 
-  @Override
-  public String cmd() {
-    return "api.plugin";
-  }
-
-  @Override
-  public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    Validations.validate(jsonObject.getMap(), rules);
-    String namespace = jsonObject.getString("namespace");
-    String name = jsonObject.getString("name", "*");
-    JsonObject filter = new JsonObject();
-    if (name != null) {
-      filter.put("name", name);
-    }
-    Future<JsonObject> future = Future.future();
-    String subCmd = jsonObject.getString("subcmd");
-    jsonObject.remove("name");
-    jsonObject.remove("namespace");
-    jsonObject.remove("subcmd");
-    List<ApiSubCmd> filterCmdList = subCmdList.stream()
-            .filter(s -> subCmd.equalsIgnoreCase(s.cmd()))
-            .collect(Collectors.toList());
-    if (filterCmdList.isEmpty()) {
-      future.fail(SystemException.create(DefaultErrorCode.INVALID_ARGS)
-                          .set("details", String.format("subcmd:%s undefined", subCmd)));
-      return future;
+    ApiPluginCmd(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        rules.put("namespace", Rule.required());
+        rules.put("name", Rule.required());
+        rules.put("subcmd", Rule.required());
+        setConfig(config, configuration);
     }
 
-    ApiDiscovery discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-    discovery.getDefinitions(filter, ar -> {
-      if (ar.failed()) {
-        future.fail(ar.cause());
-        return;
-      }
-      List<ApiDefinition> definitions = ar.result();
-      if (definitions.isEmpty()) {
-        future.complete(succeedResult());
-      } else {
-        doSubCmd(discovery, definitions, filterCmdList.get(0), jsonObject.copy(), future);
-      }
-    });
-    return future;
-  }
+    @Override
+    public String cmd() {
+        return "api.plugin";
+    }
 
-  private void doSubCmd(ApiDiscovery discovery, List<ApiDefinition> definitions,
-                            ApiSubCmd subCmd,
-                            JsonObject jsonObject, Future<JsonObject> complete) {
-    List<Future> futures = new ArrayList<>();
-    for (ApiDefinition definition : definitions) {
-      Future<Void> future = Future.future();
-      futures.add(future);
-      subCmd.handle(definition, jsonObject);
-      discovery.publish(definition, ar -> {
-        if (ar.succeeded()) {
-          future.complete();
-        } else {
-          future.fail(ar.cause());
+    @Override
+    public Future<JsonObject> doHandle(JsonObject jsonObject) {
+        Validations.validate(jsonObject.getMap(), rules);
+        String namespace = jsonObject.getString("namespace");
+        String name = jsonObject.getString("name", "*");
+        JsonObject filter = new JsonObject();
+        if (name != null) {
+            filter.put("name", name);
         }
-      });
+        Future<JsonObject> future = Future.future();
+        String subCmd = jsonObject.getString("subcmd");
+        jsonObject.remove("name");
+        jsonObject.remove("namespace");
+        jsonObject.remove("subcmd");
+        List<ApiSubCmd> filterCmdList = subCmdList.stream()
+                .filter(s -> subCmd.equalsIgnoreCase(s.cmd()))
+                .collect(Collectors.toList());
+        if (filterCmdList.isEmpty()) {
+            future.fail(SystemException.create(DefaultErrorCode.INVALID_ARGS)
+                                .set("details", String.format("subcmd:%s undefined", subCmd)));
+            return future;
+        }
+
+        ApiDiscovery discovery =
+                ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
+        discovery.getDefinitions(filter, ar -> {
+            if (ar.failed()) {
+                future.fail(ar.cause());
+                return;
+            }
+            List<ApiDefinition> definitions = ar.result();
+            if (definitions.isEmpty()) {
+                future.complete(succeedResult());
+            } else {
+                doSubCmd(discovery, definitions, filterCmdList.get(0), jsonObject.copy(), future);
+            }
+        });
+        return future;
     }
-    CompositeFuture.all(futures)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                complete.complete(succeedResult());
-              } else {
-                complete.fail(ar.cause());
-              }
+
+    private void doSubCmd(ApiDiscovery discovery, List<ApiDefinition> definitions,
+                          ApiSubCmd subCmd,
+                          JsonObject jsonObject, Future<JsonObject> complete) {
+        List<Future> futures = new ArrayList<>();
+        for (ApiDefinition definition : definitions) {
+            Future<Void> future = Future.future();
+            futures.add(future);
+            subCmd.handle(definition, jsonObject);
+            discovery.publish(definition, ar -> {
+                if (ar.succeeded()) {
+                    future.complete();
+                } else {
+                    future.fail(ar.cause());
+                }
             });
-  }
+        }
+        CompositeFuture.all(futures)
+                .setHandler(ar -> {
+                    if (ar.succeeded()) {
+                        complete.complete(succeedResult());
+                    } else {
+                        complete.fail(ar.cause());
+                    }
+                });
+    }
 
 }

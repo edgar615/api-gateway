@@ -19,81 +19,81 @@ import java.util.stream.Collectors;
  */
 public interface Filter {
 
-  Logger LOGGER = LoggerFactory.getLogger(Filter.class);
+    Logger LOGGER = LoggerFactory.getLogger(Filter.class);
 
-  List<FilterFactory> factories = ImmutableList.copyOf(ServiceLoader.load(FilterFactory.class));
+    List<FilterFactory> factories = ImmutableList.copyOf(ServiceLoader.load(FilterFactory.class));
 
-  String PRE = "PRE";
+    String PRE = "PRE";
 
-  String POST = "POST";
+    String POST = "POST";
 
 //  String AFTER_RESP = "AFTER_RESP";
 
-  /**
-   * @return filter的类型 pre或者post
-   */
-  String type();
+    /**
+     * @return filter的类型 pre或者post
+     */
+    String type();
 
-  /**
-   * @return filter的顺序
-   */
-  int order();
+    /**
+     * @return filter的顺序
+     */
+    int order();
 
-  /**
-   * 根据上下文判断是否应该执行filter的方法
-   *
-   * @param apiContext api上下文
-   * @return true 执行filter，false 忽略
-   */
-  boolean shouldFilter(ApiContext apiContext);
+    /**
+     * 根据上下文判断是否应该执行filter的方法
+     *
+     * @param apiContext api上下文
+     * @return true 执行filter，false 忽略
+     */
+    boolean shouldFilter(ApiContext apiContext);
 
-  /**
-   * filter的处理方法.
-   * 该方法的第二个参数用于将filter传递给下一个filter,
-   * completeFuture.complete(apiContext)会执行下一个Filter，completeFuture.fail()会抛出异常，跳出filter的执行.
-   *
-   * @param apiContext     api上下文
-   * @param completeFuture completeFuture.complete()传递给下一个filter,completeFuture.fail(),异常
-   */
-  void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture);
+    /**
+     * filter的处理方法.
+     * 该方法的第二个参数用于将filter传递给下一个filter,
+     * completeFuture.complete(apiContext)会执行下一个Filter，completeFuture.fail()会抛出异常，跳出filter的执行.
+     *
+     * @param apiContext     api上下文
+     * @param completeFuture completeFuture.complete()传递给下一个filter,completeFuture.fail(),异常
+     */
+    void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture);
 
-  /**
-   * 创建一个过滤器.
-   *
-   * @param name   过滤器的名称
-   * @param vertx  Vertx
-   * @param config 配置
-   * @return Filter
-   */
-  static Filter create(String name, Vertx vertx, JsonObject config) {
-    List<FilterFactory> list = factories.stream()
-            .filter(f -> name.equalsIgnoreCase(f.name()))
-            .collect(Collectors.toList());
-    if (list.isEmpty()) {
-      throw new NoSuchElementException("no such factory->" + name);
+    /**
+     * 创建一个过滤器.
+     *
+     * @param name   过滤器的名称
+     * @param vertx  Vertx
+     * @param config 配置
+     * @return Filter
+     */
+    static Filter create(String name, Vertx vertx, JsonObject config) {
+        List<FilterFactory> list = factories.stream()
+                .filter(f -> name.equalsIgnoreCase(f.name()))
+                .collect(Collectors.toList());
+        if (list.isEmpty()) {
+            throw new NoSuchElementException("no such factory->" + name);
+        }
+        return list.get(0).create(vertx, config);
     }
-    return list.get(0).create(vertx, config);
-  }
 
-  /**
-   * 运行时更新配置
-   *
-   * @param config
-   */
-  default void updateConfig(JsonObject config) {
-    //do nothing
-  }
+    /**
+     * 运行时更新配置
+     *
+     * @param config
+     */
+    default void updateConfig(JsonObject config) {
+        //do nothing
+    }
 
-  default void log(String traceId, String event) {
-    LOGGER.info("[{}] [ApiGateway] [{}]", traceId, event);
-  }
+    default void log(String traceId, String event) {
+        LOGGER.info("[{}] [ApiGateway] [{}]", traceId, event);
+    }
 
-  default void failed(Future<ApiContext> completeFuture,
-                      String traceId,
-                      String event,
-                      Throwable throwable) {
-    LOGGER.warn("[{}] [ApiGateway] [{}]", traceId, event);
-    completeFuture.fail(throwable);
-  }
+    default void failed(Future<ApiContext> completeFuture,
+                        String traceId,
+                        String event,
+                        Throwable throwable) {
+        LOGGER.warn("[{}] [ApiGateway] [{}]", traceId, event);
+        completeFuture.fail(throwable);
+    }
 
 }

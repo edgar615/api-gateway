@@ -54,30 +54,30 @@ import java.util.List;
  */
 class WeightRoundbinStrategy implements ChooseStrategy {
 
-  @Override
-  public Record get(List<Record> records) {
-    if (records == null || records.isEmpty()) {
-      return null;
+    @Override
+    public Record get(List<Record> records) {
+        if (records == null || records.isEmpty()) {
+            return null;
+        }
+
+        int total = 0;
+        for (Record record : records) {
+            ServiceStats stats = LoadBalanceStats.instance().get(record.getRegistration());
+            total += stats.weight();
+            stats.incEffectiveWeight(stats.weight());
+        }
+
+        ServiceStats stats = records.stream()
+                .map(r -> LoadBalanceStats.instance().get(r.getRegistration()))
+                .max((o1, o2) -> o1.effectiveWeight() - o2.effectiveWeight())
+                .get();
+        stats.decEffectiveWeight(total);
+
+        return records.stream()
+                .filter(r -> r.getRegistration().equals(stats.serviceId()))
+                .findFirst()
+                .orElseGet(() -> null);
+
     }
-
-    int total = 0;
-    for (Record record : records) {
-      ServiceStats stats = LoadBalanceStats.instance().get(record.getRegistration());
-      total += stats.weight();
-      stats.incEffectiveWeight(stats.weight());
-    }
-
-    ServiceStats stats = records.stream()
-            .map(r -> LoadBalanceStats.instance().get(r.getRegistration()))
-            .max((o1, o2) -> o1.effectiveWeight() - o2.effectiveWeight())
-            .get();
-    stats.decEffectiveWeight(total);
-
-    return records.stream()
-            .filter(r -> r.getRegistration().equals(stats.serviceId()))
-            .findFirst()
-            .orElseGet(() -> null);
-
-  }
 
 }

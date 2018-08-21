@@ -12,26 +12,26 @@ import org.junit.Test;
  * @author Edgar  Date 2016/10/31
  */
 public class AppKeyPluginTest {
-  @Test
-  public void testDecode() {
-    JsonObject config = new JsonObject()
-            .put("appKey", true);
-    ApiPluginFactory factory = new AppKeyPluginFactory();
-    AppKeyPlugin plugin = (AppKeyPlugin) factory.decode(config);
-    Assert.assertNotNull(plugin);
+    @Test
+    public void testDecode() {
+        JsonObject config = new JsonObject()
+                .put("appKey", true);
+        ApiPluginFactory factory = new AppKeyPluginFactory();
+        AppKeyPlugin plugin = (AppKeyPlugin) factory.decode(config);
+        Assert.assertNotNull(plugin);
 //    Assert.assertEquals(2, plugin.authentications().size());
-  }
+    }
 
-  @Test
-  public void testEncode() {
-    AppKeyPlugin plugin = (AppKeyPlugin) ApiPlugin.create(AppKeyPlugin
-                                                                  .class
-                                                                  .getSimpleName());
+    @Test
+    public void testEncode() {
+        AppKeyPlugin plugin = (AppKeyPlugin) ApiPlugin.create(AppKeyPlugin
+                                                                      .class
+                                                                      .getSimpleName());
 
-    JsonObject jsonObject = plugin.encode();
-    System.out.println(jsonObject);
-    Assert.assertTrue(jsonObject.containsKey("appKey"));
-    Assert.assertTrue(jsonObject.getBoolean("appKey", false));
-  }
+        JsonObject jsonObject = plugin.encode();
+        System.out.println(jsonObject);
+        Assert.assertTrue(jsonObject.containsKey("appKey"));
+        Assert.assertTrue(jsonObject.getBoolean("appKey", false));
+    }
 
 }

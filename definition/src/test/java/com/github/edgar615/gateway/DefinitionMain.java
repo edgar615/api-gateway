@@ -9,10 +9,10 @@ import io.vertx.core.Launcher;
  * @author Edgar  Date 2017/6/20
  */
 public class DefinitionMain {
-  public static void main(String[] args) {
-    new Launcher().execute("run", ApiDefinitionVerticle.class.getName(),
-                           "--cluster",
-                           "--conf=H:\\dev\\workspace\\gateway\\definition\\src\\main\\conf"
-                           + "\\definition.json");
-  }
+    public static void main(String[] args) {
+        new Launcher().execute("run", ApiDefinitionVerticle.class.getName(),
+                               "--cluster",
+                               "--conf=H:\\dev\\workspace\\gateway\\definition\\src\\main\\conf"
+                               + "\\definition.json");
+    }
 }

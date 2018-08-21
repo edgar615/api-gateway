@@ -7,14 +7,14 @@ import com.google.common.base.MoreObjects;
  */
 class BodyArgPluginImpl extends ArgPluginImpl implements BodyArgPlugin {
 
-  BodyArgPluginImpl() {
-  }
+    BodyArgPluginImpl() {
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper("BodyArgPlugin")
-            .add("parameters", parameters())
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper("BodyArgPlugin")
+                .add("parameters", parameters())
+                .toString();
+    }
 
 }

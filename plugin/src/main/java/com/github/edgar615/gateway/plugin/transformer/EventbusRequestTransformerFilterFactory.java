@@ -14,13 +14,13 @@ import io.vertx.core.json.JsonObject;
 public class EventbusRequestTransformerFilterFactory implements FilterFactory {
 
 
-  @Override
-  public String name() {
-    return EventbusRequestTransformerFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return EventbusRequestTransformerFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new EventbusRequestTransformerFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new EventbusRequestTransformerFilter(config);
+    }
 }

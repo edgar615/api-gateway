@@ -11,13 +11,13 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/8/7
  */
 public class RequestFallbackFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return RequestFallbackFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return RequestFallbackFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new RequestFallbackFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new RequestFallbackFilter();
+    }
 }

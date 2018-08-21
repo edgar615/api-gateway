@@ -40,258 +40,259 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(VertxUnitRunner.class)
 public class CacheAndHttpAppKeyFilterTest extends AbstractAppKeyFilterTest {
 
-  private final List<Filter> filters = new ArrayList<>();
+    private final List<Filter> filters = new ArrayList<>();
 
-  String appKey = UUID.randomUUID().toString();
+    String appKey = UUID.randomUUID().toString();
 
-  String appSecret = UUID.randomUUID().toString();
+    String appSecret = UUID.randomUUID().toString();
 
-  int clientCode = Integer.parseInt(Randoms.randomNumber(3));
+    int clientCode = Integer.parseInt(Randoms.randomNumber(3));
 
-  String signMethod = "HMACMD5";
+    String signMethod = "HMACMD5";
 
-  private Filter filter;
+    private Filter filter;
 
-  private ApiContext apiContext;
+    private ApiContext apiContext;
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-    filters.clear();
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+        filters.clear();
 
-  }
-
-  @After
-  public void tearDown(TestContext testContext) {
-    vertx.close();
-  }
-
-  @Test
-  public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
-    Cache<String, JsonObject> cache = mockCache();
-    int port = Integer.parseInt(Randoms.randomNumber(4));
-    String path = Randoms.randomAlphabet(10);
-    AtomicInteger reqCount = mockExistHttp(port, path);
-
-    JsonObject config = new JsonObject()
-            .put("cacheEnable",true)
-            .put("api",path);
-    filters.clear();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("port", port));
-    filters.add(filter);
-    apiContext = createContext(UUID.randomUUID().toString(), signMethod);
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check1 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
-              check1.set(true);
-            });
-    Awaitility.await().until(() -> check1.get());
-
-    task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check2 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
-              check2.set(true);
-            });
-    Awaitility.await().until(() -> check2.get());
-    testContext.assertEquals(1, reqCount.get());
-  }
-
-
-  @Test
-  public void testAppKeyFromHttp(TestContext testContext) {
-    Cache<String, JsonObject> cache = mockCache();
-    int port = Integer.parseInt(Randoms.randomNumber(4));
-    String path = Randoms.randomAlphabet(10);
-    AtomicInteger reqCount = mockExistHttp(port, path);
-
-    JsonObject config = new JsonObject()
-            .put("cacheEnable",true)
-            .put("api",path);
-    filters.clear();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("port", port));
-    filters.add(filter);
-    apiContext = createContext(UUID.randomUUID().toString(), signMethod);
-
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("appKey", appKey);
-    params.put("nonce", Randoms.randomAlphabetAndNum(10));
-    params.put("signMethod", signMethod);
-    params.put("v", "1.0");
-    params.put("deviceId", "1");
-
-    params.put("sign", signTopRequest(params, appSecret, signMethod));
-    params.removeAll("body");
-
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
-
-
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                    80, "localhost");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check1 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertTrue(context.params().containsKey("sign"));
-              testContext.assertTrue(context.params().containsKey("signMethod"));
-              testContext.assertTrue(context.params().containsKey("v"));
-              testContext.assertTrue(context.params().containsKey("appKey"));
-              check1.set(true);
-            })
-            .onFailure(t -> {
-              t.printStackTrace();
-              testContext.fail();
-            });
-    Awaitility.await().until(() -> check1.get());
-
-     task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check2 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertTrue(context.params().containsKey("sign"));
-              testContext.assertTrue(context.params().containsKey("signMethod"));
-              testContext.assertTrue(context.params().containsKey("v"));
-              testContext.assertTrue(context.params().containsKey("appKey"));
-              check2.set(true);
-            })
-            .onFailure(t -> {
-              t.printStackTrace();
-              testContext.fail();
-            });
-    Awaitility.await().until(() -> check2.get());
-    testContext.assertEquals(1, reqCount.get());
-  }
-
-
-  @Test
-  public void testAppKeyFromCache(TestContext testContext) {
-    Cache<String, JsonObject> cache = mockCache();
-    AtomicBoolean complete = new AtomicBoolean();
-    JsonObject jsonObject = new JsonObject()
-            .put("appKey", appKey)
-            .put("appSecret", appSecret)
-            .put("clientCode", clientCode)
-            .put("permissions", "all");
-    cache.put("appKey:" +appKey, jsonObject, ar -> {
-      complete.set(true);
-    });
-    Awaitility.await().until(() -> complete.get());
-
-    int port = Integer.parseInt(Randoms.randomNumber(4));
-    String path = Randoms.randomAlphabet(10);
-    AtomicInteger reqCount = mockExistHttp(port, path);
-
-    JsonObject config = new JsonObject()
-            .put("cacheEnable",true)
-            .put("api",path);
-    filters.clear();
-    filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("appkey", config)
-            .put("port", port));
-    filters.add(filter);
-    apiContext = createContext(UUID.randomUUID().toString(), signMethod);
-
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("appKey", appKey);
-    params.put("nonce", Randoms.randomAlphabetAndNum(10));
-    params.put("signMethod", signMethod);
-    params.put("v", "1.0");
-    params.put("deviceId", "1");
-
-    params.put("sign", signTopRequest(params, appSecret, signMethod));
-    params.removeAll("body");
-
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
-
-
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check1 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertTrue(context.params().containsKey("sign"));
-              testContext.assertTrue(context.params().containsKey("signMethod"));
-              testContext.assertTrue(context.params().containsKey("v"));
-              testContext.assertTrue(context.params().containsKey("appKey"));
-              check1.set(true);
-            })
-            .onFailure(t -> {
-              t.printStackTrace();
-              testContext.fail();
-            });
-    Awaitility.await().until(() -> check1.get());
-    testContext.assertEquals(0, reqCount.get());
-  }
-
-
-  private Cache<String, JsonObject> mockCache() {
-    Cache<String, JsonObject> cache = CacheUtils.createCache(vertx, "appKey", new CacheOptions());
-    return cache;
-  }
-
-  private AtomicInteger mockExistHttp(int port, String path) {
-    if (!path.startsWith("/")) {
-      path = "/"  +path;
     }
-    AtomicInteger reqCount = new AtomicInteger();
-    AtomicBoolean complete = new AtomicBoolean();
-    final String finalPath = path;
-    vertx.createHttpServer().requestHandler(req -> {
-      reqCount.incrementAndGet();
-      if (req.path().equals(finalPath)) {
+
+    @After
+    public void tearDown(TestContext testContext) {
+        vertx.close();
+    }
+
+    @Test
+    public void undefinedAppKeyShouldThrowInvalidReq(TestContext testContext) {
+        Cache<String, JsonObject> cache = mockCache();
+        int port = Integer.parseInt(Randoms.randomNumber(4));
+        String path = Randoms.randomAlphabet(10);
+        AtomicInteger reqCount = mockExistHttp(port, path);
+
+        JsonObject config = new JsonObject()
+                .put("cacheEnable", true)
+                .put("api", path);
+        filters.clear();
+        filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+                .put("appkey", config)
+                .put("port", port));
+        filters.add(filter);
+        apiContext = createContext(UUID.randomUUID().toString(), signMethod);
+
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check1 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> testContext.fail())
+                .onFailure(t -> {
+                    testContext.assertTrue(t instanceof SystemException);
+                    SystemException ex = (SystemException) t;
+                    testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
+                    check1.set(true);
+                });
+        Awaitility.await().until(() -> check1.get());
+
+        task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check2 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> testContext.fail())
+                .onFailure(t -> {
+                    testContext.assertTrue(t instanceof SystemException);
+                    SystemException ex = (SystemException) t;
+                    testContext.assertEquals(DefaultErrorCode.INVALID_REQ, ex.getErrorCode());
+                    check2.set(true);
+                });
+        Awaitility.await().until(() -> check2.get());
+        testContext.assertEquals(1, reqCount.get());
+    }
+
+
+    @Test
+    public void testAppKeyFromHttp(TestContext testContext) {
+        Cache<String, JsonObject> cache = mockCache();
+        int port = Integer.parseInt(Randoms.randomNumber(4));
+        String path = Randoms.randomAlphabet(10);
+        AtomicInteger reqCount = mockExistHttp(port, path);
+
+        JsonObject config = new JsonObject()
+                .put("cacheEnable", true)
+                .put("api", path);
+        filters.clear();
+        filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+                .put("appkey", config)
+                .put("port", port));
+        filters.add(filter);
+        apiContext = createContext(UUID.randomUUID().toString(), signMethod);
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("appKey", appKey);
+        params.put("nonce", Randoms.randomAlphabetAndNum(10));
+        params.put("signMethod", signMethod);
+        params.put("v", "1.0");
+        params.put("deviceId", "1");
+
+        params.put("sign", signTopRequest(params, appSecret, signMethod));
+        params.removeAll("body");
+
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+
+
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                        80, "localhost");
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+        definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
+
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check1 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.assertTrue(context.params().containsKey("sign"));
+                    testContext.assertTrue(context.params().containsKey("signMethod"));
+                    testContext.assertTrue(context.params().containsKey("v"));
+                    testContext.assertTrue(context.params().containsKey("appKey"));
+                    check1.set(true);
+                })
+                .onFailure(t -> {
+                    t.printStackTrace();
+                    testContext.fail();
+                });
+        Awaitility.await().until(() -> check1.get());
+
+        task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check2 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.assertTrue(context.params().containsKey("sign"));
+                    testContext.assertTrue(context.params().containsKey("signMethod"));
+                    testContext.assertTrue(context.params().containsKey("v"));
+                    testContext.assertTrue(context.params().containsKey("appKey"));
+                    check2.set(true);
+                })
+                .onFailure(t -> {
+                    t.printStackTrace();
+                    testContext.fail();
+                });
+        Awaitility.await().until(() -> check2.get());
+        testContext.assertEquals(1, reqCount.get());
+    }
+
+
+    @Test
+    public void testAppKeyFromCache(TestContext testContext) {
+        Cache<String, JsonObject> cache = mockCache();
+        AtomicBoolean complete = new AtomicBoolean();
         JsonObject jsonObject = new JsonObject()
                 .put("appKey", appKey)
                 .put("appSecret", appSecret)
                 .put("clientCode", clientCode)
                 .put("permissions", "all");
-        req.response().end(jsonObject.encode());
-      } else {
-        req.response().setStatusCode(404).end();
-      }
-    }).listen(port, ar -> {
-      if (ar.succeeded()) {
-        complete.set(true);
-      } else {
+        cache.put("appKey:" + appKey, jsonObject, ar -> {
+            complete.set(true);
+        });
+        Awaitility.await().until(() -> complete.get());
 
-      }
-    });
+        int port = Integer.parseInt(Randoms.randomNumber(4));
+        String path = Randoms.randomAlphabet(10);
+        AtomicInteger reqCount = mockExistHttp(port, path);
 
-    Awaitility.await().until(() -> complete.get());
-    return reqCount;
-  }
+        JsonObject config = new JsonObject()
+                .put("cacheEnable", true)
+                .put("api", path);
+        filters.clear();
+        filter = Filter.create(AppKeyFilter.class.getSimpleName(), vertx, new JsonObject()
+                .put("appkey", config)
+                .put("port", port));
+        filters.add(filter);
+        apiContext = createContext(UUID.randomUUID().toString(), signMethod);
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("appKey", appKey);
+        params.put("nonce", Randoms.randomAlphabetAndNum(10));
+        params.put("signMethod", signMethod);
+        params.put("v", "1.0");
+        params.put("deviceId", "1");
+
+        params.put("sign", signTopRequest(params, appSecret, signMethod));
+        params.removeAll("body");
+
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+
+
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                        80, "localhost");
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+        definition.addPlugin(ApiPlugin.create(AppKeyPlugin.class.getSimpleName()));
+
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check1 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.assertTrue(context.params().containsKey("sign"));
+                    testContext.assertTrue(context.params().containsKey("signMethod"));
+                    testContext.assertTrue(context.params().containsKey("v"));
+                    testContext.assertTrue(context.params().containsKey("appKey"));
+                    check1.set(true);
+                })
+                .onFailure(t -> {
+                    t.printStackTrace();
+                    testContext.fail();
+                });
+        Awaitility.await().until(() -> check1.get());
+        testContext.assertEquals(0, reqCount.get());
+    }
+
+
+    private Cache<String, JsonObject> mockCache() {
+        Cache<String, JsonObject> cache =
+                CacheUtils.createCache(vertx, "appKey", new CacheOptions());
+        return cache;
+    }
+
+    private AtomicInteger mockExistHttp(int port, String path) {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        AtomicInteger reqCount = new AtomicInteger();
+        AtomicBoolean complete = new AtomicBoolean();
+        final String finalPath = path;
+        vertx.createHttpServer().requestHandler(req -> {
+            reqCount.incrementAndGet();
+            if (req.path().equals(finalPath)) {
+                JsonObject jsonObject = new JsonObject()
+                        .put("appKey", appKey)
+                        .put("appSecret", appSecret)
+                        .put("clientCode", clientCode)
+                        .put("permissions", "all");
+                req.response().end(jsonObject.encode());
+            } else {
+                req.response().setStatusCode(404).end();
+            }
+        }).listen(port, ar -> {
+            if (ar.succeeded()) {
+                complete.set(true);
+            } else {
+
+            }
+        });
+
+        Awaitility.await().until(() -> complete.get());
+        return reqCount;
+    }
 
 }

@@ -43,10 +43,12 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
         String path = jsonObject.getString("path");
         HttpMethod method = method(jsonObject.getString("method", "get"));
         if (jsonObject.getValue("type") instanceof String
-                && "ant".equalsIgnoreCase(jsonObject.getString("type"))) {
+            && "ant".equalsIgnoreCase(jsonObject.getString("type"))) {
             AntPathApiDefinition antPathApiDefinition =
                     (AntPathApiDefinition) ApiDefinition.createAnt(name, method, path,
-                            createEndpoints(jsonObject.getJsonArray("endpoints")));
+                                                                   createEndpoints(jsonObject
+                                                                                           .getJsonArray(
+                                                                                                   "endpoints")));
             if (jsonObject.getValue("ignoredPatterns") instanceof JsonArray) {
                 jsonObject.getJsonArray("ignoredPatterns").forEach(o -> {
                     if (o instanceof String) {
@@ -57,12 +59,13 @@ class ApiDefinitionDecoder implements Function<JsonObject, ApiDefinition> {
             }
             return antPathApiDefinition;
         } else if (jsonObject.getValue("type") instanceof String
-                && "regex".equalsIgnoreCase(jsonObject.getString("type"))) {
+                   && "regex".equalsIgnoreCase(jsonObject.getString("type"))) {
             return ApiDefinition.createRegex(name, method, path,
-                    createEndpoints(jsonObject.getJsonArray("endpoints")));
+                                             createEndpoints(jsonObject.getJsonArray("endpoints")));
         } else {
             return ApiDefinition
-                    .create(name, method, path, createEndpoints(jsonObject.getJsonArray("endpoints")));
+                    .create(name, method, path,
+                            createEndpoints(jsonObject.getJsonArray("endpoints")));
         }
     }
 

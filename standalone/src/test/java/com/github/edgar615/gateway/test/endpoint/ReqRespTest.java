@@ -18,26 +18,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class ReqRespTest {
 
-  @Test
-  public void testOk(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    JsonObject data = new JsonObject()
-            .put("username", "1")
-            .put("password", "2");
-    Vertx.vertx().createHttpClient().post(9000, "localhost", "/user/login")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                testContext.assertEquals(0,body.toJsonArray().size());
-                check.set(true);
-              });
-            })
-            .setChunked(true)
-            .end(data.encode());
-    Awaitility.await().until(() -> check.get());
-  }
+    @Test
+    public void testOk(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        JsonObject data = new JsonObject()
+                .put("username", "1")
+                .put("password", "2");
+        Vertx.vertx().createHttpClient().post(9000, "localhost", "/user/login")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        testContext.assertEquals(0, body.toJsonArray().size());
+                        check.set(true);
+                    });
+                })
+                .setChunked(true)
+                .end(data.encode());
+        Awaitility.await().until(() -> check.get());
+    }
 
 
 }

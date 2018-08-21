@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.exception.DefaultErrorCode;
 import com.github.edgar615.util.exception.SystemException;
 import io.vertx.core.Future;
@@ -26,51 +25,51 @@ import java.util.Set;
  * 该filter的order=1100
  */
 public class UserPermissionFilter implements Filter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserPermissionFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserPermissionFilter.class);
 
-  UserPermissionFilter(Vertx vertx, JsonObject config) {
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 11000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().plugin(PermissionPlugin.class.getSimpleName()) != null
-           && apiContext.principal() != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    PermissionPlugin plugin = (PermissionPlugin) apiContext.apiDefinition()
-            .plugin(PermissionPlugin.class.getSimpleName());
-    String appScope = plugin.permission();
-
-    Set<String> permissions = new HashSet<>();
-    Object userPermissions = apiContext.principal()
-            .getString("permissions", "all");
-    if (userPermissions instanceof String) {
-      permissions.addAll(Splitter.on(",")
-                                 .omitEmptyStrings().trimResults()
-                                 .splitToList((String) userPermissions));
+    UserPermissionFilter(Vertx vertx, JsonObject config) {
     }
 
-    if (permissions.contains("all") || permissions.contains(appScope)) {
-      log(apiContext.id(), "UserPermissionAdmitted");
-      completeFuture.complete(apiContext);
-    } else {
-      SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "User does not have permission");
-      failed(completeFuture, apiContext.id(), "UserPermissionDenied", ex);
+    @Override
+    public String type() {
+        return PRE;
     }
 
-  }
+    @Override
+    public int order() {
+        return 11000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition().plugin(PermissionPlugin.class.getSimpleName()) != null
+               && apiContext.principal() != null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        PermissionPlugin plugin = (PermissionPlugin) apiContext.apiDefinition()
+                .plugin(PermissionPlugin.class.getSimpleName());
+        String appScope = plugin.permission();
+
+        Set<String> permissions = new HashSet<>();
+        Object userPermissions = apiContext.principal()
+                .getString("permissions", "all");
+        if (userPermissions instanceof String) {
+            permissions.addAll(Splitter.on(",")
+                                       .omitEmptyStrings().trimResults()
+                                       .splitToList((String) userPermissions));
+        }
+
+        if (permissions.contains("all") || permissions.contains(appScope)) {
+            log(apiContext.id(), "UserPermissionAdmitted");
+            completeFuture.complete(apiContext);
+        } else {
+            SystemException ex = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+                    .set("details", "User does not have permission");
+            failed(completeFuture, apiContext.id(), "UserPermissionDenied", ex);
+        }
+
+    }
 
 }

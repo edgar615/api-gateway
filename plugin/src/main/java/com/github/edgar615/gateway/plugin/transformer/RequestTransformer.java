@@ -7,13 +7,13 @@ package com.github.edgar615.gateway.plugin.transformer;
  */
 public interface RequestTransformer extends BodyTransfomer, HeaderTransfomer, ParamTransfomer {
 
-  /**
-   * @return endpoint的名称
-   */
-  String name();
+    /**
+     * @return endpoint的名称
+     */
+    String name();
 
-  static RequestTransformer create(String name) {
-    return new RequestTransformerImpl(name);
-  }
+    static RequestTransformer create(String name) {
+        return new RequestTransformerImpl(name);
+    }
 
 }

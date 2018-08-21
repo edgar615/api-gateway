@@ -14,77 +14,77 @@ import java.util.Set;
  * @author Edgar  Date 2016/10/21
  */
 class UserRestrictionImpl implements UserRestriction {
-  /**
-   * 白名单
-   */
-  private final Set<String> whitelist = new HashSet<>();
+    /**
+     * 白名单
+     */
+    private final Set<String> whitelist = new HashSet<>();
 
-  /**
-   * 黑名单
-   */
-  private final Set<String> blacklist = new HashSet<>();
+    /**
+     * 黑名单
+     */
+    private final Set<String> blacklist = new HashSet<>();
 
-  UserRestrictionImpl() {
-  }
+    UserRestrictionImpl() {
+    }
 
-  @Override
-  public UserRestriction addWhitelist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    blacklist.remove(userId);
-    whitelist.add(userId);
-    return this;
-  }
+    @Override
+    public UserRestriction addWhitelist(String userId) {
+        Preconditions.checkNotNull(userId, "userId cannot be null");
+        blacklist.remove(userId);
+        whitelist.add(userId);
+        return this;
+    }
 
-  @Override
-  public UserRestriction addBlacklist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    whitelist.remove(userId);
-    blacklist.add(userId);
-    return this;
-  }
+    @Override
+    public UserRestriction addBlacklist(String userId) {
+        Preconditions.checkNotNull(userId, "userId cannot be null");
+        whitelist.remove(userId);
+        blacklist.add(userId);
+        return this;
+    }
 
-  @Override
-  public UserRestriction removeWhitelist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    whitelist.remove(userId);
-    return this;
-  }
+    @Override
+    public UserRestriction removeWhitelist(String userId) {
+        Preconditions.checkNotNull(userId, "userId cannot be null");
+        whitelist.remove(userId);
+        return this;
+    }
 
-  @Override
-  public UserRestriction removeBlacklist(String userId) {
-    Preconditions.checkNotNull(userId, "userId cannot be null");
-    blacklist.remove(userId);
-    return this;
-  }
+    @Override
+    public UserRestriction removeBlacklist(String userId) {
+        Preconditions.checkNotNull(userId, "userId cannot be null");
+        blacklist.remove(userId);
+        return this;
+    }
 
-  @Override
-  public UserRestriction clearWhitelist() {
-    whitelist.clear();
-    return this;
-  }
+    @Override
+    public UserRestriction clearWhitelist() {
+        whitelist.clear();
+        return this;
+    }
 
-  @Override
-  public UserRestriction clearBlacklist() {
-    blacklist.clear();
-    return this;
-  }
+    @Override
+    public UserRestriction clearBlacklist() {
+        blacklist.clear();
+        return this;
+    }
 
-  @Override
-  public List<String> whitelist() {
-    return ImmutableList.copyOf(whitelist);
-  }
+    @Override
+    public List<String> whitelist() {
+        return ImmutableList.copyOf(whitelist);
+    }
 
-  @Override
-  public List<String> blacklist() {
-    return ImmutableList.copyOf(blacklist);
-  }
+    @Override
+    public List<String> blacklist() {
+        return ImmutableList.copyOf(blacklist);
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("UserRestriction")
-            .add("whitelist", whitelist)
-            .add("blacklist", blacklist)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("UserRestriction")
+                .add("whitelist", whitelist)
+                .add("blacklist", blacklist)
+                .toString();
+    }
 }

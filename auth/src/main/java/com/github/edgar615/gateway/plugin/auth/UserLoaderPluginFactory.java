@@ -10,30 +10,30 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2016/10/31
  */
 public class UserLoaderPluginFactory implements ApiPluginFactory {
-  @Override
-  public String name() {
-    return UserLoaderPlugin.class.getSimpleName();
-  }
-
-  @Override
-  public ApiPlugin create() {
-    return new UserLoaderPlugin();
-  }
-
-  @Override
-  public ApiPlugin decode(JsonObject jsonObject) {
-
-    if (jsonObject.getBoolean("user.loader", false)) {
-      return new TokenPlugin();
+    @Override
+    public String name() {
+        return UserLoaderPlugin.class.getSimpleName();
     }
-    return null;
-  }
 
-  @Override
-  public JsonObject encode(ApiPlugin plugin) {
-    if (plugin == null) {
-      return new JsonObject();
+    @Override
+    public ApiPlugin create() {
+        return new UserLoaderPlugin();
     }
-    return new JsonObject().put("user.loader", true);
-  }
+
+    @Override
+    public ApiPlugin decode(JsonObject jsonObject) {
+
+        if (jsonObject.getBoolean("user.loader", false)) {
+            return new TokenPlugin();
+        }
+        return null;
+    }
+
+    @Override
+    public JsonObject encode(ApiPlugin plugin) {
+        if (plugin == null) {
+            return new JsonObject();
+        }
+        return new JsonObject().put("user.loader", true);
+    }
 }

@@ -15,33 +15,33 @@ import org.junit.Test;
  */
 public class DeletePermissionScopeCmdTest {
 
-  ApiDefinition definition;
+    ApiDefinition definition;
 
-  DeletePermissionScopeCmd cmd;
+    DeletePermissionScopeCmd cmd;
 
-  @Before
-  public void setUp() {
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
+    @Before
+    public void setUp() {
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                        80, "localhost");
 
-    definition = ApiDefinition
-        .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+        definition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
 
-    definition.addPlugin(PermissionPlugin.create("device:get"));
+        definition.addPlugin(PermissionPlugin.create("device:get"));
 
-    cmd = new DeletePermissionScopeCmd();
-  }
+        cmd = new DeletePermissionScopeCmd();
+    }
 
-  @Test
-  public void testDeleteSuccess() {
-    JsonObject jsonObject = new JsonObject()
-        .put("permission", "device:get");
-    Assert.assertEquals(1, definition.plugins().size());
+    @Test
+    public void testDeleteSuccess() {
+        JsonObject jsonObject = new JsonObject()
+                .put("permission", "device:get");
+        Assert.assertEquals(1, definition.plugins().size());
 
-    cmd.handle(definition, jsonObject);
-    Assert.assertEquals(0, definition.plugins().size());
+        cmd.handle(definition, jsonObject);
+        Assert.assertEquals(0, definition.plugins().size());
 
-  }
+    }
 
 }

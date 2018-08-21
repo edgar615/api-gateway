@@ -17,41 +17,42 @@ import java.util.Base64;
  */
 public class UserHeaderFilter implements Filter {
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  UserHeaderFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 16100;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.principal() != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    String principalBase64 = Base64.getEncoder().encodeToString(apiContext.principal().encode().getBytes());
-    for (RpcRequest rpcRequest : apiContext.requests()) {
-      if (rpcRequest instanceof HttpRpcRequest) {
-        HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
-        httpRpcRequest.addHeader("x-client-principal", principalBase64);
-      }
-      if (rpcRequest instanceof EventbusRpcRequest) {
-        EventbusRpcRequest eventbusRpcRequest = (EventbusRpcRequest) rpcRequest;
-        eventbusRpcRequest.addHeader("x-client-principal", principalBase64);
-      }
+    UserHeaderFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
     }
-    completeFuture.complete(apiContext);
-  }
+
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return 16100;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.principal() != null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        String principalBase64 =
+                Base64.getEncoder().encodeToString(apiContext.principal().encode().getBytes());
+        for (RpcRequest rpcRequest : apiContext.requests()) {
+            if (rpcRequest instanceof HttpRpcRequest) {
+                HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
+                httpRpcRequest.addHeader("x-client-principal", principalBase64);
+            }
+            if (rpcRequest instanceof EventbusRpcRequest) {
+                EventbusRpcRequest eventbusRpcRequest = (EventbusRpcRequest) rpcRequest;
+                eventbusRpcRequest.addHeader("x-client-principal", principalBase64);
+            }
+        }
+        completeFuture.complete(apiContext);
+    }
 
 }

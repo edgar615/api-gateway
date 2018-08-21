@@ -15,19 +15,19 @@ import org.slf4j.LoggerFactory;
  */
 public class RedisVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RedisVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisVerticle.class);
 
-  @Override
-  public void start(Future<Void> startFuture) throws Exception {
-    JsonObject redisConfig = config().getJsonObject("redis", new JsonObject());
-    RedisClient redisClient = RedisClientHelper.createShared(vertx, redisConfig);
-    redisClient.ping(ar -> {
-      if (ar.succeeded()) {
-        startFuture.complete();
-      } else {
-        LOGGER.error("[Redis] [unconnected] [{}]", ar.cause());
-        startFuture.fail(ar.cause());
-      }
-    });
-  }
+    @Override
+    public void start(Future<Void> startFuture) throws Exception {
+        JsonObject redisConfig = config().getJsonObject("redis", new JsonObject());
+        RedisClient redisClient = RedisClientHelper.createShared(vertx, redisConfig);
+        redisClient.ping(ar -> {
+            if (ar.succeeded()) {
+                startFuture.complete();
+            } else {
+                LOGGER.error("[Redis] [unconnected] [{}]", ar.cause());
+                startFuture.fail(ar.cause());
+            }
+        });
+    }
 }

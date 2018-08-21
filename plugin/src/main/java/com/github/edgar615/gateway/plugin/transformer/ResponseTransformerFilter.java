@@ -48,102 +48,102 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ResponseTransformerFilter implements Filter {
 
-  private final AtomicReference<ResponseTransformerPlugin> reference = new AtomicReference<>();
+    private final AtomicReference<ResponseTransformerPlugin> reference = new AtomicReference<>();
 
-  ResponseTransformerFilter(JsonObject config) {
-    updateConfig(config);
-  }
-
-  @Override
-  public String type() {
-    return POST;
-  }
-
-  @Override
-  public int order() {
-    return 10000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.apiDefinition() == null) {
-      return false;
+    ResponseTransformerFilter(JsonObject config) {
+        updateConfig(config);
     }
-    return reference.get() != null
-           || apiContext.apiDefinition()
-                      .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
-  }
 
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-
-    if (reference.get() != null) {
-      doTransfomer(apiContext, reference.get());
+    @Override
+    public String type() {
+        return POST;
     }
-    ResponseTransformerPlugin plugin =
-            (ResponseTransformerPlugin) apiContext.apiDefinition()
-                    .plugin(ResponseTransformerPlugin.class.getSimpleName());
 
-    if (plugin != null) {
-      doTransfomer(apiContext, plugin);
+    @Override
+    public int order() {
+        return 10000;
     }
-    completeFuture.complete(apiContext);
-  }
 
-  @Override
-  public void updateConfig(JsonObject config) {
-    JsonObject jsonObject = config.getJsonObject("response.transformer", new JsonObject());
-    if (!jsonObject.isEmpty()) {
-      ResponseTransformerPlugin globalPlugin = new ResponseTransformerPluginImpl();
-      ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
-      reference.set(globalPlugin);
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.apiDefinition() == null) {
+            return false;
+        }
+        return reference.get() != null
+               || apiContext.apiDefinition()
+                          .plugin(ResponseTransformerPlugin.class.getSimpleName()) != null;
     }
-  }
 
-  private void doTransfomer(ApiContext apiContext, ResponseTransformerPlugin plugin) {
-    Result result = apiContext.result();
-    //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改
-    boolean isArray = result.isArray();
-    //body目前仅考虑JsonObject的替换
-    Multimap<String, String> header =
-            tranformerHeaders(result.headers(), plugin);
-    if (!isArray) {
-      JsonObject body = tranformerBody(result.responseObject(), plugin);
-      apiContext.setResult(Result.createJsonObject(result.statusCode(),
-                                                   body, header));
-    } else {
-      apiContext.setResult(Result.createJsonArray(result.statusCode(),
-                                                  result.responseArray(), header));
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+
+        if (reference.get() != null) {
+            doTransfomer(apiContext, reference.get());
+        }
+        ResponseTransformerPlugin plugin =
+                (ResponseTransformerPlugin) apiContext.apiDefinition()
+                        .plugin(ResponseTransformerPlugin.class.getSimpleName());
+
+        if (plugin != null) {
+            doTransfomer(apiContext, plugin);
+        }
+        completeFuture.complete(apiContext);
     }
-  }
 
-  private Multimap<String, String> tranformerHeaders(Multimap<String, String> headers,
-                                                     ResponseTransformerPlugin transformer) {
-    Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
-    transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
-    transformer.headerReplaced().forEach(entry -> {
-      if (newHeader.containsKey(entry.getKey())) {
-        Collection<String> values = newHeader.removeAll(entry.getKey());
-        newHeader.putAll(entry.getValue(), values);
-      }
-    });
-    transformer.headerAdded().forEach(
-            entry -> newHeader.put(entry.getKey(), entry.getValue()));
-    return newHeader;
-  }
+    @Override
+    public void updateConfig(JsonObject config) {
+        JsonObject jsonObject = config.getJsonObject("response.transformer", new JsonObject());
+        if (!jsonObject.isEmpty()) {
+            ResponseTransformerPlugin globalPlugin = new ResponseTransformerPluginImpl();
+            ResponseTransformerConverter.fromJson(jsonObject, globalPlugin);
+            reference.set(globalPlugin);
+        }
+    }
 
-  private JsonObject tranformerBody(final JsonObject body,
-                                    ResponseTransformerPlugin transformer) {
-    JsonObject newBody = body.copy();
-    transformer.bodyRemoved().forEach(b -> newBody.remove(b));
-    transformer.bodyReplaced().forEach(entry -> {
-      if (newBody.containsKey(entry.getKey())) {
-        Object value = newBody.remove(entry.getKey());
-        newBody.put(entry.getValue(), value);
-      }
-    });
-    transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
-    return newBody;
-  }
+    private void doTransfomer(ApiContext apiContext, ResponseTransformerPlugin plugin) {
+        Result result = apiContext.result();
+        //如果body的JsonObject直接添加，如果是JsonArray，不支持body的修改
+        boolean isArray = result.isArray();
+        //body目前仅考虑JsonObject的替换
+        Multimap<String, String> header =
+                tranformerHeaders(result.headers(), plugin);
+        if (!isArray) {
+            JsonObject body = tranformerBody(result.responseObject(), plugin);
+            apiContext.setResult(Result.createJsonObject(result.statusCode(),
+                                                         body, header));
+        } else {
+            apiContext.setResult(Result.createJsonArray(result.statusCode(),
+                                                        result.responseArray(), header));
+        }
+    }
+
+    private Multimap<String, String> tranformerHeaders(Multimap<String, String> headers,
+                                                       ResponseTransformerPlugin transformer) {
+        Multimap<String, String> newHeader = ArrayListMultimap.create(headers);
+        transformer.headerRemoved().forEach(h -> newHeader.removeAll(h));
+        transformer.headerReplaced().forEach(entry -> {
+            if (newHeader.containsKey(entry.getKey())) {
+                Collection<String> values = newHeader.removeAll(entry.getKey());
+                newHeader.putAll(entry.getValue(), values);
+            }
+        });
+        transformer.headerAdded().forEach(
+                entry -> newHeader.put(entry.getKey(), entry.getValue()));
+        return newHeader;
+    }
+
+    private JsonObject tranformerBody(final JsonObject body,
+                                      ResponseTransformerPlugin transformer) {
+        JsonObject newBody = body.copy();
+        transformer.bodyRemoved().forEach(b -> newBody.remove(b));
+        transformer.bodyReplaced().forEach(entry -> {
+            if (newBody.containsKey(entry.getKey())) {
+                Object value = newBody.remove(entry.getKey());
+                newBody.put(entry.getValue(), value);
+            }
+        });
+        transformer.bodyAdded().forEach(entry -> newBody.put(entry.getKey(), entry.getValue()));
+        return newBody;
+    }
 
 }

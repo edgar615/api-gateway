@@ -11,25 +11,25 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public class VersionPlugin implements ApiPlugin {
 
-  private String version;
+    private String version;
 
-  @Override
-  public String name() {
-    return VersionPlugin.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return VersionPlugin.class.getSimpleName();
+    }
 
-  public String version() {
-    return version;
-  }
+    public String version() {
+        return version;
+    }
 
-  public void setVersion(String version) {
-    this.version = version;
-  }
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(VersionPlugin.class)
-            .add("version", version)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(VersionPlugin.class)
+                .add("version", version)
+                .toString();
+    }
 }

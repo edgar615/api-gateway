@@ -10,25 +10,25 @@ import java.util.List;
  */
 class LastConnectionStrategy implements ChooseStrategy {
 
-  @Override
-  public Record get(List<Record> records) {
-    if (records == null || records.isEmpty()) {
-      return null;
+    @Override
+    public Record get(List<Record> records) {
+        if (records == null || records.isEmpty()) {
+            return null;
+        }
+
+        LoadBalanceStats stats = LoadBalanceStats.instance();
+        int activeRequests = stats.get(records.get(0).getRegistration()).activeRequests();
+        Record r = records.get(0);
+        for (Record record : records) {
+            ServiceStats serviceStats = stats.get(record.getRegistration());
+            if (serviceStats.activeRequests() < activeRequests) {
+                activeRequests = serviceStats.activeRequests();
+                r = record;
+            }
+
+        }
+        return r;
+
     }
-
-    LoadBalanceStats stats = LoadBalanceStats.instance();
-    int activeRequests = stats.get(records.get(0).getRegistration()).activeRequests();
-    Record r = records.get(0);
-    for (Record record : records) {
-      ServiceStats serviceStats = stats.get(record.getRegistration());
-      if (serviceStats.activeRequests() < activeRequests) {
-        activeRequests = serviceStats.activeRequests();
-        r = record;
-      }
-
-    }
-    return r;
-
-  }
 
 }

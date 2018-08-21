@@ -8,33 +8,32 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/3/8
  */
 public interface DummyEndpoint extends Endpoint {
-  String TYPE = "dummy";
+    String TYPE = "dummy";
 
-  /**
-   * 创建一个Dummy类型的endpoint
-   *
-   * @param name   名称
-   * @param result 　响应结果
-   * @return
-   */
-  static DummyEndpoint dummy(String name, JsonObject result) {
-    return new DummyEndpointImpl(name, result);
-  }
+    JsonObject result();
 
-  /**
-   * 创建一个Dummy类型的endpoint，名称为"default"
-   *
-   * @param result 　响应结果
-   * @return
-   */
-  static DummyEndpoint dummy(JsonObject result) {
-    return new DummyEndpointImpl("default", result);
-  }
+    /**
+     * 创建一个Dummy类型的endpoint
+     *
+     * @param name   名称
+     * @param result 　响应结果
+     * @return
+     */
+    static DummyEndpoint dummy(String name, JsonObject result) {
+        return new DummyEndpointImpl(name, result);
+    }
 
+    /**
+     * 创建一个Dummy类型的endpoint，名称为"default"
+     *
+     * @param result 　响应结果
+     * @return
+     */
+    static DummyEndpoint dummy(JsonObject result) {
+        return new DummyEndpointImpl("default", result);
+    }
 
-  JsonObject result();
-
-  default String type() {
-    return TYPE;
-  }
+    default String type() {
+        return TYPE;
+    }
 }

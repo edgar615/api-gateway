@@ -16,31 +16,31 @@ import io.vertx.core.json.JsonObject;
  */
 public class AddBlacklistCmd implements ApiSubCmd {
 
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  public AddBlacklistCmd() {
-    rules.put("ip", Rule.required());
-  }
-
-  @Override
-  public String cmd() {
-    return "ip.blacklist.add";
-  }
-
-  @Override
-  public void handle(ApiDefinition definition, JsonObject jsonObject) {
-    Validations.validate(jsonObject.getMap(), rules);
-    String ip = jsonObject.getString("ip");
-    IpRestriction ipRestriction =
-            (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
-    if (ipRestriction != null) {
-      ipRestriction.addBlacklist(ip);
-    } else {
-      ipRestriction = IpRestriction.create();
-      ipRestriction.addBlacklist(ip);
-      definition.addPlugin(ipRestriction);
+    public AddBlacklistCmd() {
+        rules.put("ip", Rule.required());
     }
 
-  }
+    @Override
+    public String cmd() {
+        return "ip.blacklist.add";
+    }
+
+    @Override
+    public void handle(ApiDefinition definition, JsonObject jsonObject) {
+        Validations.validate(jsonObject.getMap(), rules);
+        String ip = jsonObject.getString("ip");
+        IpRestriction ipRestriction =
+                (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
+        if (ipRestriction != null) {
+            ipRestriction.addBlacklist(ip);
+        } else {
+            ipRestriction = IpRestriction.create();
+            ipRestriction.addBlacklist(ip);
+            definition.addPlugin(ipRestriction);
+        }
+
+    }
 
 }

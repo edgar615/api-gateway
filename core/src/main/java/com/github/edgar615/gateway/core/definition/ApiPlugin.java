@@ -16,33 +16,33 @@ import java.util.ServiceLoader;
  * @author Edgar  Date 2016/10/21
  */
 public interface ApiPlugin {
-  List<ApiPluginFactory> factories = Lists.newArrayList(
-          ServiceLoader.load(ApiPluginFactory.class));
+    List<ApiPluginFactory> factories = Lists.newArrayList(
+            ServiceLoader.load(ApiPluginFactory.class));
 
-  /**
-   * @return 插件名称
-   */
-  String name();
+    /**
+     * @return 插件名称
+     */
+    String name();
 
-  static ApiPlugin create(String name) {
-    return factory(name).create();
-  }
-
-  static ApiPluginFactory factory(String name) {
-    Preconditions.checkNotNull(name, "name cannot null");
-    Optional<ApiPluginFactory> optional
-            = factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
-            .findAny();
-    if (optional.isPresent()) {
-      return optional.get();
+    static ApiPlugin create(String name) {
+        return factory(name).create();
     }
-    throw new NoSuchElementException("no such factory->" + name);
-  }
 
-  default JsonObject encode() {
-    return factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
-            .map(f -> f.encode(this))
-            .findFirst().orElseGet(() -> new JsonObject());
-  }
+    static ApiPluginFactory factory(String name) {
+        Preconditions.checkNotNull(name, "name cannot null");
+        Optional<ApiPluginFactory> optional
+                = factories.stream().filter(f -> name.equalsIgnoreCase(f.name()))
+                .findAny();
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        throw new NoSuchElementException("no such factory->" + name);
+    }
+
+    default JsonObject encode() {
+        return factories.stream().filter(f -> this.name().equalsIgnoreCase(f.name()))
+                .map(f -> f.encode(this))
+                .findFirst().orElseGet(() -> new JsonObject());
+    }
 
 }

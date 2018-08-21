@@ -9,7 +9,6 @@ import com.github.edgar615.gateway.core.dispatch.FilterFactory;
 import com.github.edgar615.gateway.core.dispatch.Result;
 import com.github.edgar615.gateway.core.utils.Consts;
 import com.github.edgar615.gateway.core.utils.Filters;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -42,100 +41,100 @@ import java.util.stream.Collectors;
  * Created by edgar on 16-9-12.
  */
 public class DispatchHandler implements Handler<RoutingContext> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DispatchHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DispatchHandler.class);
 
-  /**
-   * 过滤器集合
-   */
-  private final List<Filter> filters;
+    /**
+     * 过滤器集合
+     */
+    private final List<Filter> filters;
 
-  private final String namespace;
+    private final String namespace;
 
-  private DispatchHandler(Vertx vertx, JsonObject config) {
-    namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
-    List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(FilterFactory.class))
-            .stream().map(f -> f.create(vertx, config))
-            .collect(Collectors.toList());
-    Filters.sort(filterList);
-    this.filters = ImmutableList.copyOf(filterList);
-    this.filters.forEach(filter -> {
-      Filter.LOGGER.info("[ApiGateway] [Filter] [{}] [{}] [{}]",
-                         filter.getClass().getSimpleName(), filter.type(), filter.order());
-    });
-  }
+    private DispatchHandler(Vertx vertx, JsonObject config) {
+        namespace = config.getString("namespace", Consts.DEFAULT_NAMESPACE);
+        List<Filter> filterList = Lists.newArrayList(ServiceLoader.load(FilterFactory.class))
+                .stream().map(f -> f.create(vertx, config))
+                .collect(Collectors.toList());
+        Filters.sort(filterList);
+        this.filters = ImmutableList.copyOf(filterList);
+        this.filters.forEach(filter -> {
+            Filter.LOGGER.info("[ApiGateway] [Filter] [{}] [{}] [{}]",
+                               filter.getClass().getSimpleName(), filter.type(), filter.order());
+        });
+    }
 
-  /**
-   * 创建DispatchHandler
-   *
-   * @param vertx  Vertx对象
-   * @param config 配置JSON
-   * @return DispatchHandler
-   */
-  public static DispatchHandler create(Vertx vertx, JsonObject config) {
-    return new DispatchHandler(vertx, config);
-  }
+    /**
+     * 创建DispatchHandler
+     *
+     * @param vertx  Vertx对象
+     * @param config 配置JSON
+     * @return DispatchHandler
+     */
+    public static DispatchHandler create(Vertx vertx, JsonObject config) {
+        return new DispatchHandler(vertx, config);
+    }
 
-  @Override
-  public void handle(RoutingContext rc) {
-    rc.data().put("namespace", namespace);
-    //创建上下文
-    Task<ApiContext> task = Task.create();
-    task.complete(ApiContextUtils.apiContext(rc));
-    task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()), rc);
-    task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()), rc);
-    task = task.andThen("Response", apiContext -> response(rc, apiContext));
+    @Override
+    public void handle(RoutingContext rc) {
+        rc.data().put("namespace", namespace);
+        //创建上下文
+        Task<ApiContext> task = Task.create();
+        task.complete(ApiContextUtils.apiContext(rc));
+        task = doFilter(task, f -> Filter.PRE.equalsIgnoreCase(f.type()), rc);
+        task = doFilter(task, f -> Filter.POST.equalsIgnoreCase(f.type()), rc);
+        task = task.andThen("Response", apiContext -> response(rc, apiContext));
 //    task = doFilter(task, f -> Filter.AFTER_RESP.equalsIgnoreCase(f.type()));
-    task.onFailure(throwable -> rc.fail(throwable));
-  }
-
-  /**
-   * 执行filter，在每个filter执行成功完后将apiContext存入RoutingContext用于度量处理
-   *
-   * @param task
-   * @param filterPredicate
-   * @param rc
-   * @return
-   */
-  public Task<ApiContext> doFilter(Task<ApiContext> task, Predicate<Filter> filterPredicate,
-                                   RoutingContext rc) {
-    List<Filter> postFilters = filters.stream()
-            .filter(filterPredicate)
-            .collect(Collectors.toList());
-    return Filters
-            .doFilter(task, postFilters, apiContext -> {
-              if (apiContext.apiDefinition() != null) {
-                rc.data().put("apiName", apiContext.apiDefinition().name());
-              } else {
-                System.out.println(postFilters);
-              }
-            });
-  }
-
-  private void response(RoutingContext rc, ApiContext apiContext) {
-    rc.data().put("responsedOn", System.currentTimeMillis());
-    rc.response().putHeader("x-request-id", apiContext.id());
-    Result result = apiContext.result();
-    int statusCode = result.statusCode();
-    boolean isArray = result.isArray();
-    //设置请求头
-    for (Map.Entry<String, Object> entry : apiContext.variables().entrySet()) {
-      if (entry.getKey().startsWith(Consts.RESPONSE_HEADER)) {
-        rc.response().putHeader(entry.getKey().substring(Consts.RESPONSE_HEADER.length()),
-                                entry.getValue().toString());
-      }
+        task.onFailure(throwable -> rc.fail(throwable));
     }
+
+    /**
+     * 执行filter，在每个filter执行成功完后将apiContext存入RoutingContext用于度量处理
+     *
+     * @param task
+     * @param filterPredicate
+     * @param rc
+     * @return
+     */
+    public Task<ApiContext> doFilter(Task<ApiContext> task, Predicate<Filter> filterPredicate,
+                                     RoutingContext rc) {
+        List<Filter> postFilters = filters.stream()
+                .filter(filterPredicate)
+                .collect(Collectors.toList());
+        return Filters
+                .doFilter(task, postFilters, apiContext -> {
+                    if (apiContext.apiDefinition() != null) {
+                        rc.data().put("apiName", apiContext.apiDefinition().name());
+                    } else {
+                        System.out.println(postFilters);
+                    }
+                });
+    }
+
+    private void response(RoutingContext rc, ApiContext apiContext) {
+        rc.data().put("responsedOn", System.currentTimeMillis());
+        rc.response().putHeader("x-request-id", apiContext.id());
+        Result result = apiContext.result();
+        int statusCode = result.statusCode();
+        boolean isArray = result.isArray();
+        //设置请求头
+        for (Map.Entry<String, Object> entry : apiContext.variables().entrySet()) {
+            if (entry.getKey().startsWith(Consts.RESPONSE_HEADER)) {
+                rc.response().putHeader(entry.getKey().substring(Consts.RESPONSE_HEADER.length()),
+                                        entry.getValue().toString());
+            }
+        }
 //todo 格式化输出的判断 - **pretty**:  bool 是否开启格式化 ， 默认为false
-    if (isArray) {
-      rc.response()
-              .setStatusCode(statusCode)
-              .setChunked(true)
-              .end(result.responseArray().encode());
-    } else {
-      rc.response()
-              .setStatusCode(statusCode)
-              .setChunked(true)
-              .end(result.responseObject().encode());
+        if (isArray) {
+            rc.response()
+                    .setStatusCode(statusCode)
+                    .setChunked(true)
+                    .end(result.responseArray().encode());
+        } else {
+            rc.response()
+                    .setStatusCode(statusCode)
+                    .setChunked(true)
+                    .end(result.responseObject().encode());
+        }
     }
-  }
 
 }

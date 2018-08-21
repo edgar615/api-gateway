@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-11.
  */
 public class JwtBuildFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return JwtBuildFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return JwtBuildFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new JwtBuildFilter(vertx, config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new JwtBuildFilter(vertx, config);
+    }
 }

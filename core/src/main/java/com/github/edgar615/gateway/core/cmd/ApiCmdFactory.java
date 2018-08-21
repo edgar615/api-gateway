@@ -10,12 +10,12 @@ import io.vertx.core.json.JsonObject;
  */
 public interface ApiCmdFactory {
 
-  /**
-   * 创建一个ApiCmd
-   *
-   * @param vertx
-   * @param config
-   * @return
-   */
-  ApiCmd create(Vertx vertx, JsonObject config);
+    /**
+     * 创建一个ApiCmd
+     *
+     * @param vertx
+     * @param config
+     * @return
+     */
+    ApiCmd create(Vertx vertx, JsonObject config);
 }

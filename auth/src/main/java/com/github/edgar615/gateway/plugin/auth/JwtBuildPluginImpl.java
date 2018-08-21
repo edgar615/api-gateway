@@ -7,13 +7,13 @@ import com.google.common.base.MoreObjects;
  */
 class JwtBuildPluginImpl implements JwtBuildPlugin {
 
-  JwtBuildPluginImpl() {
-  }
+    JwtBuildPluginImpl() {
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("JwtBuildPlugin")
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("JwtBuildPlugin")
+                .toString();
+    }
 }

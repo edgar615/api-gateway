@@ -34,12 +34,6 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-hazelcast</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <scope>test</scope>
         </dependency>
@@ -52,39 +46,39 @@
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-plugin</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-auth</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-appkey</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-ratelimit</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-version-splitter</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-http</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
     </dependencies>
 

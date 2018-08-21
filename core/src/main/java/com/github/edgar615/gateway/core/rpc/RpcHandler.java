@@ -9,7 +9,7 @@ import io.vertx.core.Future;
  */
 public interface RpcHandler {
 
-  String type();
+    String type();
 
-  Future<RpcResponse> handle(RpcRequest rpcRequest);
+    Future<RpcResponse> handle(RpcRequest rpcRequest);
 }

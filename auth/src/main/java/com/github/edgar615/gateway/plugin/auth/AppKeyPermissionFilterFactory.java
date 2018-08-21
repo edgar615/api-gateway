@@ -9,13 +9,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-22.
  */
 public class AppKeyPermissionFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return AppKeyPermissionFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return AppKeyPermissionFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new AppKeyPermissionFilter(vertx, config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new AppKeyPermissionFilter(vertx, config);
+    }
 }

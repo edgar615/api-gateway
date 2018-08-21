@@ -13,26 +13,26 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/11/6
  */
 public class CacheUtils {
-  private static CacheFactory factory = ServiceHelper.loadFactory(CacheFactory.class);
+    private static CacheFactory factory = ServiceHelper.loadFactory(CacheFactory.class);
 
-  private CacheUtils() {
-    throw new AssertionError("Not instantiable: " + CacheUtils.class);
-  }
+    private CacheUtils() {
+        throw new AssertionError("Not instantiable: " + CacheUtils.class);
+    }
 
-  /**
-   * 创建一个cache的工具类
-   * cache
-   *
-   * @param vertx
-   * @param cacheName cache的名称
-   * @param options   配置
-   * @return
-   */
-  public static Cache<String, JsonObject> createCache(Vertx vertx,
-                                                      String cacheName,
-                                                      CacheOptions options) {
-    //cache
-    return factory.create(vertx, cacheName, options);
-  }
+    /**
+     * 创建一个cache的工具类
+     * cache
+     *
+     * @param vertx
+     * @param cacheName cache的名称
+     * @param options   配置
+     * @return
+     */
+    public static Cache<String, JsonObject> createCache(Vertx vertx,
+                                                        String cacheName,
+                                                        CacheOptions options) {
+        //cache
+        return factory.create(vertx, cacheName, options);
+    }
 
 }

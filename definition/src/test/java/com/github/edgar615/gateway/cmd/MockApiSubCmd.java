@@ -10,12 +10,12 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/1/21
  */
 public class MockApiSubCmd implements ApiSubCmd {
-  @Override
-  public String cmd() {
-    return "mock.subcmd";
-  }
+    @Override
+    public String cmd() {
+        return "mock.subcmd";
+    }
 
-  @Override
-  public void handle(ApiDefinition definition, JsonObject jsonObject) {
-  }
+    @Override
+    public void handle(ApiDefinition definition, JsonObject jsonObject) {
+    }
 }

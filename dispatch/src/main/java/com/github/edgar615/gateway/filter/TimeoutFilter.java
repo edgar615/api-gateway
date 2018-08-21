@@ -40,52 +40,53 @@ import java.time.Instant;
  */
 public class TimeoutFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutFilter.class);
 
-  private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
+    private final Multimap<String, Rule> commonParamRule = ArrayListMultimap.create();
 
-  private final int timeout;
+    private final int timeout;
 
-  private final boolean enabled;
+    private final boolean enabled;
 
-  TimeoutFilter(JsonObject config) {
-    commonParamRule.put("timestamp", Rule.required());
-    JsonObject timeoutConfig = config.getJsonObject("timeout", new JsonObject());
-    this.timeout = timeoutConfig.getInteger("expires", 5 * 60);
-    this.enabled = timeoutConfig.getBoolean("enable", true);
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 6000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return enabled;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    //校验参数
-    Validations.validate(apiContext.params(), commonParamRule);
-    Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
-    //检查时间戳
-    Integer timestamp = Integer.parseInt(MultimapUtils.getFirst(params, "timestamp").toString());
-    long currentTime = Instant.now().getEpochSecond();
-    if ((timestamp > currentTime + timeout)
-        || (timestamp < currentTime - timeout)) {
-      SystemException ex = SystemException.create(DefaultErrorCode.EXPIRE)
-              .set("details", "timestamp:" + timestamp + " is incorrect");
-      failed(completeFuture, apiContext.id(), "TimeoutTripped", ex);
-    } else {
-      completeFuture.complete(apiContext);
+    TimeoutFilter(JsonObject config) {
+        commonParamRule.put("timestamp", Rule.required());
+        JsonObject timeoutConfig = config.getJsonObject("timeout", new JsonObject());
+        this.timeout = timeoutConfig.getInteger("expires", 5 * 60);
+        this.enabled = timeoutConfig.getBoolean("enable", true);
     }
-  }
+
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return 6000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return enabled;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        //校验参数
+        Validations.validate(apiContext.params(), commonParamRule);
+        Multimap<String, String> params = ArrayListMultimap.create(apiContext.params());
+        //检查时间戳
+        Integer timestamp =
+                Integer.parseInt(MultimapUtils.getFirst(params, "timestamp").toString());
+        long currentTime = Instant.now().getEpochSecond();
+        if ((timestamp > currentTime + timeout)
+            || (timestamp < currentTime - timeout)) {
+            SystemException ex = SystemException.create(DefaultErrorCode.EXPIRE)
+                    .set("details", "timestamp:" + timestamp + " is incorrect");
+            failed(completeFuture, apiContext.id(), "TimeoutTripped", ex);
+        } else {
+            completeFuture.complete(apiContext);
+        }
+    }
 
 }

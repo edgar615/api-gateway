@@ -16,27 +16,27 @@ import io.vertx.core.json.JsonObject;
  */
 public class DeleteWhitelistCmd implements ApiSubCmd {
 
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  public DeleteWhitelistCmd() {
-    rules.put("ip", Rule.required());
-  }
-
-  @Override
-  public String cmd() {
-    return "ip.whitelist.delete";
-  }
-
-  @Override
-  public void handle(ApiDefinition definition, JsonObject jsonObject) {
-    Validations.validate(jsonObject.getMap(), rules);
-    String ip = jsonObject.getString("ip");
-    IpRestriction ipRestriction =
-            (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
-    if (ipRestriction != null) {
-      ipRestriction.removeWhitelist(ip);
+    public DeleteWhitelistCmd() {
+        rules.put("ip", Rule.required());
     }
 
-  }
+    @Override
+    public String cmd() {
+        return "ip.whitelist.delete";
+    }
+
+    @Override
+    public void handle(ApiDefinition definition, JsonObject jsonObject) {
+        Validations.validate(jsonObject.getMap(), rules);
+        String ip = jsonObject.getString("ip");
+        IpRestriction ipRestriction =
+                (IpRestriction) definition.plugin(IpRestriction.class.getSimpleName());
+        if (ipRestriction != null) {
+            ipRestriction.removeWhitelist(ip);
+        }
+
+    }
 
 }

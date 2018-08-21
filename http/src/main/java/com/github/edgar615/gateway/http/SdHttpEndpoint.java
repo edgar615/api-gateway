@@ -10,53 +10,53 @@ import io.vertx.core.http.HttpMethod;
  * @author Edgar  Date 2016/9/14
  */
 public interface SdHttpEndpoint extends HttpEndpoint {
-  String TYPE = "http";
+    String TYPE = "http";
 
-  /**
-   * 创建HTTP类型的Endpoint
-   *
-   * @param name    名称
-   * @param method  请求方法 GET | POST | DELETE | PUT
-   * @param path    API路径
-   * @param service 服务名，用于服务发现
-   * @return SdHttpEndpoint
-   */
-  static SdHttpEndpoint http(String name, HttpMethod method, String path, String service) {
-    return new SdHttpEndpointImpl(name, method, path, service);
-  }
+    /**
+     * @return 请求方法 GET | POST | DELETE | PUT.
+     */
+    HttpMethod method();
 
-  /**
-   * 创建HTTP类型的Endpoint，名称为"default"
-   *
-   * @param method  请求方法 GET | POST | DELETE | PUT
-   * @param path    API路径
-   * @param service 服务名，用于服务发现
-   * @return SdHttpEndpoint
-   */
-  static SdHttpEndpoint http(HttpMethod method, String path, String service) {
-    return new SdHttpEndpointImpl("default", method, path, service);
-  }
+    /**
+     * API路径
+     * 示例：/tasks，匹配请求：/tasks.
+     * 示例：/tasks/$param1，匹配请求：/tasks/变量param1.
+     *
+     * @return API路径
+     */
+    String path();
 
-  /**
-   * @return 请求方法 GET | POST | DELETE | PUT.
-   */
-  HttpMethod method();
+    /**
+     * @return 服务名，用于服务发现.
+     */
+    String service();
 
-  /**
-   * API路径
-   * 示例：/tasks，匹配请求：/tasks.
-   * 示例：/tasks/$param1，匹配请求：/tasks/变量param1.
-   *
-   * @return API路径
-   */
-  String path();
+    /**
+     * 创建HTTP类型的Endpoint
+     *
+     * @param name    名称
+     * @param method  请求方法 GET | POST | DELETE | PUT
+     * @param path    API路径
+     * @param service 服务名，用于服务发现
+     * @return SdHttpEndpoint
+     */
+    static SdHttpEndpoint http(String name, HttpMethod method, String path, String service) {
+        return new SdHttpEndpointImpl(name, method, path, service);
+    }
 
-  /**
-   * @return 服务名，用于服务发现.
-   */
-  String service();
+    /**
+     * 创建HTTP类型的Endpoint，名称为"default"
+     *
+     * @param method  请求方法 GET | POST | DELETE | PUT
+     * @param path    API路径
+     * @param service 服务名，用于服务发现
+     * @return SdHttpEndpoint
+     */
+    static SdHttpEndpoint http(HttpMethod method, String path, String service) {
+        return new SdHttpEndpointImpl("default", method, path, service);
+    }
 
-  default String type() {
-    return TYPE;
-  }
+    default String type() {
+        return TYPE;
+    }
 }

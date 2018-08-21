@@ -6,7 +6,7 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
 
 /**
  * 身份验证插件.
- *  * <p>
+ * * <p>
  * 该插件对应的JSON配置的key为<b>token</b>，它对应的值是一个bool值:
  * <pre>
  *   true 开启
@@ -17,16 +17,16 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public class TokenPlugin implements ApiPlugin {
 
-  @Override
-  public String name() {
-    return TokenPlugin.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return TokenPlugin.class.getSimpleName();
+    }
 
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("TokenPlugin")
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("TokenPlugin")
+                .toString();
+    }
 }

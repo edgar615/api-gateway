@@ -7,10 +7,10 @@ package com.github.edgar615.gateway.core.rpc;
  */
 public interface CircuitBreakerExecutable {
 
-  /**
-   * 断路器名称
-   *
-   * @return
-   */
-  String circuitBreakerName();
+    /**
+     * 断路器名称
+     *
+     * @return
+     */
+    String circuitBreakerName();
 }

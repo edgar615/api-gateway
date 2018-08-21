@@ -16,8 +16,8 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public interface JwtBuildPlugin extends ApiPlugin {
 
-  @Override
-  default String name() {
-    return JwtBuildPlugin.class.getSimpleName();
-  }
+    @Override
+    default String name() {
+        return JwtBuildPlugin.class.getSimpleName();
+    }
 }

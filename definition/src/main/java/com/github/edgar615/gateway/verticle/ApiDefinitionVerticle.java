@@ -13,18 +13,18 @@ import org.slf4j.LoggerFactory;
  */
 public class ApiDefinitionVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiDefinitionVerticle.class);
 
-  @Override
-  public void start(Future<Void> startFuture) throws Exception {
+    @Override
+    public void start(Future<Void> startFuture) throws Exception {
 
-    LOGGER.info("[ApiDefinitionVerticle] [deploying] {}", config().encode());
-    initialize(startFuture);
-  }
+        LOGGER.info("[ApiDefinitionVerticle] [deploying] {}", config().encode());
+        initialize(startFuture);
+    }
 
-  public void initialize(Future<Void> startFuture) {
-    //读取命令
-    new CmdRegister().initialize(vertx, config(), startFuture);
+    public void initialize(Future<Void> startFuture) {
+        //读取命令
+        new CmdRegister().initialize(vertx, config(), startFuture);
 
 //    CompositeFuture.all(importCmdFuture)
 //            .setHandler(ar -> {
@@ -43,7 +43,7 @@ public class ApiDefinitionVerticle extends AbstractVerticle {
 //                startFuture.fail(ar.cause());
 //              }
 //            });
-  }
+    }
 
 
 }

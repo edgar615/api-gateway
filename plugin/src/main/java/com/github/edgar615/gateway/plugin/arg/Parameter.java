@@ -17,30 +17,30 @@ import java.util.List;
  */
 public interface Parameter {
 
-  /**
-   * 增加一个校验规则.
-   *
-   * @param rule 校验规则
-   * @return
-   */
-  Parameter addRule(Rule rule);
+    /**
+     * 增加一个校验规则.
+     *
+     * @param rule 校验规则
+     * @return
+     */
+    Parameter addRule(Rule rule);
 
-  /**
-   * @return 参数名.
-   */
-  String name();
+    /**
+     * @return 参数名.
+     */
+    String name();
 
-  /**
-   * @return 默认值.
-   */
-  Object defaultValue();
+    /**
+     * @return 默认值.
+     */
+    Object defaultValue();
 
-  /**
-   * @return 校验规则.
-   */
-  List<Rule> rules();
+    /**
+     * @return 校验规则.
+     */
+    List<Rule> rules();
 
-  static Parameter create(String name, Object defaultValue) {
-    return new ParameterImpl(name, defaultValue);
-  }
+    static Parameter create(String name, Object defaultValue) {
+        return new ParameterImpl(name, defaultValue);
+    }
 }

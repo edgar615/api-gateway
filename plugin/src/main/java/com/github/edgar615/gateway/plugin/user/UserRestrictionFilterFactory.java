@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  */
 public class UserRestrictionFilterFactory implements FilterFactory {
 
-  @Override
-  public String name() {
-    return UserRestrictionFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return UserRestrictionFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new UserRestrictionFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new UserRestrictionFilter(config);
+    }
 }

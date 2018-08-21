@@ -33,95 +33,96 @@ import java.util.List;
  */
 public class IpRestrictionFilter implements Filter {
 
-  private final List<String> globalBlacklist = new ArrayList<>();
+    private final List<String> globalBlacklist = new ArrayList<>();
 
-  private final List<String> globalWhitelist = new ArrayList<>();
+    private final List<String> globalWhitelist = new ArrayList<>();
 
 
-  public IpRestrictionFilter(JsonObject config) {
-    updateConfig(config);
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 7000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return !globalBlacklist.isEmpty()
-           || !globalWhitelist.isEmpty()
-           || apiContext.apiDefinition().plugin(IpRestriction.class.getSimpleName()) != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    IpRestriction plugin =
-            (IpRestriction) apiContext.apiDefinition().plugin(IpRestriction.class.getSimpleName());
-    List<String> blacklist = new ArrayList<>(globalBlacklist);
-    List<String> whitelist = new ArrayList<>(globalWhitelist);
-    if (plugin != null) {
-      blacklist.addAll(plugin.blacklist());
-      whitelist.addAll(plugin.whitelist());
+    public IpRestrictionFilter(JsonObject config) {
+        updateConfig(config);
     }
-    String clientIp = (String) apiContext.variables().get("request_clientIp");
 
-    //匹配到白名单则允许通过
-    if (satisfyList(clientIp, whitelist)) {
-      completeFuture.complete(apiContext);
-      return;
+    @Override
+    public String type() {
+        return PRE;
     }
-    //匹配到黑名单则禁止通过
-    if (satisfyList(clientIp, blacklist)) {
-      SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
-              .set("details", "The ip is forbidden");
-      failed(completeFuture, apiContext.id(), "IpForbidden", e);
-      return;
-    }
-    completeFuture.complete(apiContext);
-  }
 
-  @Override
-  public void updateConfig(JsonObject config) {
-    if (config.getValue("ip.restriction") instanceof JsonObject) {
-      JsonObject jsonObject = config.getJsonObject("ip.restriction", new JsonObject());
-      JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
-      JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
-      globalBlacklist.clear();
-      globalWhitelist.clear();
-      for (int i = 0; i < blackArray.size(); i++) {
-        globalBlacklist.add(blackArray.getString(i));
-      }
-      for (int i = 0; i < whiteArray.size(); i++) {
-        globalWhitelist.add(whiteArray.getString(i));
-      }
+    @Override
+    public int order() {
+        return 7000;
     }
-  }
 
-  private boolean satisfyList(String ip, List<String> list) {
-    return list.stream()
-                   .filter(r -> checkIp(r, ip))
-                   .count() > 0;
-  }
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return !globalBlacklist.isEmpty()
+               || !globalWhitelist.isEmpty()
+               || apiContext.apiDefinition().plugin(IpRestriction.class.getSimpleName()) != null;
+    }
 
-  private boolean checkIp(String rule, String clientIp) {
-    List<String> rules = Lists.newArrayList(Splitter.on(".").trimResults().split(rule));
-    for (int i = rules.size(); i < 5; i++) {
-      rules.add("*");
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        IpRestriction plugin =
+                (IpRestriction) apiContext.apiDefinition()
+                        .plugin(IpRestriction.class.getSimpleName());
+        List<String> blacklist = new ArrayList<>(globalBlacklist);
+        List<String> whitelist = new ArrayList<>(globalWhitelist);
+        if (plugin != null) {
+            blacklist.addAll(plugin.blacklist());
+            whitelist.addAll(plugin.whitelist());
+        }
+        String clientIp = (String) apiContext.variables().get("request_clientIp");
+
+        //匹配到白名单则允许通过
+        if (satisfyList(clientIp, whitelist)) {
+            completeFuture.complete(apiContext);
+            return;
+        }
+        //匹配到黑名单则禁止通过
+        if (satisfyList(clientIp, blacklist)) {
+            SystemException e = SystemException.create(DefaultErrorCode.PERMISSION_DENIED)
+                    .set("details", "The ip is forbidden");
+            failed(completeFuture, apiContext.id(), "IpForbidden", e);
+            return;
+        }
+        completeFuture.complete(apiContext);
     }
-    List<String> ips = Lists.newArrayList(Splitter.on(".").trimResults().split(clientIp));
-    for (int i = 0; i < 4; i++) {
-      String r = rules.get(i);
-      String ip = ips.get(i);
-      if (!r.equals(ip) && !"*".equals(r)) {
-        return false;
-      }
+
+    @Override
+    public void updateConfig(JsonObject config) {
+        if (config.getValue("ip.restriction") instanceof JsonObject) {
+            JsonObject jsonObject = config.getJsonObject("ip.restriction", new JsonObject());
+            JsonArray blackArray = jsonObject.getJsonArray("blacklist", new JsonArray());
+            JsonArray whiteArray = jsonObject.getJsonArray("whitelist", new JsonArray());
+            globalBlacklist.clear();
+            globalWhitelist.clear();
+            for (int i = 0; i < blackArray.size(); i++) {
+                globalBlacklist.add(blackArray.getString(i));
+            }
+            for (int i = 0; i < whiteArray.size(); i++) {
+                globalWhitelist.add(whiteArray.getString(i));
+            }
+        }
     }
-    return true;
-  }
+
+    private boolean satisfyList(String ip, List<String> list) {
+        return list.stream()
+                       .filter(r -> checkIp(r, ip))
+                       .count() > 0;
+    }
+
+    private boolean checkIp(String rule, String clientIp) {
+        List<String> rules = Lists.newArrayList(Splitter.on(".").trimResults().split(rule));
+        for (int i = rules.size(); i < 5; i++) {
+            rules.add("*");
+        }
+        List<String> ips = Lists.newArrayList(Splitter.on(".").trimResults().split(clientIp));
+        for (int i = 0; i < 4; i++) {
+            String r = rules.get(i);
+            String ip = ips.get(i);
+            if (!r.equals(ip) && !"*".equals(r)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

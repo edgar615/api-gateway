@@ -9,13 +9,13 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/1/5
  */
 public class MockFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return MockFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return MockFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new MockFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new MockFilter();
+    }
 }

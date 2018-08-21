@@ -32,249 +32,249 @@ import java.util.UUID;
 @RunWith(VertxUnitRunner.class)
 public class HttpRpcHandlerTest {
 
-  static Vertx vertx;
+    static Vertx vertx;
 
-  static int port;
+    static int port;
 
-  RpcHandler rpcHandler;
+    RpcHandler rpcHandler;
 
-  private String serviceId;
+    private String serviceId;
 
-  @BeforeClass
-  public static void startServer(TestContext context) {
-    port = Integer.parseInt(Randoms.randomNumber(4));
-    vertx = Vertx.vertx();
-    vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
-                         new DeploymentOptions().setConfig(new JsonObject().put("port", port)),
-                         context.asyncAssertSuccess());
-  }
+    @BeforeClass
+    public static void startServer(TestContext context) {
+        port = Integer.parseInt(Randoms.randomNumber(4));
+        vertx = Vertx.vertx();
+        vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
+                             new DeploymentOptions().setConfig(new JsonObject().put("port", port)),
+                             context.asyncAssertSuccess());
+    }
 
-  @Before
-  public void before(TestContext context) {
-    rpcHandler = new SdHttpRpcHandlerFactory().create(vertx, new JsonObject());
-    serviceId = UUID.randomUUID().toString();
-  }
+    @Before
+    public void before(TestContext context) {
+        rpcHandler = new SdHttpRpcHandlerFactory().create(vertx, new JsonObject());
+        serviceId = UUID.randomUUID().toString();
+    }
 
-  @After
-  public void after(TestContext context) {
+    @After
+    public void after(TestContext context) {
 //    vertx.close(context.asyncAssertSuccess());
-  }
+    }
 
-  @Test
-  public void undefinedRecordShouldThrowServiceUnavailable(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setPath("devices")
-            .setHttpMethod(HttpMethod.OPTIONS);
+    @Test
+    public void undefinedRecordShouldThrowServiceUnavailable(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setPath("devices")
+                .setHttpMethod(HttpMethod.OPTIONS);
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        context.fail();
-      } else {
-        Throwable t = ar.cause();
-        context.assertTrue(t instanceof SystemException);
-        SystemException ex = (SystemException) t;
-        context.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE, ex.getErrorCode());
-        async.complete();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                context.fail();
+            } else {
+                Throwable t = ar.cause();
+                context.assertTrue(t instanceof SystemException);
+                SystemException ex = (SystemException) t;
+                context.assertEquals(DefaultErrorCode.SERVICE_UNAVAILABLE, ex.getErrorCode());
+                async.complete();
+            }
+        });
+    }
 
-  @Test
-  public void undefinedMethodShouldThrowInvalidArg(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices")
-            .setHttpMethod(HttpMethod.OPTIONS);
+    @Test
+    public void undefinedMethodShouldThrowInvalidArg(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices")
+                .setHttpMethod(HttpMethod.OPTIONS);
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        context.fail();
-      } else {
-        Throwable t = ar.cause();
-        context.assertTrue(t instanceof SystemException);
-        SystemException ex = (SystemException) t;
-        context.assertEquals(DefaultErrorCode.INVALID_ARGS, ex.getErrorCode());
-        async.complete();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                context.fail();
+            } else {
+                Throwable t = ar.cause();
+                context.assertTrue(t instanceof SystemException);
+                SystemException ex = (SystemException) t;
+                context.assertEquals(DefaultErrorCode.INVALID_ARGS, ex.getErrorCode());
+                async.complete();
+            }
+        });
+    }
 
-  @Test
-  public void postMissBodyShouldThrowMissArg(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices")
-            .setHttpMethod(HttpMethod.POST);
+    @Test
+    public void postMissBodyShouldThrowMissArg(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices")
+                .setHttpMethod(HttpMethod.POST);
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        context.fail();
-      } else {
-        Throwable t = ar.cause();
-        context.assertTrue(t instanceof SystemException);
-        SystemException ex = (SystemException) t;
-        context.assertEquals(DefaultErrorCode.MISSING_ARGS, ex.getErrorCode());
-        async.complete();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                context.fail();
+            } else {
+                Throwable t = ar.cause();
+                context.assertTrue(t instanceof SystemException);
+                SystemException ex = (SystemException) t;
+                context.assertEquals(DefaultErrorCode.MISSING_ARGS, ex.getErrorCode());
+                async.complete();
+            }
+        });
+    }
 
-  @Test
-  public void putMissBodyShouldThrowMissArg(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices")
-            .setHttpMethod(HttpMethod.PUT);
+    @Test
+    public void putMissBodyShouldThrowMissArg(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices")
+                .setHttpMethod(HttpMethod.PUT);
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        context.fail();
-      } else {
-        Throwable t = ar.cause();
-        context.assertTrue(t instanceof SystemException);
-        SystemException ex = (SystemException) t;
-        context.assertEquals(DefaultErrorCode.MISSING_ARGS, ex.getErrorCode());
-        async.complete();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                context.fail();
+            } else {
+                Throwable t = ar.cause();
+                context.assertTrue(t instanceof SystemException);
+                SystemException ex = (SystemException) t;
+                context.assertEquals(DefaultErrorCode.MISSING_ARGS, ex.getErrorCode());
+                async.complete();
+            }
+        });
+    }
 
-  @Test
-  public void testGet(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices/1?type=2")
-            .setHttpMethod(HttpMethod.GET)
-            .addHeader("x-req-id", UUID.randomUUID().toString())
-            .addParam("userId", "2")
-            .addParam("userId", "1");
+    @Test
+    public void testGet(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices/1?type=2")
+                .setHttpMethod(HttpMethod.GET)
+                .addHeader("x-req-id", UUID.randomUUID().toString())
+                .addParam("userId", "2")
+                .addParam("userId", "1");
 
-    Assert.assertEquals("http", rpcRequest.type());
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals("1", rpcResponse.responseObject().getString("id"));
-        context.assertEquals("type=2&userId=2",
-                             rpcResponse.responseObject().getString("query"));
-        async.complete();
-      } else {
-        context.fail();
-      }
-    });
-  }
+        Assert.assertEquals("http", rpcRequest.type());
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals("1", rpcResponse.responseObject().getString("id"));
+                context.assertEquals("type=2&userId=2",
+                                     rpcResponse.responseObject().getString("query"));
+                async.complete();
+            } else {
+                context.fail();
+            }
+        });
+    }
 
-  @Test
-  public void testGetArray(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("/devices")
-            .setHttpMethod(HttpMethod.GET);
+    @Test
+    public void testGetArray(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("/devices")
+                .setHttpMethod(HttpMethod.GET);
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertTrue(rpcResponse.isArray());
-        context.assertEquals(2, rpcResponse.responseArray().size());
-        async.complete();
-      } else {
-        ar.cause().printStackTrace();
-        context.fail();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertTrue(rpcResponse.isArray());
+                context.assertEquals(2, rpcResponse.responseArray().size());
+                async.complete();
+            } else {
+                ar.cause().printStackTrace();
+                context.fail();
+            }
+        });
+    }
 
-  @Test
-  public void testDelete(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices")
-            .setHttpMethod(HttpMethod.DELETE)
-            .addParam("userId", "2");
+    @Test
+    public void testDelete(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices")
+                .setHttpMethod(HttpMethod.DELETE)
+                .addParam("userId", "2");
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals("1", rpcResponse.responseObject().getString("result"));
-        async.complete();
-      } else {
-        ar.cause().printStackTrace();
-        context.fail();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals("1", rpcResponse.responseObject().getString("result"));
+                async.complete();
+            } else {
+                ar.cause().printStackTrace();
+                context.fail();
+            }
+        });
+    }
 
-  @Test
-  public void testPost(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices?type=2")
-            .setHttpMethod(HttpMethod.POST)
-            .setBody(new JsonObject().put("foo", "bar"))
-            .addParam("userId", "2");
+    @Test
+    public void testPost(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices?type=2")
+                .setHttpMethod(HttpMethod.POST)
+                .setBody(new JsonObject().put("foo", "bar"))
+                .addParam("userId", "2");
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
 
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals("bar", rpcResponse.responseObject().getString("foo"));
-        context.assertEquals("abc", rpcResponse.id());
-        async.complete();
-      } else {
-        context.fail();
-      }
-    });
-  }
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals("bar", rpcResponse.responseObject().getString("foo"));
+                context.assertEquals("abc", rpcResponse.id());
+                async.complete();
+            } else {
+                context.fail();
+            }
+        });
+    }
 
-  @Test
-  public void testPut(TestContext context) {
-    HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
-            .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
-                               .setRegistration(serviceId))
-            .setPath("devices?type=2")
-            .setHttpMethod(HttpMethod.PUT)
-            .setBody(new JsonObject().put("foo", "bar"))
-            .addParam("userId", "2");
+    @Test
+    public void testPut(TestContext context) {
+        HttpRpcRequest rpcRequest = SdHttpRequest.create("abc", "device")
+                .setRecord(HttpEndpoint.createRecord("device", "localhost", port, "/")
+                                   .setRegistration(serviceId))
+                .setPath("devices?type=2")
+                .setHttpMethod(HttpMethod.PUT)
+                .setBody(new JsonObject().put("foo", "bar"))
+                .addParam("userId", "2");
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals("bar", rpcResponse.responseObject().getString("foo"));
-        context.assertEquals("abc", rpcResponse.id());
-        async.complete();
-      } else {
-        context.fail();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals("bar", rpcResponse.responseObject().getString("foo"));
+                context.assertEquals("abc", rpcResponse.id());
+                async.complete();
+            } else {
+                context.fail();
+            }
+        });
+    }
 
 //  @Test
 //  public void testTimeout(TestContext context) {

@@ -17,41 +17,41 @@ import java.util.concurrent.TimeUnit;
  */
 public class LoadBalanceStats {
 
-  private static final LoadBalanceStats INSTANCE = new LoadBalanceStats();
+    private static final LoadBalanceStats INSTANCE = new LoadBalanceStats();
 
-  private final LoadingCache<String, ServiceStats> cache;
+    private final LoadingCache<String, ServiceStats> cache;
 
-  private LoadBalanceStats() {
-    this.cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(1, TimeUnit.HOURS)
-            .removalListener((RemovalListener<String, ServiceStats>) notification -> {
+    private LoadBalanceStats() {
+        this.cache = CacheBuilder.newBuilder()
+                .expireAfterAccess(1, TimeUnit.HOURS)
+                .removalListener((RemovalListener<String, ServiceStats>) notification -> {
 //                notification.getValue().close();
-            })
-            .build(new CacheLoader<String, ServiceStats>() {
-              @Override
-              public ServiceStats load(String serviceId) throws Exception {
-                return new ServiceStats(serviceId);
-              }
-            });
-  }
-
-  public static LoadBalanceStats instance() {
-    return INSTANCE;
-  }
-
-  /**
-   * 根据服务ID，查找对应的服务状态，如果未找到服务状态，创建一个新的服务状态
-   *
-   * @param serviceId
-   * @return
-   */
-  public ServiceStats get(String serviceId) {
-    try {
-      return cache.get(serviceId);
-    } catch (ExecutionException e) {
-      ServiceStats stats = new ServiceStats(serviceId);
-      cache.asMap().putIfAbsent(serviceId, stats);
-      return cache.asMap().get(serviceId);
+                })
+                .build(new CacheLoader<String, ServiceStats>() {
+                    @Override
+                    public ServiceStats load(String serviceId) throws Exception {
+                        return new ServiceStats(serviceId);
+                    }
+                });
     }
-  }
+
+    public static LoadBalanceStats instance() {
+        return INSTANCE;
+    }
+
+    /**
+     * 根据服务ID，查找对应的服务状态，如果未找到服务状态，创建一个新的服务状态
+     *
+     * @param serviceId
+     * @return
+     */
+    public ServiceStats get(String serviceId) {
+        try {
+            return cache.get(serviceId);
+        } catch (ExecutionException e) {
+            ServiceStats stats = new ServiceStats(serviceId);
+            cache.asMap().putIfAbsent(serviceId, stats);
+            return cache.asMap().get(serviceId);
+        }
+    }
 }

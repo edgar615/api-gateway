@@ -13,14 +13,14 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public interface PermissionPlugin extends ApiPlugin {
 
-  static PermissionPlugin create(String scope) {
-    return new PermissionPluginImpl(scope);
-  }
+    String permission();
 
-  String permission();
+    static PermissionPlugin create(String scope) {
+        return new PermissionPluginImpl(scope);
+    }
 
-  @Override
-  default String name() {
-    return PermissionPlugin.class.getSimpleName();
-  }
+    @Override
+    default String name() {
+        return PermissionPlugin.class.getSimpleName();
+    }
 }

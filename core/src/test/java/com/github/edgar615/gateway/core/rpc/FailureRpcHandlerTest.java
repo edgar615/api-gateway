@@ -10,10 +10,10 @@ import org.junit.Test;
  */
 public class FailureRpcHandlerTest {
 
-  @Test
-  public void alwaysReturnFailed() {
-    RpcHandler handler = FailureRpcHandler.create("failed");
-    Assert.assertEquals("failed", handler.type());
+    @Test
+    public void alwaysReturnFailed() {
+        RpcHandler handler = FailureRpcHandler.create("failed");
+        Assert.assertEquals("failed", handler.type());
 //    handler.handle(HttpRpcRequest.create(UUID.randomUUID().toString(),
 //                                         UUID.randomUUID().toString()))
 //    .setHandler(ar -> {
@@ -21,5 +21,5 @@ public class FailureRpcHandlerTest {
 //      Assert.assertFalse(ar.succeeded());
 //    });
 
-  }
+    }
 }

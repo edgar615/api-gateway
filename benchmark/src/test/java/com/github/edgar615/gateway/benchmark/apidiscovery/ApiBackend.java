@@ -4,7 +4,11 @@ import com.github.edgar615.gateway.core.apidiscovery.ApiDiscovery;
 import com.github.edgar615.gateway.core.apidiscovery.ApiDiscoveryOptions;
 import com.github.edgar615.gateway.core.definition.ApiDefinition;
 import com.github.edgar615.gateway.verticle.FileApiDiscoveryVerticle;
-import io.vertx.core.*;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -24,8 +28,8 @@ public class ApiBackend {
         JsonObject config = new JsonObject()
                 .put("path", "E:\\iotp\\iotp-app\\router\\api");
         vertx.deployVerticle(FileApiDiscoveryVerticle.class,
-                new DeploymentOptions().setConfig(config),
-                Future.future());
+                             new DeploymentOptions().setConfig(config),
+                             Future.future());
         try {
             TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {

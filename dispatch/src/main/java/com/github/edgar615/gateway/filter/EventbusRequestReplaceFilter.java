@@ -21,33 +21,33 @@ import io.vertx.core.json.JsonObject;
  * 例如：q1 : $header.h1对应的值是[h1.1, h1.2]，那么最终替换之后的新值是 q1 : [h1.1,h1.2]而不是 q1 : [[h1.1,h1.2]]
  */
 public class EventbusRequestReplaceFilter extends AbstractRequestReplaceFilter implements Filter {
-  EventbusRequestReplaceFilter() {
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.requests().stream()
-            .anyMatch(e -> e instanceof EventbusRpcRequest);
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    for (int i = 0; i < apiContext.requests().size(); i++) {
-      RpcRequest request = apiContext.requests().get(i);
-      if (request instanceof EventbusRpcRequest) {
-        replace(apiContext, (EventbusRpcRequest) request);
-      }
+    EventbusRequestReplaceFilter() {
     }
-    completeFuture.complete(apiContext);
-  }
 
-  private void replace(ApiContext apiContext, EventbusRpcRequest request) {
-    Multimap<String, String> headers = replaceHeader(apiContext, request.headers());
-    request.clearHeaders().addHeaders(headers);
-    if (request.message() != null) {
-      JsonObject body = replaceBody(apiContext, request.message());
-      request.replaceMessage(body);
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.requests().stream()
+                .anyMatch(e -> e instanceof EventbusRpcRequest);
     }
-  }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        for (int i = 0; i < apiContext.requests().size(); i++) {
+            RpcRequest request = apiContext.requests().get(i);
+            if (request instanceof EventbusRpcRequest) {
+                replace(apiContext, (EventbusRpcRequest) request);
+            }
+        }
+        completeFuture.complete(apiContext);
+    }
+
+    private void replace(ApiContext apiContext, EventbusRpcRequest request) {
+        Multimap<String, String> headers = replaceHeader(apiContext, request.headers());
+        request.clearHeaders().addHeaders(headers);
+        if (request.message() != null) {
+            JsonObject body = replaceBody(apiContext, request.message());
+            request.replaceMessage(body);
+        }
+    }
 
 }

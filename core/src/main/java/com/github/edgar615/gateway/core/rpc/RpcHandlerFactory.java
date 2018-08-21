@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject;
  */
 public interface RpcHandlerFactory {
 
-  String type();
+    String type();
 
-  RpcHandler create(Vertx vertx, JsonObject config);
+    RpcHandler create(Vertx vertx, JsonObject config);
 }

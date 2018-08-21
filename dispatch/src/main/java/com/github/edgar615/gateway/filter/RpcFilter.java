@@ -57,180 +57,184 @@ import java.util.stream.Collectors;
  */
 public class RpcFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RpcFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcFilter.class);
 
-  /**
-   * RPC处理类的MAP对象，key为RPC的类型，value为RPC的处理类.
-   */
-  private final Map<String, RpcHandler> handlers = new ConcurrentHashMap();
+    /**
+     * RPC处理类的MAP对象，key为RPC的类型，value为RPC的处理类.
+     */
+    private final Map<String, RpcHandler> handlers = new ConcurrentHashMap();
 
-  /**
-   * 未定义的RPC类型直接返回异常
-   */
-  private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
+    /**
+     * 未定义的RPC类型直接返回异常
+     */
+    private final RpcHandler failureRpcHandler = FailureRpcHandler.create("Undefined Rpc");
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final JsonObject config;
+    private final JsonObject config;
 
-  private final CircuitBreakerRegistry circuitBreakerRegistry;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
 
-  RpcFilter(Vertx vertx, JsonObject config) {
+    RpcFilter(Vertx vertx, JsonObject config) {
 
-    this.vertx = vertx;
-    this.config = config.getJsonObject("circuit.breaker", new JsonObject());
-    CircuitBreakerRegistryOptions options = new CircuitBreakerRegistryOptions(this.config);
-    circuitBreakerRegistry = CircuitBreakerRegistry.create(vertx, options);
+        this.vertx = vertx;
+        this.config = config.getJsonObject("circuit.breaker", new JsonObject());
+        CircuitBreakerRegistryOptions options = new CircuitBreakerRegistryOptions(this.config);
+        circuitBreakerRegistry = CircuitBreakerRegistry.create(vertx, options);
 
-    Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
-            .stream().map(f -> f.create(vertx, config))
-            .forEach(h -> handlers.put(h.type().toUpperCase(), h));
+        Lists.newArrayList(ServiceLoader.load(RpcHandlerFactory.class))
+                .stream().map(f -> f.create(vertx, config))
+                .forEach(h -> handlers.put(h.type().toUpperCase(), h));
 
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return Integer.MAX_VALUE;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return true;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    List<Future<RpcResponse>> futures = apiContext.requests()
-            .stream().map(req -> doRequest(apiContext, req))
-            .collect(Collectors.toList());
-    Task.par(futures).andThen(responses -> {
-      for (RpcResponse response : responses) {
-        apiContext.addResponse(response);
-      }
-      completeFuture.complete(apiContext);
-    }).onFailure(throwable -> completeFuture.fail(throwable));
-  }
-
-  private Future<RpcResponse> doRequest(ApiContext apiContext, RpcRequest req) {
-
-    if (req instanceof CircuitBreakerExecutable
-        && req instanceof Fallbackable) {
-      return circuitBreakerWrapper(apiContext.id(), circuitBreakerExecuteWithFallback(req));
-    } else if (req instanceof CircuitBreakerExecutable) {
-      return circuitBreakerWrapper(apiContext.id(), circuitBreakerExecute(req));
-    } else if (req instanceof Fallbackable) {
-      return executeWithFallback(req);
-    } else {
-      return execute(req);
     }
-  }
 
-  private Future<RpcResponse> circuitBreakerWrapper(String traceId,
-                                                    Future<RpcResponse> circuitBreakerFuture) {
-    Future<RpcResponse> future = Future.future();
-    circuitBreakerFuture.setHandler(ar -> {
-      if (ar.failed()) {
-        if (ar.cause() instanceof NoStackTraceThrowable
-            && "operation timeout".equals(ar.cause().getMessage())) {
-          LOGGER.error("[{}] [{}] [{}]", traceId, RpcFilter.class.getSimpleName(), "timeout");
-          future.fail(SystemException.create(DefaultErrorCode.TIME_OUT)
-                              .set("timeout", config.getLong("timeout", 10000l)));
-          return;
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return true;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        List<Future<RpcResponse>> futures = apiContext.requests()
+                .stream().map(req -> doRequest(apiContext, req))
+                .collect(Collectors.toList());
+        Task.par(futures).andThen(responses -> {
+            for (RpcResponse response : responses) {
+                apiContext.addResponse(response);
+            }
+            completeFuture.complete(apiContext);
+        }).onFailure(throwable -> completeFuture.fail(throwable));
+    }
+
+    private Future<RpcResponse> doRequest(ApiContext apiContext, RpcRequest req) {
+
+        if (req instanceof CircuitBreakerExecutable
+            && req instanceof Fallbackable) {
+            return circuitBreakerWrapper(apiContext.id(), circuitBreakerExecuteWithFallback(req));
+        } else if (req instanceof CircuitBreakerExecutable) {
+            return circuitBreakerWrapper(apiContext.id(), circuitBreakerExecute(req));
+        } else if (req instanceof Fallbackable) {
+            return executeWithFallback(req);
+        } else {
+            return execute(req);
         }
-        if (ar.cause() instanceof RuntimeException
-            && "open circuit".equals(ar.cause().getMessage())) {
-          LOGGER.error("[{}] [{}] [{}]", traceId, RpcFilter.class.getSimpleName(), "BreakerTripped");
-          future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
-                              .set("details", String.format("Please try again after %ds",
-                                                            config.getLong("resetTimeout",
-                                                                           30000l) / 1000)));
-          return;
+    }
+
+    private Future<RpcResponse> circuitBreakerWrapper(String traceId,
+                                                      Future<RpcResponse> circuitBreakerFuture) {
+        Future<RpcResponse> future = Future.future();
+        circuitBreakerFuture.setHandler(ar -> {
+            if (ar.failed()) {
+                if (ar.cause() instanceof NoStackTraceThrowable
+                    && "operation timeout".equals(ar.cause().getMessage())) {
+                    LOGGER.error("[{}] [{}] [{}]", traceId, RpcFilter.class.getSimpleName(),
+                                 "timeout");
+                    future.fail(SystemException.create(DefaultErrorCode.TIME_OUT)
+                                        .set("timeout", config.getLong("timeout", 10000l)));
+                    return;
+                }
+                if (ar.cause() instanceof RuntimeException
+                    && "open circuit".equals(ar.cause().getMessage())) {
+                    LOGGER.error("[{}] [{}] [{}]", traceId, RpcFilter.class.getSimpleName(),
+                                 "BreakerTripped");
+                    future.fail(SystemException.create(DefaultErrorCode.BREAKER_TRIPPED)
+                                        .set("details", String.format("Please try again after %ds",
+                                                                      config.getLong("resetTimeout",
+                                                                                     30000l)
+                                                                      / 1000)));
+                    return;
+                }
+                future.fail(ar.cause());
+            } else {
+                future.complete(ar.result());
+            }
+        });
+        return future;
+    }
+
+    private Future<RpcResponse> execute(RpcRequest request) {
+        return handlers
+                .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
+                .handle(request);
+    }
+
+    private Future<RpcResponse> executeWithFallback(RpcRequest request) {
+        Fallbackable fallbackable = (Fallbackable) request;
+        if (fallbackable.fallback() == null) {
+            return execute(request);
         }
-        future.fail(ar.cause());
-      } else {
-        future.complete(ar.result());
-      }
-    });
-    return future;
-  }
-
-  private Future<RpcResponse> execute(RpcRequest request) {
-    return handlers
-            .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
-            .handle(request);
-  }
-
-  private Future<RpcResponse> executeWithFallback(RpcRequest request) {
-    Fallbackable fallbackable = (Fallbackable) request;
-    if (fallbackable.fallback() == null) {
-      return execute(request);
+        long start = System.currentTimeMillis();
+        RpcResponse fallbackResp = fallbackable.fallback().copy();
+        Future<RpcResponse> rpcFuture
+                = handlers
+                .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
+                .handle(request);
+        Future future = Future.future();
+        rpcFuture.setHandler(ar -> {
+            if (ar.succeeded()) {
+                future.complete(ar.result());
+            } else {
+                future.complete(fallback(request, start, fallbackResp));
+            }
+        });
+        return future;
     }
-    long start = System.currentTimeMillis();
-    RpcResponse fallbackResp = fallbackable.fallback().copy();
-    Future<RpcResponse> rpcFuture
-            = handlers
-            .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
-            .handle(request);
-    Future future = Future.future();
-    rpcFuture.setHandler(ar -> {
-      if (ar.succeeded()) {
-        future.complete(ar.result());
-      } else {
-        future.complete(fallback(request, start, fallbackResp));
-      }
-    });
-    return future;
-  }
 
-  private Future<RpcResponse> circuitBreakerExecuteWithFallback(RpcRequest request) {
-    Fallbackable fallbackable = (Fallbackable) request;
-    if (fallbackable.fallback() == null) {
-      return circuitBreakerExecute(request);
+    private Future<RpcResponse> circuitBreakerExecuteWithFallback(RpcRequest request) {
+        Fallbackable fallbackable = (Fallbackable) request;
+        if (fallbackable.fallback() == null) {
+            return circuitBreakerExecute(request);
+        }
+        long start = System.currentTimeMillis();
+        RpcResponse fallbackResp = fallbackable.fallback().copy();
+        CircuitBreakerExecutable circuitBreakerExecutable = (CircuitBreakerExecutable) request;
+        CircuitBreaker circuitBreaker =
+                circuitBreakerRegistry.get(circuitBreakerExecutable.circuitBreakerName());
+        Future<RpcResponse> rpcFuture
+                = handlers
+                .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
+                .handle(request);
+        return circuitBreaker.<RpcResponse>executeWithFallback(
+                f -> rpcFuture.setHandler(f.completer())
+                , throwable -> fallback(request, start, fallbackResp));
     }
-    long start = System.currentTimeMillis();
-    RpcResponse fallbackResp = fallbackable.fallback().copy();
-    CircuitBreakerExecutable circuitBreakerExecutable = (CircuitBreakerExecutable) request;
-    CircuitBreaker circuitBreaker =
-            circuitBreakerRegistry.get(circuitBreakerExecutable.circuitBreakerName());
-    Future<RpcResponse> rpcFuture
-            = handlers
-            .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
-            .handle(request);
-    return circuitBreaker.<RpcResponse>executeWithFallback(
-            f -> rpcFuture.setHandler(f.completer())
-            , throwable -> fallback(request, start, fallbackResp));
-  }
 
-  private Future<RpcResponse> circuitBreakerExecute(RpcRequest request) {
-    CircuitBreakerExecutable circuitBreakerExecutable = (CircuitBreakerExecutable) request;
-    CircuitBreaker circuitBreaker =
-            circuitBreakerRegistry.get(circuitBreakerExecutable.circuitBreakerName());
-    Future<RpcResponse> rpcFuture
-            = handlers
-            .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
-            .handle(request);
-    return circuitBreaker.<RpcResponse>execute(
-            f -> rpcFuture.setHandler(f.completer()));
-  }
-
-
-  private RpcResponse fallback(RpcRequest request, long start, RpcResponse copyResp) {
-    long duration = System.currentTimeMillis() - start;
-    RpcResponse response;
-    if (copyResp.isArray()) {
-      response = RpcResponse.create(request.id(), copyResp.statusCode(),
-                                    copyResp.responseArray().encode(), duration);
-    } else {
-      response = RpcResponse.create(request.id(), copyResp.statusCode(),
-                                    copyResp.responseObject().encode(), duration);
+    private Future<RpcResponse> circuitBreakerExecute(RpcRequest request) {
+        CircuitBreakerExecutable circuitBreakerExecutable = (CircuitBreakerExecutable) request;
+        CircuitBreaker circuitBreaker =
+                circuitBreakerRegistry.get(circuitBreakerExecutable.circuitBreakerName());
+        Future<RpcResponse> rpcFuture
+                = handlers
+                .getOrDefault(request.type().toUpperCase(), failureRpcHandler)
+                .handle(request);
+        return circuitBreaker.<RpcResponse>execute(
+                f -> rpcFuture.setHandler(f.completer()));
     }
-    LOGGER.warn("[{}] [{}] [{}]", request.id(), RpcFilter.class.getSimpleName(), "FallbackExecuted");
-    return response;
-  }
+
+
+    private RpcResponse fallback(RpcRequest request, long start, RpcResponse copyResp) {
+        long duration = System.currentTimeMillis() - start;
+        RpcResponse response;
+        if (copyResp.isArray()) {
+            response = RpcResponse.create(request.id(), copyResp.statusCode(),
+                                          copyResp.responseArray().encode(), duration);
+        } else {
+            response = RpcResponse.create(request.id(), copyResp.statusCode(),
+                                          copyResp.responseObject().encode(), duration);
+        }
+        LOGGER.warn("[{}] [{}] [{}]", request.id(), RpcFilter.class.getSimpleName(),
+                    "FallbackExecuted");
+        return response;
+    }
 
 }

@@ -20,25 +20,25 @@ import io.vertx.core.json.JsonObject;
  */
 public class AddRateLimitCmd implements ApiSubCmd {
 
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  public AddRateLimitCmd() {
-    rules.put("type", Rule.required());
-    rules.put("type", Rule.optional(Lists.newArrayList("second", "minute", "hour", "day")));
+    public AddRateLimitCmd() {
+        rules.put("type", Rule.required());
+        rules.put("type", Rule.optional(Lists.newArrayList("second", "minute", "hour", "day")));
 
-    rules.put("key", Rule.required());
-    rules.put("key", Rule.optional(Lists.newArrayList("user", "ip", "appkey")));
+        rules.put("key", Rule.required());
+        rules.put("key", Rule.optional(Lists.newArrayList("user", "ip", "appkey")));
 
-    rules.put("limit", Rule.required());
-  }
+        rules.put("limit", Rule.required());
+    }
 
-  @Override
-  public String cmd() {
-    return "ratelimit.add";
-  }
+    @Override
+    public String cmd() {
+        return "ratelimit.add";
+    }
 
-  @Override
-  public void handle(ApiDefinition definition, JsonObject jsonObject) {
+    @Override
+    public void handle(ApiDefinition definition, JsonObject jsonObject) {
 
 //    Validations.validate(jsonObject.getMap(), rules);
 //    String type = jsonObject.getString("type");
@@ -55,5 +55,5 @@ public class AddRateLimitCmd implements ApiSubCmd {
 //      definition.addPlugin(plugin);
 //    }
 
-  }
+    }
 }

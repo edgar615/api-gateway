@@ -3,12 +3,14 @@ package com.github.edgar615.gateway.http.filter;
 import com.github.edgar615.gateway.core.dispatch.ApiContext;
 import com.github.edgar615.gateway.core.dispatch.Filter;
 import com.github.edgar615.gateway.core.rpc.RpcRequest;
-import com.github.edgar615.gateway.http.loadbalance.*;
-import com.github.edgar615.gateway.http.splitter.ServiceSplitterPlugin;
-import com.github.edgar615.util.log.Log;
 import com.github.edgar615.gateway.http.SdHttpEndpoint;
 import com.github.edgar615.gateway.http.SdHttpRequest;
-import com.github.edgar615.gateway.http.loadbalance.*;
+import com.github.edgar615.gateway.http.loadbalance.LoadBalance;
+import com.github.edgar615.gateway.http.loadbalance.LoadBalanceOptions;
+import com.github.edgar615.gateway.http.loadbalance.LoadBalanceStats;
+import com.github.edgar615.gateway.http.loadbalance.ServiceFilter;
+import com.github.edgar615.gateway.http.loadbalance.ServiceFinder;
+import com.github.edgar615.gateway.http.splitter.ServiceSplitterPlugin;
 import com.github.edgar615.gateway.http.splitter.ServiceTraffic;
 import com.github.edgar615.util.vertx.task.Task;
 import io.vertx.core.Future;
@@ -33,131 +35,135 @@ import java.util.stream.Collectors;
  */
 public class ServiceDiscoveryFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDiscoveryFilter.class);
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final LoadBalance loadBalance;
+    private final LoadBalance loadBalance;
 
-  private final ServiceFilter circuitBreakerFilter = r ->
-          !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped();
+    private final ServiceFilter circuitBreakerFilter = r ->
+            !LoadBalanceStats.instance().get(r.getRegistration()).isCircuitBreakerTripped();
 
-  ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    JsonObject discoveryConfig = config.getJsonObject("service.discovery", new JsonObject());
-    ServiceDiscoveryOptions options = new ServiceDiscoveryOptions(discoveryConfig);
-    ServiceFinder serviceFinder = ServiceFinder.create(vertx,
-                                                       ServiceDiscovery.create(vertx, options));
-    JsonObject loadBalanceConfig = config.getJsonObject("load.balance", new JsonObject());
-    LoadBalanceOptions loadBalanceOptions = new LoadBalanceOptions(loadBalanceConfig);
-    loadBalance = LoadBalance.create(serviceFinder, loadBalanceOptions);
-    //监听断路器变化，更新服务节点的断路器状态
-    JsonObject circuitConfig = config.getJsonObject("circuit.breaker", new JsonObject());
-    String stateAnnounce =
-            circuitConfig.getString("stateAnnounce", "__com.github.edgar615.gateway.circuitbreaker.announce");
-    vertx.eventBus().<JsonObject>consumer(stateAnnounce, msg -> {
-      JsonObject jsonObject = msg.body();
-      String serverId = jsonObject.getString("name");
-      String state = jsonObject.getString("state");
-      if ("open".equalsIgnoreCase(state)) {
-        LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(true);
-      }
-      if ("close".equalsIgnoreCase(state)) {
-        LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(false);
-      }
-      if ("halfOpen".equalsIgnoreCase(state)) {
-        LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(false);
-      }
-    });
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 13000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().endpoints().stream()
-            .anyMatch(e -> e instanceof SdHttpEndpoint);
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    List<Future<Record>> futures =
-            apiContext.apiDefinition().endpoints().stream()
-                    .filter(e -> e instanceof SdHttpEndpoint)
-                    .map(e -> ((SdHttpEndpoint) e).service())
-                    .distinct()
-                    .map(r -> serviceFuture(apiContext, r))
-                    .filter(r -> r != null)
-                    .collect(Collectors.toList());
-
-
-    Task.par(futures)
-            .andThen(records -> {
-              apiContext.apiDefinition().endpoints().stream()
-                      .filter(e -> e instanceof SdHttpEndpoint)
-                      .map(e -> (SdHttpEndpoint) e)
-                      .map(e -> toRpc(apiContext, e, records))
-                      .forEach(req -> apiContext.addRequest(req));
-            })
-            .andThen(records -> {
-              completeFuture.complete(apiContext);
-            })
-            .onFailure(throwable -> completeFuture.fail(throwable));
-
-  }
-
-
-  private Future<Record> serviceFuture(ApiContext apiContext, String service) {
-    Future<Record> future = Future.future();
-    List<ServiceFilter> serviceFilters = new ArrayList<>();
-    serviceFilters.add(circuitBreakerFilter);
-    ServiceSplitterPlugin serviceSplitterPlugin = (ServiceSplitterPlugin) apiContext.apiDefinition().plugin(ServiceSplitterPlugin.class.getSimpleName());
-    if (serviceSplitterPlugin != null && serviceSplitterPlugin.traffic(service) != null) {
-      ServiceTraffic traffic = serviceSplitterPlugin.traffic(service);
-      String tag = traffic.decision(apiContext);
-      serviceFilters.add(r -> r.getMetadata().getJsonArray("ServiceTags").contains(tag));
+    ServiceDiscoveryFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        JsonObject discoveryConfig = config.getJsonObject("service.discovery", new JsonObject());
+        ServiceDiscoveryOptions options = new ServiceDiscoveryOptions(discoveryConfig);
+        ServiceFinder serviceFinder = ServiceFinder.create(vertx,
+                                                           ServiceDiscovery.create(vertx, options));
+        JsonObject loadBalanceConfig = config.getJsonObject("load.balance", new JsonObject());
+        LoadBalanceOptions loadBalanceOptions = new LoadBalanceOptions(loadBalanceConfig);
+        loadBalance = LoadBalance.create(serviceFinder, loadBalanceOptions);
+        //监听断路器变化，更新服务节点的断路器状态
+        JsonObject circuitConfig = config.getJsonObject("circuit.breaker", new JsonObject());
+        String stateAnnounce =
+                circuitConfig.getString("stateAnnounce",
+                                        "__com.github.edgar615.gateway.circuitbreaker.announce");
+        vertx.eventBus().<JsonObject>consumer(stateAnnounce, msg -> {
+            JsonObject jsonObject = msg.body();
+            String serverId = jsonObject.getString("name");
+            String state = jsonObject.getString("state");
+            if ("open".equalsIgnoreCase(state)) {
+                LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(true);
+            }
+            if ("close".equalsIgnoreCase(state)) {
+                LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(false);
+            }
+            if ("halfOpen".equalsIgnoreCase(state)) {
+                LoadBalanceStats.instance().get(serverId).setCircuitBreakerTripped(false);
+            }
+        });
     }
-    //todo 处理tag未找到时，向默认服务转发的逻辑
-    loadBalance.chooseServer(service, serviceFilters, ar -> {
-      if (ar.failed() || ar.result() == null) {
-        LOGGER.warn("[{}] [ServiceDiscoveryFilter] [{}]", apiContext.id(), "ServiceNonExistent");
-        future.complete(null);
-        return;
-      }
-      future.complete(ar.result());
-    });
-    return future;
 
-  }
+    @Override
+    public String type() {
+        return PRE;
+    }
 
-  private RpcRequest toRpc(ApiContext apiContext, SdHttpEndpoint endpoint,
-                           List<Record> records) {
-    SdHttpRequest httpRpcRequest =
-            SdHttpRequest.create(apiContext.nextRpcId(), endpoint.name());
-    httpRpcRequest.setPath(endpoint.path());
-    httpRpcRequest.setHttpMethod(endpoint.method());
-    httpRpcRequest.addParams(apiContext.params());
+    @Override
+    public int order() {
+        return 13000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition().endpoints().stream()
+                .anyMatch(e -> e instanceof SdHttpEndpoint);
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        List<Future<Record>> futures =
+                apiContext.apiDefinition().endpoints().stream()
+                        .filter(e -> e instanceof SdHttpEndpoint)
+                        .map(e -> ((SdHttpEndpoint) e).service())
+                        .distinct()
+                        .map(r -> serviceFuture(apiContext, r))
+                        .filter(r -> r != null)
+                        .collect(Collectors.toList());
+
+
+        Task.par(futures)
+                .andThen(records -> {
+                    apiContext.apiDefinition().endpoints().stream()
+                            .filter(e -> e instanceof SdHttpEndpoint)
+                            .map(e -> (SdHttpEndpoint) e)
+                            .map(e -> toRpc(apiContext, e, records))
+                            .forEach(req -> apiContext.addRequest(req));
+                })
+                .andThen(records -> {
+                    completeFuture.complete(apiContext);
+                })
+                .onFailure(throwable -> completeFuture.fail(throwable));
+
+    }
+
+
+    private Future<Record> serviceFuture(ApiContext apiContext, String service) {
+        Future<Record> future = Future.future();
+        List<ServiceFilter> serviceFilters = new ArrayList<>();
+        serviceFilters.add(circuitBreakerFilter);
+        ServiceSplitterPlugin serviceSplitterPlugin =
+                (ServiceSplitterPlugin) apiContext.apiDefinition()
+                        .plugin(ServiceSplitterPlugin.class.getSimpleName());
+        if (serviceSplitterPlugin != null && serviceSplitterPlugin.traffic(service) != null) {
+            ServiceTraffic traffic = serviceSplitterPlugin.traffic(service);
+            String tag = traffic.decision(apiContext);
+            serviceFilters.add(r -> r.getMetadata().getJsonArray("ServiceTags").contains(tag));
+        }
+        //todo 处理tag未找到时，向默认服务转发的逻辑
+        loadBalance.chooseServer(service, serviceFilters, ar -> {
+            if (ar.failed() || ar.result() == null) {
+                LOGGER.warn("[{}] [ServiceDiscoveryFilter] [{}]", apiContext.id(),
+                            "ServiceNonExistent");
+                future.complete(null);
+                return;
+            }
+            future.complete(ar.result());
+        });
+        return future;
+
+    }
+
+    private RpcRequest toRpc(ApiContext apiContext, SdHttpEndpoint endpoint,
+                             List<Record> records) {
+        SdHttpRequest httpRpcRequest =
+                SdHttpRequest.create(apiContext.nextRpcId(), endpoint.name());
+        httpRpcRequest.setPath(endpoint.path());
+        httpRpcRequest.setHttpMethod(endpoint.method());
+        httpRpcRequest.addParams(apiContext.params());
 //    httpRpcRequest.addHeaders(apiContext.headers());
-    httpRpcRequest.addHeader("x-request-id", httpRpcRequest.id());
-    httpRpcRequest.setBody(apiContext.body());
-    List<Record> instances = records.stream()
-            .filter(r -> r != null)
-            .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
-            .collect(Collectors.toList());
-    if (instances.isEmpty()) {
-      return httpRpcRequest;
+        httpRpcRequest.addHeader("x-request-id", httpRpcRequest.id());
+        httpRpcRequest.setBody(apiContext.body());
+        List<Record> instances = records.stream()
+                .filter(r -> r != null)
+                .filter(r -> endpoint.service().equalsIgnoreCase(r.getName()))
+                .collect(Collectors.toList());
+        if (instances.isEmpty()) {
+            return httpRpcRequest;
+        }
+        Record instance = instances.get(0);
+        httpRpcRequest.setRecord(new Record(instance));
+        return httpRpcRequest;
     }
-    Record instance = instances.get(0);
-    httpRpcRequest.setRecord(new Record(instance));
-    return httpRpcRequest;
-  }
 
 }

@@ -7,14 +7,14 @@ package com.github.edgar615.gateway.core.definition;
  */
 public interface Endpoint {
 
-  /**
-   * @return endpoint的名称
-   */
-  String name();
+    /**
+     * @return endpoint的名称
+     */
+    String name();
 
-  /**
-   * @return endpoint的类型
-   */
-  String type();
+    /**
+     * @return endpoint的类型
+     */
+    String type();
 
 }

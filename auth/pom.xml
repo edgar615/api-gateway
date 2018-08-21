@@ -37,13 +37,13 @@
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
             <artifactId>gateway-localcache</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${gateway.release.version}</version>
             <scope>test</scope>
         </dependency>
 

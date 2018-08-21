@@ -51,114 +51,114 @@ import java.util.UUID;
  */
 public class JwtBuildFilter implements Filter {
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final String userKey = "userId";
+    private final String userKey = "userId";
 
-  private final JWTAuthOptions jwtAuthOptions;
+    private final JWTAuthOptions jwtAuthOptions;
 
-  private final JWTOptions jwtOptions;
+    private final JWTOptions jwtOptions;
 
-  private final List<String> claimKey = new ArrayList<>();
+    private final List<String> claimKey = new ArrayList<>();
 
-  private boolean emptyingField = false;
+    private boolean emptyingField = false;
 
-  /**
-   * @param vertx  Vertx
-   * @param config 配置
-   */
-  JwtBuildFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    if (config.getValue("jwt.builder") instanceof JsonObject) {
-      JsonObject jwtBuilderConfig = config.getJsonObject("jwt.builder");
-      this.jwtOptions = new JWTOptions(jwtBuilderConfig);
-      if (jwtBuilderConfig.getValue("claimKey") instanceof JsonArray) {
-        jwtBuilderConfig.getJsonArray("claimKey").forEach(item -> {
-          if (item instanceof String) { claimKey.add((String) item); }
+    /**
+     * @param vertx  Vertx
+     * @param config 配置
+     */
+    JwtBuildFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        if (config.getValue("jwt.builder") instanceof JsonObject) {
+            JsonObject jwtBuilderConfig = config.getJsonObject("jwt.builder");
+            this.jwtOptions = new JWTOptions(jwtBuilderConfig);
+            if (jwtBuilderConfig.getValue("claimKey") instanceof JsonArray) {
+                jwtBuilderConfig.getJsonArray("claimKey").forEach(item -> {
+                    if (item instanceof String) { claimKey.add((String) item); }
+                });
+            }
+            if (jwtBuilderConfig.getValue("emptyingField") instanceof Boolean) {
+                emptyingField = jwtBuilderConfig.getBoolean("emptyingField");
+            }
+        } else {
+            this.jwtOptions = new JWTOptions();
+        }
+        //jwt
+        this.jwtAuthOptions = new JWTAuthOptions();
+        if (config.getValue("keyStore") instanceof JsonObject) {
+            this.jwtAuthOptions
+                    .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
+        } else {
+            KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
+                    .setPath("keystore.jceks")
+                    .setType("jceks")
+                    .setPassword("INIHPMOZPO");
+            this.jwtAuthOptions.setKeyStore(keyStoreOptions);
+        }
+    }
+
+    @Override
+    public String type() {
+        return POST;
+    }
+
+    @Override
+    public int order() {
+        return 20000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.apiDefinition() == null) {
+            return false;
+        }
+        JwtBuildPlugin plugin = (JwtBuildPlugin) apiContext.apiDefinition()
+                .plugin(JwtBuildPlugin.class.getSimpleName());
+        if (plugin == null) {
+            return false;
+        }
+        Result result = apiContext.result();
+        if (result == null) {
+            return false;
+        }
+        return !result.isArray()
+               && result.statusCode() < 400
+               && result.responseObject().containsKey(userKey);
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
+        Result result = apiContext.result();
+        JsonObject body = result.responseObject();
+        String jti = UUID.randomUUID().toString();
+        Object userId = body.getValue(userKey);
+        if (userId == null) {
+            completeFuture.complete(apiContext);
+            return;
+        }
+        JsonObject claims = new JsonObject()
+                .put("jti", jti)
+                .put(userKey, userId);
+        claimKey.forEach(k -> {
+            if (body.getValue(k) != null) {
+                claims.put(k, body.getValue(k));
+            }
         });
-      }
-      if (jwtBuilderConfig.getValue("emptyingField") instanceof Boolean) {
-        emptyingField = jwtBuilderConfig.getBoolean("emptyingField");
-      }
-    } else {
-      this.jwtOptions = new JWTOptions();
+        String token = provider.generateToken(claims, jwtOptions);
+        if (emptyingField) {
+            body.clear().put("token", token);
+        } else {
+            body.put("token", token);
+        }
+        if (jwtOptions.getExpiresInSeconds() != null) {
+            body.put("expiresInSeconds", jwtOptions.getExpiresInSeconds());
+        }
+        //保存JTI，后面使用
+        apiContext.addVariable("jti", jti);
+        apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
+                                                     result.headers()));
+        completeFuture.complete(apiContext);
     }
-    //jwt
-    this.jwtAuthOptions = new JWTAuthOptions();
-    if (config.getValue("keyStore") instanceof JsonObject) {
-      this.jwtAuthOptions
-              .setKeyStore(new KeyStoreOptions(config.getJsonObject("keyStore")));
-    } else {
-      KeyStoreOptions keyStoreOptions = new KeyStoreOptions()
-              .setPath("keystore.jceks")
-              .setType("jceks")
-              .setPassword("INIHPMOZPO");
-      this.jwtAuthOptions.setKeyStore(keyStoreOptions);
-    }
-  }
-
-  @Override
-  public String type() {
-    return POST;
-  }
-
-  @Override
-  public int order() {
-    return 20000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.apiDefinition() == null) {
-      return false;
-    }
-    JwtBuildPlugin plugin = (JwtBuildPlugin) apiContext.apiDefinition()
-            .plugin(JwtBuildPlugin.class.getSimpleName());
-    if (plugin == null) {
-      return false;
-    }
-    Result result = apiContext.result();
-    if (result == null) {
-      return false;
-    }
-    return !result.isArray()
-           && result.statusCode() < 400
-           && result.responseObject().containsKey(userKey);
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    JWTAuth provider = JWTAuth.create(vertx, jwtAuthOptions);
-    Result result = apiContext.result();
-    JsonObject body = result.responseObject();
-    String jti = UUID.randomUUID().toString();
-    Object userId = body.getValue(userKey);
-    if (userId == null) {
-      completeFuture.complete(apiContext);
-      return;
-    }
-    JsonObject claims = new JsonObject()
-            .put("jti", jti)
-            .put(userKey, userId);
-    claimKey.forEach(k -> {
-      if (body.getValue(k) != null) {
-        claims.put(k, body.getValue(k));
-      }
-    });
-    String token = provider.generateToken(claims, jwtOptions);
-    if (emptyingField) {
-      body.clear().put("token", token);
-    } else {
-      body.put("token", token);
-    }
-    if (jwtOptions.getExpiresInSeconds() != null) {
-      body.put("expiresInSeconds", jwtOptions.getExpiresInSeconds());
-    }
-    //保存JTI，后面使用
-    apiContext.addVariable("jti", jti);
-    apiContext.setResult(Result.createJsonObject(result.statusCode(), body,
-                                                 result.headers()));
-    completeFuture.complete(apiContext);
-  }
 
 }

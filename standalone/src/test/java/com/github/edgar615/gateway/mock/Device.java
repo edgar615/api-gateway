@@ -9,24 +9,24 @@ import io.vertx.core.json.JsonObject;
  */
 @Deprecated
 public class Device {
-  private final int id;
+    private final int id;
 
-  private final String name;
+    private final String name;
 
-  public Device(int id, String name) {
-    this.id = id;
-    this.name = name;
-  }
+    public Device(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-  public JsonObject toJson() {
-    return new JsonObject().put("id", id).put("name", name);
-  }
+    public JsonObject toJson() {
+        return new JsonObject().put("id", id).put("name", name);
+    }
 
-  public int getId() {
-    return id;
-  }
+    public int getId() {
+        return id;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 }

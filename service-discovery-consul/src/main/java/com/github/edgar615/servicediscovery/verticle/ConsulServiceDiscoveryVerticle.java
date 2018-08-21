@@ -16,35 +16,35 @@ import org.slf4j.LoggerFactory;
  * @author Edgar  Date 2017/6/9
  */
 public class ConsulServiceDiscoveryVerticle extends AbstractVerticle {
-  private static final Logger LOGGER =
-          LoggerFactory.getLogger(ConsulServiceDiscoveryVerticle.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ConsulServiceDiscoveryVerticle.class);
 
-  @Override
-  public void start() throws Exception {
-    ServiceDiscoveryOptions options;
-    if (config().getValue("service.discovery") instanceof JsonObject) {
-      options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
-    } else {
-      options = new ServiceDiscoveryOptions();
+    @Override
+    public void start() throws Exception {
+        ServiceDiscoveryOptions options;
+        if (config().getValue("service.discovery") instanceof JsonObject) {
+            options = new ServiceDiscoveryOptions(config().getJsonObject("service.discovery"));
+        } else {
+            options = new ServiceDiscoveryOptions();
+        }
+        ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
+
+
+        LOGGER.info("deploy ConsulServiceDiscoveryVerticle succeeded");
+
+        if (config().getValue("consul") instanceof JsonObject) {
+            registerConsul(discovery, config().getJsonObject("consul"));
+        }
     }
-    ServiceDiscovery discovery = ServiceDiscovery.create(vertx, options);
 
-
-    LOGGER.info("deploy ConsulServiceDiscoveryVerticle succeeded");
-
-    if (config().getValue("consul") instanceof JsonObject) {
-      registerConsul(discovery, config().getJsonObject("consul"));
+    private void registerConsul(ServiceDiscovery discovery, JsonObject config) {
+        try {
+            ServiceImporter serviceImporter = new ConsulServiceImporter();
+            discovery
+                    .registerServiceImporter(serviceImporter, config,
+                                             Future.<Void>future().completer());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-  }
-
-  private void registerConsul(ServiceDiscovery discovery, JsonObject config) {
-    try {
-      ServiceImporter serviceImporter = new ConsulServiceImporter();
-      discovery
-              .registerServiceImporter(serviceImporter, config,
-                                       Future.<Void>future().completer());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

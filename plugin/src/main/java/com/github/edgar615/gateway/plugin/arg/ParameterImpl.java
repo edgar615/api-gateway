@@ -21,45 +21,45 @@ import java.util.List;
  */
 class ParameterImpl implements Parameter {
 
-  private final String name;
+    private final String name;
 
-  private final Object defaultValue;
+    private final Object defaultValue;
 
-  private final List<Rule> rules = new ArrayList<>();
+    private final List<Rule> rules = new ArrayList<>();
 
-  ParameterImpl(String name, Object defaultValue) {
-    this.name = name;
-    this.defaultValue = defaultValue;
-  }
+    ParameterImpl(String name, Object defaultValue) {
+        this.name = name;
+        this.defaultValue = defaultValue;
+    }
 
-  @Override
-  public Parameter addRule(Rule rule) {
-    Preconditions.checkNotNull(rule, "rule cannot be null");
-    rules.add(rule);
-    return this;
-  }
+    @Override
+    public Parameter addRule(Rule rule) {
+        Preconditions.checkNotNull(rule, "rule cannot be null");
+        rules.add(rule);
+        return this;
+    }
 
-  @Override
-  public String name() {
-    return name;
-  }
+    @Override
+    public String name() {
+        return name;
+    }
 
-  @Override
-  public Object defaultValue() {
-    return defaultValue;
-  }
+    @Override
+    public Object defaultValue() {
+        return defaultValue;
+    }
 
-  @Override
-  public List<Rule> rules() {
-    return rules;
-  }
+    @Override
+    public List<Rule> rules() {
+        return rules;
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper("Parameter")
-            .add("name", name)
-            .add("defaultValue", defaultValue)
-            .add("rules", rules)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper("Parameter")
+                .add("name", name)
+                .add("defaultValue", defaultValue)
+                .add("rules", rules)
+                .toString();
+    }
 }

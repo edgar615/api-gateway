@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  */
 public class StrictArgFilterFactory implements FilterFactory {
 
-  @Override
-  public String name() {
-    return StrictArgFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return StrictArgFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new StrictArgFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new StrictArgFilter(config);
+    }
 }

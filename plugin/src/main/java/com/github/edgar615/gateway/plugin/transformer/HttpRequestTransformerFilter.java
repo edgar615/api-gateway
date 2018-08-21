@@ -56,68 +56,68 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class HttpRequestTransformerFilter extends AbstractTransformerFilter {
 
-  private final AtomicReference<RequestTransformer> reference = new AtomicReference<>();
+    private final AtomicReference<RequestTransformer> reference = new AtomicReference<>();
 
-  HttpRequestTransformerFilter(JsonObject config) {
-    updateConfig(config);
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.apiDefinition() == null) {
-      return false;
+    HttpRequestTransformerFilter(JsonObject config) {
+        updateConfig(config);
     }
-    if (apiContext.requests().size() > 0
-        && apiContext.requests().stream()
-                .anyMatch(e -> e instanceof HttpRpcRequest)) {
-      return reference.get() != null
-             || apiContext.apiDefinition()
-                        .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
-    }
-    return false;
-  }
 
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    for (int i = 0; i < apiContext.requests().size(); i++) {
-      RpcRequest request = apiContext.requests().get(i);
-      if (request instanceof HttpRpcRequest) {
-        if (reference.get() != null) {
-          doTransformer((HttpRpcRequest) request, reference.get());
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.apiDefinition() == null) {
+            return false;
         }
-        transformer(apiContext, (HttpRpcRequest) request);
-      }
+        if (apiContext.requests().size() > 0
+            && apiContext.requests().stream()
+                    .anyMatch(e -> e instanceof HttpRpcRequest)) {
+            return reference.get() != null
+                   || apiContext.apiDefinition()
+                              .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
+        }
+        return false;
     }
-    completeFuture.complete(apiContext);
-  }
 
-  private void transformer(ApiContext apiContext, HttpRpcRequest request) {
-    String name = request.name();
-    RequestTransformerPlugin plugin =
-            (RequestTransformerPlugin) apiContext.apiDefinition()
-                    .plugin(RequestTransformerPlugin.class.getSimpleName());
-    if (plugin == null) {
-      return;
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        for (int i = 0; i < apiContext.requests().size(); i++) {
+            RpcRequest request = apiContext.requests().get(i);
+            if (request instanceof HttpRpcRequest) {
+                if (reference.get() != null) {
+                    doTransformer((HttpRpcRequest) request, reference.get());
+                }
+                transformer(apiContext, (HttpRpcRequest) request);
+            }
+        }
+        completeFuture.complete(apiContext);
     }
-    RequestTransformer transformer = plugin.transformer(name);
-    if (transformer != null) {
-      doTransformer(request, transformer);
-    }
-  }
 
-  private void doTransformer(HttpRpcRequest request, RequestTransformer transformer) {
-    Multimap<String, String> params = tranformerParams(request.params(), transformer);
-    request.clearParams().addParams(params);
-    Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
-    request.clearHeaders().addHeaders(headers);
-    if (request.body() != null) {
-      JsonObject body = tranformerBody(request.body(), transformer);
-      request.setBody(body);
+    @Override
+    public void updateConfig(JsonObject config) {
+        super.setGlobalTransformer(config, reference);
     }
-  }
 
-  @Override
-  public void updateConfig(JsonObject config) {
-    super.setGlobalTransformer(config, reference);
-  }
+    private void transformer(ApiContext apiContext, HttpRpcRequest request) {
+        String name = request.name();
+        RequestTransformerPlugin plugin =
+                (RequestTransformerPlugin) apiContext.apiDefinition()
+                        .plugin(RequestTransformerPlugin.class.getSimpleName());
+        if (plugin == null) {
+            return;
+        }
+        RequestTransformer transformer = plugin.transformer(name);
+        if (transformer != null) {
+            doTransformer(request, transformer);
+        }
+    }
+
+    private void doTransformer(HttpRpcRequest request, RequestTransformer transformer) {
+        Multimap<String, String> params = tranformerParams(request.params(), transformer);
+        request.clearParams().addParams(params);
+        Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
+        request.clearHeaders().addHeaders(headers);
+        if (request.body() != null) {
+            JsonObject body = tranformerBody(request.body(), transformer);
+            request.setBody(body);
+        }
+    }
 }

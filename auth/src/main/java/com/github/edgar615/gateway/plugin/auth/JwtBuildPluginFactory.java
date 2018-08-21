@@ -10,26 +10,26 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2016/10/31
  */
 public class JwtBuildPluginFactory implements ApiPluginFactory {
-  @Override
-  public String name() {
-    return JwtBuildPlugin.class.getSimpleName();
-  }
-
-  @Override
-  public ApiPlugin create() {
-    return new JwtBuildPluginImpl();
-  }
-
-  @Override
-  public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.getBoolean("jwt.build", false)) {
-      return new JwtBuildPluginImpl();
+    @Override
+    public String name() {
+        return JwtBuildPlugin.class.getSimpleName();
     }
-    return null;
-  }
 
-  @Override
-  public JsonObject encode(ApiPlugin plugin) {
-    return new JsonObject().put("jwt.build", true);
-  }
+    @Override
+    public ApiPlugin create() {
+        return new JwtBuildPluginImpl();
+    }
+
+    @Override
+    public ApiPlugin decode(JsonObject jsonObject) {
+        if (jsonObject.getBoolean("jwt.build", false)) {
+            return new JwtBuildPluginImpl();
+        }
+        return null;
+    }
+
+    @Override
+    public JsonObject encode(ApiPlugin plugin) {
+        return new JsonObject().put("jwt.build", true);
+    }
 }

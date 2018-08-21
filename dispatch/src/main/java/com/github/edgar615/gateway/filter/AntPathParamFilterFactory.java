@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-27.
  */
 public class AntPathParamFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return AntPathParamFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return AntPathParamFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new AntPathParamFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new AntPathParamFilter();
+    }
 }

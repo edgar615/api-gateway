@@ -211,7 +211,6 @@ service.discovery配置是vert.x提供的service-discovery组件的配置，我�
 ```
 {
   "api.discovery" : {
-    "name" : "iotp-app",
     "publishedAddress" : "__com.github.edgar615.gateway.api.published",
     "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
   },
@@ -225,7 +224,7 @@ API定义存放的路径
 是否监控path目录下文件的变化，如果开启，文件的任何变化都会引起对应ApiDiscovery的重新加载
 .**因为API的名称是写在文件中的，所以文件变化的时候，并不知道是变化的是哪个API，除非强制API名称就是文件名**
 
-FileApiDiscoveryVerticle订阅`__com.github.edgar615.gateway.api.discovery.reload.<网关名>`事件，在接收到这个事件后会重新加载ApiDiscovery
+FileApiDiscoveryVerticle订阅`__com.github.edgar615.gateway.api.discovery.reload.file`事件，在接收到这个事件后会重新加载ApiDiscovery
 文件监听功能就是通过发送这个事件来实现的API刷新，我们也可以配置一个API路由来实现手动刷新
 ```
 {
@@ -238,7 +237,7 @@ FileApiDiscoveryVerticle订阅`__com.github.edgar615.gateway.api.discovery.reloa
       "policy": "point-point",
       "name": "reload.api",
       "type": "eventbus",
-      "address" : "__com.github.edgar615.gateway.api.discovery.reload.example"
+      "address" : "__com.github.edgar615.gateway.api.discovery.reload.file"
     }
   ]
 }
@@ -253,17 +252,15 @@ FileApiDiscoveryVerticle订阅`__com.github.edgar615.gateway.api.discovery.reloa
   "url": "https://github.com/edgar615/config-test.git",
   "branch" : "master",
   "remote" : "origin",
-  "path" : "H:/api",
-  "name" : "example"
+  "path" : "H:/api"
 }
 ```
 - url GitHub存放API定义的地址
 - branch 分支 默认master
 - remote 远程地址 默认origin
 - path 本地clone的目录
-- name API网关的名称
 
-ApiGitVerticle订阅`__com.github.edgar615.gateway.api.discovery.git.<网关名>`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
+ApiGitVerticle订阅`__com.github.edgar615.gateway.api.discovery.git`事件，在接收到这个事件后会自动从GitHub上pull数据，然后通知FileApiDiscoveryVerticle刷新路由，所以我们也可以配置一个API路由来实现手动pull
 ```
 {
   "name": "api.git.1.0.0",
@@ -275,7 +272,7 @@ ApiGitVerticle订阅`__com.github.edgar615.gateway.api.discovery.git.<网关名>
       "policy": "point-point",
       "name": "git.api",
       "type": "eventbus",
-      "address" : "__com.github.edgar615.gateway.api.discovery.git.example"
+      "address" : "__com.github.edgar615.gateway.api.discovery.git"
     }
   ]
 }
@@ -286,9 +283,6 @@ ApiGitVerticle订阅`__com.github.edgar615.gateway.api.discovery.git.<网关名>
 API发现组件的配置属性
 - **publishedAddress**: 发布一个API后的广播地址
 - **unpublishedAddress**: 删除一个API后的广播地址
-- **name**: API发现模块的名称，api-discovery组件会使用这个名称在vert.x的共享数据中存储API信息。
-
-**如果在一个应用里支持多个API网关，可以定义多个FileApiDiscoveryVerticle，但是需要注意不同业务的网关name、publishedAddress、unpublishedAddress三个属性不能相同，不然会导致API定义错乱**
 
 ### ApiDefinitionVerticle
 定义了一些在线修改API定义的接口。后面详细

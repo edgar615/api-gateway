@@ -20,74 +20,76 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class ApiPluginCmdTest extends BaseApiCmdTest {
 
-  @Before
-  public void setUp() {
-    super.setUp();
-    addMockApi();
+    @Before
+    public void setUp() {
+        super.setUp();
+        addMockApi();
 //    cmd = new ApiPluginCmdFactory().create(Vertx.vertx(), new JsonObject());
-  }
+    }
 
-  @Test
-  public void testAddIpBlacklist(TestContext testContext) {
+    @Test
+    public void testAddIpBlacklist(TestContext testContext) {
 //    Assert.assertEquals(2, registry.filter(null).size());
-    JsonObject jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "add_device")
-            .put("subcmd", "ip.blacklist.add")
-            .put("ip", "192.168.1.100");
+        JsonObject jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "add_device")
+                .put("subcmd", "ip.blacklist.add")
+                .put("ip", "192.168.1.100");
 
-    AtomicBoolean check1 = new AtomicBoolean();
-    vertx.eventBus().<JsonObject>send("api.plugin", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        System.out.println(ar.result());
-        check1.set(true);
-      } else {
-        ar.cause().printStackTrace();
-        testContext.fail();
-      }
-    });
-    Awaitility.await().until(() -> check1.get());
+        AtomicBoolean check1 = new AtomicBoolean();
+        vertx.eventBus().<JsonObject>send("api.plugin", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                System.out.println(ar.result());
+                check1.set(true);
+            } else {
+                ar.cause().printStackTrace();
+                testContext.fail();
+            }
+        });
+        Awaitility.await().until(() -> check1.get());
 
-    AtomicBoolean check2 = new AtomicBoolean();
-    jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "add_device");
-    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body());
-        IpRestriction ipRestriction = (IpRestriction) apiDefinition.plugin(IpRestriction.class
-                                                                                   .getSimpleName());
-        testContext.assertNotNull(ipRestriction);
-        testContext.assertEquals(1, ipRestriction.blacklist().size());
-        testContext.assertEquals(0, ipRestriction.whitelist().size());
-        check2.set(true);
-      } else {
-        ar.cause().printStackTrace();
-        testContext.fail();
+        AtomicBoolean check2 = new AtomicBoolean();
+        jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "add_device");
+        vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(ar.result().body());
+                IpRestriction ipRestriction =
+                        (IpRestriction) apiDefinition.plugin(IpRestriction.class
+                                                                     .getSimpleName());
+                testContext.assertNotNull(ipRestriction);
+                testContext.assertEquals(1, ipRestriction.blacklist().size());
+                testContext.assertEquals(0, ipRestriction.whitelist().size());
+                check2.set(true);
+            } else {
+                ar.cause().printStackTrace();
+                testContext.fail();
 
-      }
-    });
-    Awaitility.await().until(() -> check2.get());
+            }
+        });
+        Awaitility.await().until(() -> check2.get());
 
 
-    AtomicBoolean check3 = new AtomicBoolean();
-    jsonObject = new JsonObject()
-            .put("namespace", namespace)
-            .put("name", "get_device");
-    vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
-      if (ar.succeeded()) {
-        ApiDefinition apiDefinition =ApiDefinition.fromJson(ar.result().body());
-        IpRestriction ipRestriction = (IpRestriction) apiDefinition.plugin(IpRestriction.class
-                                                                                   .getSimpleName());
-        testContext.assertNull(ipRestriction);
-        check3.set(true);
-      } else {
-        ar.cause().printStackTrace();
-        testContext.fail();
+        AtomicBoolean check3 = new AtomicBoolean();
+        jsonObject = new JsonObject()
+                .put("namespace", namespace)
+                .put("name", "get_device");
+        vertx.eventBus().<JsonObject>send("api.get", jsonObject, ar -> {
+            if (ar.succeeded()) {
+                ApiDefinition apiDefinition = ApiDefinition.fromJson(ar.result().body());
+                IpRestriction ipRestriction =
+                        (IpRestriction) apiDefinition.plugin(IpRestriction.class
+                                                                     .getSimpleName());
+                testContext.assertNull(ipRestriction);
+                check3.set(true);
+            } else {
+                ar.cause().printStackTrace();
+                testContext.fail();
 
-      }
-    });
-    Awaitility.await().until(() -> check3.get());
-  }
+            }
+        });
+        Awaitility.await().until(() -> check3.get());
+    }
 
 }

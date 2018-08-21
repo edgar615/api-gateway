@@ -15,8 +15,8 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  * @author Edgar  Date 2016/9/14
  */
 public interface AppKeyPlugin extends ApiPlugin {
-  @Override
-  default String name() {
-    return AppKeyPlugin.class.getSimpleName();
-  }
+    @Override
+    default String name() {
+        return AppKeyPlugin.class.getSimpleName();
+    }
 }

@@ -32,103 +32,103 @@ import java.util.List;
 @RunWith(VertxUnitRunner.class)
 public class UserPermissionFilterTest {
 
-  private final List<Filter> filters = new ArrayList<>();
+    private final List<Filter> filters = new ArrayList<>();
 
-  private Filter filter;
+    private Filter filter;
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
 
-    filter = Filter.create(UserPermissionFilter.class.getSimpleName(), vertx, new JsonObject());
-    filters.clear();
-    filters.add(filter);
+        filter = Filter.create(UserPermissionFilter.class.getSimpleName(), vertx, new JsonObject());
+        filters.clear();
+        filters.add(filter);
 
-  }
+    }
 
-  @Test
-  public void missUserShouldPass(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    apiContext.addVariable("app.permissions", "user.read, device.wirte");
-    apiContext.setPrincipal(new JsonObject());
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> async.complete())
-            .onFailure(t -> {
-              testContext.fail();
-            });
-  }
+    @Test
+    public void missUserShouldPass(TestContext testContext) {
+        ApiContext apiContext = createContext();
+        apiContext.addVariable("app.permissions", "user.read, device.wirte");
+        apiContext.setPrincipal(new JsonObject());
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> async.complete())
+                .onFailure(t -> {
+                    testContext.fail();
+                });
+    }
 
-  @Test
-  public void invalidUserShouldThrowNoAuthority(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    apiContext.addVariable("app.permissions", "user.read, device.wirte");
-    apiContext.setPrincipal(new JsonObject().put("permissions", "user.write, device.read"));
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> testContext.fail())
-            .onFailure(t -> {
-              testContext.assertTrue(t instanceof SystemException);
-              SystemException ex = (SystemException) t;
-              testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
-              async.complete();
-            });
-  }
+    @Test
+    public void invalidUserShouldThrowNoAuthority(TestContext testContext) {
+        ApiContext apiContext = createContext();
+        apiContext.addVariable("app.permissions", "user.read, device.wirte");
+        apiContext.setPrincipal(new JsonObject().put("permissions", "user.write, device.read"));
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> testContext.fail())
+                .onFailure(t -> {
+                    testContext.assertTrue(t instanceof SystemException);
+                    SystemException ex = (SystemException) t;
+                    testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED, ex.getErrorCode());
+                    async.complete();
+                });
+    }
 
-  @Test
-  public void validUserShouldPass(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    apiContext.addVariable("app.permissions", "user.read, device.wirte");
-    apiContext.setPrincipal(new JsonObject().put("permissions", "user.read, device.read"));
-    apiContext.setPrincipal(new JsonObject());
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> async.complete())
-            .onFailure(t -> {
-              testContext.fail();
-            });
-  }
+    @Test
+    public void validUserShouldPass(TestContext testContext) {
+        ApiContext apiContext = createContext();
+        apiContext.addVariable("app.permissions", "user.read, device.wirte");
+        apiContext.setPrincipal(new JsonObject().put("permissions", "user.read, device.read"));
+        apiContext.setPrincipal(new JsonObject());
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> async.complete())
+                .onFailure(t -> {
+                    testContext.fail();
+                });
+    }
 
-  @Test
-  public void allPermissionShouldPass(TestContext testContext) {
-    ApiContext apiContext = createContext();
-    apiContext.addVariable("app.permissions", "user.read, device.wirte");
-    apiContext.setPrincipal(new JsonObject().put("permissions", "all"));
-    apiContext.setPrincipal(new JsonObject());
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> async.complete())
-            .onFailure(t -> {
-              testContext.fail();
-            });
-  }
+    @Test
+    public void allPermissionShouldPass(TestContext testContext) {
+        ApiContext apiContext = createContext();
+        apiContext.addVariable("app.permissions", "user.read, device.wirte");
+        apiContext.setPrincipal(new JsonObject().put("permissions", "all"));
+        apiContext.setPrincipal(new JsonObject());
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> async.complete())
+                .onFailure(t -> {
+                    testContext.fail();
+                });
+    }
 
 
-  private ApiContext createContext() {
-    Multimap<String, String> params = ArrayListMultimap.create();
+    private ApiContext createContext() {
+        Multimap<String, String> params = ArrayListMultimap.create();
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
-                                    80, "localhost");
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    PermissionPluginImpl plugin =
-            (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin.class.getSimpleName());
-    plugin.setPermission("user.read");
-    definition.addPlugin(plugin);
-    return apiContext;
-  }
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
+                                        80, "localhost");
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices/", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+        PermissionPluginImpl plugin =
+                (PermissionPluginImpl) ApiPlugin.create(PermissionPlugin.class.getSimpleName());
+        plugin.setPermission("user.read");
+        definition.addPlugin(plugin);
+        return apiContext;
+    }
 }

@@ -21,50 +21,50 @@ import io.vertx.core.json.JsonObject;
  */
 public class EventBusRequestFilter implements Filter {
 
-  EventBusRequestFilter() {
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 13000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().endpoints().stream()
-            .anyMatch(e -> e instanceof EventbusEndpoint);
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof EventbusEndpoint)
-            .map(e -> toRpc(apiContext, e))
-            .forEach(req -> apiContext.addRequest(req));
-    completeFuture.complete(apiContext);
-  }
-
-
-  private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint) {
-    if (endpoint instanceof EventbusEndpoint) {
-      EventbusEndpoint eventbusEndpoint = (EventbusEndpoint) endpoint;
-      String id = apiContext.nextRpcId();
-      String name = eventbusEndpoint.name();
-      String address = eventbusEndpoint.address();
-      String policy = eventbusEndpoint.policy();
-      Multimap header = eventbusEndpoint.headers();
-      JsonObject message = apiContext.body();
-      if (message == null) {
-        message = new JsonObject();
-      }
-      return EventbusRpcRequest.create(id, name, address, policy, header, message);
-
+    EventBusRequestFilter() {
     }
-    return null;
-  }
+
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return 13000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition().endpoints().stream()
+                .anyMatch(e -> e instanceof EventbusEndpoint);
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        apiContext.apiDefinition().endpoints().stream()
+                .filter(e -> e instanceof EventbusEndpoint)
+                .map(e -> toRpc(apiContext, e))
+                .forEach(req -> apiContext.addRequest(req));
+        completeFuture.complete(apiContext);
+    }
+
+
+    private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint) {
+        if (endpoint instanceof EventbusEndpoint) {
+            EventbusEndpoint eventbusEndpoint = (EventbusEndpoint) endpoint;
+            String id = apiContext.nextRpcId();
+            String name = eventbusEndpoint.name();
+            String address = eventbusEndpoint.address();
+            String policy = eventbusEndpoint.policy();
+            Multimap header = eventbusEndpoint.headers();
+            JsonObject message = apiContext.body();
+            if (message == null) {
+                message = new JsonObject();
+            }
+            return EventbusRpcRequest.create(id, name, address, policy, header, message);
+
+        }
+        return null;
+    }
 }

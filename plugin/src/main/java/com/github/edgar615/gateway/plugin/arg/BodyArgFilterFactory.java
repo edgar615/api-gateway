@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  */
 public class BodyArgFilterFactory implements FilterFactory {
 
-  @Override
-  public String name() {
-    return BodyArgFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return BodyArgFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new BodyArgFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new BodyArgFilter();
+    }
 }

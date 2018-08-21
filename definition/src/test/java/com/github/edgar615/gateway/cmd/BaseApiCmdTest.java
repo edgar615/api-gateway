@@ -19,68 +19,73 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Edgar  Date 2017/7/5
  */
 public class BaseApiCmdTest {
-  protected Vertx vertx;
+    protected Vertx vertx;
 
-  protected ApiDiscovery discovery;
+    protected ApiDiscovery discovery;
 
-  protected String namespace;
-  //  ApiCmd cmd;
-  @Before
-  public void setUp() {
-    namespace = UUID.randomUUID().toString();
-    vertx = Vertx.vertx();
-    discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
-    Future<Void> importCmdFuture = Future.future();
-    new CmdRegister().initialize(vertx, new JsonObject(), importCmdFuture);
+    protected String namespace;
+
+    //  ApiCmd cmd;
+    @Before
+    public void setUp() {
+        namespace = UUID.randomUUID().toString();
+        vertx = Vertx.vertx();
+        discovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions().setName(namespace));
+        Future<Void> importCmdFuture = Future.future();
+        new CmdRegister().initialize(vertx, new JsonObject(), importCmdFuture);
 //    cmd = new AddApiCmdFactory().create(vertx, new JsonObject());
-  }
+    }
 
-  protected void addMockApi() {
-    AddApiCmd addApiCmd = new AddApiCmd(vertx, new JsonObject());
-    JsonObject jsonObject = new JsonObject()
-            .put("name", "add_device")
-            .put("method", "POST")
-            .put("path", "/devices");
-    JsonArray endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
-                         .put("name", "add_device")
-                         .put("service", "device")
-                         .put("method", "POST")
-                         .put("path", "/devices"));
-    jsonObject.put("endpoints", endpoints);
+    protected void addMockApi() {
+        AddApiCmd addApiCmd = new AddApiCmd(vertx, new JsonObject());
+        JsonObject jsonObject = new JsonObject()
+                .put("name", "add_device")
+                .put("method", "POST")
+                .put("path", "/devices");
+        JsonArray endpoints = new JsonArray()
+                .add(new JsonObject().put("type", "simple-http").put("host", "localhost")
+                             .put("port", 80)
+                             .put("name", "add_device")
+                             .put("service", "device")
+                             .put("method", "POST")
+                             .put("path", "/devices"));
+        jsonObject.put("endpoints", endpoints);
 
-    AtomicBoolean check1 = new AtomicBoolean();
-    addApiCmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                check1.set(true);
-              } else {
-                ar.cause().printStackTrace();
-              }
-            });
-    Awaitility.await().until(() -> check1.get());
+        AtomicBoolean check1 = new AtomicBoolean();
+        addApiCmd.handle(new JsonObject().put("namespace", namespace)
+                                 .put("data", jsonObject.encode()))
+                .setHandler(ar -> {
+                    if (ar.succeeded()) {
+                        check1.set(true);
+                    } else {
+                        ar.cause().printStackTrace();
+                    }
+                });
+        Awaitility.await().until(() -> check1.get());
 
-    jsonObject = new JsonObject()
-            .put("name", "get_device")
-            .put("method", "GET")
-            .put("path", "/devices");
-    endpoints = new JsonArray()
-            .add(new JsonObject().put("type", "simple-http").put("host", "localhost").put("port", 80)
-                         .put("name", "get_device")
-                         .put("service", "device")
-                         .put("method", "GET")
-                         .put("path", "/devices"));
-    jsonObject.put("endpoints", endpoints);
+        jsonObject = new JsonObject()
+                .put("name", "get_device")
+                .put("method", "GET")
+                .put("path", "/devices");
+        endpoints = new JsonArray()
+                .add(new JsonObject().put("type", "simple-http").put("host", "localhost")
+                             .put("port", 80)
+                             .put("name", "get_device")
+                             .put("service", "device")
+                             .put("method", "GET")
+                             .put("path", "/devices"));
+        jsonObject.put("endpoints", endpoints);
 
-    AtomicBoolean check2 = new AtomicBoolean();
-    addApiCmd.handle(new JsonObject().put("namespace", namespace).put("data", jsonObject.encode()))
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                check2.set(true);
-              } else {
-                ar.cause().printStackTrace();
-              }
-            });
-    Awaitility.await().until(() -> check2.get());
-  }
+        AtomicBoolean check2 = new AtomicBoolean();
+        addApiCmd.handle(new JsonObject().put("namespace", namespace)
+                                 .put("data", jsonObject.encode()))
+                .setHandler(ar -> {
+                    if (ar.succeeded()) {
+                        check2.set(true);
+                    } else {
+                        ar.cause().printStackTrace();
+                    }
+                });
+        Awaitility.await().until(() -> check2.get());
+    }
 }

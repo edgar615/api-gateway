@@ -13,10 +13,10 @@ import io.vertx.redis.RedisClient;
  */
 public class RedisCacheFactory implements CacheFactory {
 
-  @Override
-  public Cache<String, JsonObject> create(Vertx vertx, String cacheName, CacheOptions options) {
-    //RedisVerticle 要先部署
-    RedisClient redisClient = RedisClientHelper.getShared(vertx);
-    return new RedisCache(redisClient, cacheName, options);
-  }
+    @Override
+    public Cache<String, JsonObject> create(Vertx vertx, String cacheName, CacheOptions options) {
+        //RedisVerticle 要先部署
+        RedisClient redisClient = RedisClientHelper.getShared(vertx);
+        return new RedisCache(redisClient, cacheName, options);
+    }
 }

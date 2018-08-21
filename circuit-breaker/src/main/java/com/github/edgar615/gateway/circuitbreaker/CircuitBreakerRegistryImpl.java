@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import com.github.edgar615.util.log.Log;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.Vertx;
@@ -23,70 +22,71 @@ import java.util.concurrent.TimeUnit;
  */
 class CircuitBreakerRegistryImpl implements CircuitBreakerRegistry {
 
-  private static final Logger LOGGER
-          = LoggerFactory.getLogger(CircuitBreakerRegistry.class.getSimpleName());
+    private static final Logger LOGGER
+            = LoggerFactory.getLogger(CircuitBreakerRegistry.class.getSimpleName());
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final LoadingCache<String, CircuitBreaker> cache;
+    private final LoadingCache<String, CircuitBreaker> cache;
 
-  private final CircuitBreakerRegistryOptions options;
+    private final CircuitBreakerRegistryOptions options;
 
-  CircuitBreakerRegistryImpl(Vertx vertx, CircuitBreakerRegistryOptions options) {
-    this.vertx = vertx;
-    this.options = options;
-    this.cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(options.getCacheExpires(), TimeUnit.SECONDS)
-            .build(new CacheLoader<String, CircuitBreaker>() {
-              @Override
-              public CircuitBreaker load(String circuitBreakerName) throws Exception {
-                return create(circuitBreakerName);
-              }
-            });
-  }
-
-  @Override
-  public CircuitBreaker get(String circuitBreakerName) {
-    try {
-      return cache.get(circuitBreakerName);
-    } catch (ExecutionException e) {
-      CircuitBreaker circuitBreaker = create(circuitBreakerName);
-      cache.asMap().putIfAbsent(circuitBreakerName, circuitBreaker);
-      return cache.asMap().get(circuitBreakerName);
+    CircuitBreakerRegistryImpl(Vertx vertx, CircuitBreakerRegistryOptions options) {
+        this.vertx = vertx;
+        this.options = options;
+        this.cache = CacheBuilder.newBuilder()
+                .expireAfterAccess(options.getCacheExpires(), TimeUnit.SECONDS)
+                .build(new CacheLoader<String, CircuitBreaker>() {
+                    @Override
+                    public CircuitBreaker load(String circuitBreakerName) throws Exception {
+                        return create(circuitBreakerName);
+                    }
+                });
     }
-  }
 
-  private CircuitBreaker create(String circuitBreakerName) {
-    CircuitBreaker circuitBreaker
-            = CircuitBreaker.create(circuitBreakerName, vertx, new CircuitBreakerOptions(options));
-    circuitBreaker.openHandler(v -> {
-      onOpen(circuitBreakerName);
-    }).closeHandler(v -> {
-      onClose(circuitBreakerName);
-    }).halfOpenHandler(v -> {
-      onHalfOpen(circuitBreakerName);
-    });
-    return circuitBreaker;
-  }
+    @Override
+    public CircuitBreaker get(String circuitBreakerName) {
+        try {
+            return cache.get(circuitBreakerName);
+        } catch (ExecutionException e) {
+            CircuitBreaker circuitBreaker = create(circuitBreakerName);
+            cache.asMap().putIfAbsent(circuitBreakerName, circuitBreaker);
+            return cache.asMap().get(circuitBreakerName);
+        }
+    }
 
-  private void onHalfOpen(String circuitBreakerName) {
-    LOGGER.info("[ApiGateway] [CircuitBreakerHalfOpen] [{}]", circuitBreakerName);
-    vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
-            .put("name", circuitBreakerName)
-            .put("state", "halfOpen"));
-  }
+    private CircuitBreaker create(String circuitBreakerName) {
+        CircuitBreaker circuitBreaker
+                = CircuitBreaker
+                .create(circuitBreakerName, vertx, new CircuitBreakerOptions(options));
+        circuitBreaker.openHandler(v -> {
+            onOpen(circuitBreakerName);
+        }).closeHandler(v -> {
+            onClose(circuitBreakerName);
+        }).halfOpenHandler(v -> {
+            onHalfOpen(circuitBreakerName);
+        });
+        return circuitBreaker;
+    }
 
-  private void onClose(String circuitBreakerName) {
-    LOGGER.info("[ApiGateway] [CircuitBreakerClose] [{}]", circuitBreakerName);
-    vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
-            .put("name", circuitBreakerName)
-            .put("state", "close"));
-  }
+    private void onHalfOpen(String circuitBreakerName) {
+        LOGGER.info("[ApiGateway] [CircuitBreakerHalfOpen] [{}]", circuitBreakerName);
+        vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
+                .put("name", circuitBreakerName)
+                .put("state", "halfOpen"));
+    }
 
-  private void onOpen(String circuitBreakerName) {
-    LOGGER.warn("[ApiGateway] [CircuitBreakerOpen] [{}]", circuitBreakerName);
-    vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
-            .put("name", circuitBreakerName)
-            .put("state", "open"));
-  }
+    private void onClose(String circuitBreakerName) {
+        LOGGER.info("[ApiGateway] [CircuitBreakerClose] [{}]", circuitBreakerName);
+        vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
+                .put("name", circuitBreakerName)
+                .put("state", "close"));
+    }
+
+    private void onOpen(String circuitBreakerName) {
+        LOGGER.warn("[ApiGateway] [CircuitBreakerOpen] [{}]", circuitBreakerName);
+        vertx.eventBus().publish(options.getAnnounce(), new JsonObject()
+                .put("name", circuitBreakerName)
+                .put("state", "open"));
+    }
 }

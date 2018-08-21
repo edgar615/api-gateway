@@ -9,13 +9,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-22.
  */
 public class UserPermissionFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return UserPermissionFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return UserPermissionFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new UserPermissionFilter(vertx, config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new UserPermissionFilter(vertx, config);
+    }
 }

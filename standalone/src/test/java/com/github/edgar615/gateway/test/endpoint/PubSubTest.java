@@ -17,23 +17,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class PubSubTest {
 
-  @Test
-  public void testOk(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost", "/user/keepalive")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                testContext.assertEquals(1,body.toJsonObject().getInteger("result"));
-                check.set(true);
-              });
-            })
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
+    @Test
+    public void testOk(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient().get(9000, "localhost", "/user/keepalive")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        testContext.assertEquals(1, body.toJsonObject().getInteger("result"));
+                        check.set(true);
+                    });
+                })
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
 
 
 }

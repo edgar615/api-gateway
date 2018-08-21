@@ -7,15 +7,15 @@ import com.google.common.base.MoreObjects;
  */
 class AppKeyPluginImpl implements AppKeyPlugin {
 
-  AppKeyPluginImpl() {
+    AppKeyPluginImpl() {
 
-  }
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("AppKeyPlugin")
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("AppKeyPlugin")
+                .toString();
+    }
 
 }

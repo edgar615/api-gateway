@@ -33,59 +33,59 @@ import org.slf4j.LoggerFactory;
  */
 public class UserLoaderFilter implements Filter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserLoaderFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserLoaderFilter.class);
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final String userKey = "userId";
+    private final String userKey = "userId";
 
-  private final UserFinder userFinder;
+    private final UserFinder userFinder;
 
-  /**
-   * @param vertx  Vertx
-   * @param config 配置
-   */
-  UserLoaderFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    JsonObject userConfig = config.getJsonObject("user", new JsonObject());
-    int port = config.getInteger("port", Consts.DEFAULT_PORT);
-    userConfig.put("port", port);
-    this.userFinder = new UserFinder(vertx, userConfig);
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 11000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.principal() == null) {
-      return false;
+    /**
+     * @param vertx  Vertx
+     * @param config 配置
+     */
+    UserLoaderFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        JsonObject userConfig = config.getJsonObject("user", new JsonObject());
+        int port = config.getInteger("port", Consts.DEFAULT_PORT);
+        userConfig.put("port", port);
+        this.userFinder = new UserFinder(vertx, userConfig);
     }
-    return apiContext.apiDefinition()
-                   .plugin(UserLoaderPlugin.class.getSimpleName()) != null
-           && apiContext.principal().containsKey(userKey);
-  }
 
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    Object userId = apiContext.principal().getValue(userKey);
-    userFinder.find(userId.toString(), ar -> {
-      if (ar.failed()) {
-        SystemException e = SystemException.create(DefaultErrorCode.UNKOWN_ACCOUNT)
-                .set("details", "Non-existent User:" + userId);
-        failed(completeFuture, apiContext.id(), "UserNonExistent", e);
-        return;
-      }
-      apiContext.principal().mergeIn(ar.result());
-      completeFuture.complete(apiContext);
-    });
-  }
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return 11000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.principal() == null) {
+            return false;
+        }
+        return apiContext.apiDefinition()
+                       .plugin(UserLoaderPlugin.class.getSimpleName()) != null
+               && apiContext.principal().containsKey(userKey);
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        Object userId = apiContext.principal().getValue(userKey);
+        userFinder.find(userId.toString(), ar -> {
+            if (ar.failed()) {
+                SystemException e = SystemException.create(DefaultErrorCode.UNKOWN_ACCOUNT)
+                        .set("details", "Non-existent User:" + userId);
+                failed(completeFuture, apiContext.id(), "UserNonExistent", e);
+                return;
+            }
+            apiContext.principal().mergeIn(ar.result());
+            completeFuture.complete(apiContext);
+        });
+    }
 
 }

@@ -6,23 +6,24 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * 删除鉴权的命令
- *命令字:plugin.permission.delete
+ * 命令字:plugin.permission.delete
+ *
  * @author Edgar  Date 2017/1/20
  */
 public class DeletePermissionScopeCmd implements ApiSubCmd {
 
-  public DeletePermissionScopeCmd() {
-  }
+    public DeletePermissionScopeCmd() {
+    }
 
-  @Override
-  public String cmd() {
-    return "plugin.permission.delete";
-  }
+    @Override
+    public String cmd() {
+        return "plugin.permission.delete";
+    }
 
-  @Override
-  public void handle(ApiDefinition definition, JsonObject jsonObject) {
-    definition.removePlugin(PermissionPlugin.class.getSimpleName());
+    @Override
+    public void handle(ApiDefinition definition, JsonObject jsonObject) {
+        definition.removePlugin(PermissionPlugin.class.getSimpleName());
 
-  }
+    }
 
 }

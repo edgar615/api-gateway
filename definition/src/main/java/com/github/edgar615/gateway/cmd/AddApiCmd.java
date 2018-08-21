@@ -21,40 +21,40 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/1/19
  */
 class AddApiCmd implements ApiCmd {
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final JsonObject configuration = new JsonObject();
+    private final JsonObject configuration = new JsonObject();
 
-  AddApiCmd(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    rules.put("namespace", Rule.required());
-    rules.put("data", Rule.required());
-    setConfig(config, configuration);
-  }
+    AddApiCmd(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        rules.put("namespace", Rule.required());
+        rules.put("data", Rule.required());
+        setConfig(config, configuration);
+    }
 
-  @Override
-  public String cmd() {
-    return "api.add";
-  }
+    @Override
+    public String cmd() {
+        return "api.add";
+    }
 
-  @Override
-  public Future<JsonObject> doHandle(JsonObject jsonObject) {
+    @Override
+    public Future<JsonObject> doHandle(JsonObject jsonObject) {
 
-    Validations.validate(jsonObject.getMap(), rules);
-    String namespace = jsonObject.getString("namespace");
-    String data = jsonObject.getString("data");
-    ApiDefinition apiDefinition = ApiDefinition.fromJson(new JsonObject(data));
-    Future<JsonObject> future = Future.future();
-    ApiDiscovery.create(vertx, new ApiDiscoveryOptions(configuration).setName(namespace))
-            .publish(apiDefinition, ar -> {
-              if (ar.failed()) {
-                future.fail(ar.cause());
-                return;
-              }
-              future.complete(succeedResult());
-            });
-    return future;
-  }
+        Validations.validate(jsonObject.getMap(), rules);
+        String namespace = jsonObject.getString("namespace");
+        String data = jsonObject.getString("data");
+        ApiDefinition apiDefinition = ApiDefinition.fromJson(new JsonObject(data));
+        Future<JsonObject> future = Future.future();
+        ApiDiscovery.create(vertx, new ApiDiscoveryOptions(configuration).setName(namespace))
+                .publish(apiDefinition, ar -> {
+                    if (ar.failed()) {
+                        future.fail(ar.cause());
+                        return;
+                    }
+                    future.complete(succeedResult());
+                });
+        return future;
+    }
 }

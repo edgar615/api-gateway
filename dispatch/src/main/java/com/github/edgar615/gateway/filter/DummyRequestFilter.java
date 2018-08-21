@@ -16,47 +16,47 @@ import io.vertx.core.json.JsonObject;
  */
 public class DummyRequestFilter implements Filter {
 
-  DummyRequestFilter() {
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 13000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().endpoints().stream()
-            .anyMatch(e -> e instanceof DummyEndpoint);
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    apiContext.apiDefinition().endpoints().stream()
-            .filter(e -> e instanceof DummyEndpoint)
-            .map(e -> toRpc(apiContext, e))
-            .forEach(req -> apiContext.addRequest(req));
-    completeFuture.complete(apiContext);
-  }
-
-
-  private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint) {
-    if (endpoint instanceof DummyEndpoint) {
-      DummyEndpoint dummyEndpoint = (DummyEndpoint) endpoint;
-      String id = apiContext.nextRpcId();
-      String name = dummyEndpoint.name();
-      JsonObject result = dummyEndpoint.result();
-      if (result == null) {
-        result = new JsonObject();
-      }
-      return DummyRequest.create(id, name, result);
-
+    DummyRequestFilter() {
     }
-    return null;
-  }
+
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return 13000;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition().endpoints().stream()
+                .anyMatch(e -> e instanceof DummyEndpoint);
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        apiContext.apiDefinition().endpoints().stream()
+                .filter(e -> e instanceof DummyEndpoint)
+                .map(e -> toRpc(apiContext, e))
+                .forEach(req -> apiContext.addRequest(req));
+        completeFuture.complete(apiContext);
+    }
+
+
+    private RpcRequest toRpc(ApiContext apiContext, Endpoint endpoint) {
+        if (endpoint instanceof DummyEndpoint) {
+            DummyEndpoint dummyEndpoint = (DummyEndpoint) endpoint;
+            String id = apiContext.nextRpcId();
+            String name = dummyEndpoint.name();
+            JsonObject result = dummyEndpoint.result();
+            if (result == null) {
+                result = new JsonObject();
+            }
+            return DummyRequest.create(id, name, result);
+
+        }
+        return null;
+    }
 }

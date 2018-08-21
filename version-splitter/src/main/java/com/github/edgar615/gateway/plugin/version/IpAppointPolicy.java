@@ -13,52 +13,52 @@ import java.util.List;
  */
 public class IpAppointPolicy implements IpPolicy {
 
-  /**
-   * IP的集合
-   */
-  private final List<String> appoint = new ArrayList<>();
+    /**
+     * IP的集合
+     */
+    private final List<String> appoint = new ArrayList<>();
 
-  /**
-   * 版本号
-   */
-  private final String version;
+    /**
+     * 版本号
+     */
+    private final String version;
 
-  public IpAppointPolicy(String version) {this.version = version;}
+    public IpAppointPolicy(String version) {this.version = version;}
 
-  public IpAppointPolicy addIp(String ip) {
-    this.appoint.add(ip);
-    return this;
-  }
-
-  public List<String> appoint() {
-    return appoint;
-  }
-
-  @Override
-  public String version() {
-    return version;
-  }
-
-  @Override
-  public boolean satisfy(String ip) {
-    return appoint.stream()
-                   .filter(r -> checkIp(r, ip))
-                   .count() > 0;
-  }
-
-  private boolean checkIp(String rule, String clientIp) {
-    List<String> rules = Lists.newArrayList(Splitter.on(".").trimResults().split(rule));
-    for (int i = rules.size(); i < 5; i++) {
-      rules.add("*");
+    public IpAppointPolicy addIp(String ip) {
+        this.appoint.add(ip);
+        return this;
     }
-    List<String> ips = Lists.newArrayList(Splitter.on(".").trimResults().split(clientIp));
-    for (int i = 0; i < 4; i++) {
-      String r = rules.get(i);
-      String ip = ips.get(i);
-      if (!r.equals(ip) && !"*".equals(r)) {
-        return false;
-      }
+
+    public List<String> appoint() {
+        return appoint;
     }
-    return true;
-  }
+
+    @Override
+    public String version() {
+        return version;
+    }
+
+    @Override
+    public boolean satisfy(String ip) {
+        return appoint.stream()
+                       .filter(r -> checkIp(r, ip))
+                       .count() > 0;
+    }
+
+    private boolean checkIp(String rule, String clientIp) {
+        List<String> rules = Lists.newArrayList(Splitter.on(".").trimResults().split(rule));
+        for (int i = rules.size(); i < 5; i++) {
+            rules.add("*");
+        }
+        List<String> ips = Lists.newArrayList(Splitter.on(".").trimResults().split(clientIp));
+        for (int i = 0; i < 4; i++) {
+            String r = rules.get(i);
+            String ip = ips.get(i);
+            if (!r.equals(ip) && !"*".equals(r)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

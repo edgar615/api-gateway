@@ -10,45 +10,45 @@ import java.util.Map;
  */
 public interface HeaderTransfomer {
 
-  /**
-   * @return header的替换规则
-   */
-  List<Map.Entry<String, String>> headerReplaced();
+    /**
+     * @return header的替换规则
+     */
+    List<Map.Entry<String, String>> headerReplaced();
 
-  /**
-   * @return header的新增规则
-   */
-  List<Map.Entry<String, String>> headerAdded();
+    /**
+     * @return header的新增规则
+     */
+    List<Map.Entry<String, String>> headerAdded();
 
-  /**
-   * @return header的删除规则
-   */
-  List<String> headerRemoved();
+    /**
+     * @return header的删除规则
+     */
+    List<String> headerRemoved();
 
-  /**
-   * 增加一个header
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HeaderTransfomer addHeader(String key, String value);
+    /**
+     * 增加一个header
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HeaderTransfomer addHeader(String key, String value);
 
-  /**
-   * 删除一个header
-   *
-   * @param key
-   * @return
-   */
-  HeaderTransfomer removeHeader(String key);
+    /**
+     * 删除一个header
+     *
+     * @param key
+     * @return
+     */
+    HeaderTransfomer removeHeader(String key);
 
-  /**
-   * 替换一个header,只有当header存在时才替换;
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  HeaderTransfomer replaceHeader(String key, String value);
+    /**
+     * 替换一个header,只有当header存在时才替换;
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    HeaderTransfomer replaceHeader(String key, String value);
 
 }

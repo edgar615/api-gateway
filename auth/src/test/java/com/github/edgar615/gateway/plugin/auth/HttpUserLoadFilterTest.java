@@ -38,135 +38,137 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class HttpUserLoadFilterTest {
 
-  private final List<Filter> filters = new ArrayList<>();
+    private final List<Filter> filters = new ArrayList<>();
 
-  Filter filter;
+    Filter filter;
 
-  String id = UUID.randomUUID().toString();
+    String id = UUID.randomUUID().toString();
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  @Before
-  public void setUp() {
-    vertx = Vertx.vertx();
-    filters.clear();
-  }
-
-  @Test
-  public void testNoUser(TestContext testContext) {
-    int port = Integer.parseInt(Randoms.randomNumber(4));
-    String path = Randoms.randomAlphabet(10);
-    mockExistHttp(port, path);
-    JsonObject config = new JsonObject()
-            .put("api", path);
-    filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
-                           new JsonObject().put("user", config)
-                                   .put("port", port));
-    filters.add(filter);
-    ApiContext apiContext = createContext();
-
-    JsonObject body = new JsonObject()
-            .put("userId", 10);
-    apiContext.setPrincipal(body);
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              JsonObject user = context.principal();
-              System.out.println(user);
-              testContext.assertFalse(user.containsKey("username"));
-              testContext.fail();
-            })
-            .onFailure(e -> {
-              testContext.assertTrue(e instanceof SystemException);
-              SystemException ex = (SystemException) e;
-              testContext.assertEquals(DefaultErrorCode.UNKOWN_ACCOUNT.getNumber(),
-                                       ex.getErrorCode().getNumber());
-
-              async.complete();
-            });
-  }
-
-  @Test
-  public void testLoadSuccess(TestContext testContext) {
-    int port = Integer.parseInt(Randoms.randomNumber(4));
-    String path = Randoms.randomAlphabet(10);
-    mockExistHttp(port, path);
-    JsonObject config = new JsonObject()
-            .put("api", path);
-    filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
-                           new JsonObject().put("user", config)
-                                   .put("port", port));
-    filters.add(filter);
-    ApiContext apiContext = createContext();
-
-    JsonObject body = new JsonObject()
-            .put("userId", id);
-    apiContext.setPrincipal(body);
-
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              JsonObject user = context.principal();
-              System.out.println(user);
-              testContext.assertTrue(user.containsKey("username"));
-              async.complete();
-            })
-            .onFailure(throwable -> {
-              throwable.printStackTrace();
-              testContext.fail();
-            });
-  }
-
-  private ApiContext createContext() {
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("q3", "v3");
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h3", "v3");
-    headers.put("h3", "v3.2");
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", 80, "localhost");
-    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
-            .newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-    UserLoaderPlugin plugin = (UserLoaderPlugin) ApiPlugin.create(UserLoaderPlugin.class.getSimpleName());
-    apiContext.apiDefinition().addPlugin(plugin);
-    return apiContext;
-  }
-
-  private void mockExistHttp(int port, String path) {
-    if (!path.startsWith("/")) {
-      path = "/" + path;
+    @Before
+    public void setUp() {
+        vertx = Vertx.vertx();
+        filters.clear();
     }
-    AtomicBoolean completed = new AtomicBoolean();
 
-    vertx.createHttpServer().requestHandler(req -> {
-      String userId = req.getParam("userId");
-      if (id.equalsIgnoreCase(userId)) {
-        JsonObject jsonObject = new JsonObject()
-                .put("userId", userId)
-                .put("username", "edgar615");
-        req.response().end(jsonObject.encode());
-      } else {
-        req.response().setStatusCode(404)
-                .end();
-      }
+    @Test
+    public void testNoUser(TestContext testContext) {
+        int port = Integer.parseInt(Randoms.randomNumber(4));
+        String path = Randoms.randomAlphabet(10);
+        mockExistHttp(port, path);
+        JsonObject config = new JsonObject()
+                .put("api", path);
+        filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
+                               new JsonObject().put("user", config)
+                                       .put("port", port));
+        filters.add(filter);
+        ApiContext apiContext = createContext();
 
-    }).listen(port, ar -> {
-      if (ar.succeeded()) {
-        completed.set(true);
-      } else {
-        ar.cause().printStackTrace();
-      }
-    });
+        JsonObject body = new JsonObject()
+                .put("userId", 10);
+        apiContext.setPrincipal(body);
 
-    Awaitility.await().until(() -> completed.get());
-  }
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    JsonObject user = context.principal();
+                    System.out.println(user);
+                    testContext.assertFalse(user.containsKey("username"));
+                    testContext.fail();
+                })
+                .onFailure(e -> {
+                    testContext.assertTrue(e instanceof SystemException);
+                    SystemException ex = (SystemException) e;
+                    testContext.assertEquals(DefaultErrorCode.UNKOWN_ACCOUNT.getNumber(),
+                                             ex.getErrorCode().getNumber());
+
+                    async.complete();
+                });
+    }
+
+    @Test
+    public void testLoadSuccess(TestContext testContext) {
+        int port = Integer.parseInt(Randoms.randomNumber(4));
+        String path = Randoms.randomAlphabet(10);
+        mockExistHttp(port, path);
+        JsonObject config = new JsonObject()
+                .put("api", path);
+        filter = Filter.create(UserLoaderFilter.class.getSimpleName(), vertx,
+                               new JsonObject().put("user", config)
+                                       .put("port", port));
+        filters.add(filter);
+        ApiContext apiContext = createContext();
+
+        JsonObject body = new JsonObject()
+                .put("userId", id);
+        apiContext.setPrincipal(body);
+
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    JsonObject user = context.principal();
+                    System.out.println(user);
+                    testContext.assertTrue(user.containsKey("username"));
+                    async.complete();
+                })
+                .onFailure(throwable -> {
+                    throwable.printStackTrace();
+                    testContext.fail();
+                });
+    }
+
+    private ApiContext createContext() {
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("q3", "v3");
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("h3", "v3");
+        headers.put("h3", "v3.2");
+        ApiContext apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", 80, "localhost");
+        ApiDefinition definition =
+                ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
+                        .newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+        UserLoaderPlugin plugin =
+                (UserLoaderPlugin) ApiPlugin.create(UserLoaderPlugin.class.getSimpleName());
+        apiContext.apiDefinition().addPlugin(plugin);
+        return apiContext;
+    }
+
+    private void mockExistHttp(int port, String path) {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        AtomicBoolean completed = new AtomicBoolean();
+
+        vertx.createHttpServer().requestHandler(req -> {
+            String userId = req.getParam("userId");
+            if (id.equalsIgnoreCase(userId)) {
+                JsonObject jsonObject = new JsonObject()
+                        .put("userId", userId)
+                        .put("username", "edgar615");
+                req.response().end(jsonObject.encode());
+            } else {
+                req.response().setStatusCode(404)
+                        .end();
+            }
+
+        }).listen(port, ar -> {
+            if (ar.succeeded()) {
+                completed.set(true);
+            } else {
+                ar.cause().printStackTrace();
+            }
+        });
+
+        Awaitility.await().until(() -> completed.get());
+    }
 
 }

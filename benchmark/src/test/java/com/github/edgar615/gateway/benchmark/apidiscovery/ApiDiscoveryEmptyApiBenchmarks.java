@@ -21,71 +21,73 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class ApiDiscoveryEmptyApiBenchmarks {
 
-  @State(Scope.Benchmark)
-  public static class EmptyApiBackend {
-    private Vertx vertx;
-
-    private ApiDiscovery apiDiscovery;
-
-    public EmptyApiBackend() {
-      vertx = Vertx.vertx();
-      apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions());
-      try {
-        TimeUnit.SECONDS.sleep(3);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    @TearDown(Level.Trial)
+    public void tearDown(EmptyApiBackend pool) {
+        pool.close();
     }
 
-    public void getDefinitions(JsonObject jsonObject,
-                               Handler<AsyncResult<List<ApiDefinition>>>
-            handler) {
-      apiDiscovery.getDefinitions(jsonObject, handler);
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Fork(1)
+    @OperationsPerInvocation(10000)
+    public void testThroughput(EmptyApiBackend backend) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"),
+                               ar -> {
+                                   latch.countDown();
+                               });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void close() {
-      vertx.close();
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    @Fork(1)
+    @OperationsPerInvocation(10000)
+    public void testAverage(EmptyApiBackend backend) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"),
+                               ar -> {
+                                   latch.countDown();
+                               });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-  }
 
-  @TearDown(Level.Trial)
-  public void tearDown(EmptyApiBackend pool) {
-    pool.close();
-  }
+    @State(Scope.Benchmark)
+    public static class EmptyApiBackend {
+        private Vertx vertx;
 
-  @Benchmark
-  @BenchmarkMode(Mode.Throughput)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(10000)
-  public void testThroughput(EmptyApiBackend backend) {
-    final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
-      latch.countDown();
-    });
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+        private ApiDiscovery apiDiscovery;
+
+        public EmptyApiBackend() {
+            vertx = Vertx.vertx();
+            apiDiscovery = ApiDiscovery.create(vertx, new ApiDiscoveryOptions());
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void getDefinitions(JsonObject jsonObject,
+                                   Handler<AsyncResult<List<ApiDefinition>>>
+                                           handler) {
+            apiDiscovery.getDefinitions(jsonObject, handler);
+        }
+
+        public void close() {
+            vertx.close();
+        }
     }
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @Fork(1)
-  @OperationsPerInvocation(10000)
-  public void testAverage(EmptyApiBackend backend) {
-    final CountDownLatch latch = new CountDownLatch(1);
-    backend.getDefinitions(new JsonObject().put("method", "GET").put("path", "/devices/1"), ar -> {
-      latch.countDown();
-    });
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
 
 //  @Benchmark
 //  @BenchmarkMode(Mode.SampleTime)

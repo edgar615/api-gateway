@@ -32,151 +32,153 @@ import java.util.List;
 @RunWith(VertxUnitRunner.class)
 public class TImeoutFilterTest {
 
-  Vertx vertx;
+    Vertx vertx;
 
-  @Before
-  public void setUp(TestContext testContext) {
-    vertx = Vertx.vertx();
-  }
+    @Before
+    public void setUp(TestContext testContext) {
+        vertx = Vertx.vertx();
+    }
 
 
-  @Test
-  public void missTimestampShouldThrowValidationException(TestContext testContext) {
+    @Test
+    public void missTimestampShouldThrowValidationException(TestContext testContext) {
 
-    ApiContext apiContext = ApiContext
-            .create(HttpMethod.GET, "/devices", ArrayListMultimap.create(),
-                    ArrayListMultimap.create(), null);
+        ApiContext apiContext = ApiContext
+                .create(HttpMethod.GET, "/devices", ArrayListMultimap.create(),
+                        ArrayListMultimap.create(), null);
 
-    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
+        Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
 
-    List<Filter> filters = Lists.newArrayList(filter);
+        List<Filter> filters = Lists.newArrayList(filter);
 
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
 
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.fail();
-              ;
-            }).onFailure(e -> {
-      testContext.assertTrue(e instanceof ValidationException);
-      async.complete();
-    });
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.fail();
+                    ;
+                }).onFailure(e -> {
+            testContext.assertTrue(e instanceof ValidationException);
+            async.complete();
+        });
 
-  }
+    }
 
-  @Test
-  public void laterTimestampShouldThrowExpire(TestContext testContext) {
+    @Test
+    public void laterTimestampShouldThrowExpire(TestContext testContext) {
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("timestamp", Instant.now().getEpochSecond() + (5 * 60 + 5) + "");
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("timestamp", Instant.now().getEpochSecond() + (5 * 60 + 5) + "");
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
-    List<Filter> filters = Lists.newArrayList(filter);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
+        Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
+        List<Filter> filters = Lists.newArrayList(filter);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
 
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.fail();
-              ;
-            }).onFailure(e -> {
-      testContext.assertTrue(e instanceof SystemException);
-      SystemException ex = (SystemException) e;
-      testContext
-              .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.fail();
+                    ;
+                }).onFailure(e -> {
+            testContext.assertTrue(e instanceof SystemException);
+            SystemException ex = (SystemException) e;
+            testContext
+                    .assertEquals(DefaultErrorCode.EXPIRE.getNumber(),
+                                  ex.getErrorCode().getNumber());
 
-      async.complete();
-    });
+            async.complete();
+        });
 
-  }
+    }
 
-  @Test
-  public void beforeTimestampShouldThrowExpire(TestContext testContext) {
+    @Test
+    public void beforeTimestampShouldThrowExpire(TestContext testContext) {
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("timestamp", Instant.now().getEpochSecond() - (5 * 60 + 5) + "");
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("timestamp", Instant.now().getEpochSecond() - (5 * 60 + 5) + "");
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
+        Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
 
-    List<Filter> filters = Lists.newArrayList(filter);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
+        List<Filter> filters = Lists.newArrayList(filter);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
 
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.fail();
-              ;
-            }).onFailure(e -> {
-      testContext.assertTrue(e instanceof SystemException);
-      SystemException ex = (SystemException) e;
-      testContext
-              .assertEquals(DefaultErrorCode.EXPIRE.getNumber(), ex.getErrorCode().getNumber());
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.fail();
+                    ;
+                }).onFailure(e -> {
+            testContext.assertTrue(e instanceof SystemException);
+            SystemException ex = (SystemException) e;
+            testContext
+                    .assertEquals(DefaultErrorCode.EXPIRE.getNumber(),
+                                  ex.getErrorCode().getNumber());
 
-      async.complete();
-    });
+            async.complete();
+        });
 
-  }
+    }
 
-  @Test
-  public void testTimeoutOK(TestContext testContext) {
+    @Test
+    public void testTimeoutOK(TestContext testContext) {
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("timestamp", Instant.now().getEpochSecond() + "");
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("timestamp", Instant.now().getEpochSecond() + "");
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
+        Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx, new JsonObject());
 
-    List<Filter> filters = Lists.newArrayList(filter);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
+        List<Filter> filters = Lists.newArrayList(filter);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
 
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertTrue(context.params().containsKey("timestamp"));
-              async.complete();
-              ;
-            }).onFailure(e -> {
-      testContext.fail();
-    });
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.assertTrue(context.params().containsKey("timestamp"));
+                    async.complete();
+                    ;
+                }).onFailure(e -> {
+            testContext.fail();
+        });
 
-  }
+    }
 
-  @Test
-  public void testConfigExpire(TestContext testContext) {
+    @Test
+    public void testConfigExpire(TestContext testContext) {
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("timestamp", Instant.now().getEpochSecond() + (9 * 60) + "");
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("timestamp", Instant.now().getEpochSecond() + (9 * 60) + "");
 
-    ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
+        ApiContext apiContext = ApiContext.create(HttpMethod.GET, "/devices", null, params, null);
 
-    Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx,
-                                  new JsonObject()
-                                          .put("timeout", new JsonObject().put("expires", 600))
-    );
+        Filter filter = Filter.create(TimeoutFilter.class.getSimpleName(), vertx,
+                                      new JsonObject()
+                                              .put("timeout", new JsonObject().put("expires", 600))
+        );
 
-    List<Filter> filters = Lists.newArrayList(filter);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
+        List<Filter> filters = Lists.newArrayList(filter);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
 
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertTrue(context.params().containsKey("timestamp"));
-              async.complete();
-              ;
-            }).onFailure(e -> {
-      testContext.fail();
-    });
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.assertTrue(context.params().containsKey("timestamp"));
+                    async.complete();
+                    ;
+                }).onFailure(e -> {
+            testContext.fail();
+        });
 
-  }
+    }
 }

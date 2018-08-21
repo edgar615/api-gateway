@@ -9,30 +9,30 @@ import io.vertx.core.json.JsonObject;
  */
 class DummyEndpointImpl implements DummyEndpoint {
 
-  /**
-   * endpoint名称
-   */
-  private final String name;
+    /**
+     * endpoint名称
+     */
+    private final String name;
 
-  private final JsonObject result;
+    private final JsonObject result;
 
-  DummyEndpointImpl(String name, JsonObject result) {
-    this.name = name;
-    if (result == null) {
-      this.result = new JsonObject();
-    } else {
-      this.result = result;
+    DummyEndpointImpl(String name, JsonObject result) {
+        this.name = name;
+        if (result == null) {
+            this.result = new JsonObject();
+        } else {
+            this.result = result;
+        }
     }
-  }
 
 
-  @Override
-  public JsonObject result() {
-    return result.copy();
-  }
+    @Override
+    public JsonObject result() {
+        return result.copy();
+    }
 
-  @Override
-  public String name() {
-    return name;
-  }
+    @Override
+    public String name() {
+        return name;
+    }
 }

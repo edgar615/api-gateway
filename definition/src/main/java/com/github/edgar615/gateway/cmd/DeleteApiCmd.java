@@ -31,76 +31,76 @@ import java.util.stream.Collectors;
  */
 class DeleteApiCmd implements ApiCmd {
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  private final Multimap<String, Rule> rules = ArrayListMultimap.create();
+    private final Multimap<String, Rule> rules = ArrayListMultimap.create();
 
-  private final JsonObject configuration = new JsonObject();
+    private final JsonObject configuration = new JsonObject();
 
-  DeleteApiCmd(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-    rules.put("namespace", Rule.required());
-    rules.put("name", Rule.required());
-    setConfig(config, configuration);
-  }
-
-  @Override
-  public String cmd() {
-    return "api.delete";
-  }
-
-  @Override
-  public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    Validations.validate(jsonObject.getMap(), rules);
-    String namespace = jsonObject.getString("namespace");
-    String name = jsonObject.getString("name", "*");
-    JsonObject filter = new JsonObject();
-    if (name != null) {
-      filter.put("name", name);
+    DeleteApiCmd(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
+        rules.put("namespace", Rule.required());
+        rules.put("name", Rule.required());
+        setConfig(config, configuration);
     }
-    Future<JsonObject> future = Future.future();
-    ApiDiscovery discovery = ApiDiscovery.create(vertx,
-                                                 new ApiDiscoveryOptions(configuration)
-                                                         .setName(namespace));
-    discovery.getDefinitions(filter, ar -> {
-      if (ar.failed()) {
-        future.fail(ar.cause());
-        return;
-      }
-      List<String> names = ar.result()
-              .stream()
-              .map(d -> d.name())
-              .collect(Collectors.toList());
-      if (names.isEmpty()) {
-        future.complete(succeedResult());
-      } else {
-        deleteByName(discovery, names, future);
-      }
-    });
-    return future;
-  }
 
-  private void deleteByName(ApiDiscovery discovery, List<String> names,
-                            Future<JsonObject> complete) {
-    List<Future> futures = new ArrayList<>();
-    for (String name : names) {
-      Future<Void> future = Future.future();
-      futures.add(future);
-      discovery.unpublish(name, ar -> {
-        if (ar.succeeded()) {
-          future.complete();
-        } else {
-          future.fail(ar.cause());
+    @Override
+    public String cmd() {
+        return "api.delete";
+    }
+
+    @Override
+    public Future<JsonObject> doHandle(JsonObject jsonObject) {
+        Validations.validate(jsonObject.getMap(), rules);
+        String namespace = jsonObject.getString("namespace");
+        String name = jsonObject.getString("name", "*");
+        JsonObject filter = new JsonObject();
+        if (name != null) {
+            filter.put("name", name);
         }
-      });
+        Future<JsonObject> future = Future.future();
+        ApiDiscovery discovery = ApiDiscovery.create(vertx,
+                                                     new ApiDiscoveryOptions(configuration)
+                                                             .setName(namespace));
+        discovery.getDefinitions(filter, ar -> {
+            if (ar.failed()) {
+                future.fail(ar.cause());
+                return;
+            }
+            List<String> names = ar.result()
+                    .stream()
+                    .map(d -> d.name())
+                    .collect(Collectors.toList());
+            if (names.isEmpty()) {
+                future.complete(succeedResult());
+            } else {
+                deleteByName(discovery, names, future);
+            }
+        });
+        return future;
     }
-    CompositeFuture.all(futures)
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                complete.complete(succeedResult());
-              } else {
-                complete.fail(ar.cause());
-              }
+
+    private void deleteByName(ApiDiscovery discovery, List<String> names,
+                              Future<JsonObject> complete) {
+        List<Future> futures = new ArrayList<>();
+        for (String name : names) {
+            Future<Void> future = Future.future();
+            futures.add(future);
+            discovery.unpublish(name, ar -> {
+                if (ar.succeeded()) {
+                    future.complete();
+                } else {
+                    future.fail(ar.cause());
+                }
             });
-  }
+        }
+        CompositeFuture.all(futures)
+                .setHandler(ar -> {
+                    if (ar.succeeded()) {
+                        complete.complete(succeedResult());
+                    } else {
+                        complete.fail(ar.cause());
+                    }
+                });
+    }
 }

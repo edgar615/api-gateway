@@ -7,7 +7,7 @@ package com.github.edgar615.gateway.http.splitter;
  */
 public interface IpPolicy {
 
-  String serviceTag();
+    String serviceTag();
 
-  boolean satisfy(String ip);
+    boolean satisfy(String ip);
 }

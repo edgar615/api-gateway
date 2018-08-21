@@ -13,28 +13,28 @@ import io.vertx.ext.dropwizard.MetricsService;
  */
 class ApiMetricCmd implements ApiCmd {
 
-  private final MetricsService metricsService;
+    private final MetricsService metricsService;
 
-  ApiMetricCmd(Vertx vertx) {
-    this.metricsService = MetricsService.create(vertx);
-  }
-
-  @Override
-  public String cmd() {
-    return "api.metric";
-  }
-
-  @Override
-  public Future<JsonObject> doHandle(JsonObject jsonObject) {
-    try {
-      String name = jsonObject.getString("name", "");
-      JsonObject metrics = metricsService.getMetricsSnapshot(name);
-      if (metrics == null) {
-        return Future.succeededFuture(new JsonObject());
-      }
-      return Future.succeededFuture(metrics);
-    } catch (Exception e) {
-      return Future.failedFuture(e.getCause());
+    ApiMetricCmd(Vertx vertx) {
+        this.metricsService = MetricsService.create(vertx);
     }
-  }
+
+    @Override
+    public String cmd() {
+        return "api.metric";
+    }
+
+    @Override
+    public Future<JsonObject> doHandle(JsonObject jsonObject) {
+        try {
+            String name = jsonObject.getString("name", "");
+            JsonObject metrics = metricsService.getMetricsSnapshot(name);
+            if (metrics == null) {
+                return Future.succeededFuture(new JsonObject());
+            }
+            return Future.succeededFuture(metrics);
+        } catch (Exception e) {
+            return Future.failedFuture(e.getCause());
+        }
+    }
 }

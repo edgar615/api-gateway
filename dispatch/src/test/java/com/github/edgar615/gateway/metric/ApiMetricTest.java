@@ -12,12 +12,12 @@ import java.util.UUID;
  */
 public class ApiMetricTest {
 
-  @Test
-  public void testRequest() {
-    String id = UUID.randomUUID().toString();
-    String api = "test_api";
-    ApiMetric.request(id, api);
+    @Test
+    public void testRequest() {
+        String id = UUID.randomUUID().toString();
+        String api = "test_api";
+        ApiMetric.request(id, api);
 
-    ApiMetric.response(id,  api, 200, 1);
-  }
+        ApiMetric.response(id, api, 200, 1);
+    }
 }

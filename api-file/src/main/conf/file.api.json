@@ -1,6 +1,5 @@
 {
   "api.discovery" : {
-    "name" : "iotp-app",
     "publishedAddress" : "__com.github.edgar615.gateway.api.published",
     "unpublishedAddress" : "__com.github.edgar615.gateway.api.unpublished"
   },

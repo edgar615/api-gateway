@@ -7,26 +7,26 @@ import java.util.Map;
 
 public class ServiceSplitterPlugin implements ApiPlugin {
 
-  private Map<String, ServiceTraffic> traffics = new HashMap<>();
+    private Map<String, ServiceTraffic> traffics = new HashMap<>();
 
-  public ServiceSplitterPlugin() {
-  }
+    public ServiceSplitterPlugin() {
+    }
 
-  public ServiceTraffic traffic(String service) {
-    return traffics.get(service);
-  }
+    public ServiceTraffic traffic(String service) {
+        return traffics.get(service);
+    }
 
-  public ServiceSplitterPlugin addTraffic(String service, ServiceTraffic traffic) {
-     traffics.put(service, traffic);
-     return this;
-  }
+    public ServiceSplitterPlugin addTraffic(String service, ServiceTraffic traffic) {
+        traffics.put(service, traffic);
+        return this;
+    }
 
-  public Map<String, ServiceTraffic> traffics() {
-    return traffics;
-  }
+    public Map<String, ServiceTraffic> traffics() {
+        return traffics;
+    }
 
-  @Override
-  public String name() {
-    return ServiceSplitterPlugin.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return ServiceSplitterPlugin.class.getSimpleName();
+    }
 }

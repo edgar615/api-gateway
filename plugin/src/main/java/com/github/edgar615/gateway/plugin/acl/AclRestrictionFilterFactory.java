@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  */
 public class AclRestrictionFilterFactory implements FilterFactory {
 
-  @Override
-  public String name() {
-    return AclRestrictionFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return AclRestrictionFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new AclRestrictionFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new AclRestrictionFilter(config);
+    }
 }

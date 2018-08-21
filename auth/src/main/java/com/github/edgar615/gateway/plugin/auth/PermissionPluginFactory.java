@@ -9,31 +9,31 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-25.
  */
 public class PermissionPluginFactory implements ApiPluginFactory {
-  @Override
-  public String name() {
-    return PermissionPlugin.class.getSimpleName();
-  }
-
-  @Override
-  public ApiPlugin create() {
-    return new PermissionPluginImpl();
-  }
-
-  @Override
-  public ApiPlugin decode(JsonObject jsonObject) {
-    if (jsonObject.containsKey("permission")) {
-      String scope = jsonObject.getString("permission", "default");
-      return new PermissionPluginImpl(scope);
+    @Override
+    public String name() {
+        return PermissionPlugin.class.getSimpleName();
     }
-    return null;
-  }
 
-  @Override
-  public JsonObject encode(ApiPlugin plugin) {
-    if (plugin == null) {
-      return new JsonObject();
+    @Override
+    public ApiPlugin create() {
+        return new PermissionPluginImpl();
     }
-    PermissionPlugin permissionPlugin = (PermissionPlugin) plugin;
-    return new JsonObject().put("permission", permissionPlugin.permission());
-  }
+
+    @Override
+    public ApiPlugin decode(JsonObject jsonObject) {
+        if (jsonObject.containsKey("permission")) {
+            String scope = jsonObject.getString("permission", "default");
+            return new PermissionPluginImpl(scope);
+        }
+        return null;
+    }
+
+    @Override
+    public JsonObject encode(ApiPlugin plugin) {
+        if (plugin == null) {
+            return new JsonObject();
+        }
+        PermissionPlugin permissionPlugin = (PermissionPlugin) plugin;
+        return new JsonObject().put("permission", permissionPlugin.permission());
+    }
 }

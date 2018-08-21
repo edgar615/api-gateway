@@ -14,77 +14,77 @@ import java.util.Set;
  * @author Edgar  Date 2016/10/21
  */
 class AclRestrictionImpl implements AclRestriction {
-  /**
-   * 白名单
-   */
-  private final Set<String> whitelist = new HashSet<>();
+    /**
+     * 白名单
+     */
+    private final Set<String> whitelist = new HashSet<>();
 
-  /**
-   * 黑名单
-   */
-  private final Set<String> blacklist = new HashSet<>();
+    /**
+     * 黑名单
+     */
+    private final Set<String> blacklist = new HashSet<>();
 
-  AclRestrictionImpl() {
-  }
+    AclRestrictionImpl() {
+    }
 
-  @Override
-  public AclRestriction addWhitelist(String group) {
-    Preconditions.checkNotNull(group, "group cannot be null");
-    blacklist.remove(group);
-    whitelist.add(group);
-    return this;
-  }
+    @Override
+    public AclRestriction addWhitelist(String group) {
+        Preconditions.checkNotNull(group, "group cannot be null");
+        blacklist.remove(group);
+        whitelist.add(group);
+        return this;
+    }
 
-  @Override
-  public AclRestriction addBlacklist(String group) {
-    Preconditions.checkNotNull(group, "group cannot be null");
-    whitelist.remove(group);
-    blacklist.add(group);
-    return this;
-  }
+    @Override
+    public AclRestriction addBlacklist(String group) {
+        Preconditions.checkNotNull(group, "group cannot be null");
+        whitelist.remove(group);
+        blacklist.add(group);
+        return this;
+    }
 
-  @Override
-  public AclRestriction removeWhitelist(String group) {
-    Preconditions.checkNotNull(group, "group cannot be null");
-    whitelist.remove(group);
-    return this;
-  }
+    @Override
+    public AclRestriction removeWhitelist(String group) {
+        Preconditions.checkNotNull(group, "group cannot be null");
+        whitelist.remove(group);
+        return this;
+    }
 
-  @Override
-  public AclRestriction removeBlacklist(String group) {
-    Preconditions.checkNotNull(group, "group cannot be null");
-    blacklist.remove(group);
-    return this;
-  }
+    @Override
+    public AclRestriction removeBlacklist(String group) {
+        Preconditions.checkNotNull(group, "group cannot be null");
+        blacklist.remove(group);
+        return this;
+    }
 
-  @Override
-  public AclRestriction clearWhitelist() {
-    whitelist.clear();
-    return this;
-  }
+    @Override
+    public AclRestriction clearWhitelist() {
+        whitelist.clear();
+        return this;
+    }
 
-  @Override
-  public AclRestriction clearBlacklist() {
-    blacklist.clear();
-    return this;
-  }
+    @Override
+    public AclRestriction clearBlacklist() {
+        blacklist.clear();
+        return this;
+    }
 
-  @Override
-  public List<String> whitelist() {
-    return ImmutableList.copyOf(whitelist);
-  }
+    @Override
+    public List<String> whitelist() {
+        return ImmutableList.copyOf(whitelist);
+    }
 
-  @Override
-  public List<String> blacklist() {
-    return ImmutableList.copyOf(blacklist);
-  }
+    @Override
+    public List<String> blacklist() {
+        return ImmutableList.copyOf(blacklist);
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("UserRestriction")
-            .add("whitelist", whitelist)
-            .add("blacklist", blacklist)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("UserRestriction")
+                .add("whitelist", whitelist)
+                .add("blacklist", blacklist)
+                .toString();
+    }
 }

@@ -9,8 +9,8 @@ import io.vertx.core.Launcher;
  * @author Edgar  Date 2017/6/20
  */
 public class DefinitionMain2 {
-  public static void main(String[] args) {
-    new Launcher().execute("run", ApiDefinitionVerticle.class.getName(),
-                           "--cluster");
-  }
+    public static void main(String[] args) {
+        new Launcher().execute("run", ApiDefinitionVerticle.class.getName(),
+                               "--cluster");
+    }
 }

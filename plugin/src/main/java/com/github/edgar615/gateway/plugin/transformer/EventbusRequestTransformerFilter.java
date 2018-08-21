@@ -21,67 +21,67 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EventbusRequestTransformerFilter extends AbstractTransformerFilter {
 
 
-  private final AtomicReference<RequestTransformer> reference = new AtomicReference<>();
+    private final AtomicReference<RequestTransformer> reference = new AtomicReference<>();
 
-  EventbusRequestTransformerFilter(JsonObject config) {
-    updateConfig(config);
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    if (apiContext.apiDefinition() == null) {
-      return false;
+    EventbusRequestTransformerFilter(JsonObject config) {
+        updateConfig(config);
     }
-    if (apiContext.requests().size() > 0
-        && apiContext.requests().stream()
-                .anyMatch(e -> e instanceof EventbusRpcRequest)) {
-      return reference.get() != null
-             || apiContext.apiDefinition()
-                        .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
-    }
-    return false;
-  }
 
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    for (int i = 0; i < apiContext.requests().size(); i++) {
-      RpcRequest request = apiContext.requests().get(i);
-      if (request instanceof EventbusRpcRequest) {
-        if (reference.get() != null) {
-          doTransformer((EventbusRpcRequest) request, reference.get());
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        if (apiContext.apiDefinition() == null) {
+            return false;
         }
-        transformer(apiContext, (EventbusRpcRequest) request);
-      }
+        if (apiContext.requests().size() > 0
+            && apiContext.requests().stream()
+                    .anyMatch(e -> e instanceof EventbusRpcRequest)) {
+            return reference.get() != null
+                   || apiContext.apiDefinition()
+                              .plugin(RequestTransformerPlugin.class.getSimpleName()) != null;
+        }
+        return false;
     }
-    completeFuture.complete(apiContext);
-  }
 
-  private void doTransformer(EventbusRpcRequest request, RequestTransformer transformer) {
-    Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
-    request.clearHeaders().addHeaders(headers);
-    if (request.message() != null) {
-      JsonObject body = tranformerBody(request.message(), transformer);
-      request.replaceMessage(body);
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        for (int i = 0; i < apiContext.requests().size(); i++) {
+            RpcRequest request = apiContext.requests().get(i);
+            if (request instanceof EventbusRpcRequest) {
+                if (reference.get() != null) {
+                    doTransformer((EventbusRpcRequest) request, reference.get());
+                }
+                transformer(apiContext, (EventbusRpcRequest) request);
+            }
+        }
+        completeFuture.complete(apiContext);
     }
-  }
 
-  private void transformer(ApiContext apiContext, EventbusRpcRequest request) {
-    String name = request.name();
-    RequestTransformerPlugin plugin =
-            (RequestTransformerPlugin) apiContext.apiDefinition()
-                    .plugin(RequestTransformerPlugin.class.getSimpleName());
-    if (plugin == null) {
-      return;
+    @Override
+    public void updateConfig(JsonObject config) {
+        super.setGlobalTransformer(config, reference);
     }
-    RequestTransformer transformer = plugin.transformer(name);
-    if (transformer != null) {
-      doTransformer(request, transformer);
-    }
-  }
 
-  @Override
-  public void updateConfig(JsonObject config) {
-    super.setGlobalTransformer(config, reference);
-  }
+    private void doTransformer(EventbusRpcRequest request, RequestTransformer transformer) {
+        Multimap<String, String> headers = tranformerHeaders(request.headers(), transformer);
+        request.clearHeaders().addHeaders(headers);
+        if (request.message() != null) {
+            JsonObject body = tranformerBody(request.message(), transformer);
+            request.replaceMessage(body);
+        }
+    }
+
+    private void transformer(ApiContext apiContext, EventbusRpcRequest request) {
+        String name = request.name();
+        RequestTransformerPlugin plugin =
+                (RequestTransformerPlugin) apiContext.apiDefinition()
+                        .plugin(RequestTransformerPlugin.class.getSimpleName());
+        if (plugin == null) {
+            return;
+        }
+        RequestTransformer transformer = plugin.transformer(name);
+        if (transformer != null) {
+            doTransformer(request, transformer);
+        }
+    }
 
 }

@@ -12,31 +12,31 @@ import java.util.List;
  * @author Edgar
  */
 public interface ChooseStrategy {
-  /**
-   * 从给定一组对象中，返回一个对象.
-   *
-   * @param instances the instance list
-   * @return the instance to use
-   */
-  Record get(List<Record> instances);
+    /**
+     * 从给定一组对象中，返回一个对象.
+     *
+     * @param instances the instance list
+     * @return the instance to use
+     */
+    Record get(List<Record> instances);
 
-  static ChooseStrategy random() {
-    return new RandomStrategy();
-  }
+    static ChooseStrategy random() {
+        return new RandomStrategy();
+    }
 
-  static ChooseStrategy lastConnection() {
-    return new LastConnectionStrategy();
-  }
+    static ChooseStrategy lastConnection() {
+        return new LastConnectionStrategy();
+    }
 
-  static ChooseStrategy weightRoundRobin() {
-    return new WeightRoundbinStrategy();
-  }
+    static ChooseStrategy weightRoundRobin() {
+        return new WeightRoundbinStrategy();
+    }
 
-  static ChooseStrategy roundRobin() {
-    return new RoundRobinStrategy();
-  }
+    static ChooseStrategy roundRobin() {
+        return new RoundRobinStrategy();
+    }
 
-  static ChooseStrategy sticky(ChooseStrategy masterStrategy) {
-    return new StickyStrategy(masterStrategy);
-  }
+    static ChooseStrategy sticky(ChooseStrategy masterStrategy) {
+        return new StickyStrategy(masterStrategy);
+    }
 }

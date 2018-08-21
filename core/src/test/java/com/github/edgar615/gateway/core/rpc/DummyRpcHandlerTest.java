@@ -22,41 +22,41 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class DummyRpcHandlerTest {
 
-  static Vertx vertx;
+    static Vertx vertx;
 
-  RpcHandler rpcHandler;
+    RpcHandler rpcHandler;
 
-  @BeforeClass
-  public static void startServer(TestContext context) {
-    vertx = Vertx.vertx();
-  }
+    @BeforeClass
+    public static void startServer(TestContext context) {
+        vertx = Vertx.vertx();
+    }
 
-  @Before
-  public void before(TestContext context) {
-    rpcHandler = new DummyHandlerFactory().create(vertx, new JsonObject());
-  }
+    @Before
+    public void before(TestContext context) {
+        rpcHandler = new DummyHandlerFactory().create(vertx, new JsonObject());
+    }
 
-  @After
-  public void after(TestContext context) {
+    @After
+    public void after(TestContext context) {
 //    vertx.close(context.asyncAssertSuccess());
-  }
+    }
 
-  @Test
-  public void dummyShouldAlwaysReturn200(TestContext context) {
-    RpcRequest rpcRequest = DummyRequest.create("abc", "device",
-        new            JsonObject().put("result", 1));
+    @Test
+    public void dummyShouldAlwaysReturn200(TestContext context) {
+        RpcRequest rpcRequest = DummyRequest.create("abc", "device",
+                                                    new JsonObject().put("result", 1));
 
-    Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
-    Async async = context.async();
-    future.setHandler(ar -> {
-      if (ar.succeeded()) {
-        RpcResponse rpcResponse = ar.result();
-        context.assertFalse(rpcResponse.isArray());
-        context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
-        async.complete();
-      } else {
-        context.fail();
-      }
-    });
-  }
+        Future<RpcResponse> future = rpcHandler.handle(rpcRequest);
+        Async async = context.async();
+        future.setHandler(ar -> {
+            if (ar.succeeded()) {
+                RpcResponse rpcResponse = ar.result();
+                context.assertFalse(rpcResponse.isArray());
+                context.assertEquals(1, rpcResponse.responseObject().getInteger("result"));
+                async.complete();
+            } else {
+                context.fail();
+            }
+        });
+    }
 }

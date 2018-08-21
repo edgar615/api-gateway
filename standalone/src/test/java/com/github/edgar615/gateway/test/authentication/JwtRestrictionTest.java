@@ -21,168 +21,168 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class JwtRestrictionTest {
 
-  @Test
-  public void testBlacklistPluginShouldForbidden(TestContext testContext) {
-    JsonObject data = new JsonObject()
-            .put("userId", 3)
-            .put("foo", "bar");
-    List<String> tokens = new CopyOnWriteArrayList<>();
-    Vertx.vertx().createHttpClient().post(9000, "localhost",
-                                          "/token")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                JsonObject jsonObject = body.toJsonObject();
-                testContext.assertTrue(jsonObject.containsKey("token"));
-                tokens.add(jsonObject.getString("token"));
-              });
-            })
-            .setChunked(true)
-            .end(data.encode());
-    Awaitility.await().until(() -> tokens.size() == 1);
+    @Test
+    public void testBlacklistPluginShouldForbidden(TestContext testContext) {
+        JsonObject data = new JsonObject()
+                .put("userId", 3)
+                .put("foo", "bar");
+        List<String> tokens = new CopyOnWriteArrayList<>();
+        Vertx.vertx().createHttpClient().post(9000, "localhost",
+                                              "/token")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        JsonObject jsonObject = body.toJsonObject();
+                        testContext.assertTrue(jsonObject.containsKey("token"));
+                        tokens.add(jsonObject.getString("token"));
+                    });
+                })
+                .setChunked(true)
+                .end(data.encode());
+        Awaitility.await().until(() -> tokens.size() == 1);
 
 
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost",
-                                         "/jwt/blacklist")
-            .handler(resp -> {
-              testContext.assertEquals(403, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED.getNumber(),
-                                         body.toJsonObject().getInteger("code"));
-                check.set(true);
-              });
-            })
-            .putHeader("Authorization", "Bearer " + tokens.get(0))
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient().get(9000, "localhost",
+                                             "/jwt/blacklist")
+                .handler(resp -> {
+                    testContext.assertEquals(403, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED.getNumber(),
+                                                 body.toJsonObject().getInteger("code"));
+                        check.set(true);
+                    });
+                })
+                .putHeader("Authorization", "Bearer " + tokens.get(0))
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testGlobalBlacklistShouldForbidden(TestContext testContext) {
-    JsonObject data = new JsonObject()
-            .put("userId", 8)
-            .put("foo", "bar");
-    List<String> tokens = new CopyOnWriteArrayList<>();
-    Vertx.vertx().createHttpClient().post(9000, "localhost",
-                                          "/token")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                JsonObject jsonObject = body.toJsonObject();
-                testContext.assertTrue(jsonObject.containsKey("token"));
-                tokens.add(jsonObject.getString("token"));
-              });
-            })
-            .setChunked(true)
-            .end(data.encode());
-    Awaitility.await().until(() -> tokens.size() == 1);
-
-
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost",
-                                         "/jwt/blacklist")
-            .handler(resp -> {
-              testContext.assertEquals(403, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED.getNumber(),
-                                         body.toJsonObject().getInteger("code"));
-                check.set(true);
-              });
-            })
-            .putHeader("Authorization", "Bearer " + tokens.get(0))
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
-
-  @Test
-  public void testWhitelistPluginShouldSuccess(TestContext testContext) {
-    JsonObject data = new JsonObject()
-            .put("userId", 2)
-            .put("foo", "bar");
-    List<String> tokens = new CopyOnWriteArrayList<>();
-    Vertx.vertx().createHttpClient().post(9000, "localhost",
-                                          "/token")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                JsonObject jsonObject = body.toJsonObject();
-                testContext.assertTrue(jsonObject.containsKey("token"));
-                tokens.add(jsonObject.getString("token"));
-              });
-            })
-            .setChunked(true)
-            .end(data.encode());
-    Awaitility.await().until(() -> tokens.size() == 1);
+    @Test
+    public void testGlobalBlacklistShouldForbidden(TestContext testContext) {
+        JsonObject data = new JsonObject()
+                .put("userId", 8)
+                .put("foo", "bar");
+        List<String> tokens = new CopyOnWriteArrayList<>();
+        Vertx.vertx().createHttpClient().post(9000, "localhost",
+                                              "/token")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        JsonObject jsonObject = body.toJsonObject();
+                        testContext.assertTrue(jsonObject.containsKey("token"));
+                        tokens.add(jsonObject.getString("token"));
+                    });
+                })
+                .setChunked(true)
+                .end(data.encode());
+        Awaitility.await().until(() -> tokens.size() == 1);
 
 
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost",
-                                         "/jwt/blacklist")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                check.set(true);
-              });
-            })
-            .putHeader("Authorization", "Bearer " + tokens.get(0))
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient().get(9000, "localhost",
+                                             "/jwt/blacklist")
+                .handler(resp -> {
+                    testContext.assertEquals(403, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        testContext.assertEquals(DefaultErrorCode.PERMISSION_DENIED.getNumber(),
+                                                 body.toJsonObject().getInteger("code"));
+                        check.set(true);
+                    });
+                })
+                .putHeader("Authorization", "Bearer " + tokens.get(0))
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
 
-  @Test
-  public void testGlobalWhitelistShouldSuccess(TestContext testContext) {
-    JsonObject data = new JsonObject()
-            .put("userId", 4)
-            .put("foo", "bar");
-    List<String> tokens = new CopyOnWriteArrayList<>();
-    Vertx.vertx().createHttpClient().post(9000, "localhost",
-                                          "/token")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                JsonObject jsonObject = body.toJsonObject();
-                testContext.assertTrue(jsonObject.containsKey("token"));
-                tokens.add(jsonObject.getString("token"));
-              });
-            })
-            .setChunked(true)
-            .end(data.encode());
-    Awaitility.await().until(() -> tokens.size() == 1);
+    @Test
+    public void testWhitelistPluginShouldSuccess(TestContext testContext) {
+        JsonObject data = new JsonObject()
+                .put("userId", 2)
+                .put("foo", "bar");
+        List<String> tokens = new CopyOnWriteArrayList<>();
+        Vertx.vertx().createHttpClient().post(9000, "localhost",
+                                              "/token")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        JsonObject jsonObject = body.toJsonObject();
+                        testContext.assertTrue(jsonObject.containsKey("token"));
+                        tokens.add(jsonObject.getString("token"));
+                    });
+                })
+                .setChunked(true)
+                .end(data.encode());
+        Awaitility.await().until(() -> tokens.size() == 1);
 
 
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost",
-                                         "/jwt/blacklist")
-            .handler(resp -> {
-              testContext.assertEquals(200, resp.statusCode());
-              testContext.assertTrue(resp.headers().contains("x-request-id"));
-              resp.bodyHandler(body -> {
-                System.out.println(body.toString());
-                check.set(true);
-              });
-            })
-            .putHeader("Authorization", "Bearer " + tokens.get(0))
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient().get(9000, "localhost",
+                                             "/jwt/blacklist")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        check.set(true);
+                    });
+                })
+                .putHeader("Authorization", "Bearer " + tokens.get(0))
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
+
+    @Test
+    public void testGlobalWhitelistShouldSuccess(TestContext testContext) {
+        JsonObject data = new JsonObject()
+                .put("userId", 4)
+                .put("foo", "bar");
+        List<String> tokens = new CopyOnWriteArrayList<>();
+        Vertx.vertx().createHttpClient().post(9000, "localhost",
+                                              "/token")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        JsonObject jsonObject = body.toJsonObject();
+                        testContext.assertTrue(jsonObject.containsKey("token"));
+                        tokens.add(jsonObject.getString("token"));
+                    });
+                })
+                .setChunked(true)
+                .end(data.encode());
+        Awaitility.await().until(() -> tokens.size() == 1);
+
+
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient().get(9000, "localhost",
+                                             "/jwt/blacklist")
+                .handler(resp -> {
+                    testContext.assertEquals(200, resp.statusCode());
+                    testContext.assertTrue(resp.headers().contains("x-request-id"));
+                    resp.bodyHandler(body -> {
+                        System.out.println(body.toString());
+                        check.set(true);
+                    });
+                })
+                .putHeader("Authorization", "Bearer " + tokens.get(0))
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
 
 }

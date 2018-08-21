@@ -19,29 +19,29 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class ApiMetricCmdTest {
 
-  ApiCmd cmd;
+    ApiCmd cmd;
 
-  @Before
-  public void setUp() {
-    cmd = new ApiMetricCmdFactory().create(Vertx.vertx(), new JsonObject());
-  }
+    @Before
+    public void setUp() {
+        cmd = new ApiMetricCmdFactory().create(Vertx.vertx(), new JsonObject());
+    }
 
-  @After
-  public void tearDown() {
-  }
+    @After
+    public void tearDown() {
+    }
 
-  @Test
-  public void testMetric(TestContext testContext) {
-    Async async = testContext.async();
-    cmd.handle(new JsonObject())
-            .setHandler(ar -> {
-              if (ar.succeeded()) {
-                System.out.println(ar.result());
-                async.complete();
-              } else {
-                testContext.fail();
-              }
-            });
-  }
+    @Test
+    public void testMetric(TestContext testContext) {
+        Async async = testContext.async();
+        cmd.handle(new JsonObject())
+                .setHandler(ar -> {
+                    if (ar.succeeded()) {
+                        System.out.println(ar.result());
+                        async.complete();
+                    } else {
+                        testContext.fail();
+                    }
+                });
+    }
 
 }

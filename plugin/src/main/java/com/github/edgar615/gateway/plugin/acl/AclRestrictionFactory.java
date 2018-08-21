@@ -14,44 +14,44 @@ import java.util.List;
  * @author Edgar  Date 2016/10/21
  */
 public class AclRestrictionFactory implements ApiPluginFactory {
-  @Override
-  public ApiPlugin decode(JsonObject jsonObject) {
-    if (!jsonObject.containsKey("acl.restriction")) {
-      return null;
+    @Override
+    public ApiPlugin decode(JsonObject jsonObject) {
+        if (!jsonObject.containsKey("acl.restriction")) {
+            return null;
+        }
+        JsonObject args = jsonObject.getJsonObject("acl.restriction", new JsonObject());
+        JsonArray whiteArray = args.getJsonArray("whitelist", new JsonArray());
+        JsonArray blackArray = args.getJsonArray("blacklist", new JsonArray());
+        List<String> whitelist = new ArrayList<>();
+        List<String> blacklist = new ArrayList<>();
+        for (int i = 0; i < whiteArray.size(); i++) {
+            whitelist.add(whiteArray.getString(i));
+        }
+        for (int i = 0; i < blackArray.size(); i++) {
+            blacklist.add(blackArray.getString(i));
+        }
+
+        AclRestriction plugin = new AclRestrictionImpl();
+        whitelist.forEach(w -> plugin.addWhitelist(w));
+        blacklist.forEach(b -> plugin.addBlacklist(b));
+        return plugin;
     }
-    JsonObject args = jsonObject.getJsonObject("acl.restriction", new JsonObject());
-    JsonArray whiteArray = args.getJsonArray("whitelist", new JsonArray());
-    JsonArray blackArray = args.getJsonArray("blacklist", new JsonArray());
-    List<String> whitelist = new ArrayList<>();
-    List<String> blacklist = new ArrayList<>();
-    for (int i = 0; i < whiteArray.size(); i++) {
-      whitelist.add(whiteArray.getString(i));
-    }
-    for (int i = 0; i < blackArray.size(); i++) {
-      blacklist.add(blackArray.getString(i));
+
+    @Override
+    public JsonObject encode(ApiPlugin plugin) {
+        AclRestriction aclRestriction = (AclRestriction) plugin;
+        return new JsonObject().put("acl.restriction", new JsonObject()
+                .put("whitelist", new JsonArray(aclRestriction.whitelist()))
+                .put("blacklist", new JsonArray(aclRestriction.blacklist())));
     }
 
-    AclRestriction plugin = new AclRestrictionImpl();
-    whitelist.forEach(w -> plugin.addWhitelist(w));
-    blacklist.forEach(b -> plugin.addBlacklist(b));
-    return plugin;
-  }
+    @Override
+    public String name() {
+        return AclRestriction.class.getSimpleName();
+    }
 
-  @Override
-  public JsonObject encode(ApiPlugin plugin) {
-    AclRestriction aclRestriction = (AclRestriction) plugin;
-    return new JsonObject().put("acl.restriction", new JsonObject()
-            .put("whitelist", new JsonArray(aclRestriction.whitelist()))
-            .put("blacklist", new JsonArray(aclRestriction.blacklist())));
-  }
-
-  @Override
-  public String name() {
-    return AclRestriction.class.getSimpleName();
-  }
-
-  @Override
-  public ApiPlugin create() {
-    return new AclRestrictionImpl();
-  }
+    @Override
+    public ApiPlugin create() {
+        return new AclRestrictionImpl();
+    }
 }

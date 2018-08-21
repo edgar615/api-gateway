@@ -36,8 +36,8 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public interface BodyArgPlugin extends ApiPlugin, ArgPlugin {
 
-  @Override
-  default String name() {
-    return BodyArgPlugin.class.getSimpleName();
-  }
+    @Override
+    default String name() {
+        return BodyArgPlugin.class.getSimpleName();
+    }
 }

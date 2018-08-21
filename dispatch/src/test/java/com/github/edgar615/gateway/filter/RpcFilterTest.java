@@ -46,361 +46,368 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @RunWith(VertxUnitRunner.class)
 public class RpcFilterTest {
-  private final List<Filter> filters = new ArrayList<>();
+    private final List<Filter> filters = new ArrayList<>();
 
-  private int port;
+    private int port;
 
-  private Vertx vertx;
+    private Vertx vertx;
 
-  private Filter filter;
+    private Filter filter;
 
-  private ApiContext apiContext;
+    private ApiContext apiContext;
 
-  @Before
-  public void testSetUp(TestContext testContext) {
-    port = Integer.parseInt(Randoms.randomNumber(4));
-    vertx = Vertx.vertx();
-    AtomicBoolean started = new AtomicBoolean();
+    @Before
+    public void testSetUp(TestContext testContext) {
+        port = Integer.parseInt(Randoms.randomNumber(4));
+        vertx = Vertx.vertx();
+        AtomicBoolean started = new AtomicBoolean();
 
-    vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
-                         new DeploymentOptions().setConfig(new JsonObject().put("port", port))
-                                 .setWorker(true),
-                         ar -> started.set(true));
-    await().until(() -> started.get());
+        vertx.deployVerticle(DeviceHttpVerticle.class.getName(),
+                             new DeploymentOptions().setConfig(new JsonObject().put("port", port))
+                                     .setWorker(true),
+                             ar -> started.set(true));
+        await().until(() -> started.get());
 
-    JsonObject config = new JsonObject()
-            .put("maxFailures", 3)
-            .put("timeout", 1000);
-    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
-    .put("circuit.breaker", config));
+        JsonObject config = new JsonObject()
+                .put("maxFailures", 3)
+                .put("timeout", 1000);
+        filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
+                .put("circuit.breaker", config));
 
-    filters.clear();
-    filters.add(filter);
+        filters.clear();
+        filters.add(filter);
 
-  }
-
-  @After
-  public void tearDown(TestContext testContext) {
-//    vertx.close(testContext.asyncAssertSuccess());
-  }
-
-  @Test
-  public void testHttpRequest(TestContext testContext) {
-    String id = UUID.randomUUID().toString();
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("foo", "bar");
-
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h1", "h1.1");
-    headers.put("h1", "h1.2");
-
-    JsonObject jsonObject = new JsonObject()
-            .put("type", 1);
-
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    Endpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
-
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-
-    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                                             "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices")
-            .addParam("foo", "bar");
-    apiContext.addRequest(httpRpcRequest);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              System.out.println(context.responses());
-              async.complete();
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.fail();
-    });
-  }
-
-  @Test
-  public void testTimeOut(TestContext testContext) {
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("foo", "bar");
-
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h1", "h1.1");
-    headers.put("h1", "h1.2");
-
-    JsonObject jsonObject = new JsonObject()
-            .put("type", 1);
-
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    Endpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
-
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-
-    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices/timeout")
-            .addParam("foo", "bar");
-    apiContext.addRequest(httpRpcRequest);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    Async async = testContext.async();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              System.out.println(context.responses());
-              testContext.fail();
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.assertTrue(t instanceof SystemException);
-      SystemException se = (SystemException) t;
-      testContext.assertEquals(DefaultErrorCode.TIME_OUT, se.getErrorCode());
-      async.complete();
-    });
-  }
-
-  @Test
-  public void testCircuitBreakerOpen(TestContext testContext) {
-
-    JsonObject config = new JsonObject()
-            .put("maxFailures", 1)
-            .put("resetTimeout", 2000)
-            .put("timeout", 500);
-    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("circuit.breaker", config));
-
-    filters.clear();
-    filters.add(filter);
-
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("foo", "bar");
-
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h1", "h1.1");
-    headers.put("h1", "h1.2");
-
-    JsonObject jsonObject = new JsonObject()
-            .put("type", 1);
-
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    Endpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
-
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-
-    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices/timeout")
-            .addParam("foo", "bar");
-    apiContext.addRequest(httpRpcRequest);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check1 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              System.out.println(context.responses());
-              testContext.fail();
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.assertTrue(t instanceof SystemException);
-      SystemException se = (SystemException) t;
-      testContext.assertEquals(DefaultErrorCode.TIME_OUT, se.getErrorCode());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
-
-    apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
-
-    definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
-
-    httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices")
-            .addParam("foo", "bar");
-    apiContext.addRequest(httpRpcRequest);
-    task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check2 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.fail();
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.assertTrue(t instanceof SystemException);
-      SystemException se = (SystemException) t;
-      testContext.assertEquals(DefaultErrorCode.BREAKER_TRIPPED, se.getErrorCode());
-      check2.set(true);
-    });
-    Awaitility.await().until(() -> check2.get());
-
-  }
-
-  @Test
-  public void testCircuitBreakerReset(TestContext testContext) {
-
-  testCircuitBreakerOpen(testContext);
-    try {
-      TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("foo", "bar");
+    @After
+    public void tearDown(TestContext testContext) {
+//    vertx.close(testContext.asyncAssertSuccess());
+    }
 
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h1", "h1.1");
-    headers.put("h1", "h1.2");
-    apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
-    Endpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+    @Test
+    public void testHttpRequest(TestContext testContext) {
+        String id = UUID.randomUUID().toString();
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("foo", "bar");
 
-    ApiDefinition definition = ApiDefinition
-            .create("get_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("h1", "h1.1");
+        headers.put("h1", "h1.2");
 
-    HttpRpcRequest  httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                           "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices")
-            .addParam("foo", "bar");
-    apiContext.addRequest(httpRpcRequest);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check2 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              System.out.println(context.responses());
-              check2.set(true);
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.fail();
-    });
-    Awaitility.await().until(() -> check2.get());
-  }
+        JsonObject jsonObject = new JsonObject()
+                .put("type", 1);
 
-  @Test
-  public void testFallback(TestContext testContext) {
+        ApiContext apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+        Endpoint httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
-    JsonObject config = new JsonObject()
-            .put("maxFailures", 1)
-            .put("resetTimeout", 2000)
-            .put("timeout", 500);
-    filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
-            .put("circuit.breaker", config));
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
 
-    filters.clear();
-    filters.add(filter);
+        HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                                 "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices")
+                .addParam("foo", "bar");
+        apiContext.addRequest(httpRpcRequest);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    System.out.println(context.responses());
+                    async.complete();
+                }).onFailure(t -> {
+            t.printStackTrace();
+            testContext.fail();
+        });
+    }
 
-    Multimap<String, String> params = ArrayListMultimap.create();
-    params.put("foo", "bar");
+    @Test
+    public void testTimeOut(TestContext testContext) {
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("foo", "bar");
 
-    Multimap<String, String> headers = ArrayListMultimap.create();
-    headers.put("h1", "h1.1");
-    headers.put("h1", "h1.2");
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("h1", "h1.1");
+        headers.put("h1", "h1.2");
 
-    JsonObject jsonObject = new JsonObject()
-            .put("type", 1);
+        JsonObject jsonObject = new JsonObject()
+                .put("type", 1);
 
-    ApiContext apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    Endpoint httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+        ApiContext apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+        Endpoint httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
 
-    ApiDefinition definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
 
-    HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                                          "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices/timeout")
-            .addParam("foo", "bar");
+        HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                                 "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices/timeout")
+                .addParam("foo", "bar");
+        apiContext.addRequest(httpRpcRequest);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        Async async = testContext.async();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    System.out.println(context.responses());
+                    testContext.fail();
+                }).onFailure(t -> {
+            t.printStackTrace();
+            testContext.assertTrue(t instanceof SystemException);
+            SystemException se = (SystemException) t;
+            testContext.assertEquals(DefaultErrorCode.TIME_OUT, se.getErrorCode());
+            async.complete();
+        });
+    }
 
-    apiContext.addRequest(httpRpcRequest);
-    Task<ApiContext> task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check1 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              System.out.println(context.responses());
-              testContext.fail();
-            }).onFailure(t -> {
-      t.printStackTrace();
-      testContext.assertTrue(t instanceof SystemException);
-      SystemException se = (SystemException) t;
-      testContext.assertEquals(DefaultErrorCode.TIME_OUT, se.getErrorCode());
-      check1.set(true);
-    });
-    Awaitility.await().until(() -> check1.get());
+    @Test
+    public void testCircuitBreakerOpen(TestContext testContext) {
 
-    apiContext =
-            ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
-    httpEndpoint =
-            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+        JsonObject config = new JsonObject()
+                .put("maxFailures", 1)
+                .put("resetTimeout", 2000)
+                .put("timeout", 500);
+        filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
+                .put("circuit.breaker", config));
 
-    definition = ApiDefinition
-            .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
-    apiContext.setApiDefinition(definition);
+        filters.clear();
+        filters.add(filter);
 
-    httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
-                                           "add_device")
-            .setHost("localhost")
-            .setPort(port)
-            .setHttpMethod(HttpMethod.GET)
-            .setPath("/devices")
-            .addParam("foo", "bar");
-    RpcResponse fallback = RpcResponse.create(httpRpcRequest.id(), 202, new JsonObject().put
-            ("foo", "bar").encode(), 0);
-    httpRpcRequest.setFallback(fallback);
-    apiContext.addRequest(httpRpcRequest);
-    task = Task.create();
-    task.complete(apiContext);
-    AtomicBoolean check2 = new AtomicBoolean();
-    Filters.doFilter(task, filters)
-            .andThen(context -> {
-              testContext.assertEquals(1, context.responses().size());
-              RpcResponse response = context.responses().get(0);
-              testContext.assertEquals("bar", response.responseObject().getString("foo"));
-              check2.set(true);
-            }).onFailure(t -> {
-      testContext.fail();
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("foo", "bar");
 
-    });
-    Awaitility.await().until(() -> check2.get());
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("h1", "h1.1");
+        headers.put("h1", "h1.2");
 
-  }
+        JsonObject jsonObject = new JsonObject()
+                .put("type", 1);
+
+        ApiContext apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+        Endpoint httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+
+        HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                                 "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices/timeout")
+                .addParam("foo", "bar");
+        apiContext.addRequest(httpRpcRequest);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check1 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    System.out.println(context.responses());
+                    testContext.fail();
+                }).onFailure(t -> {
+            t.printStackTrace();
+            testContext.assertTrue(t instanceof SystemException);
+            SystemException se = (SystemException) t;
+            testContext.assertEquals(DefaultErrorCode.TIME_OUT, se.getErrorCode());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
+
+        apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+        httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+
+        definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+
+        httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                  "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices")
+                .addParam("foo", "bar");
+        apiContext.addRequest(httpRpcRequest);
+        task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check2 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.fail();
+                }).onFailure(t -> {
+            t.printStackTrace();
+            testContext.assertTrue(t instanceof SystemException);
+            SystemException se = (SystemException) t;
+            testContext.assertEquals(DefaultErrorCode.BREAKER_TRIPPED, se.getErrorCode());
+            check2.set(true);
+        });
+        Awaitility.await().until(() -> check2.get());
+
+    }
+
+    @Test
+    public void testCircuitBreakerReset(TestContext testContext) {
+
+        testCircuitBreakerOpen(testContext);
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("foo", "bar");
+
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("h1", "h1.1");
+        headers.put("h1", "h1.2");
+        apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, null);
+        Endpoint httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+
+        ApiDefinition definition = ApiDefinition
+                .create("get_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+
+        HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                                 "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices")
+                .addParam("foo", "bar");
+        apiContext.addRequest(httpRpcRequest);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check2 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    System.out.println(context.responses());
+                    check2.set(true);
+                }).onFailure(t -> {
+            t.printStackTrace();
+            testContext.fail();
+        });
+        Awaitility.await().until(() -> check2.get());
+    }
+
+    @Test
+    public void testFallback(TestContext testContext) {
+
+        JsonObject config = new JsonObject()
+                .put("maxFailures", 1)
+                .put("resetTimeout", 2000)
+                .put("timeout", 500);
+        filter = Filter.create(RpcFilter.class.getSimpleName(), vertx, new JsonObject()
+                .put("circuit.breaker", config));
+
+        filters.clear();
+        filters.add(filter);
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("foo", "bar");
+
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("h1", "h1.1");
+        headers.put("h1", "h1.2");
+
+        JsonObject jsonObject = new JsonObject()
+                .put("type", 1);
+
+        ApiContext apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+        Endpoint httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+
+        ApiDefinition definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+
+        HttpRpcRequest httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                                 "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices/timeout")
+                .addParam("foo", "bar");
+
+        apiContext.addRequest(httpRpcRequest);
+        Task<ApiContext> task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check1 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    System.out.println(context.responses());
+                    testContext.fail();
+                }).onFailure(t -> {
+            t.printStackTrace();
+            testContext.assertTrue(t instanceof SystemException);
+            SystemException se = (SystemException) t;
+            testContext.assertEquals(DefaultErrorCode.TIME_OUT, se.getErrorCode());
+            check1.set(true);
+        });
+        Awaitility.await().until(() -> check1.get());
+
+        apiContext =
+                ApiContext.create(HttpMethod.GET, "/devices", headers, params, jsonObject);
+        httpEndpoint =
+                SimpleHttpEndpoint
+                        .http("add_device", HttpMethod.GET, "devices/", port, "localhost");
+
+        definition = ApiDefinition
+                .create("add_device", HttpMethod.GET, "devices", Lists.newArrayList(httpEndpoint));
+        apiContext.setApiDefinition(definition);
+
+        httpRpcRequest = SimpleHttpRequest.create(UUID.randomUUID().toString(),
+                                                  "add_device")
+                .setHost("localhost")
+                .setPort(port)
+                .setHttpMethod(HttpMethod.GET)
+                .setPath("/devices")
+                .addParam("foo", "bar");
+        RpcResponse fallback = RpcResponse.create(httpRpcRequest.id(), 202, new JsonObject().put
+                ("foo", "bar").encode(), 0);
+        httpRpcRequest.setFallback(fallback);
+        apiContext.addRequest(httpRpcRequest);
+        task = Task.create();
+        task.complete(apiContext);
+        AtomicBoolean check2 = new AtomicBoolean();
+        Filters.doFilter(task, filters)
+                .andThen(context -> {
+                    testContext.assertEquals(1, context.responses().size());
+                    RpcResponse response = context.responses().get(0);
+                    testContext.assertEquals("bar", response.responseObject().getString("foo"));
+                    check2.set(true);
+                }).onFailure(t -> {
+            testContext.fail();
+
+        });
+        Awaitility.await().until(() -> check2.get());
+
+    }
 
 }

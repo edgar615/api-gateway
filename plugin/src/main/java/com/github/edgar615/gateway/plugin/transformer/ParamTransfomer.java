@@ -10,45 +10,45 @@ import java.util.Map;
  */
 public interface ParamTransfomer {
 
-  /**
-   * @return param的替换规则
-   */
-  List<Map.Entry<String, String>> paramReplaced();
+    /**
+     * @return param的替换规则
+     */
+    List<Map.Entry<String, String>> paramReplaced();
 
-  /**
-   * @return param的新增规则
-   */
-  List<Map.Entry<String, String>> paramAdded();
+    /**
+     * @return param的新增规则
+     */
+    List<Map.Entry<String, String>> paramAdded();
 
-  /**
-   * @return param的删除规则
-   */
-  List<String> paramRemoved();
+    /**
+     * @return param的删除规则
+     */
+    List<String> paramRemoved();
 
-  /**
-   * 增加一个param
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  ParamTransfomer addParam(String key, String value);
+    /**
+     * 增加一个param
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    ParamTransfomer addParam(String key, String value);
 
-  /**
-   * 删除一个param
-   *
-   * @param key
-   * @return
-   */
-  ParamTransfomer removeParam(String key);
+    /**
+     * 删除一个param
+     *
+     * @param key
+     * @return
+     */
+    ParamTransfomer removeParam(String key);
 
 
-  /**
-   * 替换一个param,只有当param存在时才替换;
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  ParamTransfomer replaceParam(String key, String value);
+    /**
+     * 替换一个param,只有当param存在时才替换;
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    ParamTransfomer replaceParam(String key, String value);
 }

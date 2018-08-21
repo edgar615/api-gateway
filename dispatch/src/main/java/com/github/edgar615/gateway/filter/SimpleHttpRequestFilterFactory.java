@@ -9,13 +9,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-27.
  */
 public class SimpleHttpRequestFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return SimpleHttpRequestFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return SimpleHttpRequestFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new SimpleHttpRequestFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new SimpleHttpRequestFilter();
+    }
 }

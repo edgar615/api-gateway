@@ -9,11 +9,11 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/8/30
  */
 public interface CacheManager {
-  Cache<String, JsonObject> getCache(String cacheName);
+    Cache<String, JsonObject> getCache(String cacheName);
 
-  Cache<String, JsonObject> addCache(Cache<String, JsonObject> cache);
+    Cache<String, JsonObject> addCache(Cache<String, JsonObject> cache);
 
-  static CacheManager instance() {
-    return CacheManagerImpl.instance();
-  }
+    static CacheManager instance() {
+        return CacheManagerImpl.instance();
+    }
 }

@@ -8,9 +8,11 @@ import io.vertx.core.Launcher;
  * @author Edgar  Date 2018/2/1
  */
 public class Example {
-  public static void main(String[] args) {
-    new Launcher().execute("run", ApiGitVerticle.class.getName(),
-                           "--conf=H:\\dev\\workspace\\gateway\\api-git\\src\\main\\conf"
-                           + "\\api.git.json");
-  }
+    public static void main(String[] args) {
+        new Launcher().execute("run", ApiGitVerticle.class.getName(),
+                               "--worker",
+                               "--conf=H:\\dev\\workspace\\api-gateway\\api-git\\src\\main"
+                               + "\\conf"
+                               + "\\api.git.json");
+    }
 }

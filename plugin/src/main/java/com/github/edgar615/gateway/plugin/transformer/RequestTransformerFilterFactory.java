@@ -34,13 +34,13 @@ import io.vertx.core.json.JsonObject;
 public class RequestTransformerFilterFactory implements FilterFactory {
 
 
-  @Override
-  public String name() {
-    return HttpRequestTransformerFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return HttpRequestTransformerFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new HttpRequestTransformerFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new HttpRequestTransformerFilter(config);
+    }
 }

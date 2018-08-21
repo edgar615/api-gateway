@@ -9,13 +9,13 @@ import com.google.common.base.MoreObjects;
  */
 class JwtPluginImpl implements JwtPlugin {
 
-  JwtPluginImpl() {
-  }
+    JwtPluginImpl() {
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("JwtPlugin")
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("JwtPlugin")
+                .toString();
+    }
 }

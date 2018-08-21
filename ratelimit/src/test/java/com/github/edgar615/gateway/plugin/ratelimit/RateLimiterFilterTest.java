@@ -461,7 +461,8 @@
 //    SimpleHttpEndpoint httpEndpoint =
 //            SimpleHttpEndpoint.http("add_device", HttpMethod.GET, "devices/",
 //                                    80, "localhost");
-//    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/", Lists
+//    ApiDefinition definition = ApiDefinition.create("add_device", HttpMethod.GET, "devices/",
+// Lists
 //            .newArrayList(httpEndpoint));
 //    apiContext.setApiDefinition(definition);
 //    return apiContext;

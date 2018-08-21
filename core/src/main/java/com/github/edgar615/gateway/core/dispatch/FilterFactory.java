@@ -8,10 +8,10 @@ import io.vertx.core.json.JsonObject;
  */
 public interface FilterFactory {
 
-  /**
-   * @return filter名称
-   */
-  String name();
+    /**
+     * @return filter名称
+     */
+    String name();
 
-  Filter create(Vertx vertx, JsonObject config);
+    Filter create(Vertx vertx, JsonObject config);
 }

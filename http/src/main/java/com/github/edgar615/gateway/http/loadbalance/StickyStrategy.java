@@ -16,35 +16,35 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 class StickyStrategy implements ChooseStrategy {
 
-  private final ChooseStrategy masterStrategy;
+    private final ChooseStrategy masterStrategy;
 
-  private final AtomicReference<Record> ourInstance = new AtomicReference<>(null);
+    private final AtomicReference<Record> ourInstance = new AtomicReference<>(null);
 
-  private final AtomicInteger instanceNumber = new AtomicInteger(-1);
+    private final AtomicInteger instanceNumber = new AtomicInteger(-1);
 
-  public StickyStrategy(ChooseStrategy masterStrategy) {
-    this.masterStrategy = masterStrategy;
-  }
-
-  @Override
-  public Record get(List<Record> instances) {
-
-    Record localOurInstance = ourInstance.get();
-    if (localOurInstance != null) {
-      long count = instances.stream()
-              .filter(i -> i.getRegistration().equals(localOurInstance.getRegistration()))
-              .count();
-      if (count == 0) {
-        ourInstance.compareAndSet(localOurInstance, null);
-      }
+    public StickyStrategy(ChooseStrategy masterStrategy) {
+        this.masterStrategy = masterStrategy;
     }
 
-    if (ourInstance.get() == null) {
-      Record instance = masterStrategy.get(instances);
-      if (ourInstance.compareAndSet(null, instance)) {
-        instanceNumber.incrementAndGet();
-      }
+    @Override
+    public Record get(List<Record> instances) {
+
+        Record localOurInstance = ourInstance.get();
+        if (localOurInstance != null) {
+            long count = instances.stream()
+                    .filter(i -> i.getRegistration().equals(localOurInstance.getRegistration()))
+                    .count();
+            if (count == 0) {
+                ourInstance.compareAndSet(localOurInstance, null);
+            }
+        }
+
+        if (ourInstance.get() == null) {
+            Record instance = masterStrategy.get(instances);
+            if (ourInstance.compareAndSet(null, instance)) {
+                instanceNumber.incrementAndGet();
+            }
+        }
+        return ourInstance.get();
     }
-    return ourInstance.get();
-  }
 }

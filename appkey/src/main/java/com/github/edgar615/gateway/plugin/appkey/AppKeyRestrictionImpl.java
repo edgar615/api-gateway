@@ -14,76 +14,76 @@ import java.util.Set;
  * @author Edgar  Date 2016/10/21
  */
 class AppKeyRestrictionImpl implements AppKeyRestriction {
-  /**
-   * 白名单
-   */
-  private final Set<String> whitelist = new HashSet<>();
+    /**
+     * 白名单
+     */
+    private final Set<String> whitelist = new HashSet<>();
 
-  /**
-   * 黑名单
-   */
-  private final Set<String> blacklist = new HashSet<>();
+    /**
+     * 黑名单
+     */
+    private final Set<String> blacklist = new HashSet<>();
 
-  AppKeyRestrictionImpl() {
-  }
+    AppKeyRestrictionImpl() {
+    }
 
-  @Override
-  public AppKeyRestriction addWhitelist(String appKey) {
-    Preconditions.checkNotNull(appKey, "appKey cannot be null");
-    blacklist.remove(appKey);
-    whitelist.add(appKey);
-    return this;
-  }
+    @Override
+    public AppKeyRestriction addWhitelist(String appKey) {
+        Preconditions.checkNotNull(appKey, "appKey cannot be null");
+        blacklist.remove(appKey);
+        whitelist.add(appKey);
+        return this;
+    }
 
-  @Override
-  public AppKeyRestriction addBlacklist(String appKey) {
-    Preconditions.checkNotNull(appKey, "appKey cannot be null");
-    whitelist.remove(appKey);
-    blacklist.add(appKey);
-    return this;
-  }
+    @Override
+    public AppKeyRestriction addBlacklist(String appKey) {
+        Preconditions.checkNotNull(appKey, "appKey cannot be null");
+        whitelist.remove(appKey);
+        blacklist.add(appKey);
+        return this;
+    }
 
-  @Override
-  public AppKeyRestriction removeWhitelist(String appKey) {
-    Preconditions.checkNotNull(appKey, "appKey cannot be null");
-    whitelist.remove(appKey);
-    return this;
-  }
+    @Override
+    public AppKeyRestriction removeWhitelist(String appKey) {
+        Preconditions.checkNotNull(appKey, "appKey cannot be null");
+        whitelist.remove(appKey);
+        return this;
+    }
 
-  public AppKeyRestriction removeBlacklist(String appKey) {
-    Preconditions.checkNotNull(appKey, "appKey cannot be null");
-    blacklist.remove(appKey);
-    return this;
-  }
+    public AppKeyRestriction removeBlacklist(String appKey) {
+        Preconditions.checkNotNull(appKey, "appKey cannot be null");
+        blacklist.remove(appKey);
+        return this;
+    }
 
-  @Override
-  public AppKeyRestriction clearWhitelist() {
-    whitelist.clear();
-    return this;
-  }
+    @Override
+    public AppKeyRestriction clearWhitelist() {
+        whitelist.clear();
+        return this;
+    }
 
-  @Override
-  public AppKeyRestriction clearBlacklist() {
-    blacklist.clear();
-    return this;
-  }
+    @Override
+    public AppKeyRestriction clearBlacklist() {
+        blacklist.clear();
+        return this;
+    }
 
-  @Override
-  public List<String> whitelist() {
-    return ImmutableList.copyOf(whitelist);
-  }
+    @Override
+    public List<String> whitelist() {
+        return ImmutableList.copyOf(whitelist);
+    }
 
-  @Override
-  public List<String> blacklist() {
-    return ImmutableList.copyOf(blacklist);
-  }
+    @Override
+    public List<String> blacklist() {
+        return ImmutableList.copyOf(blacklist);
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("AppKeyRestriction")
-            .add("whitelist", whitelist)
-            .add("blacklist", blacklist)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("AppKeyRestriction")
+                .add("whitelist", whitelist)
+                .add("blacklist", blacklist)
+                .toString();
+    }
 }

@@ -6,14 +6,14 @@ import java.util.Objects;
 
 public class VersionAfterPredicate implements ApiPredicate {
 
-  private final String version;
+    private final String version;
 
-  public VersionAfterPredicate(String version) {
-    Objects.requireNonNull(version);
-    this.version = version;
-  }
+    public VersionAfterPredicate(String version) {
+        Objects.requireNonNull(version);
+        this.version = version;
+    }
 
-  public boolean test(ApiContext context) {
-    return false;
-  }
+    public boolean test(ApiContext context) {
+        return false;
+    }
 }

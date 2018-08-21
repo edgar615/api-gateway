@@ -14,30 +14,30 @@ import java.util.Set;
  */
 class RateLimiterPluginImpl implements RateLimiterPlugin {
 
-  private final Set<RateLimiter> rateLimiters = new HashSet<>();
+    private final Set<RateLimiter> rateLimiters = new HashSet<>();
 
-  @Override
-  public List<RateLimiter> rateLimiters() {
-    return ImmutableList.copyOf(rateLimiters);
-  }
+    @Override
+    public List<RateLimiter> rateLimiters() {
+        return ImmutableList.copyOf(rateLimiters);
+    }
 
-  @Override
-  public void addRateLimiter(RateLimiter rateLimiter) {
-    rateLimiters.removeIf(r -> r.name().equals(rateLimiter.name()));
-    rateLimiters.add(rateLimiter);
-  }
+    @Override
+    public void addRateLimiter(RateLimiter rateLimiter) {
+        rateLimiters.removeIf(r -> r.name().equals(rateLimiter.name()));
+        rateLimiters.add(rateLimiter);
+    }
 
-  @Override
-  public void removeRateLimiter(String name) {
-    rateLimiters.removeIf(r -> r.name().equals(name));
-  }
+    @Override
+    public void removeRateLimiter(String name) {
+        rateLimiters.removeIf(r -> r.name().equals(name));
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects
-            .toStringHelper("RateLimiterPlugin")
-            .add("rateLimiters", rateLimiters)
-            .toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper("RateLimiterPlugin")
+                .add("rateLimiters", rateLimiters)
+                .toString();
+    }
 
 }

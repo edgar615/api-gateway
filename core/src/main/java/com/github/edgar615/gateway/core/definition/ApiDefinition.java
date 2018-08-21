@@ -1,6 +1,7 @@
 package com.github.edgar615.gateway.core.definition;
 
 import com.google.common.base.Preconditions;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.Shareable;
@@ -90,6 +91,37 @@ public interface ApiDefinition extends Shareable {
     }
 
     /**
+     * 按照 相等>正则>ant的优先级匹配
+     *
+     * @param apiDefinitions
+     * @return
+     */
+    static List<ApiDefinition> extractInOrder(List<ApiDefinition> apiDefinitions) {
+        if (apiDefinitions.size() <= 1) {//只有一个
+            return apiDefinitions;
+        }
+        //先判断相等
+        List<ApiDefinition> apiList = apiDefinitions.stream()
+                .filter(d -> !d.antStyle() && !d.regexStyle())
+                .collect(Collectors.toList());
+        if (!apiList.isEmpty()) {
+            return apiList;
+        }
+        //判断正则
+        //优先选择正则匹配的API
+        List<ApiDefinition> regexApiList = apiDefinitions.stream()
+                .filter(d -> d.regexStyle())
+                .collect(Collectors.toList());
+        if (!regexApiList.isEmpty()) {
+            return regexApiList;
+        }
+        List<ApiDefinition> antApiList = apiDefinitions.stream()
+                .filter(d -> d.antStyle())
+                .collect(Collectors.toList());
+        return antApiList;
+    }
+
+    /**
      * 根据插件名称返回插件
      *
      * @param name 插件名称
@@ -131,36 +163,5 @@ public interface ApiDefinition extends Shareable {
 
     default boolean match(JsonObject filter) {
         return ApiDefinitionUtils.match(this, filter);
-    }
-
-    /**
-     * 按照 相等>正则>ant的优先级匹配
-     *
-     * @param apiDefinitions
-     * @return
-     */
-    static List<ApiDefinition> extractInOrder(List<ApiDefinition> apiDefinitions) {
-        if (apiDefinitions.size() <= 1) {//只有一个
-            return apiDefinitions;
-        }
-        //先判断相等
-        List<ApiDefinition> apiList = apiDefinitions.stream()
-                .filter(d -> !d.antStyle() && !d.regexStyle())
-                .collect(Collectors.toList());
-        if (!apiList.isEmpty()) {
-            return apiList;
-        }
-        //判断正则
-        //优先选择正则匹配的API
-        List<ApiDefinition> regexApiList = apiDefinitions.stream()
-                .filter(d -> d.regexStyle())
-                .collect(Collectors.toList());
-        if (!regexApiList.isEmpty()) {
-            return regexApiList;
-        }
-        List<ApiDefinition> antApiList = apiDefinitions.stream()
-                .filter(d -> d.antStyle())
-                .collect(Collectors.toList());
-        return antApiList;
     }
 }

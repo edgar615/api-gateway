@@ -36,6 +36,7 @@ public interface ApiDiscovery extends ApiPublisher {
 
     /**
      * 根据请求方法、路径快速匹配API
+     *
      * @param method
      * @param path
      * @param resultHandler
@@ -45,6 +46,7 @@ public interface ApiDiscovery extends ApiPublisher {
 
     /**
      * API的搜索
+     *
      * @param filter
      * @param resultHandler
      */
@@ -53,6 +55,7 @@ public interface ApiDiscovery extends ApiPublisher {
 
     /**
      * API的搜索
+     *
      * @param filter
      * @param resultHandler
      */
@@ -61,6 +64,7 @@ public interface ApiDiscovery extends ApiPublisher {
 
     /**
      * 根据名称查找API
+     *
      * @param name
      * @param resultHandler
      */
@@ -69,13 +73,14 @@ public interface ApiDiscovery extends ApiPublisher {
 
     ApiDiscoveryOptions options();
 
-    static ApiDiscovery create(Vertx vertx, ApiDiscoveryOptions options) {
-        return new ApiDiscoveryImpl(vertx, options);
-    }
-
     /**
      * 清除所有api
+     *
      * @param completionHandler
      */
     void clear(Handler<AsyncResult<Void>> completionHandler);
+
+    static ApiDiscovery create(Vertx vertx, ApiDiscoveryOptions options) {
+        return new ApiDiscoveryImpl(vertx, options);
+    }
 }

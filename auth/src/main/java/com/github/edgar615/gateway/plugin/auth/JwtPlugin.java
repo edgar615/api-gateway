@@ -4,7 +4,7 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
 
 /**
  * 身份验证插件.
- *  * <p>
+ * * <p>
  * 该插件对应的JSON配置的key为<b>jwt</b>，它对应的值是一个bool值:
  * <pre>
  *   true 开启
@@ -15,9 +15,9 @@ import com.github.edgar615.gateway.core.definition.ApiPlugin;
  */
 public interface JwtPlugin extends ApiPlugin {
 
-  @Override
-  default String name() {
-    return JwtPlugin.class.getSimpleName();
-  }
+    @Override
+    default String name() {
+        return JwtPlugin.class.getSimpleName();
+    }
 
 }

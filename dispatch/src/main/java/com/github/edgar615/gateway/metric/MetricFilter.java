@@ -14,34 +14,34 @@ import io.vertx.core.json.JsonObject;
  * @author Edgar  Date 2017/11/10
  */
 public class MetricFilter implements Filter {
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  public MetricFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return Integer.MIN_VALUE + 1100;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition() != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    try {
-      ApiMetric.apiRequest(apiContext.apiDefinition().name());
-    } catch (Exception e) {
-      //ignore
+    public MetricFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
     }
-    completeFuture.complete(apiContext);
-  }
+
+    @Override
+    public String type() {
+        return PRE;
+    }
+
+    @Override
+    public int order() {
+        return Integer.MIN_VALUE + 1100;
+    }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition() != null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        try {
+            ApiMetric.apiRequest(apiContext.apiDefinition().name());
+        } catch (Exception e) {
+            //ignore
+        }
+        completeFuture.complete(apiContext);
+    }
 }

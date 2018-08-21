@@ -7,7 +7,7 @@ package com.github.edgar615.gateway.plugin.version;
  */
 public interface IpPolicy {
 
-  String version();
+    String version();
 
-  boolean satisfy(String ip);
+    boolean satisfy(String ip);
 }

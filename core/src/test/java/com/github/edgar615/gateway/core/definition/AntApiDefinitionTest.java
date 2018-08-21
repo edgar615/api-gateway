@@ -14,41 +14,42 @@ import org.junit.Test;
  */
 public class AntApiDefinitionTest {
 
-  @Test
-  public void testMatchPath() {
+    @Test
+    public void testMatchPath() {
 
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
-                                    80, "localhost");
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                        80, "localhost");
 
-    ApiDefinition apiDefinition = ApiDefinition
-            .createAnt("get_device", HttpMethod.GET, "devices/*", Lists.newArrayList(httpEndpoint));
+        ApiDefinition apiDefinition = ApiDefinition
+                .createAnt("get_device", HttpMethod.GET, "devices/*",
+                           Lists.newArrayList(httpEndpoint));
 
-    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
-    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
-    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
-    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc/123")));
+        Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices")));
+        Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
+        Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
+        Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc/123")));
 
-  }
+    }
 
-  @Test
-  public void testIgnore() {
+    @Test
+    public void testIgnore() {
 
-    SimpleHttpEndpoint httpEndpoint =
-            SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
-                                    80, "localhost");
+        SimpleHttpEndpoint httpEndpoint =
+                SimpleHttpEndpoint.http("get_device", HttpMethod.GET, "/devices",
+                                        80, "localhost");
 
-    AntPathApiDefinition apiDefinition = (AntPathApiDefinition) ApiDefinition
-            .createAnt("get_device", HttpMethod.GET, "devices/**", Lists.newArrayList
-                    (httpEndpoint));
-    apiDefinition.addIgnoredPattern("/devices/123");
-    apiDefinition.addIgnoredPattern("/devices/abc/**");
+        AntPathApiDefinition apiDefinition = (AntPathApiDefinition) ApiDefinition
+                .createAnt("get_device", HttpMethod.GET, "devices/**", Lists.newArrayList
+                        (httpEndpoint));
+        apiDefinition.addIgnoredPattern("/devices/123");
+        apiDefinition.addIgnoredPattern("/devices/abc/**");
 
-    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices")));
-    Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123/abc")));
-    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
-    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
-    Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc/123")));
+        Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices")));
+        Assert.assertTrue(apiDefinition.match(new JsonObject().put("path", "/devices/123/abc")));
+        Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc")));
+        Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/123")));
+        Assert.assertFalse(apiDefinition.match(new JsonObject().put("path", "/devices/abc/123")));
 
-  }
+    }
 }

@@ -13,21 +13,23 @@ import java.util.List;
  */
 public interface LoadBalance {
 
-  void chooseServer(String service, Handler<AsyncResult<Record>> resultHandler);
+    void chooseServer(String service, Handler<AsyncResult<Record>> resultHandler);
 
-  void chooseServer(String service, List<ServiceFilter> filters, Handler<AsyncResult<Record>> resultHandler);
-  /**
-   * config的配置：
-   * "strategy": {
-   * "user": "random",
-   * "device": "round_robin"
-   * }
-   *
-   * @param serviceFinder
-   * @param options
-   * @return
-   */
-  static LoadBalance create(ServiceFinder serviceFinder, LoadBalanceOptions options) {
-    return new LoadBalanceImpl(serviceFinder, options);
-  }
+    void chooseServer(String service, List<ServiceFilter> filters,
+                      Handler<AsyncResult<Record>> resultHandler);
+
+    /**
+     * config的配置：
+     * "strategy": {
+     * "user": "random",
+     * "device": "round_robin"
+     * }
+     *
+     * @param serviceFinder
+     * @param options
+     * @return
+     */
+    static LoadBalance create(ServiceFinder serviceFinder, LoadBalanceOptions options) {
+        return new LoadBalanceImpl(serviceFinder, options);
+    }
 }

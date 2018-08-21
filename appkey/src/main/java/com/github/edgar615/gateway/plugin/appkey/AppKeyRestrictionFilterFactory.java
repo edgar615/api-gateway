@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
  */
 public class AppKeyRestrictionFilterFactory implements FilterFactory {
 
-  @Override
-  public String name() {
-    return AppKeyRestrictionFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return AppKeyRestrictionFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new AppKeyRestrictionFilter(config);
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new AppKeyRestrictionFilter(config);
+    }
 }

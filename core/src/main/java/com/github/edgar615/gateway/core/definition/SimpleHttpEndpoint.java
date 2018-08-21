@@ -10,50 +10,50 @@ import io.vertx.core.http.HttpMethod;
  * @author Edgar  Date 2016/9/14
  */
 public interface SimpleHttpEndpoint extends HttpEndpoint {
-  String TYPE = "simple-http";
+    String TYPE = "simple-http";
 
-  /**
-   * @return 下游服务的host.
-   */
-  String host();
+    /**
+     * @return 下游服务的host.
+     */
+    String host();
 
-  /**
-   * 下游服务的端口
-   *
-   * @return
-   */
-  int port();
+    /**
+     * 下游服务的端口
+     *
+     * @return
+     */
+    int port();
 
-  /**
-   * 创建HTTP类型的Endpoint
-   *
-   * @param name   名称
-   * @param method 请求方法 GET | POST | DELETE | PUT
-   * @param path   API路径
-   * @param port   下游服务的端口
-   * @param host   下游服务的host
-   * @return SimpleHttpEndpoint
-   */
-  static SimpleHttpEndpoint http(String name, HttpMethod method, String path,
-                                 int port, String host) {
-    return new SimpleHttpEndpointImpl(name, method, path, port, host);
-  }
+    /**
+     * 创建HTTP类型的Endpoint
+     *
+     * @param name   名称
+     * @param method 请求方法 GET | POST | DELETE | PUT
+     * @param path   API路径
+     * @param port   下游服务的端口
+     * @param host   下游服务的host
+     * @return SimpleHttpEndpoint
+     */
+    static SimpleHttpEndpoint http(String name, HttpMethod method, String path,
+                                   int port, String host) {
+        return new SimpleHttpEndpointImpl(name, method, path, port, host);
+    }
 
-  /**
-   * 创建HTTP类型的Endpoint，名称为"default"
-   *
-   * @param method 请求方法 GET | POST | DELETE | PUT
-   * @param path   API路径
-   * @param port   下游服务的端口
-   * @param host   下游服务的host
-   * @return SimpleHttpEndpoint
-   */
-  static SimpleHttpEndpoint http(HttpMethod method, String path,
-                                 int port, String host) {
-    return new SimpleHttpEndpointImpl("default", method, path, port, host);
-  }
+    /**
+     * 创建HTTP类型的Endpoint，名称为"default"
+     *
+     * @param method 请求方法 GET | POST | DELETE | PUT
+     * @param path   API路径
+     * @param port   下游服务的端口
+     * @param host   下游服务的host
+     * @return SimpleHttpEndpoint
+     */
+    static SimpleHttpEndpoint http(HttpMethod method, String path,
+                                   int port, String host) {
+        return new SimpleHttpEndpointImpl("default", method, path, port, host);
+    }
 
-  default String type() {
-    return TYPE;
-  }
+    default String type() {
+        return TYPE;
+    }
 }

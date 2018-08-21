@@ -17,20 +17,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(VertxUnitRunner.class)
 public class ApiGetTest {
 
-  @Test
-  public void testOk(TestContext testContext) {
-    AtomicBoolean check = new AtomicBoolean();
-    Vertx.vertx().createHttpClient().get(9000, "localhost", "/api/get?namespace=example&name=api.get.1.0.0")
-            .handler(resp -> {
-              check.set(true);
-              System.out.println(resp.statusCode());
-              System.out.println(resp.headers().names());
-              resp.bodyHandler(body -> System.out.println(body.toString()));
-            })
-            .setChunked(true)
-            .end();
-    Awaitility.await().until(() -> check.get());
-  }
+    @Test
+    public void testOk(TestContext testContext) {
+        AtomicBoolean check = new AtomicBoolean();
+        Vertx.vertx().createHttpClient()
+                .get(9000, "localhost", "/api/get?namespace=example&name=api.get.1.0.0")
+                .handler(resp -> {
+                    check.set(true);
+                    System.out.println(resp.statusCode());
+                    System.out.println(resp.headers().names());
+                    resp.bodyHandler(body -> System.out.println(body.toString()));
+                })
+                .setChunked(true)
+                .end();
+        Awaitility.await().until(() -> check.get());
+    }
 
 
 }

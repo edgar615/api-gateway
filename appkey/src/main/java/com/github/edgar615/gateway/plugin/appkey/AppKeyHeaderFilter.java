@@ -18,49 +18,51 @@ import java.util.Base64;
  */
 public class AppKeyHeaderFilter implements Filter {
 
-  private final Vertx vertx;
+    private final Vertx vertx;
 
-  AppKeyHeaderFilter(Vertx vertx, JsonObject config) {
-    this.vertx = vertx;
-  }
-
-  @Override
-  public String type() {
-    return PRE;
-  }
-
-  @Override
-  public int order() {
-    return 16000;
-  }
-
-  @Override
-  public boolean shouldFilter(ApiContext apiContext) {
-    return apiContext.apiDefinition().plugin(AppKeyPlugin.class.getSimpleName()) != null;
-  }
-
-  @Override
-  public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
-    JsonObject appKeyJson = new JsonObject();
-    appKeyJson.put("appKey", apiContext.variables().getOrDefault("client_appKey", "anonymous"));
-    if (apiContext.variables().containsKey("client_clientCode")) {
-      appKeyJson.put("clientCode", apiContext.variables().getOrDefault("client_clientCode", "-1"));
+    AppKeyHeaderFilter(Vertx vertx, JsonObject config) {
+        this.vertx = vertx;
     }
-    if (apiContext.variables().containsKey("client_appName")) {
-      appKeyJson.put("appName", apiContext.variables().getOrDefault("client_appName", "unkown"));
+
+    @Override
+    public String type() {
+        return PRE;
     }
-    String clientBase64 = Base64.getEncoder().encodeToString(appKeyJson.encode().getBytes());
-    for (RpcRequest rpcRequest : apiContext.requests()) {
-      if (rpcRequest instanceof HttpRpcRequest) {
-        HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
-        httpRpcRequest.addHeader("x-client-appkey", clientBase64);
-      }
-      if (rpcRequest instanceof EventbusRpcRequest) {
-        EventbusRpcRequest eventbusRpcRequest = (EventbusRpcRequest) rpcRequest;
-        eventbusRpcRequest.addHeader("x-client-appkey", clientBase64);
-      }
+
+    @Override
+    public int order() {
+        return 16000;
     }
-    completeFuture.complete(apiContext);
-  }
+
+    @Override
+    public boolean shouldFilter(ApiContext apiContext) {
+        return apiContext.apiDefinition().plugin(AppKeyPlugin.class.getSimpleName()) != null;
+    }
+
+    @Override
+    public void doFilter(ApiContext apiContext, Future<ApiContext> completeFuture) {
+        JsonObject appKeyJson = new JsonObject();
+        appKeyJson.put("appKey", apiContext.variables().getOrDefault("client_appKey", "anonymous"));
+        if (apiContext.variables().containsKey("client_clientCode")) {
+            appKeyJson.put("clientCode",
+                           apiContext.variables().getOrDefault("client_clientCode", "-1"));
+        }
+        if (apiContext.variables().containsKey("client_appName")) {
+            appKeyJson.put("appName",
+                           apiContext.variables().getOrDefault("client_appName", "unkown"));
+        }
+        String clientBase64 = Base64.getEncoder().encodeToString(appKeyJson.encode().getBytes());
+        for (RpcRequest rpcRequest : apiContext.requests()) {
+            if (rpcRequest instanceof HttpRpcRequest) {
+                HttpRpcRequest httpRpcRequest = (HttpRpcRequest) rpcRequest;
+                httpRpcRequest.addHeader("x-client-appkey", clientBase64);
+            }
+            if (rpcRequest instanceof EventbusRpcRequest) {
+                EventbusRpcRequest eventbusRpcRequest = (EventbusRpcRequest) rpcRequest;
+                eventbusRpcRequest.addHeader("x-client-appkey", clientBase64);
+            }
+        }
+        completeFuture.complete(apiContext);
+    }
 
 }

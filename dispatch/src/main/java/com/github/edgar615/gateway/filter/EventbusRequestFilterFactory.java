@@ -9,13 +9,13 @@ import io.vertx.core.json.JsonObject;
  * Created by edgar on 16-12-27.
  */
 public class EventbusRequestFilterFactory implements FilterFactory {
-  @Override
-  public String name() {
-    return EventBusRequestFilter.class.getSimpleName();
-  }
+    @Override
+    public String name() {
+        return EventBusRequestFilter.class.getSimpleName();
+    }
 
-  @Override
-  public Filter create(Vertx vertx, JsonObject config) {
-    return new EventBusRequestFilter();
-  }
+    @Override
+    public Filter create(Vertx vertx, JsonObject config) {
+        return new EventBusRequestFilter();
+    }
 }

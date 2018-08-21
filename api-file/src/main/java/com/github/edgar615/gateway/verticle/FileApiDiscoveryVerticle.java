@@ -21,35 +21,35 @@ public class FileApiDiscoveryVerticle extends AbstractVerticle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileApiDiscoveryVerticle.class);
 
-    private static final String RELOAD_ADDR_PREFIX = "__com.github.edgar615.gateway.api.discovery.reload";
+    private static final String RELOAD_ADDR_PREFIX =
+            "__com.github.edgar615.gateway.api.discovery.reload.file";
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-        LOGGER.info("[Verticle] [start] [{}]",
+        LOGGER.info("[Verticle] [start] start {}",
                     FileApiDiscoveryVerticle.class.getSimpleName());
         String path = null;
         if (config().getValue("path") instanceof String) {
             path = config().getString("path");
         }
         if (Strings.isNullOrEmpty(path)) {
-            LOGGER.info("[Verticle] [failed] [{}] [path required]",
-                        FileApiDiscoveryVerticle.class.getSimpleName());
+            LOGGER.error("[Verticle] [start] start {} failed, path required",
+                         FileApiDiscoveryVerticle.class.getSimpleName());
             startFuture.fail("path required");
             return;
         }
         ApiDiscovery discovery
                 = ApiDiscovery.create(vertx,
-                new ApiDiscoveryOptions(
-                        config().getJsonObject("api.discovery", new JsonObject())));
+                                      new ApiDiscoveryOptions(
+                                              config().getJsonObject("api.discovery",
+                                                                     new JsonObject())));
         JsonObject importConfig = new JsonObject()
                 .put("path", path);
         FileApiImporter importer = new FileApiImporter();
         discovery.registerImporter(importer, importConfig, ar -> {
             if (ar.succeeded()) {
-                LOGGER.info("[ApiDiscovery] [importRegistered] [OK]");
                 startFuture.complete();
             } else {
-                LOGGER.error("[ApiDiscovery] [importRegistered] [failed]", ar.cause());
                 startFuture.fail(ar.cause());
             }
         });
