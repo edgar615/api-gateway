@@ -1,39 +1,35 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.plugin.jwt;
 
 import com.github.edgar615.gateway.core.definition.ApiPlugin;
 import com.github.edgar615.gateway.core.definition.ApiPluginFactory;
 import io.vertx.core.json.JsonObject;
 
 /**
- * AuthenticationPlugin的工厂类.
+ * Created by Edgar on 2016/10/31.
  *
  * @author Edgar  Date 2016/10/31
  */
-public class JwtPluginFactory implements ApiPluginFactory {
+public class JwtBuildPluginFactory implements ApiPluginFactory {
     @Override
     public String name() {
-        return JwtPlugin.class.getSimpleName();
+        return JwtBuildPlugin.class.getSimpleName();
     }
 
     @Override
     public ApiPlugin create() {
-        return new JwtPluginImpl();
+        return new JwtBuildPluginImpl();
     }
 
     @Override
     public ApiPlugin decode(JsonObject jsonObject) {
-
-        if (jsonObject.getBoolean("authentication", false)) {
-            return new JwtPluginImpl();
+        if (jsonObject.getBoolean("jwt.build", false)) {
+            return new JwtBuildPluginImpl();
         }
         return null;
     }
 
     @Override
     public JsonObject encode(ApiPlugin plugin) {
-        if (plugin == null) {
-            return new JsonObject();
-        }
-        return new JsonObject().put("authentication", true);
+        return new JsonObject().put("jwt.build", true);
     }
 }

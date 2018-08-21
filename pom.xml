@@ -29,6 +29,7 @@
         <module>auth</module>
         <module>localcache</module>
         <module>version-splitter</module>
+        <module>jwt</module>
     </modules>
 
     <properties>

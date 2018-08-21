@@ -1,4 +1,4 @@
-package com.github.edgar615.gateway.plugin.auth;
+package com.github.edgar615.gateway.plugin.jwt;
 
 import com.github.edgar615.gateway.core.definition.ApiPlugin;
 import com.github.edgar615.gateway.core.definition.ApiPluginFactory;
