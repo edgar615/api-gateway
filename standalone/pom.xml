@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>gateway</artifactId>
+        <artifactId>api-gateway</artifactId>
         <groupId>com.github.edgar615</groupId>
         <version>1.1.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gateway-standalone</artifactId>
+    <artifactId>api-gateway-standalone</artifactId>
 
     <properties>
         <jar.skipIfEmpty>true</jar.skipIfEmpty>
@@ -33,27 +33,27 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-api-file</artifactId>
+            <artifactId>api-gateway-api-file</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-api-git</artifactId>
+            <artifactId>api-gateway-api-git</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-definition</artifactId>
+            <artifactId>api-gateway-definition</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-dispatch</artifactId>
+            <artifactId>api-gateway-dispatch</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-redis</artifactId>
+            <artifactId>api-gateway-redis</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
 
@@ -70,31 +70,31 @@
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-http</artifactId>
+            <artifactId>api-gateway-http</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-plugin</artifactId>
+            <artifactId>api-gateway-plugin</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-auth</artifactId>
+            <artifactId>api-gateway-auth</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-appkey</artifactId>
+            <artifactId>api-gateway-appkey</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.edgar615</groupId>
-            <artifactId>gateway-version-splitter</artifactId>
+            <artifactId>api-gateway-version-splitter</artifactId>
             <version>${gateway.release.version}</version>
         </dependency>
 
