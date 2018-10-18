@@ -23,7 +23,7 @@
         <module>circuit-breaker</module>
         <module>service-discovery-json</module>
         <module>service-discovery-zookeeper</module>
-        <module>service-discovery-consul</module>        
+        <module>service-discovery-consul</module>
 		<module>api-file</module>
         <module>api-git</module>
         <module>auth</module>
@@ -37,10 +37,10 @@
         <java.version>1.8</java.version>
         <java.encoding>UTF-8</java.encoding>
         <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
-        
+
         <junit.version>4.12</junit.version>
         <awaitility.version>2.0.0</awaitility.version>
-        <vertx.version>3.5.0</vertx.version>
+        <vertx.version>3.5.4</vertx.version>
         <slf4j.version>1.7.14</slf4j.version>
         <util.version>1.0.18.beta3</util.version>
         <vertx.util.version>1.0.14</vertx.util.version>
