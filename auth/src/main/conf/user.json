@@ -1,8 +1,0 @@
-{
-  "user" : {
-    "cacheEnable" : true,
-    "expireAfterWrite" : 1800,
-    "uniqueKey": "userId",
-    "api": "/users"
-  }
-}

@@ -1,4 +1,0 @@
-com.github.edgar615.gateway.plugin.appkey.AppKeyFilterFactory
-com.github.edgar615.gateway.plugin.appkey.AppKeyRestrictionFilterFactory
-com.github.edgar615.gateway.plugin.appkey.AppKeyHeaderFilterFactory
-com.github.edgar615.gateway.plugin.appkey.AppKeyPermissionFilterFactory

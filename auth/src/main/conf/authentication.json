@@ -1,7 +1,0 @@
-{
-  "authentication": {
-    "prefix": "Bearer ",
-    "headerName" : "Authorization",
-    "api": "/token"
-  }
-}

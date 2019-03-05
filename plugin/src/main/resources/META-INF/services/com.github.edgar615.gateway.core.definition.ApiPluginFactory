@@ -1,9 +1,0 @@
-com.github.edgar615.gateway.plugin.acl.AclRestrictionFactory
-com.github.edgar615.gateway.plugin.ip.IpRestrictionFactory
-com.github.edgar615.gateway.plugin.arg.UrlArgPluginFactory
-com.github.edgar615.gateway.plugin.arg.BodyArgPluginFactory
-com.github.edgar615.gateway.plugin.transformer.RequestTransformerPluginFactory
-com.github.edgar615.gateway.plugin.transformer.ResponseTransformerPluginFactory
-com.github.edgar615.gateway.plugin.arg.StrictArgPluginFactory
-com.github.edgar615.gateway.plugin.fallback.FallbackPluginFactory
-com.github.edgar615.gateway.plugin.user.UserRestrictionFactory

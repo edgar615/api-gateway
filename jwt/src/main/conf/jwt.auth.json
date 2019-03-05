@@ -1,8 +1,0 @@
-{
-  "jwt.auth": {
-    "ignoreExpiration": false,
-    "audiences": [],
-    "issuer": "",
-    "leeway": 0
-  }
-}

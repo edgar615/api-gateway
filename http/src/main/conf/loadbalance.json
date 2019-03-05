@@ -1,8 +1,0 @@
-{
-  "load.balance": {
-    "strategy": {
-      "user": "random",
-      "device": "round_robin"
-    }
-  }
-}

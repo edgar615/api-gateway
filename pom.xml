@@ -7,48 +7,27 @@
     <groupId>com.github.edgar615</groupId>
     <artifactId>api-gateway</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
     <modules>
-        <module>definition</module>
-        <module>dispatch</module>
-        <module>core</module>
-        <module>plugin</module>
-        <module>redis</module>
-        <module>appkey</module>
-        <module>ratelimit</module>
-        <module>standalone</module>
-        <module>service-discovery-bridge-zookeeper</module>
-        <module>benchmark</module>
-        <module>http</module>
-        <module>circuit-breaker</module>
-        <module>service-discovery-json</module>
-        <module>service-discovery-zookeeper</module>
-        <module>service-discovery-consul</module>
-		<module>api-file</module>
-        <module>api-git</module>
-        <module>auth</module>
-        <module>localcache</module>
-        <module>version-splitter</module>
-        <module>jwt</module>
     </modules>
 
     <properties>
-        <gateway.release.version>1.1.3</gateway.release.version>
+        <gateway.release.version>1.2.0</gateway.release.version>
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
         <java.encoding>UTF-8</java.encoding>
         <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
 
         <junit.version>4.12</junit.version>
-        <awaitility.version>2.0.0</awaitility.version>
-        <vertx.version>3.5.4</vertx.version>
-        <slf4j.version>1.7.14</slf4j.version>
-        <util.version>1.0.18.beta3</util.version>
+        <awaitility.version>3.1.6</awaitility.version>
+        <vertx.version>3.6.3</vertx.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <util.version>1.1.1.BETA7</util.version>
         <vertx.util.version>1.0.14</vertx.util.version>
-        <guava.version>21.0</guava.version>
+        <guava.version>27.0.1-jre</guava.version>
 
-        <hazelcast.version>3.6.3</hazelcast.version>
-        <logback.version>1.1.2</logback.version>
+        <hazelcast.version>3.11.2</hazelcast.version>
+        <logback.version>1.2.3</logback.version>
         <!--用来测试时候输出日志的的-->
         <slf4j-jdk14.version>1.7.25</slf4j-jdk14.version>
 

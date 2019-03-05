@@ -1,7 +1,0 @@
-{
-  "user" : {
-    "cacheEnable" : true,
-    "expireAfterWrite" : 1800,
-    "api": "/users"
-  }
-}

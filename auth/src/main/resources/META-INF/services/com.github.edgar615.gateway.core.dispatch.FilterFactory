@@ -1,4 +1,0 @@
-com.github.edgar615.gateway.plugin.auth.UserPermissionFilterFactory
-com.github.edgar615.gateway.plugin.auth.AuthenticationFilterFactory
-com.github.edgar615.gateway.plugin.auth.UserLoaderFilterFactory
-com.github.edgar615.gateway.plugin.auth.UserHeaderFilterFactory
